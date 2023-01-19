@@ -12,6 +12,7 @@ class DepartmentsController extends Controller
      * 
      * @return \Illuminate\View\View
      */
+	 //
     public function index()
     {
         $departmentData = Departments::all();

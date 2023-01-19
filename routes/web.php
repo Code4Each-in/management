@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\RolesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,5 +27,10 @@ Route::post('/edit/department', [DepartmentsController::class, 'edit']);
 Route::post('/update/department', [DepartmentsController::class, 'update']);
 Route::delete('/delete/department', [DepartmentsController::class, 'destroy']);
 
+Route::get('/role', [RolesController::class, 'index'])->name('role.index');
+Route::post('/add/role', [RolesController::class, 'store']);
+Route::post('/edit/role', [RolesController::class, 'edit']);
+Route::post('/update/role', [RolesController::class, 'update']);
+Route::delete('/delete/role', [RolesController::class, 'destroy']);
 
 
