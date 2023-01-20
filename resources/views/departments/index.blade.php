@@ -26,7 +26,8 @@
 				<tr>
 					<td>{{ $data->name }}</td>
 					<td>
-						<i style ="color:#4154f1;" onClick="editDepartment('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
+						<i style ="color:#4154f1;" 
+						onClick="editDepartment('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
 						<i style ="color:#4154f1;" onClick="deleteDepartment('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw"></i>	
 					</td>
 				</tr>

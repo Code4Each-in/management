@@ -255,7 +255,12 @@
           <span>Role</span>
         </a>
       </li>
-
+		 <li class="nav-item">
+        <a class="nav-link " href="{{ route('users.index') }}">
+        <i class="bi bi-menu-button-wide"></i>
+          <span>Users</span>
+        </a>
+		</li>
       <!-- End Departments Nav -->
 
       <!-- <li class="nav-item">

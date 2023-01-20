@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +34,4 @@ Route::post('/edit/role', [RolesController::class, 'edit']);
 Route::post('/update/role', [RolesController::class, 'update']);
 Route::delete('/delete/role', [RolesController::class, 'destroy']);
 
-
+Route::get('/users', [UsersController::class, 'index'])->name('users.index');
