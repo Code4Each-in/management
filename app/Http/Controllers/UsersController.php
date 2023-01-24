@@ -21,11 +21,16 @@ class UsersController extends Controller
 		$departmentData = Departments::all();
         return view('users.index',compact('usersData','roleData','departmentData'));
     }
+	 /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
 	 public function store(Request $request)
-    {
-		
-        $firstname = $request->get('userName');
-		$lastname = $request->get('lastname');
+    {	
+		 $firstname = $request->get('userName');
+		 $lastname = $request->get('lastname');
 		 $email = $request->get('email');
 		 $password = $request->get('password');
 		 $salary = $request->get('salary');
@@ -51,6 +56,11 @@ class UsersController extends Controller
         ]);
         return Response()->json(['status'=>200, 'users'=>$users]);
     }
+	 /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
 	 public function edit(Request $request)
     {   
 	
@@ -58,6 +68,14 @@ class UsersController extends Controller
 
         return Response()->json(['users' =>$users]);
     }
+	
+	
+	 /**
+     * Update.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
 		public function update(Request $request)
     {
 	
@@ -68,13 +86,21 @@ class UsersController extends Controller
 			'email' => $request->email,
 			'phone' => $request->phone,
 			'salary' => $request->salary,
+			'role_id'=> $request->role,
+			'department_id'=>$request->department,
 			'address' => $request->address,
-			'password' => $request->password
-
+			'password' => $request->password,
+			
 
         ]);
+			
         return Response()->json(['status'=>200]);
     }
+	  /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
 	 public function destroy(Request $request)
     {
 		
@@ -82,6 +108,9 @@ class UsersController extends Controller
       
         return Response()->json($Users);
     }
-
+	 public function updateUserStatus(Request $request)
+	 {
+		
+	 }
     
 }

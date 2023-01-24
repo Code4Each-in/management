@@ -22,6 +22,8 @@
 					<th>Role</th>
 					<th>Address</th>
 					<th>Phone</th>
+					<th>Active</th>
+					<th>Action</th>
 
 				</tr>
 			</thead>
@@ -34,11 +36,15 @@
 					<td>{{ $data->email }}</td>
 					<td>{{ $data->password }}</td>
 					<td>{{ $data->salary }}</td>
-					<td></td>
-					<td></td>
+					<td>{{$data->role_id}}</td>
+					<td>{{$data->department_id}}</td>
 					<td>{{ $data->address }}</td>
+					
 					<td>{{ $data->phone }}</td>
-
+							<td><div class="form-group form-check active_user">
+						<input type="checkbox" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}">
+						<label class="form-check-label" for="active_user"></label>
+					</div>	</td>		
 					<td>
 						<i style ="color:#4154f1;"  onClick="editUsers('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
 						
@@ -84,15 +90,20 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-6">
+				<div class="col-sm-5">
 					<label for="phone" class="form-label">Phone</label>
 					<input type="text" class="form-control" id="phone">
 				</div>
-				<div class="col-lg-6">
-					<label for="salary" class="form-label">Salary</label>
-					<input type="text" class="form-control" id="salary">
+				<div class="col-sm-3 mt-4">
+					<div class="form-group form-check">
+						<input type="checkbox" class="form-check-input" id="salaried">
+						<label class="form-check-label" for="salaried">If salaried</label>
+					</div>
 				</div>
-			</div>
+					<div class="col-sm-4 mt-4">
+						<input style="display:none;" type="number" class="form-control" id="addsalary">
+					</div>
+			</div>			
 			<div class="row">
 				<div class="col-md-6 mt-3">
 					<div class="form-group">
@@ -134,7 +145,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary" onClick="addusers()" href="javascript:void(0)">Save</button>
+				<button type="button" class="btn btn-primary" onClick="addusers(this)" href="javascript:void(0)">Save</button>
 			</div>
 		</form>
     </div>
@@ -170,23 +181,46 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-6">
+				<div class="col-lg-5">
 					<label for="phone" class="form-label">Phone</label>
 					<input type="text" class="form-control" id="edit_phone">
 				</div>
-				<div class="col-lg-6">
-					<label for="salary" class="form-label">Salary</label>
-					<input type="text" class="form-control" id="edit_salary">
+				<div class="col-sm-3 mt-4">
+					<div class="form-group form-check">
+						<input type="checkbox" class="form-check-input" id="edit_salaried">
+						<label class="form-check-label" for="salaried">If salaried</label>
+					</div>
 				</div>
+					<div class="col-sm-4 mt-4">
+						<input style="display:none;" type="number" class="form-control" id="editsalary">
+					</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-6">
-					<label for="department" class="form-label">Department</label>
-					<input type="text" class="form-control" id="edit_department">
+				<div class="col-md-6 mt-3">
+					<div class="form-group">
+						<label for="">Select Role</label>
+						<select name="role_select" class="form-control" id="role_select">
+						<option value="">-- Select Role --</option>
+                         @foreach ($roleData as $data)
+                         <option value="{{$data->id}}">
+                         {{$data->name}}
+                         </option>
+                         @endforeach
+						</select>
+					</div>
 				</div>
-				<div class="col-lg-6">
-					<label for="salary" class="form-label">Salary</label>
-					<input type="text" class="form-control" id="edit_salary">
+				<div class="col-md-6 mt-3">
+					<div class="form-group">
+						<label for="">Select Department</label>
+						<select name="department_select" class="form-control" id="department_select">
+						<option value="">-- Select Department --</option>
+                         @foreach ($departmentData as $data)
+                         <option value="{{$data->id}}">
+                         {{$data->name}}
+                         </option>
+                         @endforeach
+						</select>
+					</div>
 				</div>
 			</div>
 			<div class="row">
@@ -211,37 +245,78 @@
 @endsection
 @section('js_scripts')
     <script>
-       $(document).ready(function(){
-			
+       $(document).ready(function(){	
             $('#users_table').DataTable({
                 "order": []
-                //"columnDefs": [ { "orderable": false, "targets": 7 }]
+                
             });
-		$.ajaxSetup({
+			$.ajaxSetup({
 				headers: {
 					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				}
 			});
+			
+			$('#salaried').on('click',function(e)
+			{
+				if(e.target.checked == true){
+				
+					$('#addsalary').show();
+				}
+				else
+				{
+					$('#addsalary').hide();
+					$('#addsalary').val('');
+				}
+			});
+			$('#edit_salaried').on('click',function(e)
+			{
+				if(e.target.checked == true){
+					
+					$('#editsalary').show();
+				}
+				else
+				{
+					$('#editsalary').hide();
+					$('#editsalary').val('');
+				}
+			});
+				
 		});
 		
-			function openusersModal(){
-			$('#first_name').val('');
-			$('#addUsers').modal('show');
-		}
-		
-			function addusers(){
+			function Showdata(ele)
+			{				
+				var dataId = $(ele).attr("data-user-id");
+				//alert(dataId);				
+				var status =0;
+				if($("#active_user_"+dataId).prop('checked') == true){
+				
+					status = 1;
+					
+				}				
+			}
+			function openusersModal()
+			{
+				$('#first_name').val('');
+				$('#addUsers').modal('show');
+			}		
+			function addusers()
+			{
+	
 				var userName = $('#user_name').val();	
 				var lastname = $('#last_name').val();	
 				var email = $('#email').val();
 				var phone = $('#phone').val();
 				var password = $('#password').val();
-				var salary = $('#salary').val();
+				var salary =null;
+				if($("#salaried").prop('checked') == true){
+				salary = $('#addsalary').val();
+				}
 				var address = $('#address').val();
 				var address = $('#address').val();
 				var role_id =$('#role_select').val();
 				var department_id =$('#department_select').val();
 
-			$.ajax({
+				$.ajax({
 				type:'POST',
 				url: "{{ url('/add/users')}}",
 				data: { userName:userName ,
@@ -250,7 +325,9 @@
 				password:password,
 				salary:salary,
 				address:address,
-				phone:phone,role_id:role_id,department_id:department_id},
+				phone:phone,
+				role_id:role_id,
+				department_id:department_id},
 				cache:false,
 				success: (data) => {
 					if(data.status ==200){
@@ -262,49 +339,66 @@
 				console.log(data);
 				}
 				});
-			}
-			
-			
-				function editUsers(id){
-				$('#hidden_users_id').val(id);
-				$.ajax({
-				type:"POST",
-				url: "{{ url('/edit/users') }}",
-				data: { id: id},
-				dataType: 'json',
-				success: function(res){
-					if(res.users !=null){
-						$('#editUsers').modal('show');
-						$('#edit_username').val(res.users.first_name);	
-						$('#edit_lastname').val(res.users.last_name);											
-						$('#edit_email').val(res.users.email);
-						$('#edit_phone').val(res.users.phone);
-						$('#edit_salary').val(res.users.salary);
-						$('#edit_address').val(res.users.address);
-						$('#edit_password').val(res.users.password);
-
+			}						
+				function editUsers(id)
+				{
+					$('#hidden_users_id').val(id);
+					$.ajax({
+					type:"POST",
+					url: "{{ url('/edit/users') }}",
+					data: { id: id},
+					dataType: 'json',
+					success: function(res)
+					{
+						if(res.users !=null)
+						{
+							$('#editUsers').modal('show');
+							$('#edit_username').val(res.users.first_name);	
+							$('#edit_lastname').val(res.users.last_name);											
+							$('#edit_email').val(res.users.email);
+							$('#edit_phone').val(res.users.phone);
+							if(res.users.salary !=null)
+							{
+								$("#edit_salaried").prop('checked', true);
+								$('#editsalary').show();
+								$('#editsalary').val(res.users.salary);
+							}						
+								$('#edit_address').val(res.users.address);
+								$('#edit_password').val(res.users.password);
+								$('#role_select option[value="'+ res.users.role_id +'"]').attr('selected','selected');	
+								$('#department_select option[value="'+ res.users.department_id +'"]').attr('selected','selected');								
+						}
 					}
-				}
-				});
-			} 
-			
+					});
+				} 			
 				function updateUsers(){
 				var id = $('#hidden_users_id').val();
 				var first_name = $('#edit_username').val();
 				var last_name = $('#edit_lastname').val();
 				var email = $('#edit_email').val();
 				var phone = $('#edit_phone').val();
-				var salary = $('#edit_salary').val();
+				var salary =null;
+				if($("#edit_salaried").prop('checked') == true){
+				salary = $('#editsalary').val();
+				}
 				var address = $('#edit_address').val();
-				var password = $('#edit_password').val();
-
-
+				var password = $('#edit_password').val();			
+				var role =$('#editUsersForm #role_select option:selected').val();		
+				var department = $('#editUsersForm #department_select option:selected').val();
+			
 				$.ajax({
 				type:"POST",
 				url: "{{ url('/update/users') }}",
-				data: { id: id,first_name:first_name,
-				last_name:last_name,email:email,phone:phone,salary:salary,address:address,
-				password:password},
+				data: { id: id,
+				first_name:first_name,
+				last_name:last_name,
+				email:email,
+				phone:phone,
+				salary:salary,
+				address:address,
+				password:password,
+				role:role,
+				department:department},
 				dataType: 'json',
 				success: function(res){
 					if(res.status ==200){
@@ -312,19 +406,18 @@
 						location.reload();
 					}
 				}
-				});
-				
+				});				
 			}
 				function deleteUsers(id){
-				if (confirm("Are you sure ?") == true) {
-					// ajax
+				if (confirm("Are you sure ?") == true)
+				{					
 					$.ajax({
 					type:"DELETE",
 					url: "{{ url('/delete/users') }}",
 					data: { id: id },
 					dataType: 'json',
 					success: function(res){
-						location.reload();
+					location.reload();
 					}
 					});
 				}

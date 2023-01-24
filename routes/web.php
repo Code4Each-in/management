@@ -39,4 +39,4 @@ Route::post('/add/users', [UsersController::class, 'store']);
 Route::post('/edit/users', [UsersController::class, 'edit']);
 Route::post('/update/users', [UsersController::class, 'update']);
 Route::delete('/delete/users', [UsersController::class, 'destroy']);
-
+Route::post('/update/users/status', [UsersController::class, 'updateUserStatus']);
