@@ -50,8 +50,16 @@
 				<div class="mb-3">
 					<label for="role_name" class="form-label">Name</label>
 					<input type="text" class="form-control" id="role_name">
-				</div>
-			</div>
+				</div>	
+				Permission<br>
+					<div class="form-check form-check-inline mt-1">
+					  <input class="form-check-input" type="checkbox" id="user_page" value="option1">
+					  <label class="form-check-label" for="user_page">User Page</label>
+					</div>
+					<div class="form-check form-check-inline mt-1">
+					  <input class="form-check-input" type="checkbox" id="department_page" value="option2">
+					  <label class="form-check-label" for="department_page">Department Page</label>
+					</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-primary" onClick="addRole()" href="javascript:void(0)">Save</button>
@@ -59,6 +67,7 @@
 		</form>
     </div>
   </div>
+</div>
 </div>
 <!--end: Add department Modal -->
 <!--start: Edit department Modal -->
@@ -109,10 +118,19 @@
 		}
         function addRole(){
 			var roleName = $('#role_name').val();
+			var userPage = $('#user_page').val();
+			if($("#user_page").prop('checked') == true){
+					userPage = 1;
+				}
+			var departmentPage = $('#department_page').val();
+			if($("#department_page").prop('checked') == true){
+					departmentPage = 1;
+				}
 			$.ajax({
 				type:'POST',
 				url: "{{ url('/add/role')}}",
-				data: { roleName: roleName },
+				data: { roleName: roleName,userPage:userPage,
+				departmentPage:departmentPage},
 				cache:false,
 				success: (data) => {
 					if(data.status ==200){

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Roles;
+use App\Models\RolePermission;
 
 class RolesController extends Controller
 {
@@ -26,11 +27,21 @@ class RolesController extends Controller
     public function store(Request $request)
     {
         $roleName = $request->get('roleName');
+		$userPage=$request->get('userPage');
+		$departmentPage=$request->get('departmentPage');
+			
         $role =Roles::create([
             'name' => $roleName,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+		
+		$rolePermission =RolePermission::create([
+            'role_id' => $role->id,
+            'users_page' => $userPage,
+            'departments_page' => $departmentPage,
+        ]);
+		
         return Response()->json(['status'=>200, 'role'=>$role]);
     }
 	 public function edit(Request $request)

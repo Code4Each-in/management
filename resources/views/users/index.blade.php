@@ -41,15 +41,16 @@
 					<td>{{ $data->address }}</td>
 					
 					<td>{{ $data->phone }}</td>
-							<td><div class="form-group form-check active_user">
-						<input type="checkbox" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}">
-						<label class="form-check-label" for="active_user"></label>
-					</div>	</td>		
-					<td>
-						<i style ="color:#4154f1;"  onClick="editUsers('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
-						
-						<i style ="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')" href="javascript:void(0)"class="fa fa-trash fa-fw"></i>
-					</td>
+							<td>
+						<div class="form-group form-check active_user">
+							<input type="checkbox" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}" {{$data->status == 1 ? 'checked' : ''}}>
+							<label class="form-check-label" for="active_user"></label>
+						</div></td>		
+						<td>
+							<i style ="color:#4154f1;"  onClick="editUsers('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
+							
+							<i style ="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')" href="javascript:void(0)"class="fa fa-trash fa-fw"></i>
+						</td>
 				</tr>
 					
 					@empty
@@ -100,9 +101,9 @@
 						<label class="form-check-label" for="salaried">If salaried</label>
 					</div>
 				</div>
-					<div class="col-sm-4 mt-4">
-						<input style="display:none;" type="number" class="form-control" id="addsalary">
-					</div>
+				<div class="col-sm-4 mt-4">
+					<input style="display:none;" type="number" class="form-control" id="addsalary">
+				</div>
 			</div>			
 			<div class="row">
 				<div class="col-md-6 mt-3">
@@ -286,13 +287,30 @@
 			function Showdata(ele)
 			{				
 				var dataId = $(ele).attr("data-user-id");
-				//alert(dataId);				
+								
 				var status =0;
 				if($("#active_user_"+dataId).prop('checked') == true){
-				
 					status = 1;
-					
-				}				
+				}
+				$.ajax({
+				type:'POST',
+				url: "{{ url('/update/users/status')}}",
+				data: { dataId:dataId ,
+				status:status,
+				},
+				cache:false,
+				success: (data) => {
+					if(data.status ==200){
+						location.reload();
+					}
+				},
+				error: function(data){
+				console.log(data);
+				}
+				});
+				
+				
+				
 			}
 			function openusersModal()
 			{

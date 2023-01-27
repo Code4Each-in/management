@@ -110,7 +110,13 @@ class UsersController extends Controller
     }
 	 public function updateUserStatus(Request $request)
 	 {
-		
+		 
+		  Users::where('id', $request->dataId)
+			->update([
+            'status' => $request->status
+			 ]);
+		        return Response()->json(['status'=>200]);	
 	 }
+	 
     
 }
