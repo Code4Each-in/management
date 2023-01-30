@@ -69,6 +69,12 @@
       <div class="modal-header">
         <h5 class="modal-title" id="role">Add Users</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		@if(session()->has('message'))
+    <div class="alert alert-success message">
+        {{ session()->get('message') }}
+    </div>
+	 
+@endif
       </div>
 		<form method="post" id="addUsersForm" action="">
 		@csrf

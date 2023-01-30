@@ -1277,3 +1277,11 @@ h6 {
       border-left: 1px solid #e7e7e7;
   }
 }
+.required::after 
+{
+  content:"*";
+  color:red;
+}
+.permissionLabel{
+	margin-right: 32px;
+}

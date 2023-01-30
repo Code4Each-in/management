@@ -9,6 +9,12 @@
 
 <!-- filter -->
 <div class="box-header with-border" id="filter-box">
+@if(session()->has('message'))
+    <div class="alert alert-success message">
+        {{ session()->get('message') }}
+    </div>
+	 
+@endif
 <br>
 
 	<div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -50,8 +56,11 @@
 		<form method="post" id="addDeaprtmentForm" action="">
 		@csrf
 			<div class="modal-body">
+			 <div class="alert alert-danger" style="display:none"></div>
 				<div class="mb-3">
-					<label for="department_name" class="form-label">Name</label>
+					<div class="form-group">
+					<label for="department_name" class="control-label required">Name</label>
+				  </div>
 					<input type="text" class="form-control" id="department_name">
 				</div>
 			</div>
@@ -76,8 +85,12 @@
 		<form method="post" id="editDeaprtmentForm" action="">
 		@csrf
 			<div class="modal-body">
+				<div class="alert alert-danger" style="display:none"></div>
 				<div class="mb-3">
-					<label for="department_name" class="form-label">Name</label>
+				<div class="form-group">
+					<label for="department_name" class="control-label required">Name</label>
+				  </div>
+					
 					<input type="text" class="form-control" id="edit_department_name">
 				</div>
 				<input type="hidden" class="form-control" id="hidden_department_id" value="">
@@ -95,7 +108,9 @@
 @section('js_scripts')
     <script>
         $(document).ready(function(){
-			
+			setTimeout(function() {
+		$('.message').fadeOut("slow");
+		}, 2000 );
             $('#department_table').DataTable({
                 "order": []
                 //"columnDefs": [ { "orderable": false, "targets": 7 }]
@@ -119,7 +134,17 @@
 				data: { departmentName: departmentName },
 				cache:false,
 				success: (data) => {
-					if(data.status ==200){
+					if(data.errors){
+					 $('.alert-danger').html('');
+
+                        $.each(data.errors, function(key, value){
+                             $('.alert-danger').show();
+                             $('.alert-danger').append('<li>'+value+'</li>');
+                         })
+					}
+					else
+					{
+						$('.alert-danger').html('');
 						$("#addDepartment").modal('hide');
 						location.reload();
 					}
@@ -153,7 +178,17 @@
 				data: { id: id, name:name },
 				dataType: 'json',
 				success: function(res){
-					if(res.status ==200){
+					if(res.errors){
+					 $('.alert-danger').html('');
+
+                         $.each(res.errors, function(key, value){
+                             $('.alert-danger').show();
+                              $('.alert-danger').append('<li>'+value+'</li>');
+                          })
+					}
+					else
+					{
+						$('.alert-danger').html('');
 						$("#editDepartment").modal('hide');
 						location.reload();
 					}

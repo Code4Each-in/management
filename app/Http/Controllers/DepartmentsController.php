@@ -27,6 +27,14 @@ class DepartmentsController extends Controller
      */
     public function store(Request $request)
     {
+		 $validator = \Validator::make($request->all(), [
+            'departmentName' => 'required',       
+        ]);
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
         $departmentName = $request->get('departmentName');
         $department =Departments::create([
             'name' => $departmentName,
@@ -34,6 +42,7 @@ class DepartmentsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+		$request->session()->flash('message','Department added successfully.');
         return Response()->json(['status'=>200, 'department'=>$department]);
     }
     
@@ -56,10 +65,20 @@ class DepartmentsController extends Controller
      */
     public function update(Request $request)
     {
+		$validator = \Validator::make($request->all(), [
+            'name' => 'required',       
+        ]);
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+		
         Departments::where('id', $request->id)
         ->update([
             'name' => $request->name
         ]);
+		$request->session()->flash('message','Department updated successfully.');
         return Response()->json(['status'=>200]);
     }
 
@@ -71,7 +90,7 @@ class DepartmentsController extends Controller
     public function destroy(Request $request)
     {
         $Departments = Departments::where('id',$request->id)->delete();
-      
+      $request->session()->flash('message','Department deleted successfully.');
         return Response()->json($Departments);
     }
     

@@ -7,6 +7,12 @@
 <br><hr>
 
 <div class="box-header with-border" id="filter-box">
+@if(session()->has('message'))
+    <div class="alert alert-success message">
+        {{ session()->get('message') }}
+    </div>
+	 
+@endif
 <br>
 
 	<div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -36,30 +42,62 @@
 		</table>
 	</div>
 </div>
-<!--start: Add department Modal -->
+<!--start: Add role Modal -->
 <div class="modal fade" id="addRole" tabindex="-1" aria-labelledby="role" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content" style="width: 520px;">
       <div class="modal-header">
         <h5 class="modal-title" id="role">Add Role</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-		<form method="post" id="addDeaprtmentForm" action="">
+		<form method="post" id="addRoleForm" action="">
 		@csrf
 			<div class="modal-body">
+			    <div class="alert alert-danger" style="display:none"></div>
 				<div class="mb-3">
-					<label for="role_name" class="form-label">Name</label>
+				<div class="form-group">
+				
+					<label for="role_name" class="control-label required">Name</label>
+					
+				  </div>
+					<!--<label for="role_name" class="form-label required">Name</label>-->
 					<input type="text" class="form-control" id="role_name">
-				</div>	
-				Permission<br>
-					<div class="form-check form-check-inline mt-1">
-					  <input class="form-check-input" type="checkbox" id="user_page" value="option1">
-					  <label class="form-check-label" for="user_page">User Page</label>
+				  </div>
+				  
+				  	<label class="mb-2" for="permission">Permissions:</label>
+					@forelse($pages as $page)
+				<div class="row">
+					<div class="col-md-4">
+						<label class="form-check-label permissionLabel" for=""> {{$page->name}}</label>
 					</div>
-					<div class="form-check form-check-inline mt-1">
-					  <input class="form-check-input" type="checkbox" id="department_page" value="option2">
-					  <label class="form-check-label" for="department_page">Department Page</label>
+					@forelse($page->module as $val)
+					<div class="form-check col-md-2 mb-3">
+						<label class="form-check-label" for="listing_page"> {{$val->module_name}}</label>
+						<input class="form-check-input" type="checkbox" id="listing_page" value="{{$val->id}}">			  
 					</div>
+					@empty
+					@endforelse
+					<!--<div class="form-check col-md-4">
+						<label class="form-check-label" for="add_page">Add</label>
+						<input class="form-check-input" type="checkbox" id="add_page" >					  
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="form-check col-md-4">
+					</div>
+					<div class="form-check col-md-4">
+						<label class="form-check-label" for="edit_page">Edit</label>
+						<input class="form-check-input" type="checkbox" id="edit_page" >					  
+					</div>
+					<div class="form-check col-md-4">
+						<label class="form-check-label" for="delete_page">Delete</label>
+						<input class="form-check-input" type="checkbox" id="delete_page" >					  
+					</div>
+						-->
+				</div>
+			
+					@empty
+					@endforelse
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-primary" onClick="addRole()" href="javascript:void(0)">Save</button>
@@ -81,6 +119,8 @@
 		<form method="post" id="editRoleForm" action="">
 		@csrf
 			<div class="modal-body">
+						    <div class="alert alert-danger" style="display:none"></div>
+
 				<div class="mb-3">
 					<label for="role_name" class="form-label">Name</label>
 					<input type="text" class="form-control" id="edit_role_name">
@@ -95,12 +135,15 @@
     </div>
   </div>
 </div>
-<!--end: Edit department Modal -->
+<!--end: Edit role Modal -->
 @endsection
 @section('js_scripts')
     <script>
         $(document).ready(function(){
 			
+			setTimeout(function() {
+		$('.message').fadeOut("slow");
+		}, 2000 );
             $('#role_table').DataTable({
                 "order": []
                 //"columnDefs": [ { "orderable": false, "targets": 7 }]
@@ -116,13 +159,13 @@
 			$('#role_name').val('');
 			$('#addRole').modal('show');
 		}
-        function addRole(){
+			function addRole(){
 			var roleName = $('#role_name').val();
-			var userPage = $('#user_page').val();
+			var userPage =0;
 			if($("#user_page").prop('checked') == true){
 					userPage = 1;
 				}
-			var departmentPage = $('#department_page').val();
+			var departmentPage =0;
 			if($("#department_page").prop('checked') == true){
 					departmentPage = 1;
 				}
@@ -133,7 +176,17 @@
 				departmentPage:departmentPage},
 				cache:false,
 				success: (data) => {
-					if(data.status ==200){
+					if(data.errors){
+					 $('.alert-danger').html('');
+
+                            $.each(data.errors, function(key, value){
+                                $('.alert-danger').show();
+                                $('.alert-danger').append('<li>'+value+'</li>');
+                            })
+					}
+					else
+					{
+						$('.alert-danger').html('');
 						$("#addRole").modal('hide');
 						location.reload();
 					}
@@ -166,11 +219,27 @@
 				url: "{{ url('/update/role') }}",
 				data: { id: id, name:name },
 				dataType: 'json',
-				success: function(res){
-					if(res.status ==200){
+				success: (res)=>
+				{
+					
+					if(res.errors){
+					 $('.alert-danger').html('');
+
+                            $.each(res.errors, function(key, value){
+                                $('.alert-danger').show();
+                                $('.alert-danger').append('<li>'+value+'</li>');
+                            })
+					}
+					else
+					{
+						$('.alert-danger').html('');
 						$("#editRole").modal('hide');
 						location.reload();
 					}
+					//if(res.status ==200){
+					//	$("#editRole").modal('hide');
+					//	location.reload();
+					//}
 				}
 				});
 			}
