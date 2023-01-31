@@ -237,7 +237,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="index.html">
+        <a class="nav-link " href="{{ url('/') }}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -252,7 +252,7 @@
 	  <li class="nav-item">
         <a class="nav-link " href="{{ route('role.index') }}">
         <i class="bi bi-menu-button-wide"></i>
-          <span>Role</span>
+          <span>Roles</span>
         </a>
       </li>
 		 <li class="nav-item">

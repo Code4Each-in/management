@@ -8,9 +8,15 @@
 
 <div class="box-header with-border" id="filter-box">
 <br>
+@if(session()->has('message'))
+	<div class="alert alert-success message">
+		{{ session()->get('message') }}
+	</div>	 
+@endif
+
 
 	<div class="box-body table-responsive" style="margin-bottom: 5%">
-		<table class="table table-hover" id="user_table">
+		<table class="table table-hover" id="users_table">
 			<thead>
 				<tr>
 					<th>FirstName</th>
@@ -38,14 +44,14 @@
 					<td>{{ $data->salary }}</td>
 					<td>{{$data->role_id}}</td>
 					<td>{{$data->department_id}}</td>
-					<td>{{ $data->address }}</td>
-					
+					<td>{{ $data->address }}</td>					
 					<td>{{ $data->phone }}</td>
-							<td>
+					<td>
 						<div class="form-group form-check active_user">
 							<input type="checkbox" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}" {{$data->status == 1 ? 'checked' : ''}}>
 							<label class="form-check-label" for="active_user"></label>
-						</div></td>		
+						</div>
+					</td>		
 						<td>
 							<i style ="color:#4154f1;"  onClick="editUsers('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-edit fa-fw"></i>
 							
@@ -68,47 +74,41 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="role">Add Users</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-		@if(session()->has('message'))
-    <div class="alert alert-success message">
-        {{ session()->get('message') }}
-    </div>
-	 
-@endif
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>	
       </div>
 		<form method="post" id="addUsersForm" action="">
 		@csrf
 		<div class="modal-body">
-			<div class="row">
+			<div class="alert alert-danger" style="display:none"></div>
+				<div class="row">
 				<div class="col-lg-6">
 					<label for="user_name" class="form-label">FirstName</label>
-					<input type="text" class="form-control" id="user_name">
+					<input type="text" class="form-control" name="user_name" id="user_name">
 				</div>
-				<input type="hidden" class="form-control" id="hidden_users_id" value="">
 				<div class="col-lg-6">
 					<label for="last_name" class="form-label">LastName</label>
-					<input type="text" class="form-control" id="last_name">
+					<input type="text" class="form-control" name="last_name" id="last_name">
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-lg-12">
 					<label for="email" class="form-label">Email</label>
-					<input type="text" class="form-control" id="email">
+					<input type="text" class="form-control" name="email" id="email">
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-sm-5">
 					<label for="phone" class="form-label">Phone</label>
-					<input type="text" class="form-control" id="phone">
+					<input type="text" class="form-control" name="phone" id="phone">
 				</div>
 				<div class="col-sm-3 mt-4">
 					<div class="form-group form-check">
-						<input type="checkbox" class="form-check-input" id="salaried">
-						<label class="form-check-label" for="salaried">If salaried</label>
+						<input type="checkbox" class="form-check-input" name="salaried" id="salaried">
+						<label class="form-check-label"  for="salaried">If salaried</label>
 					</div>
 				</div>
 				<div class="col-sm-4 mt-4">
-					<input style="display:none;" type="number" class="form-control" id="addsalary">
+					<input style="display:none;" name="addsalary" type="number" class="form-control" id="addsalary">
 				</div>
 			</div>			
 			<div class="row">
@@ -140,9 +140,24 @@
 				</div>
 			</div>
 			<div class="row">
+				<div class="col-md-12 mt-3">
+					<div class="form-group">
+						<label for="">Select Manager</label>
+						<select name="manager_select[]" class="form-control select" id="manager_select" multiple>
+						<option value="" disabled>-- Select Manager --</option>
+                         @foreach ($usersData as $data)
+                         <option value="{{$data->id}}">
+                         {{$data->first_name.' '.$data->last_name}}
+                         </option>
+                         @endforeach
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
 				<div class="col-lg-12 mt-3">
 					<label for="password" class="form-label">Password</label>
-					<input type="text" class="form-control" id="password">
+					<input type="text" name="password" class="form-control" id="password">
 				</div>
 			</div>
 			<div class="row">
@@ -171,35 +186,36 @@
 		<form method="post" id="editUsersForm" action="">
 		@csrf
 		<div class="modal-body">
+			<div class="alert alert-danger" style="display:none"></div>
 			<div class="row">
 				<div class="col-lg-6">
 					<label for="user_name" class="form-label">FirstName</label>
-					<input type="text" class="form-control" id="edit_username">
+					<input type="text"  class="form-control" name="edit_username" id="edit_username">
 				</div>
 				<div class="col-lg-6">
 					<label for="last_name" class="form-label">LastName</label>
-					<input type="text" class="form-control" id="edit_lastname">
+					<input type="text" class="form-control" name="edit_lastname"  id="edit_lastname">
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-lg-12">
 					<label for="email" class="form-label">Email</label>
-					<input type="text" class="form-control" id="edit_email">
+					<input type="text" class="form-control" name="edit_email"  id="edit_email">
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-lg-5">
 					<label for="phone" class="form-label">Phone</label>
-					<input type="text" class="form-control" id="edit_phone">
+					<input type="text"  class="form-control" name="edit_phone" id="edit_phone">
 				</div>
 				<div class="col-sm-3 mt-4">
 					<div class="form-group form-check">
-						<input type="checkbox" class="form-check-input" id="edit_salaried">
+						<input type="checkbox" class="form-check-input"  name="edit_salaried" id="edit_salaried">
 						<label class="form-check-label" for="salaried">If salaried</label>
 					</div>
 				</div>
 					<div class="col-sm-4 mt-4">
-						<input style="display:none;" type="number" class="form-control" id="editsalary">
+						<input style="display:none;" name="edit_salary" type="number" class="form-control" id="edit_salary">
 					</div>
 			</div>
 			<div class="row">
@@ -233,14 +249,15 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<label for="password" class="form-label">Password</label>
-					<input type="text" class="form-control" id="edit_password">
+					<input type="text" name="edit_password"  class="form-control" id="edit_password">
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-lg-12">Address
-					<textarea name="address" class="form-control"  id="edit_address"></textarea>
+					<textarea name="address" class="form-control" name="edit_address"  id="edit_address"></textarea>
 				</div>
 			</div>
+			<input type="hidden" class="form-control" name="users_id" id="users_id" value="">
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-primary" onClick="updateUsers()" href="javascript:void(0)">Save</button>
@@ -252,7 +269,13 @@
 @endsection
 @section('js_scripts')
     <script>
-       $(document).ready(function(){	
+       $(document).ready(function(){
+		setTimeout(function()
+			{
+				$('.message').fadeOut("slow");
+			}, 2000 );
+		
+			
             $('#users_table').DataTable({
                 "order": []
                 
@@ -314,47 +337,35 @@
 				console.log(data);
 				}
 				});
-				
-				
-				
+												
 			}
 			function openusersModal()
 			{
+				$('.alert-danger').html('');
 				$('#first_name').val('');
 				$('#addUsers').modal('show');
 			}		
 			function addusers()
 			{
 	
-				var userName = $('#user_name').val();	
-				var lastname = $('#last_name').val();	
-				var email = $('#email').val();
-				var phone = $('#phone').val();
-				var password = $('#password').val();
-				var salary =null;
-				if($("#salaried").prop('checked') == true){
-				salary = $('#addsalary').val();
-				}
-				var address = $('#address').val();
-				var address = $('#address').val();
-				var role_id =$('#role_select').val();
-				var department_id =$('#department_select').val();
-
 				$.ajax({
 				type:'POST',
 				url: "{{ url('/add/users')}}",
-				data: { userName:userName ,
-				lastname:lastname,
-				email:email,
-				password:password,
-				salary:salary,
-				address:address,
-				phone:phone,
-				role_id:role_id,
-				department_id:department_id},
+				data: $('#addUsersForm').serialize(),
 				cache:false,
 				success: (data) => {
-					if(data.status ==200){
+					if(data.errors){
+					 $('.alert-danger').html('');
+
+                        $.each(data.errors, function(key, value){
+                             $('.alert-danger').show();
+                             $('.alert-danger').append('<li>'+value+'</li>');
+                         })
+					}
+					else
+					{
+						$('.alert-danger').html('');
+
 						$("#addUsers").modal('hide');
 						location.reload();
 					}
@@ -366,14 +377,15 @@
 			}						
 				function editUsers(id)
 				{
-					$('#hidden_users_id').val(id);
+					$('.alert-danger').html('');
+					$('#users_id').val(id);
 					$.ajax({
 					type:"POST",
 					url: "{{ url('/edit/users') }}",
 					data: { id: id},
 					dataType: 'json',
-					success: function(res)
-					{
+					success: function (res)
+					{						
 						if(res.users !=null)
 						{
 							$('#editUsers').modal('show');
@@ -384,8 +396,8 @@
 							if(res.users.salary !=null)
 							{
 								$("#edit_salaried").prop('checked', true);
-								$('#editsalary').show();
-								$('#editsalary').val(res.users.salary);
+								$('#edit_salary').show();
+								$('#edit_salary').val(res.users.salary);
 							}						
 								$('#edit_address').val(res.users.address);
 								$('#edit_password').val(res.users.password);
@@ -396,37 +408,26 @@
 					});
 				} 			
 				function updateUsers(){
-				var id = $('#hidden_users_id').val();
-				var first_name = $('#edit_username').val();
-				var last_name = $('#edit_lastname').val();
-				var email = $('#edit_email').val();
-				var phone = $('#edit_phone').val();
-				var salary =null;
-				if($("#edit_salaried").prop('checked') == true){
-				salary = $('#editsalary').val();
-				}
-				var address = $('#edit_address').val();
-				var password = $('#edit_password').val();			
-				var role =$('#editUsersForm #role_select option:selected').val();		
-				var department = $('#editUsersForm #department_select option:selected').val();
+				
 			
 				$.ajax({
 				type:"POST",
 				url: "{{ url('/update/users') }}",
-				data: { id: id,
-				first_name:first_name,
-				last_name:last_name,
-				email:email,
-				phone:phone,
-				salary:salary,
-				address:address,
-				password:password,
-				role:role,
-				department:department},
+				data: $('#editUsersForm').serialize(),
 				dataType: 'json',
 				success: function(res){
-					if(res.status ==200){
-						$("#editRole").modal('hide');
+					if(res.errors){
+					 $('.alert-danger').html('');
+
+                         $.each(res.errors, function(key, value){
+                             $('.alert-danger').show();
+                              $('.alert-danger').append('<li>'+value+'</li>');
+                          })
+					}
+					else
+					{
+						$('.alert-danger').html('');
+						$("#editUsers").modal('hide');
 						location.reload();
 					}
 				}

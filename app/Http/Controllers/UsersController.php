@@ -29,31 +29,46 @@ class UsersController extends Controller
      */
 	 public function store(Request $request)
     {	
-		 $firstname = $request->get('userName');
-		 $lastname = $request->get('lastname');
-		 $email = $request->get('email');
-		 $password = $request->get('password');
-		 $salary = $request->get('salary');
-		 $phone = $request->get('phone');
-		 $address = $request->get('address');
-		 $role_id = $request->get('role_id');
-		 $department_id = $request->get('department_id');
+	 $validator = \Validator::make($request->all(), [
+            'user_name' => 'required', 
+			'last_name'=>'required', 
+			'email'=>'required', 
+			'password'=>'required', 
+			'phone'=>'required', 
+			'role_select'=>'required', 
+			'department_select'=>'required', 
+			'address'=>'required', 
 
+        ]);
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+		
+		 $validate = $validator->valid();	
+		 
+		$salaried=null;		 
+		if (isset($validate['salaried'])) 
+		{
+		   $salaried = $validate['addsalary'];
+		}			
          $users =Users::create([
-            'first_name' => $firstname,
-			'last_name' => $lastname,
-			'email'=>$email, 
-			'password'=>$password,
-			'salary'=>$salary,
-			'address'=>$address,
-			'phone'=>$phone,
-			'department_id'=>$department_id,
-			'role_id'=>$role_id,	
-			
-			'phone'=>$phone,
+		
+            'first_name' => $validate['user_name'],
+			'last_name' => $validate['last_name'],
+			'email' => $validate['email'],
+			'password' => $validate['password'],
+			'salary'=>$salaried ,
+			'address'=>$validate['address'],
+			'phone'=>$validate['phone'],
+			'department_id'=>$validate['department_select'],
+			'role_id'=>$validate['role_select'],
+			'phone'=>$validate['phone'],							
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+		$request->session()->flash('message','User added successfully.');
         return Response()->json(['status'=>200, 'users'=>$users]);
     }
 	 /**
@@ -63,12 +78,9 @@ class UsersController extends Controller
      */
 	 public function edit(Request $request)
     {   
-	
         $users = Users::where(['id' => $request->id])->first();
-
         return Response()->json(['users' =>$users]);
     }
-	
 	
 	 /**
      * Update.
@@ -78,22 +90,42 @@ class UsersController extends Controller
      */
 		public function update(Request $request)
     {
-	
-        Users::where('id', $request->id)
-        ->update([
-            'first_name' => $request->first_name,
-			'last_name' => $request->last_name,
-			'email' => $request->email,
-			'phone' => $request->phone,
-			'salary' => $request->salary,
-			'role_id'=> $request->role,
-			'department_id'=>$request->department,
-			'address' => $request->address,
-			'password' => $request->password,
-			
-
+		$validator = \Validator::make($request->all(), [
+            'edit_username' => 'required',  
+			'edit_lastname' => 'required',  
+			'edit_email'=>'required',  
+			'edit_phone'=>'required',		
+			'role_select'=>'required',
+			'department_select'=>'required',
+			'edit_password'=>'required',
+			'address'=>'required',
         ]);
-			
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+		
+		$validate = $validator->valid();	
+		$salaried=null;		 
+		if (isset($validate['edit_salaried'])) 
+			{
+			   $salaried = $validate['edit_salary'];
+			}		
+		
+        Users::where('id', $request->users_id)
+        ->update([
+		   'first_name' => $validate['edit_username'],        
+		    'last_name' => $validate['edit_lastname'],
+			'email' => $validate['edit_email'],
+			'phone' => $validate['edit_phone'],
+			'salary' =>$salaried,
+			'role_id'=> $validate['role_select'],
+			'department_id'=>$validate['department_select'],
+			'address' =>$validate['address'],
+			'password' => $validate['edit_password'],
+        ]);
+		$request->session()->flash('message','User updated successfully.');
         return Response()->json(['status'=>200]);
     }
 	  /**
@@ -105,7 +137,7 @@ class UsersController extends Controller
     {
 		
         $Users = Users::where('id',$request->id)->delete();
-      
+		$request->session()->flash('message','User deleted successfully.');
         return Response()->json($Users);
     }
 	 public function updateUserStatus(Request $request)
@@ -115,7 +147,8 @@ class UsersController extends Controller
 			->update([
             'status' => $request->status
 			 ]);
-		        return Response()->json(['status'=>200]);	
+			 $request->session()->flash('message','User status updated  successfully.');
+		     return Response()->json(['status'=>200]);	
 	 }
 	 
     

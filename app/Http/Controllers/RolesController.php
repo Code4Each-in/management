@@ -29,39 +29,41 @@ class RolesController extends Controller
      */
     public function store(Request $request)
     {
+		
 		 $validator = \Validator::make($request->all(), [
-            'roleName' => 'required',       
+            'role_name' => 'required',       
         ]);
     
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
-        }
-		
-        $roleName = $request->get('roleName');
-		$userPage=$request->get('userPage');
-		$departmentPage=$request->get('departmentPage');
-			
+		}        		
+		$validate = $validator->valid();			
         $role =Roles::create([
-            'name' => $roleName,
+            'name' => $validate['role_name'],
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
-		
-		$rolePermission =RolePermission::create([
-            'role_id' => $role->id,
-            'users_page' => $userPage,
-            'departments_page' => $departmentPage,
-        ]);
-		
+		if (isset($validate['role_permissions']))
+		{
+			foreach($validate['role_permissions'] as $permission)
+			{				
+				$rolePermission =RolePermission::create([
+					'role_id' => $role->id,
+					'module_id' => $permission,
+				]);
+			}
+		}
 		$request->session()->flash('message','Role added successfully.');
         return Response()->json(['status'=>200, 'role'=>$role]);
     }
+	
 	 public function edit(Request $request)
     {   
-	
+		$RolePermission=RolePermission::where(['role_id' => $request->id])->get();
         $role  = Roles::where(['id' => $request->id])->first();
-        return Response()->json(['role' =>$role]);
+        return Response()->json(['role' =>$role, 'RolePermission' =>$RolePermission]);
+				$validate = $validator->valid();
     }
 	/**
      * Update.
@@ -72,26 +74,43 @@ class RolesController extends Controller
     public function update(Request $request)
     {
 			 $validator = \Validator::make($request->all(), [
-			 'id'=>'required',
-            'name' => 'required', 
+			 'role_id'=>'required',
+            'edit_role_name' => 'required', 
 			
         ]);
 		 if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
+		$validate = $validator->valid();
+	
 		
-        Roles::where('id', $request->id)
+		$RolePermission=RolePermission::where(['role_id' => $validate['role_id']])->get(); 
+		if (!empty($RolePermission))
+		{
+		      RolePermission::where('role_id', $validate['role_id'])->delete();			
+		}
+		if (isset($validate['role_permissions']))
+		{
+			foreach($validate['role_permissions'] as $permission)
+			{	
+				$rolePermission =RolePermission::create([
+					'role_id' => $validate['role_id'],
+					'module_id' => $permission,
+				]);
+			}		
+		}	
+		Roles::where('id', $request->id)
         ->update([
-            'name' => $request->name
+            'name' => $validate['edit_role_name']
         ]);
 		$request->session()->flash('message','Role updated successfully.');
         return Response()->json(['status'=>200]);
     }
+		
 	 public function destroy(Request $request)
     {
-        $Roles = Roles::where('id',$request->id)->delete();
-     
+        $Roles = Roles::where('id',$request->id)->delete(); 
 	  $request->session()->flash('message','Role deleted successfully.');
      return Response()->json($Roles);
     }
