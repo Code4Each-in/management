@@ -47,4 +47,25 @@ class Users extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+		
+		/**
+	 * Always encrypt the password when it is updated.
+	 *
+	  * @param $value
+	 * @return string
+	 */
+	public function setPasswordAttribute($value)
+	{
+	   $this->attributes['password'] = bcrypt($value);
+	}
+	
+	public function role()
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
+	
+	public function department()
+    {
+        return $this->belongsTo(Departments::class, 'department_id');
+    }
 }

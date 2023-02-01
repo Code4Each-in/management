@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Users;
 use App\Models\Departments;
 use App\Models\Roles;
+use App\Models\Managers;
 
 class UsersController extends Controller
 {
@@ -16,9 +17,9 @@ class UsersController extends Controller
      */
     public function index()
     {
-		$usersData=Users::all(); //database query
-		$roleData=Roles::all(); //database query
-		$departmentData = Departments::all();
+		$usersData=Users::with('role','department')->orderBy('id','desc')->get(); //database query
+		$roleData=Roles::orderBy('id','desc')->get();//database query
+		$departmentData = Departments::orderBy('id','desc')->get();
         return view('users.index',compact('usersData','roleData','departmentData'));
     }
 	 /**
@@ -29,7 +30,8 @@ class UsersController extends Controller
      */
 	 public function store(Request $request)
     {	
-	 $validator = \Validator::make($request->all(), [
+
+		$validator = \Validator::make($request->all(), [
             'user_name' => 'required', 
 			'last_name'=>'required', 
 			'email'=>'required', 
@@ -38,16 +40,15 @@ class UsersController extends Controller
 			'role_select'=>'required', 
 			'department_select'=>'required', 
 			'address'=>'required', 
-
+			'manager_select'=>'required',
         ]);
  
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
-		
-		 $validate = $validator->valid();	
-		 
+					
+		$validate = $validator->valid();			 	
 		$salaried=null;		 
 		if (isset($validate['salaried'])) 
 		{
@@ -56,7 +57,7 @@ class UsersController extends Controller
          $users =Users::create([
 		
             'first_name' => $validate['user_name'],
-			'last_name' => $validate['last_name'],
+			'last_name' => $validate['last_name'], 
 			'email' => $validate['email'],
 			'password' => $validate['password'],
 			'salary'=>$salaried ,
@@ -68,6 +69,19 @@ class UsersController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+		
+		if (isset($validate['manager_select']))
+		{
+					
+			foreach($validate['manager_select'] as $manager)
+			{
+							
+				$managers =Managers::create([					
+					'user_id' => $users->id,
+					'parent_user_id' => $manager,
+				]);
+			}		
+		}		
 		$request->session()->flash('message','User added successfully.');
         return Response()->json(['status'=>200, 'users'=>$users]);
     }
@@ -79,7 +93,10 @@ class UsersController extends Controller
 	 public function edit(Request $request)
     {   
         $users = Users::where(['id' => $request->id])->first();
-        return Response()->json(['users' =>$users]);
+		$managerSelectOptions = Users::where('id', '!=' , $request->id)->orderBy('id','desc')->get();
+		$Managers = Managers::where(['user_id' => $request->id])->get();
+		
+        return Response()->json(['users' =>$users, 'Managers' =>$Managers, 'managerSelectOptions' =>$managerSelectOptions]);
     }
 	
 	 /**
@@ -106,7 +123,7 @@ class UsersController extends Controller
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
 		
-		$validate = $validator->valid();	
+		$validate = $validator->valid();
 		$salaried=null;		 
 		if (isset($validate['edit_salaried'])) 
 			{
@@ -125,6 +142,20 @@ class UsersController extends Controller
 			'address' =>$validate['address'],
 			'password' => $validate['edit_password'],
         ]);
+		
+		$checkManagersExist=Managers::where(['user_id' =>$request->users_id])->get(); 
+		if (!empty($checkManagersExist)){
+		      Managers::where('user_id', $request->users_id)->delete();			
+		}
+		if (isset($validate['manager_select'])){			
+			foreach($validate['manager_select'] as $updatemanager)
+			{			
+				$managers =Managers::create([					
+					'user_id' => $request->users_id,
+					'parent_user_id' => $updatemanager,
+				]);
+			}		
+		}
 		$request->session()->flash('message','User updated successfully.');
         return Response()->json(['status'=>200]);
     }

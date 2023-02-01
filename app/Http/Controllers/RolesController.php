@@ -16,7 +16,7 @@ class RolesController extends Controller
      */
     public function index()
     {
-		$roleData=Roles::all(); //database query
+		$roleData=Roles::orderBy('id','desc')->get(); //database query
 		$pages=Pages::with('module')->get();
         return view('roles.index',compact('roleData','pages'));
 		//compact for send variable to other file

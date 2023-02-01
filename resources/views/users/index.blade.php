@@ -22,7 +22,6 @@
 					<th>FirstName</th>
 					<th>LastName</th>
 					<th>Email</th>
-					<th>Password</th>
 					<th>Salary</th>
 					<th>Department</th>
 					<th>Role</th>
@@ -40,15 +39,15 @@
 					<td>{{ $data->first_name }}</td>
 					<td>{{ $data->last_name }}</td>
 					<td>{{ $data->email }}</td>
-					<td>{{ $data->password }}</td>
+					
 					<td>{{ $data->salary }}</td>
-					<td>{{$data->role_id}}</td>
-					<td>{{$data->department_id}}</td>
+					<td>{{$data->role->name ?? ''}}</td>
+					<td>{{$data->department->name ?? ''}}</td>
 					<td>{{ $data->address }}</td>					
 					<td>{{ $data->phone }}</td>
 					<td>
 						<div class="form-group form-check active_user">
-							<input type="checkbox" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}" {{$data->status == 1 ? 'checked' : ''}}>
+							<input type="checkbox[" onClick="Showdata(this)" data-user-id = "{{ $data->id}}" class="form-check-input" id="{{'active_user_'.$data->id}}" {{$data->status == 1 ? 'checked' : ''}}>
 							<label class="form-check-label" for="active_user"></label>
 						</div>
 					</td>		
@@ -80,54 +79,63 @@
 		@csrf
 		<div class="modal-body">
 			<div class="alert alert-danger" style="display:none"></div>
-				<div class="row">
-				<div class="col-lg-6">
-					<label for="user_name" class="form-label">FirstName</label>
-					<input type="text" class="form-control" name="user_name" id="user_name">
-				</div>
-				<div class="col-lg-6">
-					<label for="last_name" class="form-label">LastName</label>
-					<input type="text" class="form-control" name="last_name" id="last_name">
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<label for="email" class="form-label">Email</label>
-					<input type="text" class="form-control" name="email" id="email">
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-5">
-					<label for="phone" class="form-label">Phone</label>
-					<input type="text" class="form-control" name="phone" id="phone">
-				</div>
-				<div class="col-sm-3 mt-4">
-					<div class="form-group form-check">
-						<input type="checkbox" class="form-check-input" name="salaried" id="salaried">
-						<label class="form-check-label"  for="salaried">If salaried</label>
-					</div>
-				</div>
-				<div class="col-sm-4 mt-4">
-					<input style="display:none;" name="addsalary" type="number" class="form-control" id="addsalary">
-				</div>
-			</div>			
-			<div class="row">
-				<div class="col-md-6 mt-3">
-					<div class="form-group">
-						<label for="">Select Role</label>
-						<select name="role_select" class="form-control" id="role_select">
+				
+			 <div class="row mb-3">
+                  <label for="user_name" class="col-sm-3 col-form-label required">First Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="user_name" id="user_name">                   
+                  </div>
+             </div>
+			  <div class="row mb-3">
+                  <label for="last_name" class="col-sm-3 col-form-label required">Last Name </label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="last_name" id="last_name">				                 
+                  </div>
+             </div>
+			  <div class="row mb-3">
+                  <label for="email" class="col-sm-3 col-form-label required">Email</label>
+                  <div class="col-sm-9">
+					<div class="input-group">
+                      <input type="text" class="form-control" name="email"   id="email">
+                      <span class="input-group-text">@example.com</span>
+                    </div>			
+                  </div>
+             </div>
+			 <div class="row mb-3">
+                  <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
+                  <div class="col-sm-9">
+					<input type="number" class="form-control" name="phone" id="phone">
+                  </div>
+             </div>
+			  <div class="row mb-3">
+                  <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
+                  <div class="col-sm-2 mt-1">
+					<input type="checkbox" class="form-check-input" name="salaried" id="salaried">
+                  </div>
+				  <div class="col-sm-7">
+					<div style="display:none;" class="input-group addsalary">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" name="addsalary" id="addsalary">
+                      <span class="input-group-text">.00</span>
+                    </div>
+                  </div>
+             </div>
+				 <div class="row mb-3">
+                  <label for="" class="col-sm-3 col-form-label required">Role</label>
+                  <div class="col-sm-9">
+					<select name="role_select" class="form-select" id="role_select">
 						<option value="">-- Select Role --</option>
                          @foreach ($roleData as $data)
                          <option value="{{$data->id}}">
                          {{$data->name}}
                          </option>
                          @endforeach
-						</select>
-					</div>
+						</select>                 
+                  </div>
 				</div>
-				<div class="col-md-6 mt-3">
-					<div class="form-group">
-						<label for="">Select Department</label>
+				 <div class="row mb-3">
+                  <label for="" class="col-sm-3 col-form-label required">Department</label>
+                  <div class="col-sm-9">
 						<select name="department_select" class="form-control" id="department_select">
 						<option value="">-- Select Department --</option>
                          @foreach ($departmentData as $data)
@@ -135,14 +143,14 @@
                          {{$data->name}}
                          </option>
                          @endforeach
-						</select>
-					</div>
+						</select>           
+                  </div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12 mt-3">
-					<div class="form-group">
-						<label for="">Select Manager</label>
+				
+				 <div class="row mb-3">
+				 
+                  <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
+                  <div class="col-sm-9">
 						<select name="manager_select[]" class="form-control select" id="manager_select" multiple>
 						<option value="" disabled>-- Select Manager --</option>
                          @foreach ($usersData as $data)
@@ -150,21 +158,22 @@
                          {{$data->first_name.' '.$data->last_name}}
                          </option>
                          @endforeach
-						</select>
-					</div>
+						</select>       
+                  </div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12 mt-3">
-					<label for="password" class="form-label">Password</label>
-					<input type="text" name="password" class="form-control" id="password">
+				
+				<div class="row mb-3">
+                  <label for="password" class="col-sm-3 col-form-label required">Password</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="password" id="password">
+                  </div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12 mt-3 ">Address
-					<textarea name="address" class="form-control"  id="address"></textarea>
+				<div class="row mb-3">
+                  <label for="address" class="col-sm-3 col-form-label required">Address</label>
+                  <div class="col-sm-9">
+						<textarea name="address" class="form-control"  id="address"></textarea>
+                  </div>
 				</div>
-			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-primary" onClick="addusers(this)" href="javascript:void(0)">Save</button>
@@ -187,54 +196,81 @@
 		@csrf
 		<div class="modal-body">
 			<div class="alert alert-danger" style="display:none"></div>
-			<div class="row">
-				<div class="col-lg-6">
-					<label for="user_name" class="form-label">FirstName</label>
-					<input type="text"  class="form-control" name="edit_username" id="edit_username">
-				</div>
-				<div class="col-lg-6">
-					<label for="last_name" class="form-label">LastName</label>
-					<input type="text" class="form-control" name="edit_lastname"  id="edit_lastname">
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<label for="email" class="form-label">Email</label>
-					<input type="text" class="form-control" name="edit_email"  id="edit_email">
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-5">
-					<label for="phone" class="form-label">Phone</label>
-					<input type="text"  class="form-control" name="edit_phone" id="edit_phone">
-				</div>
-				<div class="col-sm-3 mt-4">
+			
+			<div class="row mb-3">
+                  <label for="user_name" class="col-sm-3 col-form-label required">First Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="edit_username" id="edit_username">                   
+                  </div>
+             </div>
+			<div class="row mb-3">
+                  <label for="user_name" class="col-sm-3 col-form-label required">Last Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="edit_lastname" id="edit_lastname">                   
+                  </div>
+             </div>
+				
+			  <div class="row mb-3">
+                  <label for="email" class="col-sm-3 col-form-label required">Email</label>
+                  <div class="col-sm-9">
+					<div class="input-group">
+                      <input type="text" class="form-control" name="edit_email"   id="edit_email">
+                      <span class="input-group-text">@example.com</span>
+                    </div>			
+                  </div>
+             </div>
+			
+			
+			
+			
+				<!--<div class="col-sm-3 mt-4">
 					<div class="form-group form-check">
 						<input type="checkbox" class="form-check-input"  name="edit_salaried" id="edit_salaried">
 						<label class="form-check-label" for="salaried">If salaried</label>
-					</div>
+					</div> 
 				</div>
 					<div class="col-sm-4 mt-4">
 						<input style="display:none;" name="edit_salary" type="number" class="form-control" id="edit_salary">
-					</div>
-			</div>
-			<div class="row">
-				<div class="col-md-6 mt-3">
-					<div class="form-group">
-						<label for="">Select Role</label>
-						<select name="role_select" class="form-control" id="role_select">
+					</div> -->
+			
+			 <div class="row mb-3">
+                  <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
+                  <div class="col-sm-9">
+					<input type="number" class="form-control" name="edit_phone" id="edit_phone">
+                  </div>
+             </div>
+			 
+			  <div class="row mb-3">
+                  <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
+                  <div class="col-sm-2 mt-1">
+					<input type="checkbox" class="form-check-input" name="edit_salaried" id="edit_salaried">
+                  </div>
+				  <div class="col-sm-7">
+					<div style="display:none;" class="input-group edit_salary">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" name="edit_salary" id="edit_salary">
+                      <span class="input-group-text">.00</span>
+                    </div>
+                  </div>
+             </div>
+			 
+			  <div class="row mb-3">
+                  <label for="" class="col-sm-3 col-form-label required">Role</label>
+                  <div class="col-sm-9">
+					<select name="role_select" class="form-select" id="role_select">
 						<option value="">-- Select Role --</option>
                          @foreach ($roleData as $data)
                          <option value="{{$data->id}}">
                          {{$data->name}}
                          </option>
                          @endforeach
-						</select>
-					</div>
+						</select>                 
+                  </div>
 				</div>
-				<div class="col-md-6 mt-3">
-					<div class="form-group">
-						<label for="">Select Department</label>
+			 
+			  <div class="row mb-3">
+                  <label for="" class="col-sm-3 col-form-label required">Department</label>
+                  <div class="col-sm-9">
 						<select name="department_select" class="form-control" id="department_select">
 						<option value="">-- Select Department --</option>
                          @foreach ($departmentData as $data)
@@ -242,21 +278,40 @@
                          {{$data->name}}
                          </option>
                          @endforeach
-						</select>
-					</div>
+						</select>           
+                  </div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<label for="password" class="form-label">Password</label>
-					<input type="text" name="edit_password"  class="form-control" id="edit_password">
+			 			 								
+			 <div class="row mb-3">
+				 
+                  <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
+                  <div class="col-sm-9">
+						<select name="manager_select[]" class="form-control select" id="edit_manager_select" multiple>
+						<option value="" disabled>-- Select Manager --</option>
+                         @foreach ($usersData as $data)
+                         <option value="{{$data->id}}">
+                         {{$data->first_name.' '.$data->last_name}}
+                         </option>
+                         @endforeach
+						</select>       
+                  </div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">Address
-					<textarea name="address" class="form-control" name="edit_address"  id="edit_address"></textarea>
+			
+		
+			<div class="row mb-3">
+                  <label for="password" class="col-sm-3 col-form-label required">Password</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="edit_password" id="edit_password">
+                  </div>
 				</div>
-			</div>
+								
+			<div class="row mb-3">
+                  <label for="address" class="col-sm-3 col-form-label required">Address</label>
+                  <div class="col-sm-9">
+						<textarea name="address" class="form-control"  id="edit_address"></textarea>
+                  </div>
+				</div>
+						
 			<input type="hidden" class="form-control" name="users_id" id="users_id" value="">
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -290,24 +345,24 @@
 			{
 				if(e.target.checked == true){
 				
-					$('#addsalary').show();
+					$('.addsalary').show();
 				}
 				else
 				{
-					$('#addsalary').hide();
-					$('#addsalary').val('');
+					$('.addsalary').hide();
+					$('addsalary').val('');
 				}
 			});
 			$('#edit_salaried').on('click',function(e)
 			{
 				if(e.target.checked == true){
 					
-					$('#editsalary').show();
+					$('.edit_salary').show();
 				}
 				else
 				{
-					$('#editsalary').hide();
-					$('#editsalary').val('');
+					$('.edit_salary').hide();
+					$('.edit_salary').val('');
 				}
 			});
 				
@@ -396,13 +451,24 @@
 							if(res.users.salary !=null)
 							{
 								$("#edit_salaried").prop('checked', true);
-								$('#edit_salary').show();
+								$('.edit_salary').show();
 								$('#edit_salary').val(res.users.salary);
 							}						
 								$('#edit_address').val(res.users.address);
 								$('#edit_password').val(res.users.password);
-								$('#role_select option[value="'+ res.users.role_id +'"]').attr('selected','selected');	
+								$('#role_select option[value="'+ res.users.role_id +'"]').attr('selected','selected');								
 								$('#department_select option[value="'+ res.users.department_id +'"]').attr('selected','selected');								
+						}
+						if(res.managerSelectOptions !=null){
+							$.each(res.managerSelectOptions, function(key, value){
+								$('#edit_manager_select').append('<option value="'+value.id+'">"'+value.first_name+" "+value.last_name+'"</option>');
+							});
+						}
+						if(res.Managers !=null)
+						{
+							$.each(res.Managers, function(key, value){
+								$('#edit_manager_select option[value="'+ value.parent_user_id +'"]').attr('selected','selected');
+							})
 						}
 					}
 					});

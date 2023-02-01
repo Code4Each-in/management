@@ -237,26 +237,26 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{{ url('/') }}">
+        <a class="nav-link collapsed" href="{{ url('/dashboard') }}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link " href="{{ route('departments.index') }}">
+        <a class="nav-link collapsed" href="{{ route('departments.index') }}">
         <i class="bi bi-menu-button-wide"></i>
           <span>Departments</span>
         </a>
       </li>
 	  <li class="nav-item">
-        <a class="nav-link " href="{{ route('role.index') }}">
+        <a class="nav-link collapsed" href="{{ route('role.index') }}">
         <i class="bi bi-menu-button-wide"></i>
           <span>Roles</span>
         </a>
       </li>
 		 <li class="nav-item">
-        <a class="nav-link " href="{{ route('users.index') }}">
+        <a class="nav-link collapsed" href="{{ route('users.index') }}">
         <i class="bi bi-menu-button-wide"></i>
           <span>Users</span>
         </a>
