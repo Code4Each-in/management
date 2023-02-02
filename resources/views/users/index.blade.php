@@ -114,7 +114,7 @@
                   </div>
 				  <div class="col-sm-7">
 					<div style="display:none;" class="input-group addsalary">
-                      <span class="input-group-text">$</span>
+                      <span class="input-group-text"></span>
                       <input type="number" class="form-control" name="addsalary" id="addsalary">
                       <span class="input-group-text">.00</span>
                     </div>

@@ -50,13 +50,17 @@
 		@csrf
 			<div class="modal-body">
 			    <div class="alert alert-danger" style="display:none"></div>
-					<div class="mb-3">
-						<div class="form-group">				
-						<label for="role_name" class="control-label required">Name</label>					
-						</div>
-						<!--<label for="role_name" class="form-label required">Name</label>-->
-						<input type="text" class="form-control" id="role_name" name="role_name" />
-					</div>				  
+					
+				<div class="row mb-3">
+                  <label for="role_name" class="col-sm-3 col-form-label required">First Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="role_name" id="role_name">                   
+                  </div>
+				</div>
+
+
+
+					
 				  	<label class="mb-2" for="permission">Permissions:</label>
 					@forelse($pages as $page)
 				<div class="row">
@@ -112,10 +116,13 @@
 		@csrf
 			<div class="modal-body">
 				<div class="alert alert-danger" style="display:none"></div>
-					<div class="mb-3">
-						<label for="role_name" class="form-label">Name</label>
-						<input type="text" class="form-control" name="edit_role_name" id="edit_role_name">
-					</div>
+					
+				<div class="row mb-3">
+                  <label for="edit_role_name" class="col-sm-3 col-form-label required">Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="edit_role_name" id="edit_role_name">                   
+                  </div>
+				</div>					
 					<input type="hidden" class="form-control" name="role_id" id="hidden_role_id" value="">			
 					<label class="mb-2" for="permission">Permissions:</label>
 					@forelse($pages as $page)

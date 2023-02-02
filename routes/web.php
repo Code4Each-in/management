@@ -17,15 +17,15 @@ use App\Http\Controllers\LoginController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+ Route::get('/', function () {
+    return view('welcome');
+ });
 
 /**
 * Login Routes
 */
-Route::get('/', [LoginController::class, 'show'])->name('login.show');
-Route::post('/login', [LoginController::class, 'login'])->name('login.perform');
+Route::get('/', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.user');
 Route::group(['middleware' => ['auth']], function() {
 	Route::resource('/dashboard', DashboardController::class);
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
@@ -45,4 +45,5 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/update/users', [UsersController::class, 'update']);
 	Route::delete('/delete/users', [UsersController::class, 'destroy']);
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus']);
+	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
  });

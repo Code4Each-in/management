@@ -11,12 +11,14 @@ use App\Models\Managers;
 
 class UsersController extends Controller
 {
+
     /**
      * 
      * @return \Illuminate\View\View
      */
     public function index()
     {
+	
 		$usersData=Users::with('role','department')->orderBy('id','desc')->get(); //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();

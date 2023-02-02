@@ -20,7 +20,8 @@
         </div>
         @include('includes.jss')
         <script type="text/javascript">
-           
+			$(document).ready(function () {
+			 });
         </script>
         @yield('js_scripts')
     </body>

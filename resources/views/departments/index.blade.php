@@ -57,12 +57,15 @@
 		@csrf
 			<div class="modal-body">
 			 <div class="alert alert-danger" style="display:none"></div>
-				<div class="mb-3">
-					<div class="form-group">
-					<label for="department_name" class="control-label required">Name</label>
-				  </div>
-					<input type="text" class="form-control" id="department_name">
+				
+				
+				<div class="row mb-3">
+                  <label for="department_name" class="col-sm-3 col-form-label required">Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="department_name" id="department_name" >                 </div>
 				</div>
+				
+				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -86,13 +89,15 @@
 		@csrf
 			<div class="modal-body">
 				<div class="alert alert-danger" style="display:none"></div>
-				<div class="mb-3">
-				<div class="form-group">
-					<label for="department_name" class="control-label required">Name</label>
-				  </div>
-					
-					<input type="text" class="form-control" id="edit_department_name">
+			
+				<div class="row mb-3">
+                  <label for="edit_department_name" class="col-sm-3 col-form-label required">Name</label>
+                  <div class="col-sm-9">
+					<input type="text" class="form-control" name="edit_department_name" id="edit_department_name" >                 </div>
 				</div>
+				
+				
+				
 				<input type="hidden" class="form-control" id="hidden_department_id" value="">
 			</div>
 			<div class="modal-footer">

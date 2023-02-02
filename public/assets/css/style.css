@@ -1285,3 +1285,7 @@ h6 {
 .permissionLabel{
 	margin-right: 32px;
 }
+.test{
+	color: #012970 !important;
+    background: #fff !important;
+}
