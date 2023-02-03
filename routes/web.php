@@ -5,6 +5,7 @@ use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/edit/role', [RolesController::class, 'edit']);
 	Route::post('/update/role', [RolesController::class, 'update']);
 	Route::delete('/delete/role', [RolesController::class, 'destroy']);
+
 	Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 	Route::post('/add/users', [UsersController::class, 'store']);
 	Route::post('/edit/users', [UsersController::class, 'edit']);
@@ -46,4 +48,6 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/delete/users', [UsersController::class, 'destroy']);
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus']);
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
+	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
+	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
  });

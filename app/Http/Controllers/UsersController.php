@@ -42,7 +42,7 @@ class UsersController extends Controller
 			'role_select'=>'required', 
 			'department_select'=>'required', 
 			'address'=>'required', 
-			'manager_select'=>'required',
+		
         ]);
  
         if ($validator->fails())
