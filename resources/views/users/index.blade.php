@@ -22,8 +22,8 @@
         <table class="table table-hover" id="users_table">
             <thead>
                 <tr>
-                    <th>FirstName</th>
-                    <th>LastName</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Email</th>
                     <th>Salary</th>
                     <th>Department</th>
