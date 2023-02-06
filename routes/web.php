@@ -6,6 +6,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\LeavesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,4 +51,8 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+	
+	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');
+	Route::post('/add/leaves', [leavesController::class, 'store']);
+
  });
