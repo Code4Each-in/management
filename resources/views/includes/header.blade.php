@@ -205,6 +205,13 @@
                     <span>Attendance</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('leaves') ? '' : 'collapsed' }}" href="{{ route('leaves.index') }}">
+                    <i class="bi bi-menu-button-wide"></i>
+                    <span>Leaves
+                    </span>
+                </a>
+            </li>
             <!-- End Departments Nav -->
 
             <!-- <li class="nav-item">
