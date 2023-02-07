@@ -29,7 +29,7 @@
                     <th>To</th>
                     <th>Type</th>
                     <th>Notes</th>
-                    <th>Acion</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,7 +40,12 @@
                     <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                     <td>{{$data->type }}</td>
                     <td>{{$data->notes }}</td>
-                    <td></td>
+                    <td><label class="switch">
+                            <input class="is_approved" user-leave-id="{{$data->id}}" name="is_approved" id="is_approved"
+                                type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
                 </tr>
                 @empty
                 @endforelse
@@ -84,7 +89,7 @@
                         @endif
                     </div>
                     <div class="row mb-3">
-                        <label for="" class="col-sm-3 col-form-label required">Type</label>
+                        <label for="" class="col-sm-3 col-form-label ">Type</label>
                         <div class="col-sm-9">
                             <select name="type" class="form-select" id="type">
                                 <option value="">-- Select type --</option>
@@ -96,11 +101,13 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="notes" class="col-sm-3 col-form-label required">Notes</label>
+                        <label for="notes" class="col-sm-3 col-form-label">Notes</label>
                         <div class="col-sm-9">
                             <textarea name="notes" class="form-control" id="notes"></textarea>
                         </div>
                     </div>
+
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onClick="addleaves(this)"
@@ -121,11 +128,17 @@ $(document).ready(function() {
         $('.message').fadeOut("slow");
     }, 2000);
 
+    $(".is_approved").change(function() {
+        var test = $(this).attr('user-leave-id');
+    });
+
+
 
     $('#leavestable').DataTable({
         "order": []
 
     });
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -135,33 +148,6 @@ $(document).ready(function() {
 
 
 });
-
-function Showdata(ele) {
-    var dataId = $(ele).attr("data-user-id");
-
-    var status = 0;
-    if ($("#active_user_" + dataId).prop('checked') == true) {
-        status = 1;
-    }
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/update/users/status')}}",
-        data: {
-            dataId: dataId,
-            status: status,
-        },
-        cache: false,
-        success: (data) => {
-            if (data.status == 200) {
-                location.reload();
-            }
-        },
-        error: function(data) {
-            console.log(data);
-        }
-    });
-
-}
 
 function openleavesModal() {
     $('.alert-danger').html('');

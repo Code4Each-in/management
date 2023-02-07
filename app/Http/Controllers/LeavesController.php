@@ -6,7 +6,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\UserLeaves;
 use Carbon\Carbon;
-use App\Http\Requests\StoreUserLeaves;
+use App\Http\Requests\StoreUserLeavesRequest;
+use Illuminate\Support\Facades\Input;
 
 class LeavesController extends Controller
 {
@@ -15,20 +16,16 @@ class LeavesController extends Controller
         $leavesData = UserLeaves::orderBy('id','desc')->get();
         return view('leaves.index',compact('leavesData'));  
     }  
-    public function store(StoreUserLeaves $request)
-    {
-        $validated = $request->validate([
-            'from' => 'required',
-            'to' => 'required'
-        ]);
-        //dd($validated);      
-        $validator = \Validator::make($request->all());
 
-        if ($validator->fails()) {
-        
-           return response()->json(['errors'=>$validator->errors()->all()]);
-        }
+
     
+    public function store(StoreUserLeavesRequest $request)
+    {
+
+        if (isset($request->validator) && $request->validator->fails()) {
+            return response()->json(['errors'=>$request->validator->errors()->all()]);
+        }
+        
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
             'from'=>$request->from,

@@ -54,5 +54,6 @@ Route::group(['middleware' => ['auth']], function() {
 	
 	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');
 	Route::post('/add/leaves', [leavesController::class, 'store']);
+	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
 
  });

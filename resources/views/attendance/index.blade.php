@@ -18,8 +18,8 @@
                     {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
                     @endfor
             </select>
-            @if ($errors->has('in_time'))
-            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('in_time') }}</span>
+            @if ($errors->has('intime'))
+            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
             @endif
         </div>
         <div class="col-sm-2">
@@ -29,8 +29,8 @@
                     {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
                     @endfor
             </select>
-            @if ($errors->has('out_time'))
-            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('out_time') }}</span>
+            @if ($errors->has('outtime'))
+            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
             @endif
         </div>
         <div class="col-sm-4">
