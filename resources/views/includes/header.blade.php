@@ -183,7 +183,7 @@
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">
                     <i class="bi bi-menu-button-wide"></i>
-                    <span>Departments</span>
+                    <span>New Departments</span>
                 </a>
             </li>
             <li class="nav-item">
