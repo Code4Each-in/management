@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserAttendance extends Migration
+class CreateUserAttendances extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateUserAttendance extends Migration
      */
     public function up()
     {
-        Schema::create('user_attendance', function (Blueprint $table) {
+        Schema::create('user_attendances', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->constrained();
 		    $table->date('date')->nullable();
@@ -32,6 +32,6 @@ class CreateUserAttendance extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_attendance');
+        Schema::dropIfExists('user_attendances');
     }
 }

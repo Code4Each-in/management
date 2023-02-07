@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\UserAttendance;
+use App\Models\UserAttendances;
 use Illuminate\Support\Facades\Redirect;
 
 class AttendanceController extends Controller
@@ -11,7 +11,7 @@ class AttendanceController extends Controller
     
     public function index()
     {
-        $attendanceData= UserAttendance::orderBy('id','desc')->get();
+        $attendanceData= UserAttendances::orderBy('id','desc')->get();
         return view('attendance.index',compact('attendanceData'));   
     }
     
@@ -27,7 +27,7 @@ class AttendanceController extends Controller
             return Redirect::back()->withErrors($validator);
         }  
          $validate = $validator->valid();	
-           $users =UserAttendance::create([     
+           $users =UserAttendances::create([     
             'user_id'=> auth()->user()->id,     
             'in_time'=>$validate['intime'],
             'out_time'=>$validate['outtime'],
