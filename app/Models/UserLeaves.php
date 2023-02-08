@@ -22,5 +22,11 @@ class UserLeaves extends Model
  
     ];
 
+    public function role()
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
+	
+
     use HasFactory;
 }

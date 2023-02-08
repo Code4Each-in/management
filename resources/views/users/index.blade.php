@@ -26,8 +26,8 @@
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Salary</th>
-                    <th>Department</th>
                     <th>Role</th>
+                    <th>Department</th>
                     <th>Address</th>
                     <th>Phone</th>
                     <th>Active</th>

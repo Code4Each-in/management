@@ -29,7 +29,7 @@
                     <th>To</th>
                     <th>Type</th>
                     <th>Notes</th>
-                    <th>Action</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,12 +40,22 @@
                     <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                     <td>{{$data->type }}</td>
                     <td>{{$data->notes }}</td>
+                    @if($roleData->name == 'Manager')
                     <td><label class="switch">
-                            <input class="is_approved" user-leave-id="{{$data->id}}" name="is_approved" id="is_approved"
-                                type="checkbox">
-                            <span class="slider round"></span>
-                        </label>
+                            <input class="is_approved" user-leave-id="{{$data->id}}" name="is_approved"
+                                id="{{'is_approved_'.$data->id}}" type="checkbox"
+                                {{$data->is_approved == 1 ? 'checked' : ''}}>
+                            <lspan class="slider round"></lspan>
+                            </labe>
                     </td>
+                    @elseif($roleData->name == 'Employee')
+
+                    @if($data->is_approved == 0)
+                    <td style="color:#4154f1">Requested</td>
+                    @else
+                    <td style="color:#008000">Approved</td>
+                    @endif
+                    @endif
                 </tr>
                 @empty
                 @endforelse
@@ -129,8 +139,34 @@ $(document).ready(function() {
     }, 2000);
 
     $(".is_approved").change(function() {
-        var test = $(this).attr('user-leave-id');
+        var LeavesId = $(this).attr('user-leave-id');
+        var LeavesStatus = 0;
+        if ($(this).is(':checked') == true) {
+            LeavesStatus = 1;
+        }
+        // alert(LeavesStatus);
+        $.ajax({
+            type: "POST",
+            url: "{{ url('/update/leaves') }}",
+            data: {
+                LeavesId: LeavesId,
+                LeavesStatus: LeavesStatus,
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.errors) {
+
+                } else {
+
+                    location.reload();
+                }
+            }
+        });
     });
+
+
+
+
 
 
 
