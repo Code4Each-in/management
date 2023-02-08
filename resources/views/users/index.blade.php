@@ -42,7 +42,6 @@
                     <td>{{ $data->first_name }}</td>
                     <td>{{ $data->last_name }}</td>
                     <td>{{ $data->email }}</td>
-
                     <td>{{ $data->salary }}</td>
                     <td>{{$data->role->name ?? ''}}</td>
                     <td>{{$data->department->name ?? ''}}</td>
@@ -161,9 +160,11 @@
                             <select name="manager_select[]" class="form-control select" id="manager_select" multiple>
                                 <option value="" disabled>-- Select Manager --</option>
                                 @foreach ($usersData as $data)
+                                @if($data->role->name=="Manager")
                                 <option value="{{$data->id}}">
-                                    {{$data->first_name.' '.$data->last_name}}
+                                    {{$data->first_name}}
                                 </option>
+                                @endif
                                 @endforeach
                             </select>
                         </div>
