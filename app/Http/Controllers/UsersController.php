@@ -18,11 +18,12 @@ class UsersController extends Controller
      */
     public function index()
     {
-		//$usersData=Users::with('role','department')->orderBy('id','desc')->where('role_id', '3')->get();  //database query
+		// $usersData=Users::with('role','department')->orderBy('id','desc')->where('role_id', '3')->get();  //database query
 		$usersData=Users::with('role','department')->orderBy('id','desc')->get();  //database query
+		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
-        return view('users.index',compact('usersData','roleData','departmentData'));
+        return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
     }
 	 /**
      * Store a newly created resource in storage.

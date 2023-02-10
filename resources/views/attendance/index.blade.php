@@ -1,6 +1,6 @@
 @extends('layout')
-@section('title', 'Departments')
-@section('subtitle', 'Departments')
+@section('title', 'Attendance')
+@section('subtitle', 'Attendance')
 @section('content')
 <center>
     <h4>Attendance</h4>
@@ -60,10 +60,8 @@
                 <th>In Time</th>
                 <th>Out Time</th>
                 <th>Notes</th>
-
             </tr>
         </thead>
-
         <tbody>
             @forelse($attendanceData as $data)
             <tr>
@@ -71,8 +69,8 @@
                 <!-- <td>{{$data->created_at}}</td> -->
                 <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}} </td>
 
-                <td>{{ date("H:s a", strtotime($data->in_time));}}</td>
-                <td>{{date("H:s a", strtotime( $data->out_time));}}</td>
+                <td>{{ date("h:s A", strtotime($data->in_time));}}</td>
+                <td>{{date("h:s A", strtotime( $data->out_time));}}</td>
                 <td>{{ $data->notes}}</td>
             </tr>
             @empty
@@ -93,7 +91,6 @@ $(document).ready(function() {
         "order": []
         //"columnDefs": [ { "orderable": false, "targets": 7 }]
     });
-
 });
 </script>
 @endsection

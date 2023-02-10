@@ -1,6 +1,6 @@
 @extends('layout')
-@section('title', 'Departments')
-@section('subtitle', 'Departments')
+@section('title', 'Roles')
+@section('subtitle', 'Roles')
 @section('content')
 <center>
     <h4>Roles</h4>

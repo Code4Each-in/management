@@ -49,11 +49,13 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/delete/users', [UsersController::class, 'destroy']);
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus']);
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
+	
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
-	
+	Route::get('/attendance/teams', [AttendanceController::class, 'showTeamsAttendance'])->name('teams.attendance');
+
 	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');
 	Route::post('/add/leaves', [leavesController::class, 'store']);
 	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
-
+	Route::get('/leaves/teams', [leavesController::class, 'showTeamData'])->name('team.leaves');
  });

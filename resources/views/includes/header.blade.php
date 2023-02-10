@@ -8,7 +8,7 @@
 
         <div class="d-flex align-items-center justify-content-between">
             <a href="index.html" class="logo d-flex align-items-center">
-                <img src="assets/img/logo.png" alt="">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="">
                 <span class="d-none d-lg-block">Management</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -183,7 +183,7 @@
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">
                     <i class="bi bi-menu-button-wide"></i>
-                    <span>New Departments</span>
+                    <span>Departments</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -198,21 +198,53 @@
                     <span>Users</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
                     href="{{ route('attendance.index') }}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Attendance</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('leaves') ? '' : 'collapsed' }}" href="{{ route('leaves.index') }}">
-                    <i class="bi bi-menu-button-wide"></i>
-                    <span>Leaves
-                    </span>
+                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Attendance</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
                 </a>
+                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class="{{ request()->is('attendance') ? '' : 'collapsed' }}"
+                            href="{{ route('attendance.index') }}" href="">
+                            <i class="bi bi-circle "></i><span>My Attendance</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class=" {{ request()->is('teams') ? '' : 'collapsed' }}"
+                            href="{{ route('teams.attendance')}}">
+                            <i class="bi bi-circle"></i><span>Team Attendance</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
-            <!-- End Departments Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Leaves</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class=" {{ request()->is('leaves') ? '' : 'collapsed' }}"
+                            href=" {{ route('leaves.index') }}">
+                            <i class="bi bi-circle "></i><span>My Leaves</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class=" {{ request()->is('teams') ? '' : 'collapsed' }}" href=" {{ route('team.leaves') }}">
+                            <i class="bi bi-circle"></i><span>Team Leaves</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">

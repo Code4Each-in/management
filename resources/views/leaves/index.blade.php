@@ -1,6 +1,6 @@
 @extends('layout')
-@section('title', 'Departments')
-@section('subtitle', 'Departments')
+@section('title', 'My Leaves')
+@section('subtitle', 'My Leaves')
 @section('content')
 <center>
     <h4>Leaves</h4>
@@ -40,31 +40,20 @@
                     <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                     <td>{{$data->type }}</td>
                     <td>{{$data->notes }}</td>
-                    @if($roleData->name == 'Manager')
-                    <td><label class="switch">
-                            <input class="is_approved" user-leave-id="{{$data->id}}" name="is_approved"
-                                id="{{'is_approved_'.$data->id}}" type="checkbox"
-                                {{$data->is_approved == 1 ? 'checked' : ''}}>
-                            <lspan class="slider round"></lspan>
-                            </labe>
-                    </td>
-                    @elseif($roleData->name == 'Employee')
-
-                    @if($data->is_approved == 0)
-                    <td style="color:#4154f1">Requested</td>
+                    @if($data->leave_status == 'approved')
+                    <td style="color:#4154f1">approved</td>
+                    @elseif($data->leave_status == 'decline')
+                    <td style="color:#FF0000">decline</td>
                     @else
-                    <td style="color:#008000">Approved</td>
-                    @endif
+                    <td style="color:#008000">requested</td>
                     @endif
                 </tr>
                 @empty
                 @endforelse
-
             </tbody>
         </table>
     </div>
 </div>
-
 
 
 <!--start: Add users Modal -->
@@ -134,10 +123,8 @@
 <script>
 $(document).ready(function() {
     setTimeout(function() {
-
         $('.message').fadeOut("slow");
     }, 2000);
-
     $(".is_approved").change(function() {
         var LeavesId = $(this).attr('user-leave-id');
         var LeavesStatus = 0;
@@ -164,12 +151,6 @@ $(document).ready(function() {
         });
     });
 
-
-
-
-
-
-
     $('#leavestable').DataTable({
         "order": []
 
@@ -181,8 +162,6 @@ $(document).ready(function() {
         }
     });
 
-
-
 });
 
 function openleavesModal() {
@@ -192,9 +171,7 @@ function openleavesModal() {
     $('#addleaves').modal('show');
 }
 
-
 function addleaves() {
-
     $.ajax({
         type: 'POST',
         url: "{{ url('/add/leaves')}}",
@@ -204,7 +181,6 @@ function addleaves() {
             console.log(data);
             if (data.errors) {
                 $('.alert-danger').html('');
-
                 $.each(data.errors, function(key, value) {
                     $('.alert-danger').show();
                     $('.alert-danger').append('<li>' + value + '</li>');

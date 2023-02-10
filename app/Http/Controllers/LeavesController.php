@@ -6,53 +6,55 @@ use Carbon\Carbon;
 use App\Http\Requests\StoreUserLeavesRequest;
 use Illuminate\Support\Facades\Input;
 use App\Models\Roles;
+use App\Models\Managers;
 
 
 class LeavesController extends Controller
 {
     public function index()
     {
-        $leavesData = UserLeaves::orderBy('id','desc')->get();
+        $leavesData = UserLeaves::orderBy('id','desc')->where('user_id',auth()->user()->id)->get();
 		$roleData=Roles::where(['id' => auth()->user()->role_id])->first();
-        // dd($roleData);
         return view('leaves.index',compact('leavesData', 'roleData'));  
+
     }  
- 
     public function store(StoreUserLeavesRequest $request)
     {
-
         if (isset($request->validator) && $request->validator->fails()) {
             return response()->json(['errors'=>$request->validator->errors()->all()]);
-        }
-        
+        } 
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
             'from'=>$request->from,
             'to'=>$request->to,
             'type'=>$request->type,
             'notes'=>$request->notes,
-           ]);
-           
+           ]);       
            $request->session()->flash('message','Leaves added successfully.');
            return Response()->json(['status'=>200, 'leaves'=>$userLeaves]);
     }
     public function setLeavesApproved(Request $request)
 	 {
-		
-        UserLeaves::where(['id'=>$request->LeavesId, 'user_id'=> auth()->user()->id])
+        // dd($request);
+        UserLeaves::where(['id'=>$request->LeavesId])
 			->update([
-            'is_approved' =>$request->LeavesStatus
+            'leave_status' =>$request->LeavesStatus,
+            'status_change_by'=> auth()->user()->id,
+          
 			 ]);
-            $message= "user leave dissapproved";     
-            if ($request->LeavesStatus==1) {
 
-                $message="user leave approved";
-
-            }
-         
-
-			 $request->session()->flash('message',   $message);
+            //  $message= "user leave dissapproved";     
+            //   if ($request->LeavesStatus==1) {
+                // $message="user leave approved";
+                // }
+			 $request->session()->flash('message', 'user leave status updated' );
 		     return Response()->json(['status'=>200]);	
 	 }
-	 
+     
+     public function showTeamData()
+	 {
+        $teamLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_leaves.*', 'managers.user_id','users.*']);
+
+        return view('leaves.team',compact('teamLeaves'));
+	 }
 }
