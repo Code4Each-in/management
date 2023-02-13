@@ -2,12 +2,8 @@
 @section('title', 'Roles')
 @section('subtitle', 'Roles')
 @section('content')
-<center>
-    <h4>Roles</h4>
-</center>
-<button class="btn btn-primary" onClick="openroleModal()" href="javascript:void(0)">ADD ROLES</button>
-<br>
-<hr>
+
+<button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">ADD ROLES</button>
 
 <div class="box-header with-border" id="filter-box">
     @if(session()->has('message'))
@@ -31,10 +27,10 @@
                     <td>{{ $data->name }}</td>
                     <td>
                         <i style="color:#4154f1;" onClick="editRole('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-edit fa-fw"></i>
+                            class="fa fa-edit fa-fw pointer"></i>
 
                         <i style="color:#4154f1;" onClick="deleteRole('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-trash fa-fw"></i>
+                            class="fa fa-trash fa-fw pointer"></i>
                     </td>
                 </tr>
                 @empty

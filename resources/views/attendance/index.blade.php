@@ -2,15 +2,11 @@
 @section('title', 'Attendance')
 @section('subtitle', 'Attendance')
 @section('content')
-<center>
-    <h4>Attendance</h4>
-</center>
-<br>
 
 
 <form method="post" action="{{ route('attendance.store')}}">
     @csrf
-    <div class="row mb-3">
+    <div class="row mb-3 mt-4">
         <div class="col-sm-2">
             <select name="intime" class="form-select" id="">
                 <option value="">In Time<span style="color:red">*</span></option>
@@ -36,10 +32,8 @@
         <div class="col-sm-4">
             <textarea name="notes" rows="1" class="form-control" id=""></textarea>
         </div>
-
-
         <div class="col-sm-4">
-            <button type="submit" class="btn btn-primary" href="javascript:void(0)">Attendance</button>
+            <button type="submit" class="btn btn-primary" href="javascript:void(0)">ADD</button>
         </div>
     </div>
 </form>
@@ -48,9 +42,6 @@
     {{ session()->get('message') }}
 </div>
 @endif
-
-</div>
-<hr>
 <div class="box-body table-responsive" style="margin-bottom: 5%">
     <table class="table table-hover" id="attendance">
         <thead>
@@ -78,8 +69,7 @@
 </div>
 </tbody>
 </table>
-</div>
-</div>
+
 @endsection
 @section('js_scripts')
 <script>

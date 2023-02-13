@@ -2,14 +2,8 @@
 @section('title', 'My Leaves')
 @section('subtitle', 'My Leaves')
 @section('content')
-<center>
-    <h4>Leaves</h4>
-</center>
-<button class="btn btn-primary" onClick="openleavesModal()" href="javascript:void(0)">ADD LEAVES</button>
-<br>
-<hr>
 
-
+<button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">ADD LEAVES</button>
 <div class="box-header with-border" id="filter-box">
     <br>
     @if(session()->has('message'))
@@ -41,11 +35,11 @@
                     <td>{{$data->type }}</td>
                     <td>{{$data->notes }}</td>
                     @if($data->leave_status == 'approved')
-                    <td style="color:#4154f1">approved</td>
+                    <td><span class="badge rounded-pill approved">Approved</span></td>
                     @elseif($data->leave_status == 'decline')
-                    <td style="color:#FF0000">decline</td>
+                    <td><span class="badge rounded-pill denied">Decline</span></td>
                     @else
-                    <td style="color:#008000">requested</td>
+                    <td><span class="badge rounded-pill requested">Requested</span></td>
                     @endif
                 </tr>
                 @empty

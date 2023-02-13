@@ -1,13 +1,9 @@
 @extends('layout')
-@section('title', 'Departments')
-@section('subtitle', 'Departments')
+@section('title', 'Users')
+@section('subtitle', 'Users')
 @section('content')
-<center>
-    <h4>Users</h4>
-</center>
-<button class="btn btn-primary" onClick="openusersModal()" href="javascript:void(0)">ADD USERS</button>
-<br>
-<hr>
+
+<button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">ADD USERS</button>
 
 <div class="box-header with-border" id="filter-box">
     <br>
@@ -16,8 +12,6 @@
         {{ session()->get('message') }}
     </div>
     @endif
-
-
     <div class="box-body table-responsive" style="margin-bottom: 5%">
         <table class="table table-hover" id="users_table">
             <thead>
@@ -32,10 +26,8 @@
                     <th>Phone</th>
                     <th>Active</th>
                     <th>Action</th>
-
                 </tr>
             </thead>
-
             <tbody>
                 @forelse($usersData as $data)
                 <tr>
@@ -49,7 +41,7 @@
                     <td>{{ $data->phone }}</td>
                     <td>
                         <div class="form-group form-check active_user">
-                            <input type="checkbox[" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
+                            <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
                                 class="form-check-input" id="{{'active_user_'.$data->id}}"
                                 {{$data->status == 1 ? 'checked' : ''}}>
                             <label class="form-check-label" for="active_user"></label>
@@ -57,26 +49,22 @@
                     </td>
                     <td>
                         <i style="color:#4154f1;" onClick="editUsers('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-edit fa-fw"></i>
+                            class="fa fa-edit fa-fw pointer"></i>
 
                         <i style="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-trash fa-fw"></i>
+                            class="fa fa-trash fa-fw pointer"></i>
                     </td>
                 </tr>
-
                 @empty
                 @endforelse
-
             </tbody>
         </table>
     </div>
 </div>
-
-
 <!--start: Add users Modal -->
 <div class="modal fade" id="addUsers" tabindex="-1" aria-labelledby="role" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="width:505px;">
             <div class="modal-header">
                 <h5 class="modal-title" id="role">Add Users</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -85,7 +73,6 @@
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
-
                     <div class="row mb-3">
                         <label for="user_name" class="col-sm-3 col-form-label required">First Name</label>
                         <div class="col-sm-9">
@@ -101,16 +88,37 @@
                     <div class="row mb-3">
                         <label for="email" class="col-sm-3 col-form-label required">Email</label>
                         <div class="col-sm-9">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="email" id="email">
-                                <span class="input-group-text">@example.com</span>
-                            </div>
+                            <!-- <div class="input-group"> -->
+                            <input type="text" class="form-control" name="email" id="email">
+                            <!-- <span class="input-group-text">@example.com</span> -->
+                            <!-- </div> -->
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
                         <div class="col-sm-9">
                             <input type="number" class="form-control" name="phone" id="phone">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="joining_date" class="col-sm-3 col-form-label required">Joining date</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="joining_date" id="joining_date">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="birthdate_date" class="col-sm-3 col-form-label required">Birth date</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="birth_date" id="birth_date">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="inputNumber" class="col-sm-3 col-form-label required">Profile Picture</label>
+                        <div class="col-sm-9">
+                            <input class="form-control" type="file" id="formFile" name="profile_picture">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -130,7 +138,7 @@
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
                         <div class="col-sm-9">
                             <select name="role_select" class="form-select" id="role_select">
-                                <option value="">-- Select Role --</option>
+                                <option value="">Select Role</option>
                                 @foreach ($roleData as $data)
                                 <option value="{{$data->id}}">
                                     {{$data->name}}
@@ -142,8 +150,8 @@
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Department</label>
                         <div class="col-sm-9">
-                            <select name="department_select" class="form-control" id="department_select">
-                                <option value="">-- Select Department --</option>
+                            <select name="department_select" class="form-select" id="department_select">
+                                <option value="">Select Department</option>
                                 @foreach ($departmentData as $data)
                                 <option value="{{$data->id}}">
                                     {{$data->name}}
@@ -152,9 +160,7 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="row mb-3">
-
                         <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
                         <div class="col-sm-9">
                             <select name="manager_select[]" class="form-control select" id="manager_select" multiple>
@@ -169,7 +175,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <label for="password" class="col-sm-3 col-form-label required">Password</label>
                         <div class="col-sm-9">
@@ -177,16 +182,45 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="address" class="col-sm-3 col-form-label required">Address</label>
+                        <label for="password_confirmation" class="col-sm-3 col-form-label required"> Confirm
+                            Password</label>
                         <div class="col-sm-9">
-                            <textarea name="address" class="form-control" id="address"></textarea>
+                            <input type="text" class="form-control" name="password_confirmation"
+                                id="password_confirmation">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onClick="addusers(this)"
-                            href="javascript:void(0)">Save</button>
+                    <div class="row mb-3">
+                        <label for="address" class="col-sm-3 col-form-label required">Address</label>
+                        <div class="col-sm-9">
+                            <!-- <textarea name="address" class="form-control" id="address"></textarea> -->
+                            <input type="text" class="form-control" name="address" id="address"
+                                placeholder="Apartment, studio, or floor">
+                        </div>
                     </div>
+                    <div class="row mb-3">
+                        <label for="city" class="col-sm-3 col-form-label required">City</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="city" id="city">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="state" class="col-sm-3 col-form-label required">State</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="state" id="state">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <label for="zip" class="col-sm-3 col-form-label required">Zip</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="zip" id="zip">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onClick="addusers(this)"
+                        href="javascript:void(0)">Save</button>
+                </div>
             </form>
         </div>
     </div>
@@ -196,7 +230,7 @@
 
 <div class="modal fade" id="editUsers" tabindex="-1" aria-labelledby="editUsersLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="width:505px;">
             <div class="modal-header">
                 <h5 class="modal-title" id="editUsersLabel">Add Users</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -222,15 +256,12 @@
                     <div class="row mb-3">
                         <label for="email" class="col-sm-3 col-form-label required">Email</label>
                         <div class="col-sm-9">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="edit_email" id="edit_email">
-                                <span class="input-group-text">@example.com</span>
-                            </div>
+                            <!-- <div class="input-group"> -->
+                            <input type="text" class="form-control" name="edit_email" id="edit_email">
+                            <!-- <span class="input-group-text">@example.com</span> -->
+                            <!-- </div> -->
                         </div>
                     </div>
-
-
-
 
                     <!--<div class="col-sm-3 mt-4">
 					<div class="form-group form-check">
@@ -249,6 +280,7 @@
                         </div>
                     </div>
 
+
                     <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
@@ -256,7 +288,7 @@
                         </div>
                         <div class="col-sm-7">
                             <div style="display:none;" class="input-group edit_salary">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text"></span>
                                 <input type="number" class="form-control" name="edit_salary" id="edit_salary">
                                 <span class="input-group-text">.00</span>
                             </div>
@@ -267,7 +299,7 @@
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
                         <div class="col-sm-9">
                             <select name="role_select" class="form-select" id="role_select">
-                                <option value="">-- Select Role --</option>
+                                <option value="">Select Role</option>
                                 @foreach ($roleData as $data)
                                 <option value="{{$data->id}}">
                                     {{$data->name}}
@@ -280,8 +312,8 @@
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Department</label>
                         <div class="col-sm-9">
-                            <select name="department_select" class="form-control" id="department_select">
-                                <option value="">-- Select Department --</option>
+                            <select name="department_select" class="form-select" control id="department_select">
+                                <option value="">Select Department</option>
                                 @foreach ($departmentData as $data)
                                 <option value="{{$data->id}}">
                                     {{$data->name}}
@@ -292,7 +324,6 @@
                     </div>
 
                     <div class="row mb-3">
-
                         <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
                         <div class="col-sm-9">
                             <select name="manager_select[]" class="form-control select" id="edit_manager_select"

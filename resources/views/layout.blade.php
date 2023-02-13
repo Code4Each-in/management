@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-    @include('includes.css')
-    <title> @yield('title') </title>
-    <body>
-        <div id="wrapper">
-           <!-- Navigation -->
-           @include('includes.header')
-			<!-- Navigation -->
-            <div id="page-wrapper">
-                <div class="container-fluid">
-                    <div class="row">
-                        <br><br>
-		                <div class="col-lg-12">
-		                    @yield('content')
-		                </div>
-		            </div>  
+@include('includes.css')
+
+<body>
+    <main id="main" class="main">
+        <!-- Navigation -->
+        @include('includes.header')
+        <!-- Navigation -->
+        <div class="pagetitle">
+            <h1>@yield('title')</h1>
+            <!-- <nav>
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item">Pages</li>
+                <li class="breadcrumb-item active">Blank</li>
+                </ol>
+            </nav> -->
+        </div><!-- End Page Title -->
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            @yield('content')
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        @include('includes.jss')
-        <script type="text/javascript">
-			$(document).ready(function () {
-			 });
-        </script>
-        @yield('js_scripts')
-    </body>
+        </section>
+    </main>
+    @include('includes.jss')
+    <script type="text/javascript">
+    $(document).ready(function() {});
+    </script>
+    @yield('js_scripts')
+</body>
+
 </html>

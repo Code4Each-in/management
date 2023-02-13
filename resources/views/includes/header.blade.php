@@ -206,11 +206,11 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link collapsed" data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Attendance</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <ul id="attendance-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                     <li>
                         <a class="{{ request()->is('attendance') ? '' : 'collapsed' }}"
                             href="{{ route('attendance.index') }}" href="">
@@ -227,13 +227,13 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link collapsed" data-bs-target="#leaves-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Leaves</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <ul id="leaves-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                     <li>
-                        <a class=" {{ request()->is('leaves') ? '' : 'collapsed' }}"
+                        <a class=" {{ request()->is('leaves') ? '' : 'collapsed' }} active"
                             href=" {{ route('leaves.index') }}">
                             <i class="bi bi-circle "></i><span>My Leaves</span>
                         </a>

@@ -18,8 +18,8 @@ class UsersController extends Controller
      */
     public function index()
     {
-		// $usersData=Users::with('role','department')->orderBy('id','desc')->where('role_id', '3')->get();  //database query
-		$usersData=Users::with('role','department')->orderBy('id','desc')->get();  //database query
+		$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
+		//database query
 		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
@@ -33,13 +33,15 @@ class UsersController extends Controller
      */
 	 public function store(Request $request)
     {	
-
 		$validator = \Validator::make($request->all(), [
             'user_name' => 'required', 
 			'last_name'=>'required', 
-			'email'=>'required', 
-			'password'=>'required', 
-			'phone'=>'required', 
+			'email'=>'required|unique:users', 
+			'password'=>'required|confirmed:', 
+			'phone'=>'required|unique:users', 
+			'joining_date'=>'required', 
+			'birth_date'=>'required', 
+			'profile_picture'=>'required', 
 			'role_select'=>'required', 
 			'department_select'=>'required', 
 			'address'=>'required', 
@@ -51,7 +53,8 @@ class UsersController extends Controller
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
 					
-		$validate = $validator->valid();			 	
+		$validate = $validator->valid();	
+
 		$salaried=null;		 
 		if (isset($validate['salaried'])) 
 		{
@@ -64,21 +67,22 @@ class UsersController extends Controller
 			'email' => $validate['email'],
 			'password' => $validate['password'],
 			'salary'=>$salaried ,
-			'address'=>$validate['address'],
+			'address'=>$validate['address'].', '.$validate['city'].', '.$validate['state'].', '.$validate['zip'],
 			'phone'=>$validate['phone'],
 			'department_id'=>$validate['department_select'],
 			'role_id'=>$validate['role_select'],
-			'phone'=>$validate['phone'],							
+			'phone'=>$validate['phone'],
+			'joining_date'=>$validate['joining_date'],
+			'birth_date'=>$validate['birth_date'],					
+			'profile_picture'=>$validate['profile_picture'],						
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 		
 		if (isset($validate['manager_select']))
-		{
-					
+		{				
 			foreach($validate['manager_select'] as $manager)
-			{
-							
+			{				
 				$managers =Managers::create([					
 					'user_id' => $users->id,
 					'parent_user_id' => $manager,
@@ -99,7 +103,7 @@ class UsersController extends Controller
 		$managerSelectOptions = Users::where('id', '!=' , $request->id)->orderBy('id','desc')->get();
 		$Managers = Managers::where(['user_id' => $request->id])->get();
 		
-        return Response()->json(['users' =>$users, 'Managers' =>$Managers, 'managerSelectOptions' =>$managerSelectOptions]);
+        return Response()->json(['users' =>$users, 'Managers' =>$Managers,'managerSelectOptions' =>$managerSelectOptions]);
     }
 	
 	 /**
@@ -111,9 +115,9 @@ class UsersController extends Controller
 		public function update(Request $request)
     {
 		$validator = \Validator::make($request->all(), [
-            'edit_username' => 'required',  
-			'edit_lastname' => 'required',  
-			'edit_email'=>'required',  
+            'edit_username' => 'required',
+			'edit_lastname' => 'required',
+			'edit_email'=>'required',
 			'edit_phone'=>'required',		
 			'role_select'=>'required',
 			'department_select'=>'required',
@@ -184,6 +188,5 @@ class UsersController extends Controller
 			 $request->session()->flash('message','User status updated  successfully.');
 		     return Response()->json(['status'=>200]);	
 	 }
-	 
-    
+	     
 }

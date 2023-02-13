@@ -86,7 +86,6 @@ class RolesController extends Controller
         }
 		$validate = $validator->valid();
 
-		
 		$RolePermission=RolePermission::where(['role_id' => $validate['role_id']])->get(); 
 		if (!empty($RolePermission))
 		{

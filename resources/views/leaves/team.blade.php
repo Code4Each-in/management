@@ -2,11 +2,8 @@
 @section('title', 'Team Leaves')
 @section('subtitle', 'Team Leaves')
 @section('content')
-<center>
-    <h4>Leaves</h4>
-</center>
 
-<hr>
+
 
 <div class="box-header with-border" id="filter-box">
     <br>

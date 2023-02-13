@@ -2,20 +2,13 @@
 @section('title', 'Team Attendance')
 @section('subtitle', 'Team Attendance')
 @section('content')
-<center>
-    <h4>Attendance</h4>
-</center>
-<br>
 
 @if(session()->has('message'))
 <div class="alert alert-success message">
     {{ session()->get('message') }}
 </div>
 @endif
-
-</div>
-<hr>
-<div class="box-body table-responsive" style="margin-bottom: 5%">
+<div class="box-body table-responsive mt-3" style="margin-bottom: 5%">
     <table class="table table-hover" id="attendance">
         <thead>
             <tr>
@@ -38,12 +31,9 @@
             </tr>
             @empty
             @endforelse
-
 </div>
 </tbody>
 </table>
-</div>
-</div>
 @endsection
 @section('js_scripts')
 <script>

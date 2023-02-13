@@ -2,24 +2,17 @@
 @section('title', 'Departments')
 @section('subtitle', 'Departments')
 @section('content')
-<center>
-    <h4>Departments</h4>
-</center>
 
-<button class="btn btn-primary" onClick="openDepartmentModal()" href="javascript:void(0)">ADD NEW DEPARTMENT</button>
-<br>
-<hr>
 
+<button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">ADD
+    DEPARTMENT</button>
 <!-- filter -->
 <div class="box-header with-border" id="filter-box">
     @if(session()->has('message'))
     <div class="alert alert-success message">
         {{ session()->get('message') }}
     </div>
-
     @endif
-    <br>
-
     <div class="box-body table-responsive" style="margin-bottom: 5%">
         <table class="table table-hover" id="department_table">
             <thead>
@@ -36,9 +29,9 @@
                     <td>{{ $data->name }}</td>
                     <td>
                         <i style="color:#4154f1;" onClick="editDepartment('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-edit fa-fw"></i>
+                            class="fa fa-edit fa-fw pointer"></i>
                         <i style="color:#4154f1;" onClick="deleteDepartment('{{ $data->id }}')"
-                            href="javascript:void(0)" class="fa fa-trash fa-fw"></i>
+                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                     </td>
                 </tr>
 
