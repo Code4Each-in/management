@@ -3,42 +3,48 @@
 @section('subtitle', 'Roles')
 @section('content')
 
-<button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">ADD ROLES</button>
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">ADD ROLES</button>
+            <div class="box-header with-border" id="filter-box">
+                @if(session()->has('message'))
+                <div class="alert alert-success message">
+                    {{ session()->get('message') }}
+                </div>
 
-<div class="box-header with-border" id="filter-box">
-    @if(session()->has('message'))
-    <div class="alert alert-success message">
-        {{ session()->get('message') }}
-    </div>
+                @endif
+                <br>
+                <div class="box-body table-responsive" style="margin-bottom: 5%">
+                    <table class="table table-hover" id="role_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($roleData as $data)
+                            <tr>
+                                <td>{{ $data->name }}</td>
+                                <td>
+                                    <i style="color:#4154f1;" onClick="editRole('{{ $data->id }}')"
+                                        href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
-    @endif
-    <br>
-    <div class="box-body table-responsive" style="margin-bottom: 5%">
-        <table class="table table-hover" id="role_table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($roleData as $data)
-                <tr>
-                    <td>{{ $data->name }}</td>
-                    <td>
-                        <i style="color:#4154f1;" onClick="editRole('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-edit fa-fw pointer"></i>
-
-                        <i style="color:#4154f1;" onClick="deleteRole('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-trash fa-fw pointer"></i>
-                    </td>
-                </tr>
-                @empty
-                @endforelse
-            </tbody>
-        </table>
+                                    <i style="color:#4154f1;" onClick="deleteRole('{{ $data->id }}')"
+                                        href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                </td>
+                            </tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
 <!--start: Add role Modal -->
 <div class="modal fade" id="addRole" tabindex="-1" aria-labelledby="role" aria-hidden="true">
     <div class="modal-dialog">
@@ -58,9 +64,6 @@
                             <input type="text" class="form-control" name="role_name" id="role_name">
                         </div>
                     </div>
-
-
-
 
                     <label class="mb-2" for="permission">Permissions:</label>
                     @forelse($pages as $page)

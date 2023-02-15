@@ -6,7 +6,6 @@
 <body>
     <main>
         <div class="container">
-
             <section
                 class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
                 <div class="container">
@@ -64,19 +63,13 @@
                                         <div class="col-12">
                                             <button class="btn btn-primary w-100" type="submit">Login</button>
                                         </div>
-
                                     </form>
-
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
-
             </section>
-
         </div>
     </main><!-- End #main -->
 

@@ -26,7 +26,7 @@ class Users extends Authenticatable
 		'salary',
 		'phone',
         'joining_date',
-        'birthdate',
+        'birth_date',
         'profile_picture',
 		'address',
 		'role_id',

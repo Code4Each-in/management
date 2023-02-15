@@ -3,42 +3,47 @@
 @section('subtitle', 'Departments')
 @section('content')
 
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">ADD
+                DEPARTMENT</button>
+            <!-- filter -->
+            <div class="box-header with-border" id="filter-box">
+                @if(session()->has('message'))
+                <div class="alert alert-success message">
+                    {{ session()->get('message') }}
+                </div>
+                @endif
+                <div class="box-body table-responsive" style="margin-bottom: 5%">
+                    <table class="table table-hover" id="department_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
 
-<button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">ADD
-    DEPARTMENT</button>
-<!-- filter -->
-<div class="box-header with-border" id="filter-box">
-    @if(session()->has('message'))
-    <div class="alert alert-success message">
-        {{ session()->get('message') }}
-    </div>
-    @endif
-    <div class="box-body table-responsive" style="margin-bottom: 5%">
-        <table class="table table-hover" id="department_table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Action</th>
+                            </tr>
+                        </thead>
 
-                </tr>
-            </thead>
+                        <tbody>
+                            @forelse($departmentData as $data)
+                            <tr>
+                                <td>{{ $data->name }}</td>
+                                <td>
+                                    <i style="color:#4154f1;" onClick="editDepartment('{{ $data->id }}')"
+                                        href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
+                                    <i style="color:#4154f1;" onClick="deleteDepartment('{{ $data->id }}')"
+                                        href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                </td>
+                            </tr>
 
-            <tbody>
-                @forelse($departmentData as $data)
-                <tr>
-                    <td>{{ $data->name }}</td>
-                    <td>
-                        <i style="color:#4154f1;" onClick="editDepartment('{{ $data->id }}')" href="javascript:void(0)"
-                            class="fa fa-edit fa-fw pointer"></i>
-                        <i style="color:#4154f1;" onClick="deleteDepartment('{{ $data->id }}')"
-                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
-                    </td>
-                </tr>
-
-                @empty
-                @endforelse
-            </tbody>
-        </table>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

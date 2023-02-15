@@ -3,49 +3,56 @@
 @section('subtitle', 'My Leaves')
 @section('content')
 
-<button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">ADD LEAVES</button>
-<div class="box-header with-border" id="filter-box">
-    <br>
-    @if(session()->has('message'))
-    <div class="alert alert-success message">
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">ADD
+                LEAVES</button>
+            <div class="box-header with-border" id="filter-box">
+                <br>
+                @if(session()->has('message'))
+                <div class="alert alert-success message">
 
-        {{ session()->get('message') }}
-    </div>
-    @endif
+                    {{ session()->get('message') }}
+                </div>
+                @endif
 
 
-    <div class="box-body table-responsive" style="margin-bottom: 5%">
-        <table class="table table-hover" id="leavestable">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Type</th>
-                    <th>Notes</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($leavesData as $data)
-                <tr>
-                    <td>{{ auth()->user()->first_name ?? " " }}</td>
-                    <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                    <td>{{date("d-m-Y", strtotime($data->to));}}</td>
-                    <td>{{$data->type }}</td>
-                    <td>{{$data->notes }}</td>
-                    @if($data->leave_status == 'approved')
-                    <td><span class="badge rounded-pill approved">Approved</span></td>
-                    @elseif($data->leave_status == 'decline')
-                    <td><span class="badge rounded-pill denied">Decline</span></td>
-                    @else
-                    <td><span class="badge rounded-pill requested">Requested</span></td>
-                    @endif
-                </tr>
-                @empty
-                @endforelse
-            </tbody>
-        </table>
+                <div class="box-body table-responsive" style="margin-bottom: 5%">
+                    <table class="table table-hover" id="leavestable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Type</th>
+                                <th>Notes</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($leavesData as $data)
+                            <tr>
+                                <td>{{ auth()->user()->first_name ?? " " }}</td>
+                                <td>{{date("d-m-Y", strtotime($data->from));}}</td>
+                                <td>{{date("d-m-Y", strtotime($data->to));}}</td>
+                                <td>{{$data->type }}</td>
+                                <td>{{$data->notes }}</td>
+                                @if($data->leave_status == 'approved')
+                                <td><span class="badge rounded-pill approved">Approved</span></td>
+                                @elseif($data->leave_status == 'decline')
+                                <td><span class="badge rounded-pill denied">Decline</span></td>
+                                @else
+                                <td><span class="badge rounded-pill requested">Requested</span></td>
+                                @endif
+                            </tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -99,8 +106,6 @@
                             <textarea name="notes" class="form-control" id="notes"></textarea>
                         </div>
                     </div>
-
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onClick="addleaves(this)"

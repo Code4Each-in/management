@@ -73,12 +73,10 @@ class RolesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
-    {
-			
+    {		
 			 $validator = \Validator::make($request->all(), [
 			 'role_id'=>'required',
-            'edit_role_name' => 'required', 
-			
+            'edit_role_name' => 'required', 			
         ]);
 		 if ($validator->fails())
         {
@@ -90,8 +88,7 @@ class RolesController extends Controller
 		if (!empty($RolePermission))
 		{
 		      RolePermission::where('role_id', $validate['role_id'])->delete();			
-		}
-		
+		}	
 		if (isset($validate['role_permissions']))
 		{
 			foreach($validate['role_permissions'] as $permission)
@@ -101,17 +98,14 @@ class RolesController extends Controller
 					'module_id' => $permission,
 				]);
 			}		
-		}	
-				
+		}					
 		Roles::where('id', $validate['role_id'])
-        ->update([
-		
+        ->update([	
             'name' => $validate['edit_role_name']
         ]);
 		$request->session()->flash('message','Role updated successfully.');
         return Response()->json(['status'=>200]);
-    }
-		
+    }		
 	 public function destroy(Request $request)
     {
         $Roles = Roles::where('id',$request->id)->delete(); 

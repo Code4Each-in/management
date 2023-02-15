@@ -58,4 +58,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/add/leaves', [leavesController::class, 'store']);
 	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
 	Route::get('/leaves/teams', [leavesController::class, 'showTeamData'])->name('team.leaves');
+	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
+
+
  });
