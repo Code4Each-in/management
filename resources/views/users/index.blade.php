@@ -184,11 +184,9 @@
                             <select name="manager_select[]" class="form-control select" id="manager_select" multiple>
                                 <option value="" disabled>-- Select Manager --</option>
                                 @foreach ($users_Data as $data)
-                                <!-- @if($data->role->name=="Manager") -->
                                 <option value="{{$data->id}}">
                                     {{$data->first_name}}
                                 </option>
-                                <!-- @endif -->
                                 @endforeach
                             </select>
                         </div>
