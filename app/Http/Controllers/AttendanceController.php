@@ -43,7 +43,7 @@ class AttendanceController extends Controller
                'notes'=>$validate['notes']
              ];
          
-         if (!empty($attendenceData))
+         if (!empty($attendanceCheck))
          {
            $attendenceData['updated_at']=date('Y-m-d H:i:s');
            UserAttendances::where('id', $attendanceCheck[0]->id)
