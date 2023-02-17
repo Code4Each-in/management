@@ -35,7 +35,7 @@ class LeavesController extends Controller
     }
     public function setLeavesApproved(Request $request)
 	 {
-        // dd($request);
+      
         UserLeaves::where(['id'=>$request->LeavesId])
 			->update([
             'leave_status' =>$request->LeavesStatus,
@@ -43,10 +43,7 @@ class LeavesController extends Controller
           
 			 ]);
 
-            //  $message= "user leave dissapproved";     
-            //   if ($request->LeavesStatus==1) {
-                // $message="user leave approved";
-                // }
+         
 			 $request->session()->flash('message', 'user leave status updated' );
 		     return Response()->json(['status'=>200]);	
 	 }

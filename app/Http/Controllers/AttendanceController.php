@@ -33,8 +33,7 @@ class AttendanceController extends Controller
             return Redirect::back()->withErrors($validator);
         }  
          $validate = $validator->valid();	
-         $attendanceCheck= UserAttendances::where('user_id',auth()->user()->id)->whereDate('created_at',date('Y-m-d'))
-         ->get();
+         $attendanceCheck= UserAttendances::where('user_id',auth()->user()->id)->whereDate('created_at',date('Y-m-d'))->first();
    
              $attendenceData=[
                'user_id'=> auth()->user()->id,     
@@ -45,12 +44,15 @@ class AttendanceController extends Controller
          
          if (!empty($attendanceCheck))
          {
+          
            $attendenceData['updated_at']=date('Y-m-d H:i:s');
-           UserAttendances::where('id', $attendanceCheck[0]->id)
+           UserAttendances::where('id', $attendanceCheck->id)
            ->update($attendenceData);
            
          }
-         else{
+         else
+         {
+         
            $attendenceData['created_at']=date('Y-m-d H:i:s');
            $users =UserAttendances::create($attendenceData); 
          }

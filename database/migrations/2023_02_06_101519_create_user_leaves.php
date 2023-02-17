@@ -24,14 +24,6 @@ class CreateUserLeaves extends Migration
 
         });
     }
-    // Schema::create('user_attendance', function (Blueprint $table) {
-    //     $table->id();
-    //     $table->integer('user_id')->constrained();
-    //     $table->date('date')->nullable();
-    //     $table->time('in_time')->nullable();
-    //     $table->time('out_time')->nullable();
-    //     $table->string('notes')->nullable();
-    //     $table->t
 
     /**
      * Reverse the migrations.

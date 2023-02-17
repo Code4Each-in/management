@@ -59,6 +59,8 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
 	Route::get('/leaves/teams', [leavesController::class, 'showTeamData'])->name('team.leaves');
 	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
-
+	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
+	Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
+	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
 
  });

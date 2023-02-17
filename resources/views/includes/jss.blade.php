@@ -14,3 +14,5 @@
 <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/js/datatables.js') }}"></script>
 <script src="{{ asset('assets/js/datatables.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js">
+</script>
