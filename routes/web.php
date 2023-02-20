@@ -63,4 +63,6 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
 	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
 
+	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
+
  });

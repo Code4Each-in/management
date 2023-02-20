@@ -7,9 +7,10 @@
 <div class="col-xl-4 profile">
     <div class="card">
         <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-
+            @if(!empty($usersProfile->profile_picture))
             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" id="profile_picture" alt="Profile"
-                class="rounded-circle">
+                class="rounded-circle picture">
+            @endif
             <h2 class="profile_name">{{$usersProfile->first_name." ".$usersProfile->last_name}}</h2>
             <h3>{{$usersProfile->role->name}}</h3>
             <!-- <div class="social-links mt-2">
@@ -20,7 +21,6 @@
             </div> -->
         </div>
     </div>
-
 </div>
 <div class="col-xl-8 profile">
     <div class="card">
@@ -104,26 +104,30 @@
                         <div class="col-lg-3 col-md-4 label">Departement</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->department->name}}</div>
                     </div>
-
                 </div>
-
                 <!-- Profile Edit Form -->
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
                     <div class="alert alert-success profile_message" style="display:none">
                     </div>
+                    <div class="alert alert-success delete_message" style="display:none">
+                    </div>
                     <div class="row mb-3">
-                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
-                        <div class="col-md-8 col-lg-9">
-                            <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}"
+                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label ">Profile Image</label>
+                        <div class="col-md-8 col-lg-9 ">
+                            @if(!empty($usersProfile->profile_picture))
+                            <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" class="picture"
                                 id="edit_profile_picture" alt="Profile">
+                            @endif
+                            <div class="row pt-2 ">
+                                @if(!empty($usersProfile->profile_picture))
+                                <div class="col-md-1 picture">
+                                    <input type="hidden" id="deletePicture" name="profileId"
+                                        value="{{$usersProfile->id}}" />
 
-
-                            <div class="row pt-2">
-                                <div class="col-md-1">
                                     <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i
-                                            class="bi bi-trash"></i></a>
+                                            id="delete_profile" class="bi bi-trash"></i></a>
                                 </div>
-
+                                @endif
                                 <!-- CHANGE PROFILE FORM -->
                                 <div class="col-md-10">
                                     <form id="update_profile_picture">
@@ -139,6 +143,7 @@
                         </div>
                     </div>
                     <form method="post" id="updateLoginUserProfile">
+                        @csrf
                         <div class="alert alert-danger" style="display:none"></div>
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                         <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
@@ -156,7 +161,6 @@
                                 <input name="last_name" type="text" class="form-control" id="last_name"
                                     value='{{$usersProfile->last_name}}'>
                             </div>
-
                         </div>
                         <div class="row mb-3">
                             <label for="email" class="col-md-4 col-lg-3 col-form-label">Email</label>
@@ -164,7 +168,6 @@
                                 <input name="email" type="text" class="form-control" id="email"
                                     value="{{$usersProfile->email}}">
                             </div>
-
                         </div>
                         <div class="row mb-3">
                             <label for="phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
@@ -172,7 +175,6 @@
                                 <input name="phone" type="text" class="form-control" id="phone"
                                     value="{{$usersProfile->phone}}">
                             </div>
-
                         </div>
                         <div class="row mb-3">
                             <label for="joining_date" class="col-md-4 col-lg-3 col-form-label">Joining Date</label>
@@ -180,7 +182,6 @@
                                 <input name="joining_date" type="date" class="form-control" id="joining_date"
                                     value="{{$usersProfile->joining_date}}">
                             </div>
-
                         </div>
                         <div class="row mb-3">
                             <label for="birth_date" class="col-md-4 col-lg-3 col-form-label">Birthdate</label>
@@ -188,7 +189,6 @@
                                 <input name="birth_date" type="date" class="form-control" id="birth_date"
                                     value="{{$usersProfile->birth_date}}">
                             </div>
-
                         </div>
                         @php
                         $addressData=explode(",",$usersProfile->address);
@@ -199,16 +199,13 @@
                                 <input name="address" type="text" class="form-control" id="address"
                                     value="{{$addressData[0]}}">
                             </div>
-
                         </div>
-
                         <div class="row mb-3">
                             <label for="city" class="col-sm-3 col-form-label">City</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="city" id="city"
                                     value="{{$addressData[1] ?? ' '}}">
                             </div>
-
                         </div>
                         <div class="row mb-3">
                             <label for="state" class="col-sm-3 col-form-label">State</label>
@@ -216,7 +213,6 @@
                                 <input type="text" class="form-control" name="state" id="state"
                                     value="{{$addressData[2] ?? ' '}}">
                             </div>
-
                         </div>
                         <div class="row mb-4">
                             <label for="zip" class="col-sm-3 col-form-label">Zip</label>
@@ -224,7 +220,6 @@
                                 <input type="text" class="form-control" name="zip" id="zip"
                                     value="{{$addressData[3] ?? ' '}}">
                             </div>
-
                         </div>
                         <div class="alert alert-success message" style="display:none">
                         </div>
@@ -323,8 +318,12 @@
 <script>
 $(document).ready(function() {
 
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 });
-
 // UPDATE LOGIN USER PROFILE
 function updateLoginUserProfile() {
     $.ajax({
@@ -348,15 +347,18 @@ function updateLoginUserProfile() {
                 }, 2000);
                 // UPDATE OTHER VALUE ON PAGE
                 var user_profile_data = data.user_profile_data;
-                $('.detail_full_name').html(user_profile_data.first_name + ' ' + user_profile_data
+                $('.detail_full_name').html(user_profile_data.first_name + ' ' +
+                    user_profile_data
                     .last_name);
                 $('.detail_full_email').html(user_profile_data.email);
-                $('.detail_full_address').html(user_profile_data.address + ', ' + user_profile_data
+                $('.detail_full_address').html(user_profile_data.address + ', ' +
+                    user_profile_data
                     .city +
                     ', ' + user_profile_data.state + ', ' + user_profile_data.zip);
                 $('.detail_full_phone').html(user_profile_data.phone);
-                $('.detail_full_joining_date').html(moment(user_profile_data.joining_date).format(
-                    'DD-MM-YYYY'));
+                $('.detail_full_joining_date').html(moment(user_profile_data.joining_date)
+                    .format(
+                        'DD-MM-YYYY'));
                 $('.detail_full_birth_date').html(moment(user_profile_data.birth_date).format(
                     'DD-MM-YYYY'));
                 $('.profile_name').html(user_profile_data.first_name + ' ' + user_profile_data
@@ -393,6 +395,7 @@ $('form#update_profile_picture').change(function() {
                     $('.alert-danger').append('<li>' + value + '</li>');
                 })
             } else {
+                $('.picture').show();
                 $('.alert-danger').html('');
                 $('.profile_message').html(data.message);
                 $('.profile_message').show();
@@ -439,5 +442,34 @@ function changeUserPassword() {
         }
     });
 }
+
+$("#delete_profile").click(function() {
+    if (confirm("Are you sure ?") == true) {
+        // var hv = $('#h_v').val();
+
+        var profileId = $('#deletePicture').val();
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/delete/profile/picture')}}",
+            data: {
+                profileId: profileId
+            },
+            cache: false,
+
+            success: (data) => {
+                $('.delete_message').html(data.message);
+                $('.delete_message').show();
+                $('.picture').hide();
+                setTimeout(function() {
+                    $('.delete_message').fadeOut("slow");
+                }, 2000);
+                $("#profile_picture").attr("src", data.path);
+                $("#edit_profile_picture").attr("src", data.path);
+
+            },
+            error: function(data) {}
+        });
+    }
+});
 </script>
 @endsection

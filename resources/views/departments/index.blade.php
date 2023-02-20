@@ -171,6 +171,7 @@ function addDepartment() {
 
 function editDepartment(id) {
     $('#hidden_department_id').val(id);
+
     $.ajax({
         type: "POST",
         url: "{{ url('/edit/department') }}",

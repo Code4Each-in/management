@@ -24,6 +24,7 @@ class UsersController extends Controller
 		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
+	
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
 	}
 	/**
@@ -295,4 +296,13 @@ class UsersController extends Controller
 	
 		return Response()->json(['status'=>200, 'message' => 'Profile Password updated successfully.']);
 	}	
+	public function deleteProfilePicture(Request $request)
+	{
+		$users=Users::where('id', $request->profileId)
+			->update([
+			'profile_picture' => null,
+		]);
+		return Response()->json(['status'=>200, 'message' => ' Profile picture deleted successfully.']);
+	}
+
 }
