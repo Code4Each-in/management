@@ -33,7 +33,7 @@ class UsersController extends Controller
 	* @param  \Illuminate\Http\Request  $request
 	* @return \Illuminate\Http\Response
 	*/
-	public function store(Request $request)
+	public function store(Request $request)   //  validations 
 	{	
 		$validator = \Validator::make($request->all(), [
 		'user_name' => 'required', 
@@ -55,7 +55,7 @@ class UsersController extends Controller
 			return response()->json(['errors'=>$validator->errors()->all()]);
 		}
 
-		$validate = $validator->valid();
+		$validate = $validator->valid(); //getting all data from db
 
 		$profilePicture = time().'.'.$validate['profile_picture']->extension(); 
 		$validate['profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
@@ -102,7 +102,7 @@ class UsersController extends Controller
 	*
 	* @return \Illuminate\Http\Response
 	*/
-	public function edit(Request $request)
+	public function edit(Request $request) 
 	{   
 		$users = Users::where(['id' => $request->id])->first();
 		$managerSelectOptions = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('users.id','!=',$request->id)->get([ 'managers.user_id','users.*']);
@@ -116,9 +116,9 @@ class UsersController extends Controller
 	* Update.
 	*
 	* @param  \Illuminate\Http\Request  $request
-	* @return \Illuminate\Http\Response
+	* @return \Illuminate\Http\Response 
 	*/
-	public function update(Request $request){
+	public function update(Request $request){     // validation
 
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
@@ -149,7 +149,7 @@ class UsersController extends Controller
 			$salaried = $validate['edit_salary'];
 		}		
 
-		Users::where('id', $request->users_id)
+		Users::where('id', $request->users_id)  
 		->update([
 		'first_name' => $validate['edit_username'],        
 		'last_name' => $validate['edit_lastname'],
@@ -213,9 +213,9 @@ class UsersController extends Controller
 	// UPDATE LOGIN USER PROFILE 
 	public function updateProfile(Request $request){
 		$validator = \Validator::make($request->all(), [
-			'first_name' => 'required',
-			'last_name' => 'required',
-			'email' => 'required',
+			'first_name' =>'required',
+			'last_name' =>'required',
+			'email' =>'required',
 			'phone'=>'required',
 			'joining_date'=>'required',
 			'birth_date'=>'required',
@@ -229,7 +229,6 @@ class UsersController extends Controller
 		{
 			return response()->json(['errors'=>$validator->errors()->all()]);
 		}
-
 		$validate = $validator->valid();
 		Users::where('id', $request->user_id)
 			->update([
@@ -241,10 +240,8 @@ class UsersController extends Controller
 			'birth_date' => $validate['birth_date'],
 			'address'=>$validate['address'].', '.$validate['city'].', '.$validate['state'].', '.$validate['zip'],
 		]);
-
 		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
 	}
-
 	// UPDATE PROFILE PICTURE OF LOGIN USER
 	public function updateProfilePicture(Request $request){
 		$validator = \Validator::make($request->all(), [	
@@ -255,12 +252,10 @@ class UsersController extends Controller
             'edit_profile_input.mimes' => 'The profile picture must be a file of type: jpg, png, jpeg, gif.'
         ]
 		);
-
 		if ($validator->fails())
 		{
 			return response()->json(['errors'=>$validator->errors()->all()]);
 		}
-
 		$validate = $validator->valid();
 		$profilePicture = time().'.'.$validate['edit_profile_input']->extension(); 
 		$validate['edit_profile_input']->move(public_path('assets/img/profilePicture'), $profilePicture);
@@ -269,7 +264,6 @@ class UsersController extends Controller
 
 		return Response()->json(['status'=>200, 'message' => 'Profile Picture updated successfully.', 'path'=>url('assets/img/profilePicture/'.$profilePicture)]);
 	}
-
 	public function changeUserPassword(Request $request){
 
 		$validator = \Validator::make($request->all(),[ 
@@ -304,5 +298,4 @@ class UsersController extends Controller
 		]);
 		return Response()->json(['status'=>200, 'message' => ' Profile picture deleted successfully.']);
 	}
-
 }
