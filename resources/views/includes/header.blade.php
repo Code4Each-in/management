@@ -185,7 +185,7 @@
                     <span>Dashboard</span>
                 </a>
             </li><!-- End Dashboard Nav -->
-
+            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">
@@ -199,19 +199,22 @@
                     <span>Roles</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Users</span>
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            <li class="nav-item">
                 <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
-                    href="{{ route('attendance.index') }}">
+                    href="{{ route('teams.attendance')}}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Attendance</span>
                 </a>
-            </li> -->
+            </li>
+            @else
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Attendance</span><i
@@ -232,7 +235,16 @@
                     </li>
                 </ul>
             </li>
-
+            @endif
+            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
+                    href=" {{ route('team.leaves')}}">
+                    <i class="bi bi-menu-button-wide"></i>
+                    <span>Leaves</span>
+                </a>
+            </li>
+            @else
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#leaves-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Leaves</span><i
@@ -252,7 +264,7 @@
                     </li>
                 </ul>
             </li>
-
+            @endif
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>

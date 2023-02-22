@@ -1379,3 +1379,12 @@ input:checked + .slider:before {
   background-color: #fde8e8;
   background-color: rgba(253,232,232,var(--bg-opacity));
 }
+
+
+.table thead {
+  background: #f6f6fe;
+}
+
+.table thead th {
+  border: 0!important; 
+ }

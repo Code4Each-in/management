@@ -19,7 +19,16 @@ class UsersController extends Controller
 	 */
 	public function index()
 	{
+
+		if (auth()->user()->role_id==env('SUPER_ADMIN'))
+		{
+			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
+			//dd($usersData);
+		}
+		else
+		{
 		$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
+		}
 		//database query
 		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
