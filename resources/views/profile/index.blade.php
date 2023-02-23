@@ -10,6 +10,8 @@
             @if(!empty($usersProfile->profile_picture))
             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" id="profile_picture" alt="Profile"
                 class="rounded-circle picture">
+            @else
+            <img src="assets/img/blankImage" alt="Profile" class="rounded-circle">
             @endif
             <h2 class="profile_name">{{$usersProfile->first_name." ".$usersProfile->last_name}}</h2>
             <h3>{{$usersProfile->role->name}}</h3>
@@ -117,7 +119,10 @@
                             @if(!empty($usersProfile->profile_picture))
                             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" class="picture"
                                 id="edit_profile_picture" alt="Profile">
+                            @else
+                            <img src="assets/img/blankImage" alt="Profile" class="rounded-circle">
                             @endif
+
                             <div class="row pt-2 ">
                                 @if(!empty($usersProfile->profile_picture))
                                 <div class="col-md-1 picture">
@@ -229,247 +234,246 @@
                         </div>
                     </form><!-- End Profile Edit Form -->
                 </div>
-                <div>
-                    <div class="tab-pane fade pt-3" id="profile-settings">
-                        <!-- Settings Form -->
-                        <form>
-                            <div class="row mb-3">
-                                <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
-                                    Notifications</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="changesMade" checked>
-                                        <label class="form-check-label" for="changesMade">
-                                            Changes made to your account
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="newProducts" checked>
-                                        <label class="form-check-label" for="newProducts">
-                                            Information on new products and services
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="proOffers">
-                                        <label class="form-check-label" for="proOffers">
-                                            Marketing and promo offers
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="securityNotify" checked
-                                            disabled>
-                                        <label class="form-check-label" for="securityNotify">
-                                            Security alerts
-                                        </label>
-                                    </div>
+                <!-- <div> -->
+                <div class="tab-pane fade pt-3" id="profile-settings">
+                    <!-- Settings Form -->
+                    <form>
+                        <div class="row mb-3">
+                            <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
+                                Notifications</label>
+                            <div class="col-md-8 col-lg-9">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="changesMade" checked>
+                                    <label class="form-check-label" for="changesMade">
+                                        Changes made to your account
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="newProducts" checked>
+                                    <label class="form-check-label" for="newProducts">
+                                        Information on new products and services
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="proOffers">
+                                    <label class="form-check-label" for="proOffers">
+                                        Marketing and promo offers
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="securityNotify" checked
+                                        disabled>
+                                    <label class="form-check-label" for="securityNotify">
+                                        Security alerts
+                                    </label>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </form><!-- End settings Form -->
-                    </div>
-                    <div class="tab-pane fade pt-3" id="profile-change-password">
-                        <!-- Change Password Form -->
-                        <form method="post" id="changeUserPassword">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}" />
-                            <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
-                            <div class="alert alert-danger password_errors" style="display:none"></div>
-                            <div class="alert alert-danger password_error" style="display:none"></div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form><!-- End settings Form -->
+                </div>
+                <div class="tab-pane fade pt-3" id="profile-change-password">
+                    <!-- Change Password Form -->
+                    <form method="post" id="changeUserPassword">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                        <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
+                        <div class="alert alert-danger password_errors" style="display:none"></div>
+                        <div class="alert alert-danger password_error" style="display:none"></div>
 
-                            <div class="alert alert-success password_message" style="display:none">
+                        <div class="alert alert-success password_message" style="display:none">
+                        </div>
+                        <div class="row mb-3">
+                            <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current
+                                Password</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="password" type="password" class="form-control" id="currentPassword">
                             </div>
-                            <div class="row mb-3">
-                                <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current
-                                    Password</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <input name="password" type="password" class="form-control" id="currentPassword">
-                                </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="new_password" class="col-md-4 col-lg-3 col-form-label">New
+                                Password</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="new_password" type="password" class="form-control" id="new_password">
                             </div>
-                            <div class="row mb-3">
-                                <label for="new_password" class="col-md-4 col-lg-3 col-form-label">New
-                                    Password</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <input name="new_password" type="password" class="form-control" id="new_password">
-                                </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="new_password_confirmation" class="col-md-4 col-lg-3 col-form-label">Re-enter
+                                New
+                                Password</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="new_password_confirmation" type="password" class="form-control"
+                                    id="new_password_confirmation">
                             </div>
-                            <div class="row mb-3">
-                                <label for="new_password_confirmation" class="col-md-4 col-lg-3 col-form-label">Re-enter
-                                    New
-                                    Password</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <input name="new_password_confirmation" type="password" class="form-control"
-                                        id="new_password_confirmation">
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <button type="button" onClick="changeUserPassword()" class="btn btn-primary">Change
-                                    Password</button>
-                            </div>
-                        </form><!-- End Change Password Form -->
-                    </div>
-                </div><!-- End Bordered Tabs -->
+                        </div>
+                        <div class="text-center">
+                            <button type="button" onClick="changeUserPassword()" class="btn btn-primary">Change
+                                Password</button>
+                        </div>
+                    </form><!-- End Change Password Form -->
+                </div>
+                <!-- </div> -->
             </div>
         </div>
     </div>
-</div>
-@endsection
-@section('js_scripts')
-<script>
-$(document).ready(function() {
+    @endsection
+    @section('js_scripts')
+    <script>
+    $(document).ready(function() {
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-});
-// UPDATE LOGIN USER PROFILE
-function updateLoginUserProfile() {
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/update/profile')}}",
-        data: $('#updateLoginUserProfile').serialize(),
-        cache: false,
-        success: (data) => {
-            if (data.errors) {
-                $('.alert-danger').html('');
-                $.each(data.errors, function(key, value) {
-                    $('.alert-danger').show();
-                    $('.alert-danger').append('<li>' + value + '</li>');
-                })
-            } else {
-                $('.alert-danger').html('');
-                $('.message').html(data.message);
-                $('.message').show();
-                setTimeout(function() {
-                    $('.message').fadeOut("slow");
-                }, 2000);
-                // UPDATE OTHER VALUE ON PAGE
-                var user_profile_data = data.user_profile_data;
-                $('.detail_full_name').html(user_profile_data.first_name + ' ' +
-                    user_profile_data
-                    .last_name);
-                $('.detail_full_email').html(user_profile_data.email);
-                $('.detail_full_address').html(user_profile_data.address + ', ' +
-                    user_profile_data
-                    .city +
-                    ', ' + user_profile_data.state + ', ' + user_profile_data.zip);
-                $('.detail_full_phone').html(user_profile_data.phone);
-                $('.detail_full_joining_date').html(moment(user_profile_data.joining_date)
-                    .format(
-                        'DD-MM-YYYY'));
-                $('.detail_full_birth_date').html(moment(user_profile_data.birth_date).format(
-                    'DD-MM-YYYY'));
-                $('.profile_name').html(user_profile_data.first_name + ' ' + user_profile_data
-                    .last_name);
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
-        },
-        error: function(data) {
-            console.log(data);
-        }
+        });
     });
-}
-
-// TRIGGER CHOOSE MEDIA DIALOG ON UPLOAD ICON CLICK
-$('#edit_profile_button').click(function() {
-    $('#edit_profile_input').trigger('click');
-});
-
-// CHAGE PROFILE IMAGE OF LOGIN USER
-$('form#update_profile_picture').change(function() {
-    var formData = new FormData(this);
-
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/update/profile/picture')}}",
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false,
-        success: (data) => {
-            if (data.errors) {
-                $('.alert-danger').html('');
-                $.each(data.errors, function(key, value) {
-                    $('.alert-danger').show();
-                    $('.alert-danger').append('<li>' + value + '</li>');
-                })
-            } else {
-                $('.picture').show();
-                $('.alert-danger').html('');
-                $('.profile_message').html(data.message);
-                $('.profile_message').show();
-                setTimeout(function() {
-                    $('.profile_message').fadeOut("slow");
-                }, 2000);
-                $("#profile_picture").attr("src", data.path);
-                $("#edit_profile_picture").attr("src", data.path);
-            }
-        },
-        error: function(data) {}
-    });
-});
-
-// CHANGE PASSWORD OF LOGIN USER
-function changeUserPassword() {
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/change/profile/password')}}",
-        data: $('#changeUserPassword').serialize(),
-        cache: false,
-        success: (data) => {
-            if (data.errors) {
-                $('.alert-danger').html('');
-                $.each(data.errors, function(key, value) {
-                    $('.password_errors').show();
-                    $('.password_errors').append('<li>' + value + '</li>');
-                })
-            } else if (data.error) {
-                $('.alert-danger password_error ').html('');
-                $('.password_error').show();
-                $('.password_error').append('<li>' + data.error + '</li>');
-            } else {
-                $('.alert-danger').html('');
-                $('.password_message').html(data.message);
-                $('.password_message').show();
-                setTimeout(function() {
-                    $('.password_message').fadeOut("slow");
-                }, 2000);
-            }
-        },
-        error: function(data) {
-            console.log(data);
-        }
-    });
-}
-
-$("#delete_profile").click(function() {
-    if (confirm("Are you sure ?") == true) {
-        // var hv = $('#h_v').val();
-
-        var profileId = $('#deletePicture').val();
+    // UPDATE LOGIN USER PROFILE
+    function updateLoginUserProfile() {
         $.ajax({
             type: 'POST',
-            url: "{{ url('/delete/profile/picture')}}",
-            data: {
-                profileId: profileId
-            },
+            url: "{{ url('/update/profile')}}",
+            data: $('#updateLoginUserProfile').serialize(),
             cache: false,
-
             success: (data) => {
-                $('.delete_message').html(data.message);
-                $('.delete_message').show();
-                $('.picture').hide();
-                setTimeout(function() {
-                    $('.delete_message').fadeOut("slow");
-                }, 2000);
-                $("#profile_picture").attr("src", data.path);
-                $("#edit_profile_picture").attr("src", data.path);
+                if (data.errors) {
+                    $('.alert-danger').html('');
+                    $.each(data.errors, function(key, value) {
+                        $('.alert-danger').show();
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    })
+                } else {
+                    $('.alert-danger').html('');
+                    $('.message').html(data.message);
+                    $('.message').show();
+                    setTimeout(function() {
+                        $('.message').fadeOut("slow");
+                    }, 2000);
+                    // UPDATE OTHER VALUE ON PAGE
+                    var user_profile_data = data.user_profile_data;
+                    $('.detail_full_name').html(user_profile_data.first_name + ' ' +
+                        user_profile_data
+                        .last_name);
+                    $('.detail_full_email').html(user_profile_data.email);
+                    $('.detail_full_address').html(user_profile_data.address + ', ' +
+                        user_profile_data
+                        .city +
+                        ', ' + user_profile_data.state + ', ' + user_profile_data.zip);
+                    $('.detail_full_phone').html(user_profile_data.phone);
+                    $('.detail_full_joining_date').html(moment(user_profile_data.joining_date)
+                        .format(
+                            'DD-MM-YYYY'));
+                    $('.detail_full_birth_date').html(moment(user_profile_data.birth_date).format(
+                        'DD-MM-YYYY'));
+                    $('.profile_name').html(user_profile_data.first_name + ' ' + user_profile_data
+                        .last_name);
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    }
 
+    // TRIGGER CHOOSE MEDIA DIALOG ON UPLOAD ICON CLICK
+    $('#edit_profile_button').click(function() {
+        $('#edit_profile_input').trigger('click');
+    });
+
+    // CHAGE PROFILE IMAGE OF LOGIN USER
+    $('form#update_profile_picture').change(function() {
+        var formData = new FormData(this);
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/update/profile/picture')}}",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: (data) => {
+                if (data.errors) {
+                    $('.alert-danger').html('');
+                    $.each(data.errors, function(key, value) {
+                        $('.alert-danger').show();
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    })
+                } else {
+                    // $('.picture').show();
+                    $('.alert-danger').html('');
+                    $('.profile_message').html(data.message);
+                    $('.profile_message').show();
+                    setTimeout(function() {
+                        $('.profile_message').fadeOut("slow");
+                    }, 2000);
+                    $("#profile_picture").attr("src", data.path);
+                    $("#edit_profile_picture").attr("src", data.path);
+                }
             },
             error: function(data) {}
         });
+    });
+
+    // CHANGE PASSWORD OF LOGIN USER
+    function changeUserPassword() {
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/change/profile/password')}}",
+            data: $('#changeUserPassword').serialize(),
+            cache: false,
+            success: (data) => {
+                if (data.errors) {
+                    $('.alert-danger').html('');
+                    $.each(data.errors, function(key, value) {
+                        $('.password_errors').show();
+                        $('.password_errors').append('<li>' + value + '</li>');
+                    })
+                } else if (data.error) {
+                    $('.alert-danger password_error ').html('');
+                    $('.password_error').show();
+                    $('.password_error').append('<li>' + data.error + '</li>');
+                } else {
+                    $('.alert-danger').html('');
+                    $('.password_message').html(data.message);
+                    $('.password_message').show();
+                    setTimeout(function() {
+                        $('.password_message').fadeOut("slow");
+                    }, 2000);
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
     }
-});
-</script>
-@endsection
+
+    $("#delete_profile").click(function() {
+        if (confirm("Are you sure ?") == true) {
+            // var hv = $('#h_v').val();
+
+            var profileId = $('#deletePicture').val();
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('/delete/profile/picture')}}",
+                data: {
+                    profileId: profileId
+                },
+                cache: false,
+
+                success: (data) => {
+                    $('.delete_message').html(data.message);
+                    $('.delete_message').show();
+                    // $('.picture').hide();
+                    setTimeout(function() {
+                        $('.delete_message').fadeOut("slow");
+                    }, 2000);
+                    $("#profile_picture").attr("src", '{{asset("assets/img/blankImage")}}');
+                    $("#edit_profile_picture").attr("src", '{{asset("assets/img/blankImage")}}');
+
+                },
+                error: function(data) {}
+            });
+        }
+    });
+    </script>
+    @endsection

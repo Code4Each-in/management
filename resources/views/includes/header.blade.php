@@ -209,15 +209,16 @@
             </li>
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
-                    href="{{ route('teams.attendance')}}">
+                <a class="nav-link {{ request()->is('attendance/teams') ? '' : 'collapsed' }}"
+                    href="{{ route('teams.attendance') }}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Attendance</span>
                 </a>
             </li>
             @else
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
+                <a class="{{ request()->is('attendance/teams') ? '' : 'collapsed' }}" data-bs-target="#attendance-nav"
+                    data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Attendance</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
@@ -239,7 +240,7 @@
             @endif
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
+                <a class="nav-link {{ request()->is('leaves/teams') ? '' : 'collapsed' }}"
                     href=" {{ route('team.leaves')}}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Leaves</span>
@@ -247,7 +248,8 @@
             </li>
             @else
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#leaves-nav" data-bs-toggle="collapse" href="#">
+                <a class="{{ request()->is('leaves/teams') ? '' : 'collapsed' }}" data-bs-target="#leaves-nav"
+                    data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Leaves</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
