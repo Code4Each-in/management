@@ -16,7 +16,7 @@
                 @endif
                 <br>
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
-                    <table class="table table-hover" id="role_table">
+                    <table class="table table-borderless dashboard" id="role_table">
                         <thead>
                             <tr>
                                 <th>Name</th>

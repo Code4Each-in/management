@@ -38,7 +38,6 @@ class DashboardController extends Controller
 
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->where('status_change_by',auth()->user()->id)->get()->count();
-            dd($users); //count of userleaves acc to current date
             $userAttendanceData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->whereDate('user_attendances.created_at', '=',$currentDate)->get()->count(); //count of userAttendance acc to current date
 
             $userBirthdate = Users::whereDate('joining_date','=',$currentDate)->orwhereDate('birth_date','=',$currentDate)->get();
