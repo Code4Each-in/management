@@ -24,7 +24,9 @@ class DashboardController extends Controller
 
             $userLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
             $currentDate = date('Y-m-d'); //current date
-            $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count(); 
+            $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count();
+            $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get();   
+         
             //count of userleaves acc to current date
              $userAttendanceData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
 
@@ -39,9 +41,10 @@ class DashboardController extends Controller
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->where('status_change_by',auth()->user()->id)->get()->count();
             $userAttendanceData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->whereDate('user_attendances.created_at', '=',$currentDate)->get()->count(); //count of userAttendance acc to current date
-
+            $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->where('status_change_by',auth()->user()->id)->get();
+         
             $userBirthdate = Users::whereDate('joining_date','=',$currentDate)->orwhereDate('birth_date','=',$currentDate)->get();
         }
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves'));
+        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves'));
     }
 }

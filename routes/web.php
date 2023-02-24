@@ -7,6 +7,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeavesController;
+use App\Http\Controllers\TicketsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,5 +65,10 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
+	
+	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
+	Route::post('/add/tickets', [TicketsController::class, 'store']);
+
+
 
  });

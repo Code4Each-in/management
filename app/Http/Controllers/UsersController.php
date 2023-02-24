@@ -33,6 +33,7 @@ class UsersController extends Controller
 		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
+		
 	
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
 	}

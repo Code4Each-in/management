@@ -6,6 +6,7 @@
 <div class="col-lg-8 dashboard">
     <div class="row">
         <!-- Sales Card -->
+        @if(auth()->user()->role_id==env('SUPER_ADMIN'))
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card sales-card">
                 <div class="filter">
@@ -21,13 +22,13 @@
                     </ul>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">User <span>| Today</span></h5>
-
+                    <h5 class="card-title">Total organization members</h5>
                     <div class="d-flex align-items-center">
                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                             <i class="bi bi-person"></i>
                         </div>
                         <div class="ps-3">
+
                             <h6>{{$userCount}}</h6>
                             <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
                                     class="text-muted small pt-2 ps-1">increase</span> -->
@@ -37,11 +38,10 @@
 
             </div>
         </div><!-- End Sales Card -->
-
+        @endif
         <!-- Revenue Card -->
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card revenue-card">
-
                 <div class="filter">
                     <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
@@ -54,59 +54,34 @@
                             <li><a class="dropdown-item" href="#">This Year</a></li>
                         </ul> -->
                 </div>
-
                 <div class="card-body">
-                    <h5 class="card-title">Leaves <span>| Today</span></h5>
+                    <h5 class="card-title">Total members on leave today </h5>
 
-                    <div class="d-flex align-items-center">
-                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi bi-card-list"></i>
+                    <div class="d-flex align-items-center leavesMemberCont">
+                        <div class="leavesMemeberInnerCont">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-card-list"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{$users}}</h6>
+                            </div>
                         </div>
-                        <div class="ps-3">
-                            <h6>{{$users}}</h6>
-                            <!-- <span class="text-success small pt-1 fw-bold">8%</span> <span
-                                    class="text-muted small pt-2 ps-1">increase</span> -->
-
-                        </div>
+                        @if($users !=0)
+                        <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()"
+                            id="viewAll">View
+                            all</a>
+                        @endif
                     </div>
+                    <!-- <div class="pull-left "> -->
+
+                    <!-- </div> -->
                 </div>
 
             </div>
-        </div><!-- End Revenue Card -->
+        </div>
+        <!---End Revenue Card--->
 
         <!-- Customers Card -->
-        <div class="col-xxl-4 col-xl-12">
-            <div class="card info-card customers-card">
-                <div class="filter">
-                    <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <li class="dropdown-header text-start">
-                                <h6>Filter</h6>
-                            </li>
-
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
-                        </ul> -->
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Attendance <span>| Today</span></h5>
-
-                    <div class="d-flex align-items-center">
-                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <div class="ps-3">
-                            <h6>{{$userAttendanceData}}</h6>
-                            <!-- <span class="text-danger small pt-1 fw-bold">12%</span> <span
-                                    class="text-muted small pt-2 ps-1">decrease</span> -->
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div><!-- End Customers Card -->
 
         <div class="col-12">
             <div class="card">
@@ -321,7 +296,7 @@
                 @foreach ($userBirthdate as $birthday)
                 <div class="col-md-3 mb-2">
                     <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt=""
-                        class="rounded-circle">
+                        clVass="rounded-circle">
                 </div>
                 <div class="col-md-9 mt-2 ">
                     <b>{{$birthday->first_name."  ".$birthday->last_name}}</b>
@@ -345,6 +320,35 @@
 </div>
 <!-- Recent Sales -->
 
+
+<div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">List of members on leave today</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @foreach ($showLeaves as $data)
+                <div class="row leaveUserContainer mt-2 ">
+                    <div class="col-md-2">
+                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt=""
+                            class="rounded-circle">
+                    </div>
+                    <div class="col-md-10 ">
+                        <p><b>{{$data->first_name}} <b></p>
+                    </div>
+                </div>
+
+                @endforeach
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section('js_scripts')
 <script>
@@ -353,6 +357,16 @@ $(document).ready(function() {
     $('#leavesss').DataTable({
         "order": []
     });
+
+    $("#viewAll").click(function() {
+
+    });
 });
+
+function ShowLeavesModal() {
+
+    $('#ShowLeaves').modal('show');
+}
 </script>
+
 @endsection

@@ -1354,6 +1354,8 @@ input:checked + .slider:before {
 
 .slide {
 } */
+
+/* custom style */
 .pointer {cursor: pointer;}
 .approved{
   --bg-opacity: 1;
@@ -1388,3 +1390,17 @@ input:checked + .slider:before {
 .table thead th {
   border: 0!important; 
  }
+
+ .leaveUserContainer {
+  align-items: flex-end;
+}
+
+
+.leavesMemberCont {
+    justify-content:  space-between;
+}
+
+.leavesMemeberInnerCont {
+  display: flex;
+  align-items: center;
+}
