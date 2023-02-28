@@ -68,6 +68,10 @@ Route::group(['middleware' => ['auth']], function() {
 	
 	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
 	Route::post('/add/tickets', [TicketsController::class, 'store']);
+	Route::post('/ticket/assign', [TicketsController::class, 'getTicketAssign']);
+	Route::post('/edit/ticket', [TicketsController::class, 'editTicketAssign']);
+
+	
 
 
 

@@ -36,7 +36,6 @@
                                         href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                 </td>
                             </tr>
-
                             @empty
                             @endforelse
                         </tbody>
@@ -101,8 +100,6 @@
                                 id="edit_department_name">
                         </div>
                     </div>
-
-
 
                     <input type="hidden" class="form-control" id="hidden_department_id" value="">
                 </div>
@@ -218,7 +215,6 @@ function updateDepartment() {
 
 function deleteDepartment(id) {
     if (confirm("Are you sure?") == true) {
-        // ajax
         $.ajax({
             type: "DELETE",
             url: "{{ url('/delete/department') }}",

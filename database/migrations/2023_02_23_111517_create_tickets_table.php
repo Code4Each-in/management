@@ -20,8 +20,7 @@ class CreateTicketsTable extends Migration
             $table->string('assign')->nullable();
             $table->string('upload')->nullable();
             $table->string('status')->nullable();
-            $table->text('comment')->nullable();
-            
+            $table->text('comment')->nullable();         
             $table->timestamps();
         });
     }

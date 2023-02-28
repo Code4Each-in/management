@@ -100,7 +100,7 @@ class RolesController extends Controller
 			}		
 		}					
 		Roles::where('id', $validate['role_id'])
-        ->update([	
+        ->update([
             'name' => $validate['edit_role_name']
         ]);
 		$request->session()->flash('message','Role updated successfully.');

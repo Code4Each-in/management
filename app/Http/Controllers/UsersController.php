@@ -95,7 +95,7 @@ class UsersController extends Controller
 		]);
 
 		if (isset($validate['manager_select']))
-		{				
+		{			
 			foreach($validate['manager_select'] as $manager)
 			{				
 				$managers =Managers::create([					

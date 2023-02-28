@@ -289,6 +289,7 @@
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul> -->
         </div>
+        @if(count($userBirthdate)!=0)
         <div class="card-body pb-0">
             <h5 class="card-title"> Birthday/Anniversary <span>| This Month</span></h5>
             <div class="row mb-2">
@@ -315,6 +316,7 @@
                 @endif
             </div>
         </div>
+        @endif
     </div>
 </div>
 </div>
