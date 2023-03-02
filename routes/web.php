@@ -63,16 +63,15 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
 	Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
 	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
-
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	
 	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
 	Route::post('/add/tickets', [TicketsController::class, 'store']);
 	Route::post('/ticket/assign', [TicketsController::class, 'getTicketAssign']);
-	Route::post('/edit/ticket', [TicketsController::class, 'editTicketAssign']);
+	Route::get('/edit/ticket/{ticketId}', [TicketsController::class, 'editTicket'])->name('ticket.edit');
+	Route::post('/update/tickets/{ticketId}', [TicketsController::class, 'updateTicket'])->name('ticket.update');
+	Route::delete('/delete/tickets', [TicketsController::class, 'destroy']);
 
-	
-
-
+	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 
  });

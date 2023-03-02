@@ -16,7 +16,7 @@ class AttendanceController extends Controller
     }
     
     public function store(Request $request)
-	{	
+	  { 	
         $validator = \Validator::make($request->all(),[
 			'intime'=>'required', 
             'outtime'=>'required|after:intime', 

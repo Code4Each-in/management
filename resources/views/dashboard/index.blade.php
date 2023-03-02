@@ -291,7 +291,7 @@
         </div>
         @if(count($userBirthdate)!=0)
         <div class="card-body pb-0">
-            <h5 class="card-title"> Birthday/Anniversary <span>| This Month</span></h5>
+            <h5 class="card-title"> Birthday/Anniversary</h5>
             <div class="row mb-2">
                 @if(count($userBirthdate) !=0)
                 @foreach ($userBirthdate as $birthday)

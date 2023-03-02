@@ -139,6 +139,7 @@
                             <input class="form-control" type="file" id="profile_picture" name="profile_picture">
                         </div>
                     </div>
+
                     <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
@@ -444,7 +445,6 @@ $(document).ready(function() {
     $('#editUsersForm').submit(function(event) {
         event.preventDefault();
         var formData = new FormData(this);
-        console.log(formData);
         $.ajax({
             type: "POST",
             url: "{{ url('/update/users') }}",
@@ -455,7 +455,6 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.errors) {
                     $('.alert-danger').html('');
-
                     $.each(res.errors, function(key, value) {
                         $('.alert-danger').show();
                         $('.alert-danger').append('<li>' + value + '</li>');
@@ -511,7 +510,7 @@ function editUsers(id) {
             id: id
         },
         dataType: 'json',
-        success: function(res) {
+        success: (res) => {
             if (res.users != null) {
                 $('#editUsers').modal('show');
                 $('#edit_username').val(res.users.first_name);

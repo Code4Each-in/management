@@ -33,7 +33,7 @@
                             <tbody>
                                 @forelse($tickets as $data)
                                 <tr>
-                                    <td>#{{$data->id}}
+                                    <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{ $data->title }}</td>
                                     <td>{{ $data->description }}</td>
                                     <td><a class="text-primary small pt-1 pointer text-right"
@@ -62,9 +62,10 @@
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
                                     <td> <i style="color:#4154f1;" onClick="editTickets('{{ $data->id }}')"
-                                            href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
+                                            href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
-                                        <i style="color:#4154f1;" class="fa fa-trash fa-fw pointer"></i>
+                                        <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')"
+                                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
                                 </tr>
                                 @empty
@@ -135,12 +136,6 @@
                                         <option value="high">High</option>
                                         <option value="urgent">Urgent</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="comment" class="col-sm-3 col-form-label ">Comment</label>
-                                <div class="col-sm-9">
-                                    <textarea name="comment" class="form-control" id="comment"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -225,12 +220,6 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="edit_comment" class="col-sm-3 col-form-label">Comment</label>
-                                <div class="col-sm-9">
-                                    <textarea name="comment" class="form-control" id="edit_comment"></textarea>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
                                 <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
                                 <div class="col-sm-9">
                                     <input type="file" class="form-control" name="upload" id="edit_document">
@@ -249,7 +238,7 @@
         </div>
 
 
-        <div class="modal fade" id="editTickets" tabindex="-1" aria-labelledby="ShowAssign" aria-hidden="true">
+        <div class="modal fade" id="ShowAssign" tabindex="-1" aria-labelledby="ShowAssign" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -261,7 +250,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class=" btn
+                            btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -310,6 +300,33 @@
                         }
                     },
                     error: function(data) {}
+                });
+            });
+
+            $('#editTicketsForm').submit(function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('/update/tickets') }}",
+                    data: formData,
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        if (res.errors) {
+                            $('.alert-danger').html('');
+                            $.each(res.errors, function(key, value) {
+                                $('.alert-danger').show();
+                                $('.alert-danger').append('<li>' + value + '</li>');
+                            })
+                        } else {
+                            $('.alert-danger').html('');
+                            $("#editTickets").modal('hide');
+                            location.reload();
+                        }
+                    }
                 });
             });
         });
@@ -365,6 +382,7 @@
                         $('#edit_description').val(res.tickets.description);
                         $('#edit_status').val(res.tickets.status);
                         $('#edit_comment').val(res.tickets.comment);
+                        $('#edit_priority').val(res.tickets.priority);
                         // var test = "http://127.0.0.1:8000/public/assets/img/" + res.tickets.profile_picture;
                         // $("#profile").html(
                         //     '<img src="{{asset("assets/img")}}/' + res.tickets.profile_picture +
@@ -381,6 +399,22 @@
                     }
                 }
             });
+        }
+
+        function deleteTickets(id) {
+            if (confirm("Are you sure ?") == true) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ url('/delete/tickets') }}",
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        location.reload();
+                    }
+                });
+            }
         }
         </script>
         @endsection
