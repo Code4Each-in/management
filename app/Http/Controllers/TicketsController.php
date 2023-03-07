@@ -16,7 +16,6 @@ class TicketsController extends Controller
     {
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
         $tickets=Tickets::orderBy('id','desc')->get();  //database query
-         
         return view('tickets.index',compact('user','tickets'));   
     }
     public function store(Request $request) 
@@ -33,7 +32,9 @@ class TicketsController extends Controller
             {
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }
+            
     		$validate = $validator->valid();//getting all data from db
+            // dd($validate['files']);
             $document = time().'.'.$validate['upload']->extension(); 
             $validate['upload']->move(public_path('assets/img/upload'), $document);
             $path ='upload/'.$document;
@@ -64,25 +65,32 @@ class TicketsController extends Controller
             $request->session()->flash('message','Tickets added successfully.');
     		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
     }
-
     public function getTicketAssign(Request $request)
 	{
         $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$request->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
        
         return Response()->json(['status'=>200, 'ticketAssigns'=> $ticketAssigns]);
     }
-
      public function editTicket($ticketId)
-     {   
-        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
+     { 
+
+        $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
+         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
+         
+        foreach($user as $key1=> $data1)
+        {
+            foreach($ticketsAssign as $key2=> $data2){
+                if($data1['id']==$data2['user_id']){
+                    unset($user[$key1]);
+                }
+            }
+        }
         $tickets = Tickets::where(['id' => $ticketId])->first();
-        $ticketAssign= TicketAssigns::where(['ticket_id'=> $ticketId])->get();
+
+        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->get();  //database query
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData'));   
-
-		
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData'));   	
      }     
-
      public function updateTicket( Request $request ,$ticketId)
      {
         $validator = \Validator::make($request->all(),[
@@ -105,9 +113,31 @@ class TicketsController extends Controller
             'priority' => $validate['priority'],
             ]);
 
+            if (isset($request->assign))
+            {				
+                foreach($request->assign as $data)
+                {				
+                    $data =TicketAssigns::create([					
+                        'ticket_id' => $ticketId,
+                        'user_id' => $data,
+                    ]);
+                }		
+            }
+
+            // if (isset($validate['assign']))
+            // {				
+            //     foreach($validate['assign'] as $assign)
+            //     {				
+            //         $assign =TicketAssigns::create([					
+            //             'ticket_id' => $tickets->id,
+            //             'user_id' => $assign,
+            //         ]);
+            //     }		
+            // }
+
+
             $request->session()->flash('message','Ticket updated successfully.');
     		return redirect()->back()->with('tickets', $tickets);
-
      }
      public function destroy(Request $request)
      {
@@ -131,7 +161,29 @@ class TicketsController extends Controller
             'ticket_id'=>$validate['id'],
             'comment_by'=> auth()->user()->id,     
         ]);
-        $request->session()->flash('messages','Comments added successfully.');
-        return Response()->json(['status'=>200]);
+        $CommentsData = TicketComments::with('user')->where('id',$ticket->id)->get();
+        return Response()->json(['status'=>200,'CommentsData' => $CommentsData,'Commentmessage' => 'Comments added successfully.']); 
+    }
+    public function DeleteTicketAssign(request $request)
+    {
+        
+
+        $ticketAssign = TicketAssigns::where('id',$request->id)->delete();   
+        $request->session()->flash('message','TicketAssign deleted successfully.');
+
+        $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
+        
+        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
+    
+       foreach($user as $key1=> $data1)
+       {
+           foreach($AssignData as $key2=> $data2){
+               if($data1['id']==$data2['user_id']){
+                   unset($user[$key1]);
+               }
+           }
+       }
+        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
+      
     }
 }

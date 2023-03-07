@@ -103,6 +103,7 @@
                             </div>
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign</label>
+
                                 <div class="col-sm-9">
                                     <select name="assign[]" class="form-select" id="assign" multiple>
                                         <option value="" disabled>Select User</option>
@@ -141,7 +142,7 @@
                             <div class="row mb-3">
                                 <label for="document" class="col-sm-3 col-form-label ">Document</label>
                                 <div class="col-sm-9">
-                                    <input type="file" class="form-control" name="upload" id="upload">
+                                    <input type="file" class="form-control" name="files[]" id="files">
                                 </div>
                             </div>
 
@@ -222,7 +223,7 @@
                             <div class="row mb-3">
                                 <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
                                 <div class="col-sm-9">
-                                    <input type="file" class="form-control" name="upload" id="edit_document">
+                                    <input type="file" class="form-control" name="upload[]" id="edit_document" multiple>
                                 </div>
                             </div>
                             <input type="hidden" class="form-control" name="ticket_id" id="ticket_id" value="">
@@ -278,7 +279,11 @@
             $("#addTicketsForm").submit(function(event) {
                 event.preventDefault();
                 var formData = new FormData(this);
-
+                var totalfiles = document.getElementById('files').files.length;
+                console.log(totalfiles);
+                for (var index = 0; index < totalfiles; index++) {
+                    formData.append("files[]", document.getElementById('files').files[index]);
+                }
                 $.ajax({
                     type: 'POST',
                     url: "{{ url('/add/tickets')}}",
@@ -402,6 +407,9 @@
         }
 
         function deleteTickets(id) {
+            $('#ticket_id').val(id);
+            // var id = $('#department_name').val();
+
             if (confirm("Are you sure ?") == true) {
                 $.ajax({
                     type: "DELETE",
@@ -411,7 +419,7 @@
                     },
                     dataType: 'json',
                     success: function(res) {
-                        location.reload();
+                        // location.reload();
                     }
                 });
             }

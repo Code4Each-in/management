@@ -5,14 +5,14 @@
 
 <div class="col-lg-6">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" style="height:730px;">
             @if(session()->has('message'))
-            <div class="alert alert-success message mt-4">
+            <div class=" alert alert-success message mt-4">
                 {{ session()->get('message') }}
             </div>
             @endif
             <form method="post" id="editTicketsForm" action="{{route('ticket.update',$tickets->id)}}">
-                <div class="row mb-3 mt-4">
+                <div class="row mb-5 mt-4">
                     <label for="edit_title" class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" name="title" id="edit_title"
@@ -22,7 +22,7 @@
                         @endif
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-5">
                     <label for="edit_description" class="col-sm-3 col-form-label required">Description</label>
                     <div class=" col-sm-9">
                         <textarea name="description" class="form-control"
@@ -32,23 +32,35 @@
                         @endif
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <label for="edit_assign" class="col-sm-3 col-form-label required ">Assign</label>
-                    <div class="col-sm-9">
-                        <select name="assign" class="form-select" id="edit_assign" multiple>
-                            <option value="">Select User</option>
-                            @foreach ($user as $data)
-                            <option value="{{$data->id}}">
-                                {{$data->first_name}}</option>
-                            @endforeach
-                        </select>
-                        @if ($errors->has('assign'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('assign') }}</span>
-                        @endif
+                <div class="row mb-5">
+                    <label for="edit_assign" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
+
+                    <div class="col-sm-9" id="Ticketsdata">
+                        @foreach ($ticketAssign as $data)
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                            {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign"
+                                onClick="deleteTicketAssign('{{ $data->id }}')"></i></button>
+                        </button>
+                        @endforeach
                     </div>
                 </div>
+                <div class="row mb-5">
+                    <label for="edit_assign" class="col-sm-3 col-form-label required ">Add More Assign</label>
+                    <div class="col-sm-9">
+                        <select name="assign[]" class="form-select" id="edit_assign" multiple>
+                            <option value="">Select User</option>
+                            @foreach ($user as $data)
+                            <option value="{{$data['id']}}">
+                                {{$data['first_name']}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @if ($errors->has('assign'))
+                    <span style="font-size: 12px;" class="text-danger">{{ $errors->first('assign') }}</span>
+                    @endif
+                </div>
                 @csrf
-                <div class="row mb-3">
+                <div class="row mb-5">
                     <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
                     <div class="col-sm-9">
                         <select name="status" class="form-select" id="edit_status">
@@ -65,7 +77,7 @@
                         @endif
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-5">
                     <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select" id="edit_priority">
@@ -74,14 +86,15 @@
                             </option>
                             <option value="low" {{$tickets->priority == 'low' ? 'selected' : '' }}>Low</option>
                             <option value="high" {{$tickets->priority == 'high' ? 'selected' : '' }}>High</option>
-                            <option value="urgent" {{$tickets->priority == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                            <option value="urgent" {{$tickets->priority == 'urgent' ? 'selected' : '' }}>Urgent
+                            </option>
                         </select>
                         @if ($errors->has('priority'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('priority') }}</span>
                         @endif
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
                     <div class="col-sm-9">
                         <input type="file" class="form-control" name="upload" id="edit_document">
@@ -95,52 +108,45 @@
         </div>
     </div>
 </div>
-<div class="col-lg-6 dashboard">
-    <div class="card">
-        <div class="card-body">
-            @if(session()->has('messages'))
-            <div class="alert alert-success message mt-4">
-                {{ session()->get('messages') }}
+<div class="col-lg-6 dashboard ">
+    <div class="card" style="height:730px;">
+        <div class="card-body ">
+
+
+            <div class="alert alert-success Commentmessage mt-4" style="display:none">
+
             </div>
-            @endif
             <h5 class="card-title">Comments</h5>
-            <div class="news">
+            <div class="news test">
                 @foreach ($CommentsData as $data)
-                <div class="post-item clearfix mb-3">
-                    <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}"
-                        class="rounded-circle dashboards" alt="">
-                    <p class="data">{{$data->user->first_name}}</p>
-                    <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
-                    <div class="">
-                        <h4><span>{{$data->comments}}</span></h4>
+                <div class="row post-item clearfix mb-3 ">
+                    <div class="col-md-2">
+                        <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
+                            alt="">
                     </div>
-                    <!-- <h4><span>{{$data->comments}}</span></h4> -->
-                    <div class="row">
-                        <div class="col-md-6 ">
-                            <!-- <p>{{date("M d, Y H:s a", strtotime($data->created_at));}}</p> -->
-                            <!-- <h4><span>{{$data->comments}}</span></h4> -->
+                    <div class="col-md-3">
+                        <p>{{$data->user->first_name}}</p>
+                        <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
 
-                            <!-- <p>{{$data->user->first_name}}</p> -->
-                        </div>
-                        <div class="col-md-6 ">
-                            <!-- <p>{{date("M d, Y H:s a", strtotime($data->created_at));}}</p> -->
-                            <!-- <h4><span>{{$data->comments}}</span></h4> -->
-
-                        </div>
+                    </div>
+                    <div class="col-md-7 text-left mt-3 ml-3">
+                        {{$data->comments}}
                     </div>
                 </div>
                 @endforeach
-                <form method="post" id="commentsData" action="{{route('comments.add')}}">
-                    <div class=" post-item clearfix mb-3">
-                        <textarea class="form-control nt-3" name="comment" id="comment" placeholder="Enter your comment"
-                            rows="3"></textarea>
-                    </div>
-                    <div class="alert alert-danger" style="display:none"></div>
-                    <input type="hidden" class="form-control" id="hidden_id" value="{{$tickets->id}}">
-                    <button type="submit" style="float: right;" class="btn btn-primary"><i class="bi bi-send-fill"></i>
-                        Comment</button>
-                </form>
+                <div class="data">
+                </div>
             </div>
+            <form method="post" id="commentsData" action="{{route('comments.add')}}">
+                <div class=" post-item clearfix mb-3 mt-3">
+                    <textarea class="form-control comment nt-3" name="comment" id="comment"
+                        placeholder="Enter your comment" rows="3"></textarea>
+                </div>
+                <div class="alert alert-danger" style="display:none"></div>
+                <input type="hidden" class="form-control" id="hidden_id" value="{{$tickets->id}}">
+                <button type="submit" style="float: right;" class="btn btn-primary"><i class="bi bi-send-fill"></i>
+                    Comment</button>
+            </form>
         </div>
     </div>
 </div>
@@ -182,12 +188,58 @@ $(document).ready(function() {
                     $('.alert-danger').html('');
                     $('.alert-danger').hide();
                     $('#comment').val("");
-                    location.reload();
+                    var html = "";
+                    $.each(data.CommentsData, function(key, data) {
+                        html +=
+                            '<div class="row post-item clearfix mb-3 "><div class="col-md-2"><img src="{{asset("assets/img")}}/' +
+                            data.user.profile_picture +
+                            '" class="rounded-circle" alt = "" ></div><div class="col-md-3"><p>' +
+                            data.user.first_name +
+                            '</p><p>' + moment(data.created_at).format(
+                                'MMM DD LT') +
+                            '</p></div><div class="col-md-7 text-left mt-3 ml-3">' +
+                            data.comments + '</div></div>';
+                    });
+                    $('.data').html(html);
+                    $('.Commentmessage').html(data.Commentmessage);
+                    $('.Commentmessage').show();
+                    setTimeout(function() {
+                        $('.Commentmessage').fadeOut("slow");
+                    }, 2000);
                 }
-            },
-
+            }
         });
     });
 });
+
+function deleteTicketAssign(id) {
+    var TicketId = $('#hidden_id').val();
+    if (confirm("Are you sure ?") == true) {
+        $.ajax({
+            type: 'DELETE',
+            url: "{{ url('/delete/ticket')}}",
+            data: {
+                id: id,
+                TicketId: TicketId,
+            },
+            success: (data) => {
+                location.reload();
+
+                // if (data.user != null) {
+                //     $('#edit_assign').find('option').remove().end();
+                //     $.each(data.user, function(key, value) {
+                //         $('#edit_assign').append('<option value="' + value.id + '">' + value
+                //             .first_name + '</option>');
+                //     });
+                // }
+                // if (data.AssignData.length == 0) {
+
+                //     $('#Ticketsdata').hide();
+                // }
+            }
+
+        });
+    }
+}
 </script>
 @endsection

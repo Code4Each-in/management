@@ -74,4 +74,6 @@ Route::group(['middleware' => ['auth']], function() {
 
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 
+	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
+
  });

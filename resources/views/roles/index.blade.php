@@ -232,15 +232,13 @@ function editRole(id) {
 }
 
 function updateRole() {
-    //var id = $('#hidden_role_id').val();
-    //var name = $('#edit_role_name').val();
+
     $.ajax({
         type: "POST",
         url: "{{ url('/update/role') }}",
         data: $('#editRoleForm').serialize(),
         dataType: 'json',
         success: (res) => {
-
             if (res.errors) {
                 $('.alert-danger').html('');
 
@@ -253,10 +251,7 @@ function updateRole() {
                 $("#editRole").modal('hide');
                 location.reload();
             }
-            //if(res.status ==200){
-            //	$("#editRole").modal('hide');
-            //	location.reload();
-            //}
+
         }
     });
 }

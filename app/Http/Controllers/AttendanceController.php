@@ -49,7 +49,6 @@ class AttendanceController extends Controller
          }
          else
          {
-         
            $attendenceData['created_at']=date('Y-m-d H:i:s');
            $users =UserAttendances::create($attendenceData); 
          }
