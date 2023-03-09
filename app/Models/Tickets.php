@@ -17,6 +17,8 @@ class Tickets extends Model
         'title',
         'description',
         'assign',
+        'eta_from',
+        'eta_to',
         'upload',   
         'status', 
         'priority',

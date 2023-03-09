@@ -25,6 +25,7 @@
                                     <th>Title</th>
                                     <th>Description</th>
                                     <th>Assign</th>
+                                    <!-- <th>Total Time</th> -->
                                     <th>Status</th>
                                     <th>Priority</th>
                                     <th>Action</th>
@@ -36,9 +37,20 @@
                                     <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{ $data->title }}</td>
                                     <td>{{ $data->description }}</td>
-                                    <td><a class="text-primary small pt-1 pointer text-right"
-                                            onClick="ShowAssignModal('{{$data->id}}')" id="view">View
-                                        </a></td>
+                                    <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
+                                            <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20"
+                                                height="20" class="rounded-circle " alt="">
+
+                                            @endforeach
+                                            @endif
+                                            <a class="text-primary small pt-1 pointer text-right"
+                                                onClick="ShowAssignModal('{{$data->id}}')" id="view"><i
+                                                    class="bi-person-lines-fill"></i>
+                                            </a>
+                                    </td>
+                                    <!-- <td>{{ $data->eta_from}}</td>
+                                    <td>{{ $data->eta_to}}</td> -->
+
                                     <!-- <td>{{ $data->status }}</td> -->
                                     @if($data->status == 'in_progress')
                                     <td>
@@ -116,10 +128,23 @@
                             </div>
                             @csrf
                             <div class="row mb-3">
+                                <label for="etaDateTime" class="col-sm-3 col-form-label required">Eta From</label>
+                                <div class="col-sm-9">
+                                    <input type="datetime-local" class="form-control" id="eta_from" name="eta_from">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="etaDateTime" class="col-sm-3 col-form-label required">Eta To</label>
+                                <div class="col-sm-9">
+                                    <input type="datetime-local" class="form-control" id="eta_to" name="eta_to">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <label for="status" class="col-sm-3 col-form-label required">Status</label>
                                 <div class="col-sm-9">
                                     <select name="status" class="form-select" id="status">
-                                        <option value="">To do</option>
+                                        <option value="to_do">To do</option>
                                         <option value="in_progress">In Progress</option>
                                         <option value="ready">Ready</option>
                                         <option value="complete">
@@ -131,7 +156,7 @@
                                 <label for="priority" class="col-sm-3 col-form-label required ">Priority</label>
                                 <div class="col-sm-9">
                                     <select name="priority" class="form-select" id="priority">
-                                        <option value="">Priority</option>
+                                        <option value="priority">Priority</option>
                                         <option value="normal">Normal</option>
                                         <option value="low">Low</option>
                                         <option value="high">High</option>

@@ -14,8 +14,16 @@ class TicketsController extends Controller
 {
     public function index()
     {
+       
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
         $tickets=Tickets::orderBy('id','desc')->get();  //database query
+        foreach ($tickets as $key=>$data) 
+        {
+            $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
+            $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
+        }
+        $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
+        // dd($tickets);
         return view('tickets.index',compact('user','tickets'));   
     }
     public function store(Request $request) 
@@ -23,7 +31,9 @@ class TicketsController extends Controller
         $validator = \Validator::make($request->all(),[
             'title' => 'required', 
             'description'=>'required', 
-            'assign'=>'required',
+            // 'assign'=>'required',
+            'eta_from' => 'required',
+            'eta_to' => 'required',
             'status'=>'required', 
              'priority'=>'required'
             ]);
@@ -33,19 +43,28 @@ class TicketsController extends Controller
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }
             
-    		$validate = $validator->valid();//getting all data from db
+    		$validate = $validator->valid();
+            //getting all data from db
             // dd($validate['files']);
-            $document = time().'.'.$validate['upload']->extension(); 
-            $validate['upload']->move(public_path('assets/img/upload'), $document);
-            $path ='upload/'.$document;
+            // $document = time().'.'.$validate['upload']->extension(); 
+            // $validate['upload']->move(public_path('assets/img/upload'), $document);
+            // $path ='upload/'.$document;
+            // dd($validate['etadatetime']);
+            $etaFrom = date("Y-m-d H:i:s",strtotime($validate['eta_from'])); 
+            $etaTo = date("Y-m-d H:i:s",strtotime($validate['eta_to'])); 
+            // $difference = strtotime($etaFrom) - strtotime($etaTo);
+            // $days = abs($difference/(60 * 60)/24);
+
+            // dd($days);
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'], 
                 'status'=>$validate ['status'],
                 'priority'=>$validate ['priority'],
-                'assign'=>$validaet['assign'],
-                'upload'=> $path,
-                'comment'=>$validate['comment'],   			
+            // 'assign'=>$validate['assign'],
+                'eta_from'=>$etaFrom,
+                'eta_to'=>$etaTo,
+                // 'upload'=> $path,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     
@@ -73,7 +92,6 @@ class TicketsController extends Controller
     }
      public function editTicket($ticketId)
      { 
-
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
          $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
          
@@ -167,7 +185,6 @@ class TicketsController extends Controller
     public function DeleteTicketAssign(request $request)
     {
         
-
         $ticketAssign = TicketAssigns::where('id',$request->id)->delete();   
         $request->session()->flash('message','TicketAssign deleted successfully.');
 
