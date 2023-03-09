@@ -38,9 +38,12 @@
                                     <td>{{ $data->title }}</td>
                                     <td>{{ $data->description }}</td>
                                     <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
+                                            @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20"
                                                 height="20" class="rounded-circle " alt="">
-
+                                            @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20"
+                                                class="rounded-circle">
+                                            @endif
                                             @endforeach
                                             @endif
                                             <a class="text-primary small pt-1 pointer text-right"
@@ -52,12 +55,14 @@
                                     <td>{{ $data->eta_to}}</td> -->
 
                                     <!-- <td>{{ $data->status }}</td> -->
-                                    @if($data->status == 'in_progress')
+                                    @if($data->status == 'to_do')
                                     <td>
-                                        <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
+                                        <span class="badge rounded-pill bg-primary">To do</span>
                                     </td>
+                                    @elseif($data->status == 'in_progress')
+                                    <td><span class="badge rounded-pill bg-warning text-dark">In Progress</span></td>
                                     @elseif($data->status == 'ready')
-                                    <td><span class="badge rounded-pill bg-primary">Ready</span></td>
+                                    <td><span class="badge bg-info text-dark    ">Ready</span></td>
                                     @else
                                     <td><span class="badge rounded-pill  bg-success">Complete</span></td>
                                     @endif
@@ -70,14 +75,16 @@
                                     <td><span class="badge rounded-pill bg-warning text-dark">low</span></td>
                                     @elseif($data->priority == 'high')
                                     <td><span class="badge rounded-pill bg-primary">High</span></td>
+                                    @elseif($data->priority == 'priority')
+                                    <td><span class="badge bg-info text-dark">Priority</span></td>
                                     @else
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
-                                    <td> <i style="color:#4154f1;" onClick="editTickets('{{ $data->id }}')"
-                                            href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;"
+                                                href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
-                                        <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')"
-                                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                            <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')"
+                                                href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
                                 </tr>
                                 @empty
@@ -375,10 +382,13 @@
                     if (data.ticketAssigns.length > 0) {
                         var html = '';
                         $.each(data.ticketAssigns, function(key, assign) {
-                            // $('.alert-danger').show();
+                            var picture = 'blankImage';
+                            if (assign.profile_picture != "") {
+                                picture = assign.profile_picture;
+                            }
                             html +=
                                 '<div class="row leaveUserContainer mt-2 "> <div class="col-md-2"><img src="{{asset("assets/img")}}/' +
-                                assign.profile_picture +
+                                picture +
                                 '"" width="50" height="50" alt="" class="rounded-circle"></div><div class="col-md-10 "><p><b>' +
                                 assign.first_name + '</b></p></div></div>';
                         })
@@ -393,6 +403,7 @@
         }
 
         function openticketModal() {
+            document.getElementById("addTicketsForm").reset();
             $('#addTickets').modal('show');
         }
 

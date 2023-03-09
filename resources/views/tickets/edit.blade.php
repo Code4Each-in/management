@@ -64,7 +64,7 @@
                     <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
                     <div class="col-sm-9">
                         <select name="status" class="form-select" id="edit_status">
-                            <option value="">To do</option>
+                            <option value="to_do">To do</option>
                             <option value="in_progress" {{$tickets->status == 'in_progress' ? 'selected' : ' ' }}>In
                                 Progress
                             </option>
@@ -81,7 +81,8 @@
                     <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select" id="edit_priority">
-                            <option value="">Priority</option>
+                            <option value="priority" {{$tickets->priority == 'priority' ? 'selected' : '' }}>Priority
+                            </option>
                             <option value="normal" {{$tickets->priority == 'normal' ? 'selected' : '' }}> Normal
                             </option>
                             <option value="low" {{$tickets->priority == 'low' ? 'selected' : '' }}>Low</option>
@@ -117,24 +118,28 @@
 
             </div>
             <h5 class="card-title">Comments</h5>
-            <div class="news test">
-                @foreach ($CommentsData as $data)
-                <div class="row post-item clearfix mb-3 ">
-                    <div class="col-md-2">
-                        <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
-                            alt="">
-                    </div>
-                    <div class="col-md-3">
-                        <p>{{$data->user->first_name}}</p>
-                        <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
+            <div class="news commentSection">
+                <div class="comments">
+                    @foreach ($CommentsData as $data)
+                    <div class="row post-item clearfix mb-3 ">
+                        @if(!empty($data->user->profile_picture))
+                        <div class="col-md-2">
+                            <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
+                                alt="">
+                        </div>
+                        @else
+                        <img src="{{asset('assets/img/blankImage')}}" alt="Profile" class="rounded-circle">
+                        @endif
+                        <div class="col-md-3">
+                            <p>{{$data->user->first_name}}</p>
+                            <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
 
+                        </div>
+                        <div class="col-md-7 text-left mt-3 ml-3">
+                            {{$data->comments}}
+                        </div>
                     </div>
-                    <div class="col-md-7 text-left mt-3 ml-3">
-                        {{$data->comments}}
-                    </div>
-                </div>
-                @endforeach
-                <div class="data">
+                    @endforeach
                 </div>
             </div>
             <form method="post" id="commentsData" action="{{route('comments.add')}}">
@@ -190,9 +195,13 @@ $(document).ready(function() {
                     $('#comment').val("");
                     var html = "";
                     $.each(data.CommentsData, function(key, data) {
+                        var picture = 'blankImage';
+                        if (data.user.profile_picture != "") {
+                            picture = data.user.profile_picture;
+                        }
                         html +=
                             '<div class="row post-item clearfix mb-3 "><div class="col-md-2"><img src="{{asset("assets/img")}}/' +
-                            data.user.profile_picture +
+                            picture +
                             '" class="rounded-circle" alt = "" ></div><div class="col-md-3"><p>' +
                             data.user.first_name +
                             '</p><p>' + moment(data.created_at).format(
@@ -200,7 +209,7 @@ $(document).ready(function() {
                             '</p></div><div class="col-md-7 text-left mt-3 ml-3">' +
                             data.comments + '</div></div>';
                     });
-                    $('.data').html(html);
+                    $('.comments').append(html);
                     $('.Commentmessage').html(data.Commentmessage);
                     $('.Commentmessage').show();
                     setTimeout(function() {

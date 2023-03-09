@@ -14,7 +14,6 @@ class AlterTicketsTable extends Migration
     public function up()
     {
         Schema::table('tickets', function (Blueprint $table) {
-			$table->integer('ticket_id')->nullable()->after('id'); 
             $table->string('priority')->nullable()->after('status'); 
             });
         

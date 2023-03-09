@@ -17,10 +17,7 @@ class CreateTicketsTable extends Migration
             $table->id();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
-            $table->string('assign')->nullable();
-            $table->string('upload')->nullable();
-            $table->string('status')->nullable();
-            $table->text('comment')->nullable();         
+            $table->string('status')->nullable();    
             $table->timestamps();
         });
     }

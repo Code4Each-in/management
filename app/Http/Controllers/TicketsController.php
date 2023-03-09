@@ -106,7 +106,7 @@ class TicketsController extends Controller
         $tickets = Tickets::where(['id' => $ticketId])->first();
 
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
-        $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->get();  //database query
+        $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
