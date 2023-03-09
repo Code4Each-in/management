@@ -17,13 +17,13 @@ class TicketsController extends Controller
        
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
         $tickets=Tickets::orderBy('id','desc')->get();  //database query
+        if (!empty($tickets)){
         foreach ($tickets as $key=>$data) 
         {
             $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
             $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
-        }
-        $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
-        // dd($tickets);
+        }}
+       
         return view('tickets.index',compact('user','tickets'));   
     }
     public function store(Request $request) 
