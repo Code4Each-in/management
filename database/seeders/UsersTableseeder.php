@@ -20,7 +20,7 @@ class UsersTableseeder extends Seeder
         $user->first_name = 'admin';
         $user->last_name = 'admin';
         $user->email='admin@gmail.com';
-        $user->password = Hash::make('admin');
+        $user->password = 'admin';
         $user->save();
         
     }
