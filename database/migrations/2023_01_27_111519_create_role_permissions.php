@@ -16,8 +16,7 @@ class CreateRolePermissions extends Migration
         Schema::create('role_permissions', function (Blueprint $table) {
             $table->id();
 			$table->integer('role_id')->constrained();
-			$table->tinyInteger('users_page')->default(0);
-			$table->tinyInteger('departments_page')->default(0);
+            $table->integer('module_id')->constrained();
             $table->timestamps();
         });
     }

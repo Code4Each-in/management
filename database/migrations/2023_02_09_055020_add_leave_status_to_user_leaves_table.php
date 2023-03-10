@@ -15,7 +15,7 @@ class AddLeaveStatusToUserLeavesTable extends Migration
     {
         Schema::table('user_leaves', function (Blueprint $table) {
         	$table->after('notes', function ($table) {
-            $table->integer('status_change_by')->constrained();
+            $table->integer('status_change_by')->nullable()->constrained();
             $table->string('leave_status')->nullable();
            
         });
