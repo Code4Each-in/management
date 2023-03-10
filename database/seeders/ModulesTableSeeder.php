@@ -35,11 +35,11 @@ class ModulesTableSeeder extends Seeder
             ],
             [
                 'page_id' => 2,
-                'module_name	' => "Listing",
+                'module_name' => "Listing",
             ],
             [
                 'page_id' => 2,
-                'module_name	' => "Add",
+                'module_name' => "Add",
             ],
             [
                 'page_id' => 2,
@@ -59,11 +59,11 @@ class ModulesTableSeeder extends Seeder
             ],
             [
                 'page_id' => 4,
-                'module_name	' => "Edit",
+                'module_name' => "Edit",
             ],
             [
                 'page_id' => 4,
-                'module_name	' => "Delete",
+                'module_name' => "Delete",
             ],
             [
                 'page_id' => 5,
@@ -79,7 +79,7 @@ class ModulesTableSeeder extends Seeder
             ],
             [
                 'page_id' => 5,
-                'module_name	' => "Delete",
+                'module_name' => "Delete",
             ],
             [
                 'page_id' => 6,
