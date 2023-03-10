@@ -18,22 +18,22 @@ class PagesTableSeeder extends Seeder
         Pages::truncate();
         Pages::insert([
             [
-                'name	' => "Users",
+                'name' => "Users",
             ],
 			[
-                'name	' => "Departments",
+                'name' => "Departments",
             ],
             [
-                'name	' => "Roles",
+                'name' => "Roles",
             ],
             [
-                'name	' => "Attendence",
+                'name' => "Attendence",
             ],
             [
-                'name	' => "Leaves",
+                'name' => "Leaves",
             ],
             [
-                'name	' => "Tickets",
+                'name' => "Tickets",
             ],
 
         ]);
