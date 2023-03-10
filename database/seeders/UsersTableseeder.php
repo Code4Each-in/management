@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Users;
+use Illuminate\Support\Facades\Hash;
+
 class UsersTableseeder extends Seeder
 {
     /**
@@ -18,9 +20,7 @@ class UsersTableseeder extends Seeder
         $user->first_name = 'admin';
         $user->last_name = 'admin';
         $user->email='admin@gmail.com';
-        $user->password = bcrypt('admin');
-        $user->phone='9876543223';
-        $user->address='mohali';
+        $user->password = Hash::make('admin');
         $user->save();
         
     }
