@@ -180,7 +180,7 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
+                        <label for="" class="col-sm-3 col-form-label">Select Manager</label>
                         <div class="col-sm-9">
                             <select name="manager_select[]" class="form-control select" id="manager_select" multiple>
                                 <option value="" disabled>-- Select Manager --</option>
@@ -333,7 +333,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="" class="col-sm-3 col-form-label required">Select Manager</label>
+                        <label for="" class="col-sm-3 col-form-label">Select Manager</label>
                         <div class="col-sm-9">
                             <select name="manager_select[]" class="form-control select" id="edit_manager_select"
                                 multiple>

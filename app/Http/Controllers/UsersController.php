@@ -115,7 +115,7 @@ class UsersController extends Controller
 	public function edit(Request $request) 
 	{   
 		$users = Users::where(['id' => $request->id])->first();
-		$managerSelectOptions = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('users.id','!=',$request->id)->get([ 'managers.user_id','users.*']);
+		$managerSelectOptions = Users::where('id','!=',$request->id)->get();
 		$Managers = Managers::where(['user_id' => $request->id])->get();
 
 		return Response()->json(['users' =>$users, 'Managers' =>$Managers,'managerSelectOptions' =>$managerSelectOptions]);
