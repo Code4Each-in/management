@@ -5,7 +5,7 @@
 
 <div class="col-lg-6">
     <div class="card">
-        <div class="card-body" style="height:730px;">
+        <div class="card-body">
             @if(session()->has('message'))
             <div class=" alert alert-success message mt-4">
                 {{ session()->get('message') }}
@@ -36,8 +36,7 @@
                     <label for="edit_assign" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
-                        <button type="button" class="btn btn-outline
-                             primary btn-sm mb-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
                             {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign"
                                 onClick="deleteTicketAssign('{{ $data->id }}')"></i></button>
                         </button>
