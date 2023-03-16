@@ -71,9 +71,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::get('/edit/ticket/{ticketId}', [TicketsController::class, 'editTicket'])->name('ticket.edit');
 	Route::post('/update/tickets/{ticketId}', [TicketsController::class, 'updateTicket'])->name('ticket.update');
 	Route::delete('/delete/tickets', [TicketsController::class, 'destroy']);
-
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
-
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
 
  });
