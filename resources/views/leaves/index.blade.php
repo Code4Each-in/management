@@ -161,6 +161,7 @@ $(document).ready(function() {
 });
 
 function openleavesModal() {
+
     $('.alert-danger').html('');
     $('#from').val('');
 

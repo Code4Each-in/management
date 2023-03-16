@@ -7,7 +7,7 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
 
         <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
+            <a href="{{ url('/dashboard') }}" class="logo d-flex align-items-center">
                 <img src="{{ asset('assets/img/logo.png') }}" alt="">
                 <span class="d-none d-lg-block">Management</span>
             </a>
@@ -203,7 +203,7 @@
             @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
-                    <i class="bi bi-menu-button-wide"></i>
+                    <i class="bi bi-people"></i>
                     <span>Users</span>
                 </a>
             </li>
@@ -211,7 +211,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('attendance/teams') ? '' : 'collapsed' }}"
                     href="{{ route('teams.attendance') }}">
-                    <i class="bi bi-menu-button-wide"></i>
+                    <i class="bi bi-person-vcard-fill"></i>
                     <span>Attendance</span>
                 </a>
             </li>
@@ -219,7 +219,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
                     data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-layout-text-window-reverse"></i><span>Attendance</span><i
+                    <i class="bi bi-person-vcard-fill"></i></i><span>Attendance</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="attendance-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -271,8 +271,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
                     href="{{ route('tickets.index') }}">
-                    <i class="bi bi-menu-button-wide"></i>
-                    <span>Tickets</span>
+                    <i class="bi bi-journal-code"></i> <span>Tickets</span>
                 </a>
             </li>
             <!-- <li class="nav-item">
