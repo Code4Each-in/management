@@ -44,6 +44,13 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="row mb-5 mt-4">
+                    <label for="edit_title" class="col-sm-3 col-form-label required">ETA</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="eta" id="edit_eta" value="">
+                        <span style="font-size: 12px;" class="text-danger">
+                    </div>
+                </div>
                 <div class="row mb-5">
                     <label for="edit_assign" class="col-sm-3 col-form-label required ">Add More Assign</label>
                     <div class="col-sm-9">
@@ -121,7 +128,7 @@
             <div class="news commentSection">
                 <div class="comments">
                     @foreach ($CommentsData as $data)
-                    <div class="row post-item clearfix mb-3 ">
+                    <div class="row">
                         @if(!empty($data->user->profile_picture))
                         <div class="col-md-2">
                             <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
@@ -135,7 +142,7 @@
                             <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
 
                         </div>
-                        <div class="col-md-7 text-left mt-3 ml-3">
+                        <div class="col-md-7">
                             {{$data->comments}}
                         </div>
                     </div>

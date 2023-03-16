@@ -904,9 +904,10 @@ h6 {
 }
 
 .dashboard .news img {
-  width: 80px;
-  float: left;
-  border-radius: 5px;
+  width: 70px;
+  height: 70px;
+  /* float: left; */
+  /* border-radius: 5px; */
 }
 
 .dashboard .news h4 {
@@ -928,6 +929,7 @@ h6 {
 .dashboard .news p {
   font-size: 14px;
   color: #777777;
+  margin-bottom: 8px;
   /* margin-left: 95px; */
 }
 
@@ -1414,4 +1416,13 @@ input:checked + .slider:before {
 }
 .row.post-item.clearfix.mb-3 {
   width: 100%;
+}
+.comments .row {
+  margin-bottom: 15px !important;
+  margin: 0;
+  padding: 10px;
+}
+
+.comments .row:nth-child(even) {
+  background: #f3f3f3;
 }
