@@ -135,18 +135,18 @@
                             </div>
                             @csrf
                             <div class="row mb-3">
-                                <label for="etaDateTime" class="col-sm-3 col-form-label required">Eta From</label>
+                                <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                                 <div class="col-sm-9">
-                                    <input type="datetime-local" class="form-control" id="eta_from" name="eta_from">
+                                    <input type="datetime-local" class="form-control" id="eta" name="eta">
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <!-- <div class="row mb-3">
                                 <label for="etaDateTime" class="col-sm-3 col-form-label required">Eta To</label>
                                 <div class="col-sm-9">
                                     <input type="datetime-local" class="form-control" id="eta_to" name="eta_to">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="row mb-3">
                                 <label for="status" class="col-sm-3 col-form-label required">Status</label>
                                 <div class="col-sm-9">
