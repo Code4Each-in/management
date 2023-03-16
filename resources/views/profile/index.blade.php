@@ -98,14 +98,17 @@
                         <div class="col-lg-9 col-md-8 detail_full_birth_date">
                             {{date("d-m-Y", strtotime($usersProfile->birth_date))}}</div>
                     </div>
+
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Role</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->role->name}}</div>
                     </div>
+                    @if(isset($usersProfile->department->name))
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Departement</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->department->name}}</div>
                     </div>
+                    @endif
                 </div>
                 <!-- Profile Edit Form -->
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">

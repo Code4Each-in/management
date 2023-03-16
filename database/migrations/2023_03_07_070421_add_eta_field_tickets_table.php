@@ -14,9 +14,7 @@ class AddEtaFieldTicketsTable extends Migration
     public function up()
     {
         Schema::table('tickets', function (Blueprint $table) {
-			$table->dateTime('eta_from')->nullable()->after('description'); 
-            $table->dateTime('eta_to')->nullable()->after('eta_from'); 
-
+			$table->dateTime('eta')->nullable()->after('description'); 
             });
     }
 

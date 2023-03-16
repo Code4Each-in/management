@@ -129,7 +129,7 @@ class UsersController extends Controller
 	* @return \Illuminate\Http\Response 
 	*/
 	public function update(Request $request){     // validation
-
+		
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',
@@ -148,31 +148,36 @@ class UsersController extends Controller
 		}
 
 		$validate = $validator->valid();
-		$profilePicture = time().'.'.$validate['edit_profile_picture']->extension(); 
-		$validate['edit_profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
+		if (isset($request['edit_profile_picture'])){
+		$profilePicture = time().'.'.$request['edit_profile_picture']->extension(); 
+		$request['edit_profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
 		$path ='profilePicture/'.$profilePicture;
-
+		}
 		$salaried=null;		 
 		if (isset($validate['edit_salaried'])) 
 		{
 			$salaried = $validate['edit_salary'];
 		}		
 
+		$UpdateUserArr= [
+			'first_name' => $validate['edit_username'],        
+			'last_name' => $validate['edit_lastname'],
+			'email' => $validate['edit_email'],
+			'phone' => $validate['edit_phone'],
+			'joining_date' => $validate['edit_joining_date'],
+			'birth_date' => $validate['edit_birthdate'],
+			
+			'salary' =>$salaried,
+			'role_id'=> $validate['role_select'],
+			'department_id'=>$validate['department_select'],
+			'address'=>$validate['address'].', '.$validate['edit_city'].', '.$validate['edit_state'].', '.$validate['edit_zip'],
+	
+			];
+		if (isset($path)){
+			$UpdateUserArr['profile_picture']=$path;
+		}
 		Users::where('id', $request->users_id)  
-		->update([
-		'first_name' => $validate['edit_username'],        
-		'last_name' => $validate['edit_lastname'],
-		'email' => $validate['edit_email'],
-		'phone' => $validate['edit_phone'],
-		'joining_date' => $validate['edit_joining_date'],
-		'birth_date' => $validate['edit_birthdate'],
-		'profile_picture'=>$path,
-		'salary' =>$salaried,
-		'role_id'=> $validate['role_select'],
-		'department_id'=>$validate['department_select'],
-		'address'=>$validate['address'].', '.$validate['edit_city'].', '.$validate['edit_state'].', '.$validate['edit_zip'],
-
-		]);
+		->update($UpdateUserArr);
 
 		if (isset($validate['manager_select'])){	
 			$checkManagersExist=Managers::where(['user_id' =>$request->users_id])->get(); 
@@ -187,6 +192,8 @@ class UsersController extends Controller
 			'parent_user_id' => $updatemanager,
 			]);
 		}		
+		}
+		if (isset($request['edit_profile_picture'])){
 		}
 		$request->session()->flash('message','User updated successfully.');
 		return Response()->json(['status'=>200]);

@@ -32,8 +32,7 @@ class TicketsController extends Controller
             'title' => 'required', 
             'description'=>'required', 
             // 'assign'=>'required',
-            'eta_from' => 'required',
-            'eta_to' => 'required',
+            // 'eta_to' => 'required',
             'status'=>'required', 
              'priority'=>'required'
             ]);
@@ -50,8 +49,8 @@ class TicketsController extends Controller
             // $validate['upload']->move(public_path('assets/img/upload'), $document);
             // $path ='upload/'.$document;
             // dd($validate['etadatetime']);
-            $etaFrom = date("Y-m-d H:i:s",strtotime($validate['eta_from'])); 
-            $etaTo = date("Y-m-d H:i:s",strtotime($validate['eta_to'])); 
+            $eta = date("Y-m-d H:i:s",strtotime($request['eta'])); 
+            // $etaTo = date("Y-m-d H:i:s",strtotime($validate['eta_to'])); 
             // $difference = strtotime($etaFrom) - strtotime($etaTo);
             // $days = abs($difference/(60 * 60)/24);
 
@@ -62,8 +61,8 @@ class TicketsController extends Controller
                 'status'=>$validate ['status'],
                 'priority'=>$validate ['priority'],
             // 'assign'=>$validate['assign'],
-                'eta_from'=>$etaFrom,
-                'eta_to'=>$etaTo,
+                'eta'=>$eta,
+                // 'eta_to'=>$etaTo,
                 // 'upload'=> $path,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),

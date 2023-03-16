@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">ADD USERS</button>
+            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">ADD USER</button>
 
             <div class="box-header with-border" id="filter-box">
                 <br>
@@ -73,7 +73,7 @@
     <div class="modal-dialog">
         <div class="modal-content" style="width:505px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="role">Add Users</h5>
+                <h5 class="modal-title" id="role">Add User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="addUsersForm">
@@ -278,7 +278,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="edit_profile_picture" class="col-sm-3 col-form-label required">Profile
+                        <label for="edit_profile_picture" class="col-sm-3 col-form-label ">Profile
                             Picture</label>
                         <div class="col-sm-9">
                             <input class="form-control" type="file" id="edit_profile_picture"
