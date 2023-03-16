@@ -80,12 +80,12 @@
 
                 <!-- </li>End Notification Nav -->
 
-                <!-- <li class="nav-item dropdown">
+                <!-- <li class="nav-item dropdown">-->
 
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-chat-left-text"></i>
-                        <span class="badge bg-success badge-number">3</span> -->
-                <!-- </a>End Messages Icon -->
+                <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span class="badge bg-success badge-number">3</span>
+                </a>End Messages Icon -->
 
                 <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
                         <li class="dropdown-header">
@@ -135,7 +135,10 @@
                     </ul>End Messages Dropdown Items -->
 
                 <!-- </li>End Messages Nav -->
-
+                <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                    <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
+                        alt="Profile" height="50px" width="50px" class="rounded-circle picture">
+                </a>
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
@@ -145,9 +148,11 @@
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+
                         <li class="dropdown-header">
+
                             <h6>{{ auth()->user()->first_name ?? " " }}</h6>
-                            <span>Manager</span>
+                            <span>{{ auth()->user()->role->name ?? " " }}</span>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
