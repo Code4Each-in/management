@@ -93,7 +93,7 @@ class TicketsController extends Controller
      { 
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
          $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
-         
+         $userCount = Users::orderBy('id','desc')->get();
         foreach($user as $key1=> $data1)
         {
             foreach($ticketsAssign as $key2=> $data2){
@@ -106,7 +106,7 @@ class TicketsController extends Controller
 
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData'));   	
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
      {

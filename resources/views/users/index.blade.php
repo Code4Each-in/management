@@ -540,6 +540,7 @@ function editUsers(id) {
                 $('#department_select option[value="' + res.users.department_id + '"]').attr('selected',
                     'selected');
             }
+            $('#edit_manager_select').find('option').remove();
             if (res.managerSelectOptions != null) {
                 $.each(res.managerSelectOptions, function(key, value) {
                     $('#edit_manager_select').append('<option value="' + value.id + '">' + value

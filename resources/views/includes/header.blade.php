@@ -195,20 +195,20 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">
-                    <i class="bi bi-menu-button-wide"></i>
+                    <i class="bi bi-buildings"></i>
                     <span>Departments</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('role.index') }}">
-                    <i class="bi bi-menu-button-wide"></i>
+                    <i class="bi bi-people"></i>
                     <span>Roles</span>
                 </a>
             </li>
             @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
-                    <i class="bi bi-people"></i>
+                    <i class="bi bi-person-square"></i>
                     <span>Users</span>
                 </a>
             </li>

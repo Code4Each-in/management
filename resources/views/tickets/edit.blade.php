@@ -34,7 +34,6 @@
                 </div>
                 <div class="row mb-5">
                     <label for="edit_assign" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
-
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
                         <button type="button" class="btn btn-outline
@@ -50,7 +49,7 @@
                     <div class="col-sm-9">
                         <select name="assign[]" class="form-select" id="edit_assign" multiple>
                             <option value="">Select User</option>
-                            @foreach ($user as $data)
+                            @foreach ($userCount as $data)
                             <option value="{{$data['id']}}">
                                 {{$data['first_name']}}</option>
                             @endforeach
