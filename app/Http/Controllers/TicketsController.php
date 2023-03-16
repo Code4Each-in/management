@@ -16,7 +16,7 @@ class TicketsController extends Controller
     {
        
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
-        $tickets=Tickets::orderBy('id','desc')->get();  //database query
+        $tickets=Tickets::orderBy('id','desc')->get(); 
         if (!empty($tickets)){
         foreach ($tickets as $key=>$data) 
         {
@@ -128,6 +128,7 @@ class TicketsController extends Controller
             'description' => $validate['description'],
             'status' => $validate['status'],
             'priority' => $validate['priority'],
+            'eta'=>$request['eta'],
             ]);
 
             if (isset($request->assign))

@@ -25,6 +25,7 @@ class AddEtaFieldTicketsTable extends Migration
      */
     public function down()
     {
+        
         //
     }
 }

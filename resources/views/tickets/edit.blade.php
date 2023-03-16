@@ -37,18 +37,12 @@
 
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
-                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                        <button type="button" class="btn btn-outline
+                             primary btn-sm mb-2">
                             {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign"
                                 onClick="deleteTicketAssign('{{ $data->id }}')"></i></button>
                         </button>
                         @endforeach
-                    </div>
-                </div>
-                <div class="row mb-5 mt-4">
-                    <label for="edit_title" class="col-sm-3 col-form-label required">ETA</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="eta" id="edit_eta" value="">
-                        <span style="font-size: 12px;" class="text-danger">
                     </div>
                 </div>
                 <div class="row mb-5">
@@ -67,6 +61,13 @@
                     @endif
                 </div>
                 @csrf
+                <div class="row mb-5">
+                    <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
+                    <div class="col-sm-9">
+                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta"
+                            value="{{$tickets->eta}}">
+                    </div>
+                </div>
                 <div class="row mb-5">
                     <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
                     <div class="col-sm-9">
@@ -88,7 +89,8 @@
                     <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select" id="edit_priority">
-                            <option value="priority" {{$tickets->priority == 'priority' ? 'selected' : '' }}>Priority
+                            <option value="priority" {{$tickets->priority == 'priority' ? 'selected' : '' }}>
+                                Priority
                             </option>
                             <option value="normal" {{$tickets->priority == 'normal' ? 'selected' : '' }}> Normal
                             </option>
@@ -130,7 +132,7 @@
                     @foreach ($CommentsData as $data)
                     <div class="row">
                         @if(!empty($data->user->profile_picture))
-                        <div class="col-md-2">
+                        <div class="col-md-2 comment-user-profile">
                             <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
                                 alt="">
                         </div>

@@ -1426,3 +1426,7 @@ input:checked + .slider:before {
 .comments .row:nth-child(even) {
   background: #f3f3f3;
 }
+.comments .row .comment-user-profile {
+  display: flex;
+  justify-content: center;
+}

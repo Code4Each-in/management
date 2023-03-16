@@ -129,7 +129,6 @@ class UsersController extends Controller
 	* @return \Illuminate\Http\Response 
 	*/
 	public function update(Request $request){     // validation
-		
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',
@@ -158,7 +157,7 @@ class UsersController extends Controller
 		{
 			$salaried = $validate['edit_salary'];
 		}		
-
+		$request= $request['eta'];
 		$UpdateUserArr= [
 			'first_name' => $validate['edit_username'],        
 			'last_name' => $validate['edit_lastname'],
@@ -166,7 +165,7 @@ class UsersController extends Controller
 			'phone' => $validate['edit_phone'],
 			'joining_date' => $validate['edit_joining_date'],
 			'birth_date' => $validate['edit_birthdate'],
-			
+			'eta'=>$request,
 			'salary' =>$salaried,
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
