@@ -148,7 +148,7 @@
                                 </div>
                             </div> -->
                             <div class="row mb-3">
-                                <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                                <label for="status" class="col-sm-3 col-form-label ">Status</label>
                                 <div class="col-sm-9">
                                     <select name="status" class="form-select" id="status">
                                         <option value="to_do">To do</option>
@@ -160,10 +160,9 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="priority" class="col-sm-3 col-form-label required ">Priority</label>
+                                <label for="priority" class="col-sm-3 col-form-label  ">Priority</label>
                                 <div class="col-sm-9">
                                     <select name="priority" class="form-select" id="priority">
-                                        <option value="priority">Priority</option>
                                         <option value="normal">Normal</option>
                                         <option value="low">Low</option>
                                         <option value="high">High</option>
@@ -214,7 +213,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="edit_assign" class="col-sm-3 col-form-label required ">Assign</label>
+                                <label for="edit_assign" class="col-sm-3 col-form-label  ">Assign</label>
                                 <div class="col-sm-9">
                                     <select name="assign" class="form-select" id="edit_assign" multiple>
                                         <option value="">Select User</option>
@@ -454,7 +453,7 @@
                     },
                     dataType: 'json',
                     success: function(res) {
-                        // location.reload();
+                        location.reload();
                     }
                 });
             }

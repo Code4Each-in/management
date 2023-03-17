@@ -69,4 +69,25 @@ class AttendanceController extends Controller
         }
             return view('attendance.team',compact('teamAttendance'));
         }
+        public function edit(request $request){
+          
+          // $validator = \Validator::make($request->all(),[
+          //   'intime'=>'required', 
+          //   'outtime'=>'required|after:intime', 
+          //     ],
+             
+          //   );
+          $attendance = UserAttendances::where(['id' => $request->id])->first();
+          return Response()->json(['attendance' =>$attendance]);
+         }
+          public function update(request $request){
+            $validator = \Validator::make($request->all(),[
+              'intime'=>'required', 
+                    'outtime'=>'required|after:intime', 
+                ],
+               
+              );
+        
+          }
+        
     }

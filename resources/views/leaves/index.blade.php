@@ -175,7 +175,7 @@ function addleaves() {
         data: $('#addLeavesForm').serialize(),
         cache: false,
         success: (data) => {
-            console.log(data);
+
             if (data.errors) {
                 $('.alert-danger').html('');
                 $.each(data.errors, function(key, value) {

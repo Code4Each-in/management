@@ -34,7 +34,6 @@ class UsersController extends Controller
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
 		
-	
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
 	}
 	/**
@@ -129,6 +128,7 @@ class UsersController extends Controller
 	* @return \Illuminate\Http\Response 
 	*/
 	public function update(Request $request){     // validation
+		// dd($request->users_id);
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',
@@ -157,7 +157,7 @@ class UsersController extends Controller
 		{
 			$salaried = $validate['edit_salary'];
 		}		
-		$request= $request['eta'];
+		// $eta= $request['eta'];
 		$UpdateUserArr= [
 			'first_name' => $validate['edit_username'],        
 			'last_name' => $validate['edit_lastname'],
@@ -165,7 +165,7 @@ class UsersController extends Controller
 			'phone' => $validate['edit_phone'],
 			'joining_date' => $validate['edit_joining_date'],
 			'birth_date' => $validate['edit_birthdate'],
-			'eta'=>$request,
+			// 'eta'=>$request['eta'],
 			'salary' =>$salaried,
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
@@ -175,7 +175,8 @@ class UsersController extends Controller
 		if (isset($path)){
 			$UpdateUserArr['profile_picture']=$path;
 		}
-		Users::where('id', $request->users_id)  
+		
+		Users::where('id',$request->users_id)  
 		->update($UpdateUserArr);
 
 		if (isset($validate['manager_select'])){	
@@ -245,7 +246,7 @@ class UsersController extends Controller
 			return response()->json(['errors'=>$validator->errors()->all()]);
 		}
 		$validate = $validator->valid();
-		Users::where('id', $request->user_id)
+		Users::where('id',$request->user_id)
 			->update([
 			'first_name' => $validate['first_name'],        
 			'last_name' => $validate['last_name'],

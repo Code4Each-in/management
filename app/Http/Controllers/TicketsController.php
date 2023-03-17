@@ -29,12 +29,12 @@ class TicketsController extends Controller
     public function store(Request $request) 
 	{ 
         $validator = \Validator::make($request->all(),[
-            'title' => 'required', 
-            'description'=>'required', 
+            'title' => 'required',
+            'description'=>'required',
             // 'assign'=>'required',
             // 'eta_to' => 'required',
-            'status'=>'required', 
-             'priority'=>'required'
+             'status'=>'required', 
+             'priority'=>'required',
             ]);
 
             if ($validator->fails())
@@ -43,11 +43,12 @@ class TicketsController extends Controller
             }
             
     		$validate = $validator->valid();
-            //getting all data from db
-            // dd($validate['files']);
-            // $document = time().'.'.$validate['upload']->extension(); 
-            // $validate['upload']->move(public_path('assets/img/upload'), $document);
+            // getting all data from db
+            // dd($request['files']);
+            // $document = time().'.'.$request['upload']->extension(); 
+            // $request['upload']->move(public_path('assets/img/upload'), $document);
             // $path ='upload/'.$document;
+            // dd($path);
             // dd($validate['etadatetime']);
             $eta = date("Y-m-d H:i:s",strtotime($request['eta'])); 
             // $etaTo = date("Y-m-d H:i:s",strtotime($validate['eta_to'])); 
@@ -103,7 +104,7 @@ class TicketsController extends Controller
             }
         }
         $tickets = Tickets::where(['id' => $ticketId])->first();
-
+        // dd(['id' => $ticketId]);
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount'));   	
@@ -161,8 +162,9 @@ class TicketsController extends Controller
      {
          $tickets = Tickets::where('id',$request->id)->delete(); 
          $request->session()->flash('message','Ticket deleted successfully.');
-       return Response()->json(['status'=>200]);
+         return Response()->json($tickets);
      }
+       
     public function addComments( request $request )
     {
         $validator = \Validator::make($request->all(),[
@@ -184,10 +186,9 @@ class TicketsController extends Controller
     }
     public function DeleteTicketAssign(request $request)
     {
-        
-        $ticketAssign = TicketAssigns::where('id',$request->id)->delete();   
+       
+        $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
         $request->session()->flash('message','TicketAssign deleted successfully.');
-
         $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
         
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	

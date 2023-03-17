@@ -216,6 +216,7 @@ $(document).ready(function() {
                             '</p></div><div class="col-md-7 text-left mt-3 ml-3">' +
                             data.comments + '</div></div>';
                     });
+
                     $('.comments').append(html);
                     $('.Commentmessage').html(data.Commentmessage);
                     $('.Commentmessage').show();

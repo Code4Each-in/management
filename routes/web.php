@@ -53,6 +53,9 @@ Route::group(['middleware' => ['auth']], function() {
 	
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+	Route::post('/edit/attendance', [AttendanceController::class, 'edit']);
+	Route::post('/update/attendance', [AttendanceController::class, 'update']);
+
 	Route::get('/attendance/teams', [AttendanceController::class, 'showTeamsAttendance'])->name('teams.attendance');
 
 	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');

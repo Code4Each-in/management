@@ -89,8 +89,8 @@ class DepartmentsController extends Controller
      */
     public function destroy(Request $request)
     {
-        $Departments = Departments::where('id',$request->id)->delete();
-      $request->session()->flash('message','Department deleted successfully.');
+         $Departments = Departments::where('id',$request->id)->delete();
+         $request->session()->flash('message','Department deleted successfully.');
         return Response()->json($Departments);
     }
     
