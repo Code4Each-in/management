@@ -35,12 +35,13 @@
                                 @forelse($tickets as $data)
                                 <tr>
                                     <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
-                                    <td>{{ $data->title }}</td>
-                                    <td>
-                                        @if(($data->description) <=100) {{ $data->description }}</td>
-                                            @else
-                                    <td>{{ $data->description }}...</td>
-                                    @endif
+                                    <td>{{strlen ($data->title )}}</td>
+
+                                    <td> @if(strlen($data->description)>=100)
+                                        {{ substr($data->description,0,100) }}..
+                                        @else
+                                        {{ $data->description }} @endif </td>
+
                                     <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20"

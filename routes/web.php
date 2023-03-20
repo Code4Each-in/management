@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
 	Route::post('/edit/attendance', [AttendanceController::class, 'edit']);
 	Route::post('/update/attendance', [AttendanceController::class, 'update']);
+	Route::delete('/delete/attendance', [AttendanceController::class, 'delete']);
 
 	Route::get('/attendance/teams', [AttendanceController::class, 'showTeamsAttendance'])->name('teams.attendance');
 

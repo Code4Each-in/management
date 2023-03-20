@@ -142,17 +142,24 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <!--<img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">-->
+                        <!-- <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle"> -->
                         <span
                             class="d-none d-md-block dropdown-toggle ps-2">{{ auth()->user()->first_name ?? " " }}</span>
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-
                         <li class="dropdown-header">
-
-                            <h6>{{ auth()->user()->first_name ?? " " }}</h6>
-                            <span>{{ auth()->user()->role->name ?? " " }}</span>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}"
+                                        id="profile_picture" alt="Profile" height="50px" width="50px"
+                                        class="rounded-circle picture">
+                                </div>
+                                <div class="col-md-5">
+                                    <h6>{{ auth()->user()->first_name ?? " " }}</h6>
+                                    <span>{{ auth()->user()->role->name ?? " " }}</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
                             <hr class="dropdown-divider">

@@ -25,9 +25,6 @@ class AttendanceController extends Controller
             'outtime.after' => 'The outtime must be greater than from intime.',
         ]
       );
-
-      
-      
         if ($validator->fails())
         {
             return Redirect::back()->withErrors($validator);
@@ -71,23 +68,43 @@ class AttendanceController extends Controller
         }
         public function edit(request $request){
           
-          // $validator = \Validator::make($request->all(),[
-          //   'intime'=>'required', 
-          //   'outtime'=>'required|after:intime', 
-          //     ],
+          $validator = \Validator::make($request->all(),[
+            'intime'=>'required', 
+            'outtime'=>'required|after:intime', 
+              ],
              
-          //   );
+            );
           $attendance = UserAttendances::where(['id' => $request->id])->first();
           return Response()->json(['attendance' =>$attendance]);
          }
+         
           public function update(request $request){
+            
             $validator = \Validator::make($request->all(),[
-              'intime'=>'required', 
-                    'outtime'=>'required|after:intime', 
+              'InTime'=>'required', 
+              'outTime'=>'required|after:intime',
+              'notes'=>'required'
                 ],
-               
               );
-        
+              if ($validator->fails())
+              {
+                  return Redirect::back()->withErrors($validator);
+              }  
+                $validate = $validator->valid();
+                UserAttendances::where('id', $validate['id'])
+                ->update([
+               'in_time'=>$validate['InTime'],
+               'out_time'=>$validate['outTime'],
+               'notes'=>$validate['notes'],
+                ]);
+              return Response()->json(['status'=>200]);
+          }
+          public function delete( request $request)
+          {
+            $attendance = UserAttendances::where('id',$request->id)->delete(); 
+            $request->session()->flash('message','Attendances deleted successfully.');
+              return Response()->json(['status'=>200]);
           }
         
     }
+    
