@@ -127,6 +127,7 @@
             <h5 class="card-title">Comments</h5>
             <div class="news commentSection">
                 <div class="comments">
+                    @if(count($CommentsData) !=0)
                     @foreach ($CommentsData as $data)
                     <div class="row">
                         @if(!empty($data->user->profile_picture))
@@ -147,6 +148,11 @@
                         </div>
                     </div>
                     @endforeach
+                    @else
+                    <div class="center mt-5">
+                        <span class="center" id="NoComments"> No Comments </span>
+                    </div>
+                    @endif
                 </div>
             </div>
             <form method="post" id="commentsData" action="{{route('comments.add')}}">
@@ -220,6 +226,7 @@ $(document).ready(function() {
                     $('.comments').append(html);
                     $('.Commentmessage').html(data.Commentmessage);
                     $('.Commentmessage').show();
+                    $('#NoComments').hide();
                     setTimeout(function() {
                         $('.Commentmessage').fadeOut("slow");
                     }, 2000);

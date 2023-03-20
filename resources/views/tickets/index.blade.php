@@ -421,6 +421,7 @@
                         $('#edit_description').val(res.tickets.description);
                         $('#edit_status').val(res.tickets.status);
                         $('#edit_comment').val(res.tickets.comment);
+
                         $('#edit_priority').val(res.tickets.priority);
                         // var test = "http://127.0.0.1:8000/public/assets/img/" + res.tickets.profile_picture;
                         // $("#profile").html(

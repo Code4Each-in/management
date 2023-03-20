@@ -10,7 +10,7 @@
                 @csrf
                 <div class="row mb-3 mt-4">
                     <div class="col-sm-2">
-                        <select name="intime" class="form-select" id="">
+                        <select name="intime" class="form-select" id="intime">
                             <option value="">In Time<span style="color:red">*</span></option>
                             @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
                                 {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
@@ -189,6 +189,14 @@ function editAttendance(id) {
         success: (res) => {
             $('#ShowAttendance').modal('show');
             $('#edit_notes').val(res.attendance.notes);
+            $('#intime option[value="' + res.attendance.id + '"]').attr('selected', 'selected');
+
+            // if (res.intime != null) {
+            //     $.each(res.intime, function(key, value) {
+            //         $('#intime option[value="' + value.parent_user_id + '"]').attr(
+            //             'selected', 'selected');
+            //     })
+            // }
         }
     });
 }
