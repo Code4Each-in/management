@@ -189,7 +189,7 @@ function editAttendance(id) {
         success: (res) => {
             $('#ShowAttendance').modal('show');
             $('#edit_notes').val(res.attendance.notes);
-            $('#intime option[value="' + res.attendance.id + '"]').attr('selected', 'selected');
+            $('#intime option[value="' + res.attendance.intime + '"]').attr('selected', 'selected');
 
             // if (res.intime != null) {
             //     $.each(res.intime, function(key, value) {
