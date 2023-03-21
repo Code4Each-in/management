@@ -51,10 +51,15 @@
                                             @endif
                                             @endforeach
                                             @endif
+
+                                            @if(count($data->ticketassign)!=0)
                                             <a class="text-primary small pt-1 pointer text-right"
                                                 onClick="ShowAssignModal('{{$data->id}}')" id="view"><i
                                                     class="bi-person-lines-fill"></i>
                                             </a>
+                                            @else
+                                            <span>NA</span>
+                                            @endif
                                     </td>
                                     <!-- <td>{{ $data->eta_from}}</td>
                                     <td>{{ $data->eta_to}}</td> -->
@@ -272,8 +277,6 @@
                 </div>
             </div>
         </div>
-
-
         <div class="modal fade" id="ShowAssign" tabindex="-1" aria-labelledby="ShowAssign" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
