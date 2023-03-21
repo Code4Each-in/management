@@ -30,10 +30,10 @@ class UsersController extends Controller
 		$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
 		}
 		//database query
-		$users_Data=Users::with('role','department')->orderBy('id','desc')->get();  //database query
+		$users_Data=Users::with('role','department')->orderBy('id','desc')->get(); 
+		// dd($users_Data);
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
-		// dd($departmentData);
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
 	}
 	/**
@@ -119,8 +119,6 @@ class UsersController extends Controller
 
 		return Response()->json(['users' =>$users, 'Managers' =>$Managers,'managerSelectOptions' =>$managerSelectOptions]);
 	}                                 
-
-
 	/**
 	* Update.
 	*
@@ -128,7 +126,6 @@ class UsersController extends Controller
 	* @return \Illuminate\Http\Response 
 	*/
 	public function update(Request $request){     // validation
-		// dd($request->users_id);
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',
@@ -276,6 +273,7 @@ class UsersController extends Controller
 		$profilePicture = time().'.'.$validate['edit_profile_input']->extension(); 
 		$validate['edit_profile_input']->move(public_path('assets/img/profilePicture'), $profilePicture);
 		$path ='profilePicture/'.$profilePicture;
+		
 		Users::where('id', $request->user_id)->update(['profile_picture'=>$path]);
 
 		return Response()->json(['status'=>200, 'message' => 'Profile Picture updated successfully.', 'path'=>url('assets/img/profilePicture/'.$profilePicture)]);

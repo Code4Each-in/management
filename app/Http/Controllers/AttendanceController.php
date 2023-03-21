@@ -86,21 +86,17 @@ class AttendanceController extends Controller
                   return Redirect::back()->withErrors($validator);
               }  
                 $validate = $validator->valid();
+                
                 UserAttendances::where('id', $validate['id'])
                 ->update([
                'in_time'=>$validate['InTime'],
                'out_time'=>$validate['outTime'],
                'notes'=>$validate['notes'],
                 ]);
-                $request->session()->flash('message','Attendances updated successfully.');
+               $request->session()->flash('message','Attendances updated successfully.');
               return Response()->json(['status'=>200]);
           }
-          // public function delete( request $request)
-          // {
-          //   $attendance = UserAttendances::where('id',$request->id)->delete(); 
-          //   $request->session()->flash('message','Attendances deleted successfully.');
-          //     return Response()->json(['status'=>200]);
-          // }
+        
         
     }
     
