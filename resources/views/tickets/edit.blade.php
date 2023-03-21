@@ -143,13 +143,13 @@
                             <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
 
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-7 text-center mt-2 ">
                             {{$data->comments}}
                         </div>
                     </div>
                     @endforeach
                     @else
-                    <div class="center mt-5">
+                    <div class="center text-center mt-2 ">
                         <span class="center" id="NoComments"> No Comments </span>
                     </div>
                     @endif

@@ -67,13 +67,6 @@ class AttendanceController extends Controller
             return view('attendance.team',compact('teamAttendance'));
         }
         public function edit(request $request){
-          
-          $validator = \Validator::make($request->all(),[
-            'intime'=>'required', 
-            'outtime'=>'required|after:intime', 
-              ],
-             
-            );
           $attendance = UserAttendances::where(['id' => $request->id])->first();
           return Response()->json(['attendance' =>$attendance]);
          }
@@ -81,7 +74,9 @@ class AttendanceController extends Controller
           public function update(request $request){
             
             $validator = \Validator::make($request->all(),[
+              
               'InTime'=>'required', 
+            
               'outTime'=>'required|after:intime',
               'notes'=>'required'
                 ],
@@ -97,6 +92,7 @@ class AttendanceController extends Controller
                'out_time'=>$validate['outTime'],
                'notes'=>$validate['notes'],
                 ]);
+                $request->session()->flash('message','Attendances updated successfully.');
               return Response()->json(['status'=>200]);
           }
           public function delete( request $request)

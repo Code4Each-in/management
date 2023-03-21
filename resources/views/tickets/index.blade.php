@@ -35,7 +35,7 @@
                                 @forelse($tickets as $data)
                                 <tr>
                                     <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
-                                    <td>{{strlen ($data->title )}}</td>
+                                    <td>{{($data->title )}}</td>
 
                                     <td> @if(strlen($data->description)>=100)
                                         {{ substr($data->description,0,100) }}..
@@ -67,7 +67,7 @@
                                     @elseif($data->status == 'in_progress')
                                     <td><span class="badge rounded-pill bg-warning text-dark">In Progress</span></td>
                                     @elseif($data->status == 'ready')
-                                    <td><span class="badge bg-info text-dark    ">Ready</span></td>
+                                    <td><span class="badge bg-info text-dark">Ready</span></td>
                                     @else
                                     <td><span class="badge rounded-pill  bg-success">Complete</span></td>
                                     @endif

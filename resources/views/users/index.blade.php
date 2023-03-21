@@ -233,7 +233,7 @@
     <div class="modal-dialog">
         <div class="modal-content" style="width:505px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="editUsersLabel">Add Users</h5>
+                <h5 class="modal-title" id="editUsersLabel">EDIT USER</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" id="editUsersForm" action="">
@@ -443,6 +443,7 @@ $(document).ready(function() {
     });
 
     $('#editUsersForm').submit(function(event) {
+
         event.preventDefault();
         var formData = new FormData(this);
         $.ajax({
@@ -518,7 +519,7 @@ function editUsers(id) {
                 $('#edit_email').val(res.users.email);
                 $('#edit_phone').val(res.users.phone);
                 $('#edit_joining_date').val(res.users.joining_date);
-                var test = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
+                var Profile = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
                 $("#profile").html(
                     '<img src="{{asset("assets/img")}}/' + res.users.profile_picture +
                     '" width = "100" class = "img-fluid img-thumbnail" > '
