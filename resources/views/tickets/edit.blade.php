@@ -143,7 +143,7 @@
                             <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
 
                         </div>
-                        <div class="col-md-7 text-center mt-2 ">
+                        <div class="col-md-7 ">
                             {{$data->comments}}
                         </div>
                     </div>
