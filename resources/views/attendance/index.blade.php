@@ -62,10 +62,10 @@
                         <tr>
                             <td>{{ auth()->user()->first_name ?? " " }}</td>
                             <!-- <td>{{$data->created_at}}</td> -->
-                            <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}} </td>
-                            <td> {{ date("h:s A", strtotime($data->in_time));}}
+                            <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}}</td>
+                            <td>{{ date("h:s A", strtotime($data->in_time));}}
                             </td>
-                            <td>{{date("h:s A", strtotime( $data->out_time));}}</td>
+                            <td>{{date("h:s A", strtotime($data->out_time));}}</td>
                             <td>{{ $data->notes}}</td>
                         </tr>
                         @empty
@@ -89,83 +89,11 @@ $(document).ready(function() {
         "order": []
         //"columnDefs": [ { "orderable": false, "targets": 7 }]
     });
-
-
 });
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
-
-
-
-
-
-// function openAttendanceModal() {}
-
-// function editAttendance(id) {
-//     $('#attendance_id').val(id);
-
-//     $.ajax({
-//         type: "POST",
-//         url: "{{ url('/edit/attendance') }}",
-//         data: {
-//             id: id
-//         },
-//         dataType: 'json',
-//         success: (res) => {
-//             $('#ShowAttendance').modal('show');
-//             $('#edit_notes').val(res.attendance.notes);
-//             var InTime = res.attendance.in_time
-//             var InTimeData = InTime.split(":", 2).join(":");
-//             $('#edit_intime option[value="' + InTimeData + '"]').attr('selected',
-//                 'selected');
-//             var OutTime = res.attendance.out_time
-//             var OutTimeData = OutTime.split(":", 2).join(":");
-
-//             $('#edit_outtime option[value="' + OutTimeData + '"]').attr('selected',
-//                 'selected');
-//         }
-//     });
-// }
-
-// function edit(id) {
-//     var AttendanceId = $('#attendance_id').val();
-//     var InTime = $('#edit_intime').val();
-//     var outTime = $('#edit_outtime').val();
-//     var notes = $('#edit_notes').val();
-//     $.ajax({
-//         type: "POST",
-//         url: "{{ url('/update/attendance') }}",
-//         data: {
-//             id: AttendanceId,
-//             InTime: InTime,
-//             outTime: outTime,
-//             notes: notes,
-
-//         },
-//         dataType: 'json',
-//         success: function(res) {
-//             location.reload();
-//         }
-//     });
-// }
-
-// function deleteAttendance(id) {
-//     if (confirm("Are you sure ?") == true) {
-//         $.ajax({
-//             type: "DELETE",
-//             url: "{{ url('/delete/attendance') }}",
-//             data: {
-//                 id: id
-//             },
-//             dataType: 'json',
-//             success: function(res) {
-//                 location.reload();
-//             }
-//         });
-//     }
-// }
 </script>
 @endsection

@@ -30,10 +30,11 @@ class UsersController extends Controller
 		$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
 		}
 		//database query
-		$users_Data=Users::with('role','department')->orderBy('id','desc')->get(); 
+		$users_Data=Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //database query
 		// dd($users_Data);
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
+		// dd($departmentData);
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
 	}
 	/**
@@ -114,11 +115,14 @@ class UsersController extends Controller
 	public function edit(Request $request) 
 	{   
 		$users = Users::where(['id' => $request->id])->first();
-		$managerSelectOptions = Users::where('id','!=',$request->id)->get();
+		$managerSelectOptions = Users::where('id','!=',$request->id)->where('status','!=',0)->get();
+		// dd($managerSelectOptions);
 		$Managers = Managers::where(['user_id' => $request->id])->get();
 
 		return Response()->json(['users' =>$users, 'Managers' =>$Managers,'managerSelectOptions' =>$managerSelectOptions]);
 	}                                 
+
+
 	/**
 	* Update.
 	*
@@ -126,6 +130,7 @@ class UsersController extends Controller
 	* @return \Illuminate\Http\Response 
 	*/
 	public function update(Request $request){     // validation
+		// dd($request->users_id);
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',

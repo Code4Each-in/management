@@ -66,8 +66,9 @@ return [
     | ahead and set this to a sensible default for you out of the box.
     |
     */
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
-    'timezone' => 'UTC',
+    // 'timezone' => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
@@ -118,7 +119,7 @@ return [
     | will not be safe. Please do this before deploying an application!
     |
     */
-
+    
     'key' => env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
@@ -230,6 +231,6 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Input' => Illuminate\Support\Facades\Request::class,
-    ],
 
+    ],
 ];
