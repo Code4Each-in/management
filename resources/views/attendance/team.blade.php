@@ -37,8 +37,8 @@
                                     data-user-id="{{ $data->id}}" href="javascript:void(0)"
                                     class="fa fa-edit fa-fw pointer"></i>
 
-                                <i style="color:#4154f1;" onClick="deleteAttendance('{{ $data->id }}')"
-                                    href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                <!-- <i style="color:#4154f1;" onClick="deleteAttendance('{{ $data->id }}')"
+                                    href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                             </td>
                         </tr>
                         @empty
@@ -174,20 +174,20 @@ function edit(id) {
     });
 }
 
-function deleteAttendance(id) {
-    if (confirm("Are you sure ?") == true) {
-        $.ajax({
-            type: "DELETE",
-            url: "{{ url('/delete/attendance') }}",
-            data: {
-                id: id
-            },
-            dataType: 'json',
-            success: function(res) {
-                location.reload();
-            }
-        });
-    }
-}
+// function deleteAttendance(id) {
+//     if (confirm("Are you sure ?") == true) {
+//         $.ajax({
+//             type: "DELETE",
+//             url: "{{ url('/delete/attendance') }}",
+//             data: {
+//                 id: id
+//             },
+//             dataType: 'json',
+//             success: function(res) {
+//                 location.reload();
+//             }
+//         });
+//     }
+// }
 </script>
 @endsection

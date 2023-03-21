@@ -95,12 +95,12 @@ class AttendanceController extends Controller
                 $request->session()->flash('message','Attendances updated successfully.');
               return Response()->json(['status'=>200]);
           }
-          public function delete( request $request)
-          {
-            $attendance = UserAttendances::where('id',$request->id)->delete(); 
-            $request->session()->flash('message','Attendances deleted successfully.');
-              return Response()->json(['status'=>200]);
-          }
+          // public function delete( request $request)
+          // {
+          //   $attendance = UserAttendances::where('id',$request->id)->delete(); 
+          //   $request->session()->flash('message','Attendances deleted successfully.');
+          //     return Response()->json(['status'=>200]);
+          // }
         
     }
     
