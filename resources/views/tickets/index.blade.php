@@ -115,7 +115,7 @@
                         <h5 class="modal-title" id="role">Add Tickets</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form method="post" id="addTicketsForm" action="">
+                    <form id="addTicketsForm" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="alert alert-danger" style="display:none"></div>
                             <div class="row mb-3">
@@ -183,7 +183,8 @@
                             <div class="row mb-3">
                                 <label for="document" class="col-sm-3 col-form-label ">Document</label>
                                 <div class="col-sm-9">
-                                    <input type="file" class="form-control" name="files[]" id="files">
+                                    <input type="file" class="form-control" name="add_document[]" id="add_document"
+                                        multiple />
                                 </div>
                             </div>
 
@@ -317,16 +318,18 @@
             $("#addTicketsForm").submit(function(event) {
                 event.preventDefault();
                 var formData = new FormData(this);
-                var totalfiles = document.getElementById('files').files.length;
-                console.log(totalfiles);
-                for (var index = 0; index < totalfiles; index++) {
-                    formData.append("files[]", document.getElementById('files').files[index]);
-                }
+                // var totalfiles = document.getElementById('add_document').files.length;
+
+                // for (var index = 0; index < totalfiles; index++) {
+                //     formData.append("add_document[]" + index, document.getElementById('add_document')
+                //         .files[
+                //             index]);
+                // }
+                // console.log(formData);
                 $.ajax({
                     type: 'POST',
                     url: "{{ url('/add/tickets')}}",
                     data: formData,
-                    cache: false,
                     processData: false,
                     contentType: false,
                     success: (data) => {

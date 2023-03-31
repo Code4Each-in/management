@@ -105,7 +105,7 @@
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
                     <div class="col-sm-9">
-                        <input type="file" class="form-control" name="upload" id="edit_document">
+                        <input type="file" class="form-control" name="upload" id="edit_document" value="">
                     </div>
                 </div>
                 <div class="text-center">

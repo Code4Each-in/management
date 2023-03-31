@@ -25,26 +25,26 @@ class AttendanceController extends Controller
             'outtime.after' => 'The outtime must be greater than from intime.',
         ]
       );
-        if ($validator->fails())
-        {
-            return Redirect::back()->withErrors($validator);
-        }  
+    if ($validator->fails())
+     {
+         return Redirect::back()->withErrors($validator);
+      }  
          $validate = $validator->valid();	
          $attendanceCheck= UserAttendances::where('user_id',auth()->user()->id)->whereDate('created_at',date('Y-m-d'))->first();
    
-             $attendenceData=[
-               'user_id'=> auth()->user()->id,     
-               'in_time'=>$validate['intime'],
-               'out_time'=>$validate['outtime'],
-               'notes'=>$validate['notes']
-             ];
-         if (!empty($attendanceCheck))
-         {
-           $attendenceData['updated_at']=date('Y-m-d H:i:s');
+      $attendenceData=[
+       'user_id'=> auth()->user()->id,     
+       'in_time'=>$validate['intime'],
+        'out_time'=>$validate['outtime'],
+        'notes'=>$validate['notes']
+            ];
+     if (!empty($attendanceCheck))
+       {
+         $attendenceData['updated_at']=date('Y-m-d H:i:s');
            UserAttendances::where('id', $attendanceCheck->id)
            ->update($attendenceData);
-         }
-         else
+        }
+        else
          {
            $attendenceData['created_at']=date('Y-m-d H:i:s');
            $users =UserAttendances::create($attendenceData); 
@@ -52,51 +52,50 @@ class AttendanceController extends Controller
         $request->session()->flash('message','Attendance added successfully.');
               return redirect()->intended('attendance');
           }
+
           public function showTeamsAttendance()
           {
             if (auth()->user()->role_id==env('SUPER_ADMIN'))
-          {
-            $teamAttendance= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name']);;
-          }
-
+              {
+                $teamAttendance= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name']);;
+              }
             else
             {
-        
             $teamAttendance = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->join('users', 'user_attendances.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_attendances.*', 'managers.user_id','users.first_name']);
-        }
+            }
             return view('attendance.team',compact('teamAttendance'));
         }
+
+
         public function edit(request $request){
           $attendance = UserAttendances::where(['id' => $request->id])->first();
           return Response()->json(['attendance' =>$attendance]);
          }
          
           public function update(request $request){
-            
-            $validator = \Validator::make($request->all(),[
-              
-              'InTime'=>'required', 
-            
-              'outTime'=>'required|after:intime',
-              'notes'=>'required'
-                ],
+          $validator = \Validator::make($request->all(),[
+          'edit_intime'=>'required', 
+          'edt_outtime'=>'required|after:edit_intime',
+          ],
+                [
+                  'edt_outtime.after' => 'The outtime must be greater than from intime.',
+                ]
               );
               if ($validator->fails())
               {
                   return Redirect::back()->withErrors($validator);
-              }  
-                $validate = $validator->valid();
+              } 
+               
+                $validate = $validator->valid();  
                 
-                UserAttendances::where('id', $validate['id'])
+              $UserAttendance =  UserAttendances::where('id', $validate['id'])
                 ->update([
                'in_time'=>$validate['InTime'],
                'out_time'=>$validate['outTime'],
                'notes'=>$validate['notes'],
                 ]);
                $request->session()->flash('message','Attendances updated successfully.');
-              return Response()->json(['status'=>200]);
-          }
-        
-        
+              return Response()->json(['UserAttendance' => $UserAttendance]);
+        }
     }
     

@@ -68,21 +68,23 @@
                                     {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
                                     @endfor
                             </select>
-                            @if ($errors->has('intime'))
-                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
+                            @if ($errors->has('edit_intime'))
+                            <span style="font-size: 12px;"
+                                class="text-danger">{{ $errors->first('edit_intime') }}</span>
                             @endif
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-12">
-                            <select name="edt_outtime" class="form-select" id="edit_outtime">
+                            <select name="edit_outtime" class="form-select" id="edit_outtime">
                                 <option value="">Out Time<span style="color:red">*</span></option>
                                 @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
                                     {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
                                     @endfor
                             </select>
-                            @if ($errors->has('outtime'))
-                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
+                            @if ($errors->has('edit_outtime'))
+                            <span style="font-size: 12px;"
+                                class="text-danger">{{ $errors->first('edit_outtime') }}</span>
                             @endif
                         </div>
                     </div>

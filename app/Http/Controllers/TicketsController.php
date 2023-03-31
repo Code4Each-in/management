@@ -7,6 +7,8 @@ use App\Models\Users;
 use App\Models\Tickets;
 use App\Models\TicketAssigns;
 use App\Models\TicketComments;
+use App\Models\TicketFiles;
+
 
 use Illuminate\Support\Facades\Redirect;
 
@@ -14,8 +16,7 @@ class TicketsController extends Controller
 {
     public function index()
     {
-       
-        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
+        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
         $tickets=Tickets::orderBy('id','desc')->get(); 
         if (!empty($tickets)){
         foreach ($tickets as $key=>$data) 
@@ -43,28 +44,14 @@ class TicketsController extends Controller
             }
             
     		$validate = $validator->valid();
-            // getting all data from db
-            // dd($request['files']);
-            // $document = time().'.'.$request['upload']->extension(); 
-            // $request['upload']->move(public_path('assets/img/upload'), $document);
-            // $path ='upload/'.$document;
-            // dd($path);
-            // dd($validate['etadatetime']);
             $eta = date("Y-m-d H:i:s",strtotime($request['eta'])); 
-            // $etaTo = date("Y-m-d H:i:s",strtotime($validate['eta_to'])); 
-            // $difference = strtotime($etaFrom) - strtotime($etaTo);
-            // $days = abs($difference/(60 * 60)/24);
 
-            // dd($days);
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'], 
                 'status'=>$validate ['status'],
                 'priority'=>$validate ['priority'],
-            // 'assign'=>$validate['assign'],
                 'eta'=>$eta,
-                // 'eta_to'=>$etaTo,
-                // 'upload'=> $path,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     
@@ -77,10 +64,23 @@ class TicketsController extends Controller
                     $assign =TicketAssigns::create([					
                         'ticket_id' => $tickets->id,
                         'user_id' => $assign,
+                   
                     ]);
                 }		
             }
-            
+
+            if($request->hasfile('add_document')){
+                foreach($request->file('add_document') as $file)
+                {
+                $name = time().rand(1,100).'.'.$file->extension();
+                $file->move(public_path('assets/img/ticketAssets'), $name);  
+                $path='ticketAssets/'.$name;
+                    $documents = TicketFiles::create([
+                    'document' => $path,
+                    'ticket_id'=> $tickets->id,
+                    ]); 
+                }
+           }
             $request->session()->flash('message','Tickets added successfully.');
     		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
     }
@@ -94,7 +94,7 @@ class TicketsController extends Controller
      { 
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
          $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
-         $userCount = Users::orderBy('id','desc')->get();
+         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
         foreach($user as $key1=> $data1)
         {
             foreach($ticketsAssign as $key2=> $data2){
@@ -103,11 +103,12 @@ class TicketsController extends Controller
                 }
             }
         }
+        $TicketDocuments=TicketFiles::orderBy('id','desc')->get();
         $tickets = Tickets::where(['id' => $ticketId])->first();
-        // dd(['id' => $ticketId]);
+     
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount'));   	
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
@@ -142,19 +143,6 @@ class TicketsController extends Controller
                     ]);
                 }		
             }
-
-            // if (isset($validate['assign']))
-            // {				
-            //     foreach($validate['assign'] as $assign)
-            //     {				
-            //         $assign =TicketAssigns::create([					
-            //             'ticket_id' => $tickets->id,
-            //             'user_id' => $assign,
-            //         ]);
-            //     }		
-            // }
-
-
             $request->session()->flash('message','Ticket updated successfully.');
     		return redirect()->back()->with('tickets', $tickets);
      }
@@ -186,7 +174,6 @@ class TicketsController extends Controller
     }
     public function DeleteTicketAssign(request $request)
     {
-       
         $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
         $request->session()->flash('message','TicketAssign deleted successfully.');
         $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();

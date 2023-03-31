@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTicketFile extends Migration
+class CreateTicketFiles extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateTicketFile extends Migration
      */
     public function up()
     {
-        Schema::create('ticket_file', function (Blueprint $table) {
+        Schema::create('ticket_files', function (Blueprint $table) {
             $table->id();
             $table->integer('ticket_id')->constrained();
             $table->string('document')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
