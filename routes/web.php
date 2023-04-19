@@ -77,5 +77,6 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/delete/tickets', [TicketsController::class, 'destroy']);
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
-
+	Route::get('/declaration', [UsersController::class, 'listDeclaration'])->name('declaration.index');
+	Route::post('/add/declaration', [UsersController::class, 'addDeclaration']);
  });

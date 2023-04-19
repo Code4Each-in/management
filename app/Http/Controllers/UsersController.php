@@ -9,6 +9,7 @@ use App\Models\Departments;
 use App\Models\Roles;
 use App\Models\Managers;
 use Illuminate\Support\Facades\Hash;
+use App\Models\SelfDeclarations;
 
 class UsersController extends Controller
 {
@@ -316,5 +317,51 @@ class UsersController extends Controller
 			'profile_picture' => null,
 		]);
 		return Response()->json(['status'=>200, 'message' => ' Profile picture deleted successfully.']);
+	}
+
+	/**
+	 * 
+	 * @return \Illuminate\View\View
+	 */
+	public function listDeclaration()
+	{
+		$selfDeclaration= $roleData=SelfDeclarations::orderBy('id','desc')->get();//database query
+		return view('declaration.index',compact('selfDeclaration'));
+	}
+
+	
+	public function addDeclaration(Request $request)   //  validations 
+	{	
+		$validator = \Validator::make($request->all(), [
+		'full_name' => 'required', 
+		'father_name'=>'required', 
+		'adharcard_no'=>'required', 
+		'address'=>'required', 
+		'block'=>'required', 
+		'district'=>'required', 
+		'state'=>'required', 
+		'zip'=>'required', 
+		]);
+
+		if ($validator->fails())
+		{
+			return response()->json(['errors'=>$validator->errors()->all()]);
+		}
+
+		$validate = $validator->valid(); //getting all data from db
+			
+		$SelfDeclarations =SelfDeclarations::create([
+			'full_name' => $validate['full_name'],
+			'father_name' => $validate['father_name'], 
+			'adharcard_no' => $validate['adharcard_no'],
+			'address'=>$validate['address'].', '.$validate['block'].', '.$validate['district'].', '.$validate['state'].', '.$validate['zip'],			
+			'block' => $validate['block'],
+			'created_at' => date('Y-m-d H:i:s'),
+			'updated_at' => date('Y-m-d H:i:s'),
+		]);
+
+		
+		$request->session()->flash('message','Self declaration added successfully.');
+		return Response()->json(['status'=>200, 'SelfDeclarations'=>$SelfDeclarations]);
 	}
 }
