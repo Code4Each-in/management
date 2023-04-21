@@ -78,5 +78,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
 	Route::get('/declaration', [UsersController::class, 'listDeclaration'])->name('declaration.index');
-	Route::post('/add/declaration', [UsersController::class, 'addDeclaration']);
+	Route::get('/create/declaration', [UsersController::class, 'createDeclaration'])->name('declaration.create');
+	Route::post('/add/declaration', [UsersController::class, 'saveDeclaration'])->name('declaration.add');
+	Route::post('/check/declaration', [UsersController::class, 'checkExistDeclaration'])->name('declaration.checkExistDeclaration');
  });

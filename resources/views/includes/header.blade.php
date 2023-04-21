@@ -191,7 +191,21 @@
     <aside id="sidebar" class="sidebar">
 
         <ul class="sidebar-nav" id="sidebar-nav">
-
+        @if(auth()->user()->role->name=="Data Entry")
+        <li class="nav-item">
+                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('/create/declaration') ? '' : 'collapsed' }}" href="{{ route('declaration.create') }}">
+                <i class="bi bi-person-square"></i>
+                <span>Self Declaration Form
+                </span>
+            </a>
+        </li>
+        @else
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
                     <i class="bi bi-grid"></i>
@@ -293,12 +307,20 @@
                 </a>
             </li>
             <li class="nav-item">
+              <a class="nav-link {{ request()->is('/create/declaration') ? '' : 'collapsed' }}" href="{{ route('declaration.create') }}">
+                  <i class="bi bi-person-square"></i>
+                  <span>Self Declaration Form
+                  </span>
+              </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->is('declaration') ? '' : 'collapsed' }}" href="{{ route('declaration.index') }}">
                     <i class="bi bi-person-square"></i>
-                    <span>Self-declaration
+                    <span>Self Declaration List
                     </span>
                 </a>
             </li>
+            @endif
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>

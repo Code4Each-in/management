@@ -329,20 +329,45 @@ class UsersController extends Controller
 		return view('declaration.index',compact('selfDeclaration'));
 	}
 
-	
-	public function addDeclaration(Request $request)   //  validations 
+	// Function to redirect on self declaration form
+	public function createDeclaration() 
 	{	
-		$validator = \Validator::make($request->all(), [
-		'full_name' => 'required', 
-		'father_name'=>'required', 
-		'adharcard_no'=>'required', 
-		'address'=>'required', 
-		'block'=>'required', 
-		'district'=>'required', 
-		'state'=>'required', 
-		'zip'=>'required', 
-		]);
+		return view('declaration.create');
+	}
 
+	public function checkExistDeclaration(Request $request)
+	{
+		$validator = \Validator::make($request->all(), [
+			'adharcard_no'=>'required', 
+			]);
+
+			if ($validator->fails())
+			{
+				return response()->json(['errors'=>$validator->errors()->all()]);
+			}
+		$validate = $validator->valid();
+		$checkexistAdharCard = SelfDeclarations::where('adharcard_no', $validate['adharcard_no'])->get()->toArray();
+		$status='notExist';
+		if(!empty($checkexistAdharCard)){
+			$status='exist';
+		}
+		return Response()->json(['status'=>200, 'checkAdharcard' => $status]);
+	}
+
+	public function saveDeclaration(Request $request)   //  validations 
+	{	
+		
+		$validator = \Validator::make($request->all(), [
+			'full_name' => 'required', 
+			'father_name'=>'required', 
+			'adharcard_no'=>'required', 
+			'address'=>'required', 
+			'block'=>'required', 
+			'district'=>'required', 
+			'state'=>'required', 
+			'zip'=>'required', 
+			]);
+	
 		if ($validator->fails())
 		{
 			return response()->json(['errors'=>$validator->errors()->all()]);
@@ -358,10 +383,9 @@ class UsersController extends Controller
 			'block' => $validate['block'],
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s'),
-		]);
-
-		
-		$request->session()->flash('message','Self declaration added successfully.');
+		]);	
+		$request->session()->flash('message','Self declaration added successfully. Your Id is '.$SelfDeclarations->id.'.');
 		return Response()->json(['status'=>200, 'SelfDeclarations'=>$SelfDeclarations]);
 	}
+
 }

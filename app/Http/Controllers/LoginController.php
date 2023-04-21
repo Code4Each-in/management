@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\Users;
+use App\Models\Roles;
 
 class LoginController extends Controller
 {
@@ -29,7 +30,9 @@ class LoginController extends Controller
  
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
- 
+            $role = Roles::where('id',auth()->user()->role_id)->first();
+            auth()->user()->role_name = $role->name;
+         
             return redirect()->intended('dashboard');
         }
  

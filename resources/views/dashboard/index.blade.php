@@ -3,6 +3,9 @@
 @section('subtitle', 'Dashboard')
 @section('content')
 <!-- <div class=""> -->
+@if(auth()->user()->role->name=='Data Entry')
+
+@else
 <div class="col-lg-8 dashboard">
     <div class="row">
         <!-- Sales Card -->
@@ -227,7 +230,7 @@
         </div>
     </div>
 </div>
-
+@endif
 @endsection
 @section('js_scripts')
 <script>
