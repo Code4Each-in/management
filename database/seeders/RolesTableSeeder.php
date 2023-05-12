@@ -19,7 +19,17 @@ class RolesTableSeeder extends Seeder
         Roles::insert([
             [
                 'name' => "Super Admin",
+            ],
+            [
+                'name' => "Manager",
+            ],
+            [
+                'name' => "Employee",
+            ],
+            [
+                'name' => "Hr Manager",
             ]
+
         ]);
         
     }
