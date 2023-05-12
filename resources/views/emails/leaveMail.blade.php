@@ -42,13 +42,13 @@
     <div class="container">
         <h1>Leave Request</h1>
         <p>Dear HR Team,</p>
-        <p>I hope this email finds you well. I am writing to formally request a leave of absence from {{$data['from']}} to {{$data['to']}}.</p>
+        <p>I hope this email finds you well. I am writing to formally request a leave of absence from {{date('d-m-Y', strtotime($data['from'])) }} to {{date('d-m-Y', strtotime($data['to'])) }}.</p>
         <p>Please review the details below:</p>
         
         <table>
             <tr>
                 <td><strong>Employee Name:</strong></td>
-                <td>{{$data['first_name'].' '. $data['last_name']}}</td>
+                <td>{{ ucfirst($data['first_name']).' '. ucfirst($data['last_name'])}}</td>
             </tr>
             <tr>
                 <td><strong>Leave Type:</strong></td>
@@ -56,11 +56,12 @@
             </tr>
             <tr>
                 <td><strong>Start Date:</strong></td>
-                <td>{{$data['from'] }}</td>
+                <td>{{ date('d-m-Y', strtotime($data['from'])) }}</td>
             </tr>
             <tr>
                 <td><strong>End Date:</strong></td>
-                <td>{{$data['to']}}</td>
+                <td>{{ date('d-m-Y', strtotime($data['to']))}}</td>
+                
             </tr>
             <tr>
                 <td><strong>Reason:</strong></td>
@@ -72,7 +73,7 @@
         
         <p>Thank you.</p>
         <p>Best regards,</p>
-        <p>{{$data['first_name'].' '. $data['last_name']}}</p>
+        <p>{{ ucfirst($data['first_name']).' '. ucfirst($data['last_name'])}}</p>
 
         <p>Visit HR Management: <a href="#" target="_blank">Click Here </a></p>
         
