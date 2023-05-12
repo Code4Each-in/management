@@ -39,11 +39,8 @@ class LeavesController extends Controller
            ->select(['user_leaves.*', 'users.email', 'users.first_name', 'users.last_name', 'users.role_id'])
            ->first();
            $data = $userObj;
-        //    dd($data);
-           $subject = "Leave Application - $userObj->first_name $userObj->last_name";
-        //    dd($data);
-            $data->subject = $subject;
-            // dd($data->subject);
+           $subject = "Leave Application - ".ucfirst($userObj->first_name)." ".ucfirst($userObj->last_name);
+           $data->subject = $subject;
            $userEmail =$userObj->email;
            if($userLeaves){
            $id = $userLeaves->user_id;
