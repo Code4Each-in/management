@@ -75,7 +75,7 @@
         <p>Best regards,</p>
         <p>{{ ucfirst($data['first_name']).' '. ucfirst($data['last_name'])}}</p>
 
-        <p>Visit HR Management: <a href="#" target="_blank">Click Here </a></p>
+        <p>Visit HR Management: <a href="{{ url('/') }}" target="_blank">Click Here </a></p>
         
     </div>
 </body>
