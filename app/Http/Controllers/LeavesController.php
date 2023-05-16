@@ -5,6 +5,7 @@ use App\Models\UserLeaves;
 use Carbon\Carbon;
 use App\Http\Requests\StoreUserLeavesRequest;
 use App\Mail\LeaveRequestMail;
+use App\Mail\LeaveStatusMail;
 use Illuminate\Support\Facades\Input;
 use App\Models\Roles;
 use App\Models\Managers;
@@ -39,11 +40,8 @@ class LeavesController extends Controller
            ->select(['user_leaves.*', 'users.email', 'users.first_name', 'users.last_name', 'users.role_id'])
            ->first();
            $data = $userObj;
-        //    dd($data);
-           $subject = "Leave Application - $userObj->first_name $userObj->last_name";
-        //    dd($data);
-            $data->subject = $subject;
-            // dd($data->subject);
+           $subject = "Leave Application - ".ucfirst($userObj->first_name)." ".ucfirst($userObj->last_name);
+           $data->subject = $subject;
            $userEmail =$userObj->email;
            if($userLeaves){
            $id = $userLeaves->user_id;
@@ -104,14 +102,23 @@ class LeavesController extends Controller
     public function setLeavesApproved(Request $request)
 	 {
       
-        UserLeaves::where(['id'=>$request->LeavesId])
+        $userLeaves = UserLeaves::where(['id'=>$request->LeavesId])
 			->update([
             'leave_status' =>$request->LeavesStatus,
             'status_change_by'=> auth()->user()->id,
           
 			 ]);
+             $userObj = UserLeaves::join('users', 'users.id', '=', 'user_leaves.user_id')
+                        ->where('user_leaves.id', $request->LeavesId)
+                        ->select('users.email','users.first_name','users.last_name','user_leaves.type','user_leaves.from' ,'user_leaves.notes','user_leaves.to','user_leaves.leave_status' )->first();
+            $data = $userObj;
+            $subject = "Leave Request - ".ucfirst($userObj->leave_status);
+            $data->subject = $subject;
+            $userEmail = $userObj->email;
+             if($userLeaves > 0){
+                Mail::to($userEmail)->send(new LeaveStatusMail($data));
+             }
 
-         
 			 $request->session()->flash('message', 'user leave status updated' );
 		     return Response()->json(['status'=>200]);	
 	 }
@@ -126,6 +133,7 @@ class LeavesController extends Controller
          {
              $teamLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_leaves.*', 'managers.user_id','users.first_name']);
          }
+
         return view('leaves.team',compact('teamLeaves'));
 	 }
 

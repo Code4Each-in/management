@@ -38,7 +38,7 @@
                                 <td>
                                     <select style="width:150px;" user-leave-id="{{$data->id}}" name="leave_status"
                                         class="form-select leave_status" id="leave_status">
-                                        <option value="">Leave status</option>
+                                        <!-- <option value="">Leave status</option> -->
                                         <option value="requested"
                                             {{$data->leave_status == "requested"  ? 'selected' : ''}}>
                                             requested</option>

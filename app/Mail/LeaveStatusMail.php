@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class LeaveRequestMail extends Mailable
+class LeaveStatusMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -22,6 +22,7 @@ class LeaveRequestMail extends Mailable
     {
         $this->data = $data; 
     }
+
     /**
      * Build the message.
      *
@@ -29,7 +30,7 @@ class LeaveRequestMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.leaveMail',[ 'data' => $this->data])
-               ->subject($this->data->subject);
+        return $this->view('emails.leaveStatusMail', ['data' => $this->data])
+            ->subject($this->data->subject);
     }
 }
