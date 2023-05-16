@@ -42,7 +42,6 @@ class LeavesController extends Controller
            $data = $userObj;
            $subject = "Leave Application - ".ucfirst($userObj->first_name)." ".ucfirst($userObj->last_name);
            $data->subject = $subject;
-           $userEmail =$userObj->email;
            if($userLeaves){
            $id = $userLeaves->user_id;
            $user = Users::find($id);
@@ -60,7 +59,6 @@ class LeavesController extends Controller
                 $roleEmails = $rolesData->pluck('email');
                 // Merging mail collection data in one collection 
                 $emails = $managerEmails->merge($roleEmails);
-                $emails->push($userEmail);
                 Mail::to($emails)->send(new LeaveRequestMail($data));
                 
            }elseif ($roles->name == "Manager") {
@@ -75,7 +73,6 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            $emails->push($userEmail);
             Mail::to($emails)->send(new LeaveRequestMail($data));
             
            }elseif ($roles->name == "HR Manager") {
@@ -90,7 +87,6 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            $emails->push($userEmail);
             Mail::to($emails)->send(new LeaveRequestMail($data));
     
            }

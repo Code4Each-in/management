@@ -11,12 +11,11 @@
                 {{ session()->get('message') }}
             </div>
             @endif
-            <form method="post" id="editTicketsForm" action="{{route('ticket.update',$tickets->id)}}">
+            <form method="post" id="editTicketsForm" action="{{route('ticket.update',$tickets->id)}}" enctype="multipart/form-data">
                 <div class="row mb-5 mt-4">
                     <label for="edit_title" class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="title" id="edit_title"
-                            value="{{$tickets->title}}">
+                        <input type="text" class="form-control" name="title" id="edit_title" value="{{$tickets->title}}">
                         @if ($errors->has('title'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('title') }}</span>
                         @endif
@@ -25,8 +24,7 @@
                 <div class="row mb-5">
                     <label for="edit_description" class="col-sm-3 col-form-label required">Description</label>
                     <div class=" col-sm-9">
-                        <textarea name="description" class="form-control"
-                            id="edit_description">{{$tickets->description}}</textarea>
+                        <textarea name="description" class="form-control" id="edit_description">{{$tickets->description}}</textarea>
                         @if ($errors->has('description'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif
@@ -37,8 +35,7 @@
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
                         <button type="button" class="btn btn-outline-primary btn-sm mb-2">
-                            {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign"
-                                onClick="deleteTicketAssign('{{ $data->id }}')"></i></button>
+                            {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign" onClick="deleteTicketAssign('{{ $data->id }}')"></i></button>
                         </button>
                         @endforeach
                     </div>
@@ -50,7 +47,8 @@
                             <option value="">Select User</option>
                             @foreach ($userCount as $data)
                             <option value="{{$data['id']}}">
-                                {{$data['first_name']}}</option>
+                                {{$data['first_name']}}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -62,8 +60,7 @@
                 <div class="row mb-5">
                     <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                     <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta"
-                            value="{{$tickets->eta}}">
+                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="{{$tickets->eta}}">
                     </div>
                 </div>
                 <div class="row mb-5">
@@ -103,14 +100,58 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
-                    <div class="col-sm-9">
-                        <input type="file" class="form-control" name="upload" id="edit_document" value="">
+                    <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
+                    <div class="col-sm-9" id="Ticketsdata">
+                        @if (count($TicketDocuments) < 1)
+                            No Uploaded Document Found
+                        @else
+                        @foreach ($TicketDocuments as $data)
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                            @php
+                            $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                            $iconClass = '';
+
+                            switch ($extension) {
+                            case 'pdf':
+                            $iconClass = 'bi-file-earmark-pdf';
+                            break;
+                            case 'doc':
+                            case 'docx':
+                            $iconClass = 'bi-file-earmark-word';
+                            break;
+                            case 'xls':
+                            case 'xlsx':
+                            $iconClass = 'bi-file-earmark-excel';
+                            break;
+                            case 'jpg':
+                            case 'jpeg':
+                            case 'png':
+                            $iconClass = 'bi-file-earmark-image';
+                            break;
+                            // Add more cases for other file extensions as needed
+                            default:
+                            $iconClass = 'bi-file-earmark';
+                            break;
+                            }
+                            @endphp
+                            <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{asset('assets/img/').'/'.$data->document}}', '_blank')"></i>
+                            <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteUploadedFile('{{ $data->id }}')"></i>
+                        </button>
+                        @endforeach
+                        @endif
                     </div>
                 </div>
+                <div class="row mb-5">
+                    <label for="edit_document" class="col-sm-3 col-form-label">Document</label>
+                    <div class="col-sm-9">
+                        <input type="file" class="form-control" name="edit_document[]" id="edit_document" multiple>
+                    </div>
+                    @if ($errors->has('edit_document'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_document') }}</span>
+                        @endif
+                </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-primary" onClick="updateTicket()"
-                        href="javascript:void(0)">Save</button>
+                    <button type="submit" class="btn btn-primary" onClick="updateTicket()" href="javascript:void(0)">Save</button>
                 </div>
             </form>
         </div>
@@ -132,8 +173,7 @@
                     <div class="row">
                         @if(!empty($data->user->profile_picture))
                         <div class="col-md-2 comment-user-profile">
-                            <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle "
-                                alt="">
+                            <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle " alt="">
                         </div>
                         @else
                         <img src="{{asset('assets/img/blankImage')}}" alt="Profile" class="rounded-circle">
@@ -157,8 +197,7 @@
             </div>
             <form method="post" id="commentsData" action="{{route('comments.add')}}">
                 <div class=" post-item clearfix mb-3 mt-3">
-                    <textarea class="form-control comment nt-3" name="comment" id="comment"
-                        placeholder="Enter your comment" rows="3"></textarea>
+                    <textarea class="form-control comment nt-3" name="comment" id="comment" placeholder="Enter your comment" rows="3"></textarea>
                 </div>
                 <div class="alert alert-danger" style="display:none"></div>
                 <input type="hidden" class="form-control" id="hidden_id" value="{{$tickets->id}}">
@@ -171,99 +210,119 @@
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
-    setTimeout(function() {
-        $('.message').fadeOut("slow");
-    }, 2000);
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.message').fadeOut("slow");
+        }, 2000);
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
-    $("#commentsData").submit(function() {
-        event.preventDefault();
-        var comment = $('#comment').val();
-        var id = $('#hidden_id').val();
+        $("#commentsData").submit(function() {
+            event.preventDefault();
+            var comment = $('#comment').val();
+            var id = $('#hidden_id').val();
 
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('/add/comments')}}",
-            data: {
-                comment: comment,
-                id: id,
-            },
-            success: (data) => {
-                if (data.errors) {
-                    $('.alert-danger').html('');
-                    $.each(data.errors, function(key, value) {
-                        $('.alert-danger').show();
-                        $('.alert-danger').append('<li>' + value +
-                            '</li>');
-                    });
-                } else {
-                    $('.alert-danger').html('');
-                    $('.alert-danger').hide();
-                    $('#comment').val("");
-                    var html = "";
-                    $.each(data.CommentsData, function(key, data) {
-                        var picture = 'blankImage';
-                        if (data.user.profile_picture != "") {
-                            picture = data.user.profile_picture;
-                        }
-                        html +=
-                            '<div class="row post-item clearfix mb-3 "><div class="col-md-2"><img src="{{asset("assets/img")}}/' +
-                            picture +
-                            '" class="rounded-circle" alt = "" ></div><div class="col-md-3"><p>' +
-                            data.user.first_name +
-                            '</p><p>' + moment(data.created_at).format(
-                                'MMM DD LT') +
-                            '</p></div><div class="col-md-7 text-left mt-3 ml-3">' +
-                            data.comments + '</div></div>';
-                    });
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('/add/comments')}}",
+                data: {
+                    comment: comment,
+                    id: id,
+                },
+                success: (data) => {
+                    if (data.errors) {
+                        $('.alert-danger').html('');
+                        $.each(data.errors, function(key, value) {
+                            $('.alert-danger').show();
+                            $('.alert-danger').append('<li>' + value +
+                                '</li>');
+                        });
+                    } else {
+                        $('.alert-danger').html('');
+                        $('.alert-danger').hide();
+                        $('#comment').val("");
+                        var html = "";
+                        $.each(data.CommentsData, function(key, data) {
+                            var picture = 'blankImage';
+                            if (data.user.profile_picture != "") {
+                                picture = data.user.profile_picture;
+                            }
+                            html +=
+                                '<div class="row post-item clearfix mb-3 "><div class="col-md-2"><img src="{{asset("assets/img")}}/' +
+                                picture +
+                                '" class="rounded-circle" alt = "" ></div><div class="col-md-3"><p>' +
+                                data.user.first_name +
+                                '</p><p>' + moment(data.created_at).format(
+                                    'MMM DD LT') +
+                                '</p></div><div class="col-md-7 text-left mt-3 ml-3">' +
+                                data.comments + '</div></div>';
+                        });
 
-                    $('.comments').append(html);
-                    $('.Commentmessage').html(data.Commentmessage);
-                    $('.Commentmessage').show();
-                    $('#NoComments').hide();
-                    setTimeout(function() {
-                        $('.Commentmessage').fadeOut("slow");
-                    }, 2000);
+                        $('.comments').append(html);
+                        $('.Commentmessage').html(data.Commentmessage);
+                        $('.Commentmessage').show();
+                        $('#NoComments').hide();
+                        setTimeout(function() {
+                            $('.Commentmessage').fadeOut("slow");
+                        }, 2000);
+                    }
                 }
-            }
+            });
         });
     });
-});
 
-function deleteTicketAssign(id) {
-    var TicketId = $('#hidden_id').val();
-    if (confirm("Are you sure ?") == true) {
-        $.ajax({
-            type: 'DELETE',
-            url: "{{ url('/delete/ticket')}}",
-            data: {
-                id: id,
-                TicketId: TicketId,
-            },
-            success: (data) => {
-                location.reload();
+    function deleteTicketAssign(id) {
+        var TicketId = $('#hidden_id').val();
+        if (confirm("Are you sure ?") == true) {
+            $.ajax({
+                type: 'DELETE',
+                url: "{{ url('/delete/ticket')}}",
+                data: {
+                    id: id,
+                    TicketId: TicketId,
+                },
+                success: (data) => {
+                    location.reload();
 
-                // if (data.user != null) {
-                //     $('#edit_assign').find('option').remove().end();
-                //     $.each(data.user, function(key, value) {
-                //         $('#edit_assign').append('<option value="' + value.id + '">' + value
-                //             .first_name + '</option>');
-                //     });
-                // }
-                // if (data.AssignData.length == 0) {
+                    // if (data.user != null) {
+                    //     $('#edit_assign').find('option').remove().end();
+                    //     $.each(data.user, function(key, value) {
+                    //         $('#edit_assign').append('<option value="' + value.id + '">' + value
+                    //             .first_name + '</option>');
+                    //     });
+                    // }
+                    // if (data.AssignData.length == 0) {
 
-                //     $('#Ticketsdata').hide();
-                // }
-            }
+                    //     $('#Ticketsdata').hide();
+                    // }
+                }
 
-        });
+            });
+        }
     }
-}
+
+    function deleteUploadedFile(id) {
+        var TicketId = $('#hidden_id').val();
+        if (confirm("Are you sure ?") == true) {
+            $.ajax({
+                type: 'DELETE',
+                url: "{{ url('/delete/ticket/file')}}",
+                data: {
+                    id: id,
+                    TicketId: TicketId,
+                },
+                success: (data) => {
+                    location.reload();
+                }
+
+            });
+        }
+
+    }
 </script>
+
 @endsection

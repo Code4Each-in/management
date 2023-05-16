@@ -36,6 +36,7 @@ class TicketsController extends Controller
             // 'eta_to' => 'required',
              'status'=>'required', 
              'priority'=>'required',
+            //  'add_document' => 'required|max:5000|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf',
             ]);
 
             if ($validator->fails())
@@ -72,7 +73,9 @@ class TicketsController extends Controller
             if($request->hasfile('add_document')){
                 foreach($request->file('add_document') as $file)
                 {
-                $name = time().rand(1,100).'.'.$file->extension();
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $dateString = date('YmdHis');
+                $name = $dateString . '_' . $fileName . '.' . $file->extension();
                 $file->move(public_path('assets/img/ticketAssets'), $name);  
                 $path='ticketAssets/'.$name;
                     $documents = TicketFiles::create([
@@ -103,7 +106,7 @@ class TicketsController extends Controller
                 }
             }
         }
-        $TicketDocuments=TicketFiles::orderBy('id','desc')->get();
+        $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
         $tickets = Tickets::where(['id' => $ticketId])->first();
      
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
@@ -117,6 +120,7 @@ class TicketsController extends Controller
             'description'=>'required', 
              'status'=>'required',
              'priority'=>'required',
+            //  'edit_document' => 'required|max:5000|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf',
             ]);
             if ($validator->fails())
             {
@@ -143,6 +147,23 @@ class TicketsController extends Controller
                     ]);
                 }		
             }
+            if($request->hasfile('edit_document')){
+                foreach($request->file('edit_document') as $file)
+                {
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                // $name = time().rand(1,100).'_'.$fileName.'.'.$file->extension();
+                $dateString = date('YmdHis');
+                $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                $file->move(public_path('assets/img/ticketAssets'), $name);  
+                $path='ticketAssets/'.$name;
+                    $documents = TicketFiles::create([
+                    'document' => $path,
+                    'ticket_id'=> $ticketId,
+                    ]); 
+                }
+               
+           }
+
             $request->session()->flash('message','Ticket updated successfully.');
     		return redirect()->back()->with('tickets', $tickets);
      }
@@ -190,5 +211,14 @@ class TicketsController extends Controller
        }
         return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
       
+    }
+
+    public function deleteTicketFile(Request $request)
+    {
+        
+        $ticketFile = TicketFiles::where('id',$request->id)->forceDelete(); 
+        $request->session()->flash('message','TicketFile deleted successfully.');
+        return Response()->json(['status'=>200]); 
+
     }
 }
