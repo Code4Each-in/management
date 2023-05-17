@@ -58,7 +58,7 @@
 
         <p>Best regards,</p>
         <p>Team HR</p>
-        <p>{{ config('app.name') }}</p>
+        <p>Code4Each</p>
         <p>Visit HR Management: <a href="{{ url('/') }}" target="_blank">Click Here </a></p>
 
         

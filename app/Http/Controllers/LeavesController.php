@@ -42,7 +42,6 @@ class LeavesController extends Controller
            $data = $userObj;
            $subject = "Leave Application - ".ucfirst($userObj->first_name)." ".ucfirst($userObj->last_name);
            $data->subject = $subject;
-           $userEmail =$userObj->email;
            if($userLeaves){
            $id = $userLeaves->user_id;
            $user = Users::find($id);
@@ -60,7 +59,6 @@ class LeavesController extends Controller
                 $roleEmails = $rolesData->pluck('email');
                 // Merging mail collection data in one collection 
                 $emails = $managerEmails->merge($roleEmails);
-                $emails->push($userEmail);
                 Mail::to($emails)->send(new LeaveRequestMail($data));
                 
            }elseif ($roles->name == "Manager") {
@@ -75,7 +73,6 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            $emails->push($userEmail);
             Mail::to($emails)->send(new LeaveRequestMail($data));
             
            }elseif ($roles->name == "HR Manager") {
@@ -90,7 +87,6 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            $emails->push($userEmail);
             Mail::to($emails)->send(new LeaveRequestMail($data));
     
            }
@@ -108,6 +104,7 @@ class LeavesController extends Controller
             'status_change_by'=> auth()->user()->id,
           
 			 ]);
+             
              $userObj = UserLeaves::join('users', 'users.id', '=', 'user_leaves.user_id')
                         ->where('user_leaves.id', $request->LeavesId)
                         ->select('users.email','users.first_name','users.last_name','user_leaves.type','user_leaves.from' ,'user_leaves.notes','user_leaves.to','user_leaves.leave_status' )->first();
@@ -115,7 +112,7 @@ class LeavesController extends Controller
             $subject = "Leave Request - ".ucfirst($userObj->leave_status);
             $data->subject = $subject;
             $userEmail = $userObj->email;
-             if($userLeaves > 0){
+             if($userObj->leave_status != 'requested' && $userLeaves > 0){
                 Mail::to($userEmail)->send(new LeaveStatusMail($data));
              }
 

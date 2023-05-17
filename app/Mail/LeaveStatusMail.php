@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Config;
 
 class LeaveStatusMail extends Mailable
 {
@@ -28,9 +29,15 @@ class LeaveStatusMail extends Mailable
      *
      * @return $this
      */
+
+
     public function build()
     {
+
+        $address = Config::get('mail.from.address');
+        $name = Config::get('services.from.name');
+
         return $this->view('emails.leaveStatusMail', ['data' => $this->data])
-            ->subject($this->data->subject);
+            ->subject($this->data->subject)->from($address,$name);
     }
 }
