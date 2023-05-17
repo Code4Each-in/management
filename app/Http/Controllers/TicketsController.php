@@ -36,7 +36,17 @@ class TicketsController extends Controller
             // 'eta_to' => 'required',
              'status'=>'required', 
              'priority'=>'required',
-            //  'add_document' => 'required|max:5000|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf',
+             'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            ],[
+                'add_document.*.file' => 'The :attribute must be a file.', 
+                'add_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+                'add_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
+                'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+
+            ]);
+
+            $validator->setAttributeNames([
+                'add_document.*' => 'document',
             ]);
 
             if ($validator->fails())
@@ -120,10 +130,21 @@ class TicketsController extends Controller
             'description'=>'required', 
              'status'=>'required',
              'priority'=>'required',
-            //  'edit_document' => 'required|max:5000|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf',
+            'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            ],[
+                'edit_document.*.file' => 'The :attribute must be a file.', 
+                'edit_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+                'edit_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
+                'edit_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+
             ]);
+
+            $validator->setAttributeNames([
+                'edit_document.*' => 'document',
+            ]);
+
             if ($validator->fails())
-            {
+            {   
                 return Redirect::back()->withErrors($validator);
             }
            $validate = $validator->valid();
@@ -151,7 +172,6 @@ class TicketsController extends Controller
                 foreach($request->file('edit_document') as $file)
                 {
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                // $name = time().rand(1,100).'_'.$fileName.'.'.$file->extension();
                 $dateString = date('YmdHis');
                 $name = $dateString . '_' . $fileName . '.' . $file->extension();
                 $file->move(public_path('assets/img/ticketAssets'), $name);  

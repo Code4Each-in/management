@@ -37,8 +37,8 @@
                                 <td>{{$data->notes }}</td>
                                 @if($data->leave_status == 'approved')
                                 <td><span class="badge rounded-pill approved">Approved</span></td>
-                                @elseif($data->leave_status == 'decline')
-                                <td><span class="badge rounded-pill denied">Decline</span></td>
+                                @elseif($data->leave_status == 'declined')
+                                <td><span class="badge rounded-pill denied">Declined</span></td>
                                 @else
                                 <td><span class="badge rounded-pill requested">Requested</span></td>
                                 @endif
@@ -90,10 +90,8 @@
                         <div class="col-sm-9">
                             <select name="type" class="form-select" id="type">
                                 <option value="">-- Select type --</option>
-                                <option value="urgentWork">Urgent work</option>
-                                <option value="sickLeave">Sick Leave</option>
-                                <option value="">
-                                </option>
+                                <option value="urgent_work">Urgent Work</option>
+                                <option value="sick_leave">Sick Leave</option>
                             </select>
                         </div>
                     </div>

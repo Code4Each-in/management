@@ -102,11 +102,7 @@
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
                     <div class="col-sm-9" id="Ticketsdata">
-                        @if (count($TicketDocuments) < 1)
-                            No Uploaded Document Found
-                        @else
-                        @foreach ($TicketDocuments as $data)
-                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                        @if (count($TicketDocuments) < 1) No Uploaded Document Found @else @foreach ($TicketDocuments as $data) <button type="button" class="btn btn-outline-primary btn-sm mb-2">
                             @php
                             $extension = pathinfo($data->document, PATHINFO_EXTENSION);
                             $iconClass = '';
@@ -136,9 +132,9 @@
                             @endphp
                             <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{asset('assets/img/').'/'.$data->document}}', '_blank')"></i>
                             <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteUploadedFile('{{ $data->id }}')"></i>
-                        </button>
-                        @endforeach
-                        @endif
+                            </button>
+                            @endforeach
+                            @endif
                     </div>
                 </div>
                 <div class="row mb-5">
@@ -146,9 +142,20 @@
                     <div class="col-sm-9">
                         <input type="file" class="form-control" name="edit_document[]" id="edit_document" multiple>
                     </div>
-                    @if ($errors->has('edit_document'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_document') }}</span>
-                        @endif
+                    @if ($errors->has('edit_document.*'))
+                    @foreach($errors->get('edit_document.*') as $key => $errorMessages)
+                    @foreach($errorMessages as $error)
+                    <span style="font-size: 12px;" class="text-danger">
+                    @if ($error == 'The document failed to upload.')
+                        {{$error}} The document may not be greater than 5 mb.
+                        @else
+                            {{$error}} 
+                    @endif 
+                    </span>
+                    @endforeach
+                    @endforeach
+                    @endif
+
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary" onClick="updateTicket()" href="javascript:void(0)">Save</button>
