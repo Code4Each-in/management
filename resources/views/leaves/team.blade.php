@@ -36,18 +36,21 @@
                                 <td>{{$data->type }}</td>
                                 <td>{{$data->notes }}</td>
                                 <td>
+                                    @if ($data->to >= date('Y-m-d'))
                                     <select style="width:150px;" user-leave-id="{{$data->id}}" name="leave_status"
                                         class="form-select leave_status" id="leave_status">
-                                        <!-- <option value="">Leave status</option> -->
                                         <option value="requested"
                                             {{$data->leave_status == "requested"  ? 'selected' : ''}}>
                                             requested</option>
                                         <option value="approved"
                                             {{$data->leave_status == "approved"  ? 'selected' : ''}}>
                                             approved</option>
-                                        <option value="decline" {{$data->leave_status ==  "decline" ? 'selected' : ''}}>
-                                            decline</option>
+                                        <option value="declined" {{$data->leave_status ==  "declined" ? 'selected' : ''}}>
+                                            declined</option>
                                     </select>
+                                    @else
+                                        {{$data->leave_status ?? 'Requested'}}
+                                    @endif   
                                 </td>
                             </tr>
                             @empty

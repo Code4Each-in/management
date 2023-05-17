@@ -27,11 +27,18 @@ class LeavesController extends Controller
         if (isset($request->validator) && $request->validator->fails()) {
             return response()->json(['errors'=>$request->validator->errors()->all()]);
         } 
+        $string = $request->type;
+        $parts = explode("_", $string);
+        $type = '';
+        foreach ($parts as $part) {
+            $type .= ucfirst($part) . ' ';
+        }
+        $type = trim($type);
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
             'from'=>$request->from,
             'to'=>$request->to,
-            'type'=>$request->type,
+            'type'=>  $type,
             'notes'=>$request->notes,
            ]);    
 
@@ -97,14 +104,13 @@ class LeavesController extends Controller
     }
     public function setLeavesApproved(Request $request)
 	 {
-      
+        
         $userLeaves = UserLeaves::where(['id'=>$request->LeavesId])
 			->update([
             'leave_status' =>$request->LeavesStatus,
             'status_change_by'=> auth()->user()->id,
           
 			 ]);
-             
              $userObj = UserLeaves::join('users', 'users.id', '=', 'user_leaves.user_id')
                         ->where('user_leaves.id', $request->LeavesId)
                         ->select('users.email','users.first_name','users.last_name','user_leaves.type','user_leaves.from' ,'user_leaves.notes','user_leaves.to','user_leaves.leave_status' )->first();
