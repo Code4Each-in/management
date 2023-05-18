@@ -28,7 +28,7 @@
                         <textarea name="notes" rows="1" class="form-control" id="notes"></textarea>
                     </div>
                     <div class="col-sm-4">
-                        <button type="submit" class="btn btn-primary " style="margin-top:23px;" href="javascript:void(0)">ADD</button>
+                        <button type="submit" class="btn btn-primary " style="margin-top:23px;" href="javascript:void(0)">Add</button>
                     </div>
                 </div>
             </form>
@@ -63,7 +63,9 @@
                                 @php
                                 $inTime = new DateTime($data->in_time);
                                 $outTime = new DateTime($data->out_time);
+
                                 $duration = $inTime->diff($outTime)->format('%h:%i');
+
                                 echo $duration;
                                 @endphp
                             </td>
