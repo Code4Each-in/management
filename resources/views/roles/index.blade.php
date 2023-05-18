@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">ADD ROLE</button>
+            <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">Add Role</button>
             <div class="box-header with-border" id="filter-box">
                 @if(session()->has('message'))
                 <div class="alert alert-success message">

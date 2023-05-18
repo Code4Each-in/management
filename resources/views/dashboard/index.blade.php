@@ -67,8 +67,7 @@
                             </div>
                         </div>
                         @if($users !=0)
-                        <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()"
-                            id="viewAll">View
+                        <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()" id="viewAll">View
                             all</a>
                         @endif
                     </div>
@@ -173,18 +172,26 @@
                 @if(count($userBirthdate) !=0)
                 @foreach ($userBirthdate as $birthday)
                 <div class="col-md-3 mb-2">
-                    <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt=""
-                        clVass="rounded-circle">
+                    <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                 </div>
                 <div class="col-md-9 mt-2 ">
-                    <b>{{$birthday->first_name."  ".$birthday->last_name}}</b>
+                    <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
                     <div>
-                        @if($currentDate !=$birthday->joining_date)
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d', strtotime($birthday->joining_date)))
+                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                        <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i> Anniversary</span>
+
+                        @else
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
                         <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
                         <span>Birthday</span>
+                        @elseif ($currentDate == $birthday->joining_date)
+                        <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
+                        <span style="font-size:smaller;">Warm Welcome On Joining!</span>
                         @else
                         <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                        <span> Anniversary</span>
+                        <span>Anniversary</span>
+                        @endif
                         @endif
                     </div>
                 </div>
@@ -211,8 +218,7 @@
                 @foreach ($showLeaves as $data)
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="col-md-2">
-                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt=""
-                            class="rounded-circle">
+                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                     </div>
                     <div class="col-md-10 ">
                         <p><b>{{$data->first_name}} <b></p>
@@ -231,21 +237,21 @@
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    $('#leavesss').DataTable({
-        "order": []
+        $('#leavesss').DataTable({
+            "order": []
+        });
+
+        $("#viewAll").click(function() {
+
+        });
     });
 
-    $("#viewAll").click(function() {
+    function ShowLeavesModal() {
 
-    });
-});
-
-function ShowLeavesModal() {
-
-    $('#ShowLeaves').modal('show');
-}
+        $('#ShowLeaves').modal('show');
+    }
 </script>
 
 @endsection

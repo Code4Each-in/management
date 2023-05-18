@@ -6,8 +6,8 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">ADD
-                LEAVES</button>
+            <button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">Add
+                Leave</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 @if(session()->has('message'))
@@ -59,7 +59,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="role">Add Leaves</h5>
+                <h5 class="modal-title" id="role">Add Leave</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" id="addLeavesForm" action="">

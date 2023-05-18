@@ -10,33 +10,25 @@
                 @csrf
                 <div class="row mb-3 mt-4">
                     <div class="col-sm-2">
-                        <select name="intime" class="form-select" id="intime">
-                            <option value=" 
-                            ">In Time<span style="color:red">*</span></option>
-                            @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
-                                {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
-                                @endfor
-                        </select>
+                        <label for="intime">In Time</label>
+                        <input type="time" id="intime" class="form-control" name="intime">
                         @if ($errors->has('intime'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
                         @endif
                     </div>
                     <div class="col-sm-2">
-                        <select name="outtime" class="form-select" id="">
-                            <option value="">Out Time<span style="color:red">*</span></option>
-                            @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
-                                {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
-                                @endfor
-                        </select>
+                        <label for="outtime">Out Time</label>
+                        <input type="time" id="outtime" class="form-control" name="outtime">
                         @if ($errors->has('outtime'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
                         @endif
                     </div>
                     <div class="col-sm-4">
+                        <label for="notes">Notes</label>
                         <textarea name="notes" rows="1" class="form-control" id="notes"></textarea>
                     </div>
                     <div class="col-sm-4">
-                        <button type="submit" class="btn btn-primary" href="javascript:void(0)">ADD</button>
+                        <button type="submit" class="btn btn-primary " style="margin-top:23px;" href="javascript:void(0)">Add</button>
                     </div>
                 </div>
             </form>
@@ -53,6 +45,7 @@
                             <th>Date</th>
                             <th>In Time</th>
                             <th>Out Time</th>
+                            <th>Worked Hours</th>
                             <th>Notes</th>
                         </tr>
                     </thead>
@@ -63,9 +56,20 @@
                             <td>{{ auth()->user()->first_name ?? " " }}</td>
                             <!-- <td>{{$data->created_at}}</td> -->
                             <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}}</td>
-                            <td>{{ date("h:s A", strtotime($data->in_time));}}
+                            <td>{{ date("h:i A", strtotime($data->in_time));}}
                             </td>
-                            <td>{{date("h:s A", strtotime($data->out_time));}}</td>
+                            <td>{{date("h:i A", strtotime($data->out_time));}}</td>
+                            <td>
+                                @php
+                                $inTime = new DateTime($data->in_time);
+                                $outTime = new DateTime($data->out_time);
+
+                                $duration = $inTime->diff($outTime)->format('%h:%i');
+
+                                echo $duration;
+                                @endphp
+                            </td>
+
                             <td>{{ $data->notes}}</td>
                         </tr>
                         @empty
@@ -81,19 +85,19 @@
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
-    setTimeout(function() {
-        $('.message').fadeOut("slow");
-    }, 2000);
-    $('#attendance').DataTable({
-        "order": []
-        //"columnDefs": [ { "orderable": false, "targets": 7 }]
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.message').fadeOut("slow");
+        }, 2000);
+        $('#attendance').DataTable({
+            "order": []
+            //"columnDefs": [ { "orderable": false, "targets": 7 }]
+        });
     });
-});
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 </script>
 @endsection
