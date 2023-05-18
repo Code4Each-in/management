@@ -75,23 +75,22 @@ class AttendanceController extends Controller
           public function update(request $request){
           $validator = \Validator::make($request->all(),[
           'edit_intime'=>'required', 
-          'edt_outtime'=>'required|after:edit_intime',
+          'edit_outtime'=>'required|after:edit_intime',
           ],
                 [
-                  'edt_outtime.after' => 'The outtime must be greater than from intime.',
+                  'edit_outtime.after' => 'The outtime must be greater than from intime.',
                 ]
               );
+              
               if ($validator->fails())
               {
                   return Redirect::back()->withErrors($validator);
               } 
-               
-                $validate = $validator->valid();  
-                
+                $validate = $validator->valid();
               $UserAttendance =  UserAttendances::where('id', $validate['id'])
                 ->update([
-               'in_time'=>$validate['InTime'],
-               'out_time'=>$validate['outTime'],
+               'in_time'=>$validate['edit_intime'],
+               'out_time'=>$validate['edit_outtime'],
                'notes'=>$validate['notes'],
                 ]);
                $request->session()->flash('message','Attendances updated successfully.');

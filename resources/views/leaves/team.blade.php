@@ -49,7 +49,7 @@
                                             declined</option>
                                     </select>
                                     @else
-                                        {{$data->leave_status ?? 'Requested'}}
+                                    <span class="badge rounded-pill requested">{{$data->leave_status ?? 'Requested'}}</span>
                                     @endif   
                                 </td>
                             </tr>

@@ -19,6 +19,7 @@
                             <th>Date</th>
                             <th>In Time</th>
                             <th>Out Time</th>
+                            <th>Worked Hours</th>
                             <th>Notes</th>
                             <th>Action</th>
                         </tr>
@@ -28,9 +29,25 @@
                         <tr>
                             <td>{{ $data->first_name}}</td>
                             <!-- <td>{{$data->created_at}}</td> -->
-                            <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}} </td>
-                            <td>{{ date("h:s A", strtotime($data->in_time));}}</td>
-                            <td>{{date("h:s A", strtotime( $data->out_time));}}</td>
+                            <td>{{date("d-m-Y H:i a", strtotime($data->created_at));}} </td>
+                            <td>{{ date("h:i A", strtotime($data->in_time));}}</td>
+                            <td>{{date("h:i A", strtotime( $data->out_time));}}</td>
+                            <td>
+                                @php
+                                $inTime = strtotime($data->in_time);
+                                $outTime = strtotime($data->out_time);
+
+                                $durationInSeconds = $outTime - $inTime;
+
+                                // Calculate hours and minutes
+                                $hours = floor($durationInSeconds / 3600);
+                                $minutes = floor(($durationInSeconds % 3600) / 60);
+                                
+                                // Format the duration as "h:s"
+                                $duration = sprintf("%d:%02d", $hours, $minutes);
+                                echo $duration;
+                                @endphp
+                            </td>
                             <td>{{ $data->notes}}</td>
                             <td>
                                 <i style="color:#4154f1;" onClick="editAttendance ('{{ $data->id }}')"
@@ -62,12 +79,8 @@
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="row mb-3">
                         <div class="col-sm-12">
-                            <select name="edit_intime" class="form-select" id="edit_intime">
-                                <option value="">In Time<span style="color:red">*</span></option>
-                                @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
-                                    {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
-                                    @endfor
-                            </select>
+                            <label for="edit_intime">In Time:</label>
+                            <input type="time" id="edit_intime" class="form-control" name="edit_intime">
                             @if ($errors->has('edit_intime'))
                             <span style="font-size: 12px;"
                                 class="text-danger">{{ $errors->first('edit_intime') }}</span>
@@ -76,12 +89,8 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-12">
-                            <select name="edit_outtime" class="form-select" id="edit_outtime">
-                                <option value="">Out Time<span style="color:red">*</span></option>
-                                @for ($i =1; $i <= 24; $i++) <option value="{{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00">
-                                    {{str_pad($i, 2, '0', STR_PAD_LEFT);}}:00</option>
-                                    @endfor
-                            </select>
+                            <label for="edit_outtime">Out Time:</label>
+                            <input type="time" id="edit_outtime" class="form-control" name="edit_outtime" >
                             @if ($errors->has('edit_outtime'))
                             <span style="font-size: 12px;"
                                 class="text-danger">{{ $errors->first('edit_outtime') }}</span>
@@ -141,15 +150,8 @@ function editAttendance(id) {
         success: (res) => {
             $('#ShowAttendance').modal('show');
             $('#edit_notes').val(res.attendance.notes);
-            var InTime = res.attendance.in_time
-            var InTimeData = InTime.split(":", 2).join(":");
-            $('#edit_intime option[value="' + InTimeData + '"]').attr('selected',
-                'selected');
-            var OutTime = res.attendance.out_time
-            var OutTimeData = OutTime.split(":", 2).join(":");
-
-            $('#edit_outtime option[value="' + OutTimeData + '"]').attr('selected',
-                'selected');
+            $('#edit_intime').val(res.attendance.in_time);
+            $('#edit_outtime').val(res.attendance.out_time);
         }
     });
 }
@@ -164,8 +166,8 @@ function edit(id) {
         url: "{{ url('/update/attendance') }}",
         data: {
             id: AttendanceId,
-            InTime: InTime,
-            outTime: outTime,
+            edit_intime: InTime,
+            edit_outtime: outTime,
             notes: notes,
 
         },

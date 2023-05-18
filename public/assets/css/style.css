@@ -381,7 +381,8 @@ h6 {
 }
 
 .logo img {
-  max-height: 26px;
+  /* max-height: 26px; */
+  width: 50%;
   margin-right: 6px;
 }
 
@@ -1364,6 +1365,7 @@ input:checked + .slider:before {
   background-color: #def7ec;
   background-color: rgba(222,247,236,var(--bg-opacity));
   --text-opacity: 1;
+  text-transform: capitalize;
   color: #046c4e;
   color: rgba(4,108,78,var(--text-opacity));
 }
@@ -1373,6 +1375,7 @@ input:checked + .slider:before {
   background-color: rgba(254,236,220,var(--bg-opacity));
   --text-opacity: 1;
   color: #b43403;
+  text-transform: capitalize;
   color: rgba(180,52,3,var(--text-opacity));
 }
 .denied{
@@ -1380,6 +1383,7 @@ input:checked + .slider:before {
   color: #c81e1e;
   color: rgba(200,30,30,var(--text-opacity));
   --bg-opacity: 1;
+  text-transform: capitalize;
   background-color: #fde8e8;
   background-color: rgba(253,232,232,var(--bg-opacity));
 }

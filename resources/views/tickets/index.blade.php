@@ -6,8 +6,8 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openticketModal()" href="javascript:void(0)">ADD
-                Tickets</button>
+            <button class="btn btn-primary mt-3" onClick="openticketModal()" href="javascript:void(0)">Add
+                Ticket</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 @if(session()->has('message'))
@@ -112,7 +112,7 @@
             <div class="modal-dialog">
                 <div class="modal-content" style="width: 630px;">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="role">Add Tickets</h5>
+                        <h5 class="modal-title" id="role">Add Ticket</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form id="addTicketsForm" enctype="multipart/form-data">

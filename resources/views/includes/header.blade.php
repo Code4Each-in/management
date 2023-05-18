@@ -8,8 +8,8 @@
 
         <div class="d-flex align-items-center justify-content-between">
             <a href="{{ url('/dashboard') }}" class="logo d-flex align-items-center">
-                <img src="{{ asset('assets/img/logo.png') }}" alt="">
-                <span class="d-none d-lg-block">Management</span>
+                <img src="{{ asset('assets/img/code4each_logo.png') }}" alt="Code4Each">
+                <!-- <span class="d-none d-lg-block">Management</span> -->
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->

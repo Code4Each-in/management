@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">ADD USER</button>
+            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">Add User</button>
 
             <div class="box-header with-border" id="filter-box">
                 <br>

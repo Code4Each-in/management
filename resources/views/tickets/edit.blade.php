@@ -101,8 +101,12 @@
                 </div>
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
-                    <div class="col-sm-9" id="Ticketsdata">
-                        @if (count($TicketDocuments) < 1) No Uploaded Document Found @else @foreach ($TicketDocuments as $data) <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                    <div class="col-sm-9" id="Ticketsdata" style="margin:auto;">
+                        @if (count($TicketDocuments) < 1) 
+                        No Uploaded Document Found 
+                        @else 
+                        @foreach ($TicketDocuments as $data)
+                         <button type="button" class="btn btn-outline-primary btn-sm mb-2">
                             @php
                             $extension = pathinfo($data->document, PATHINFO_EXTENSION);
                             $iconClass = '';
@@ -145,7 +149,7 @@
                     @if ($errors->has('edit_document.*'))
                     @foreach($errors->get('edit_document.*') as $key => $errorMessages)
                     @foreach($errorMessages as $error)
-                    <span style="font-size: 12px;" class="text-danger">
+                    <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
                     @if ($error == 'The document failed to upload.')
                         {{$error}} The document may not be greater than 5 mb.
                         @else
