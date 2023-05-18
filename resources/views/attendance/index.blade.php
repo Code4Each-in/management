@@ -61,17 +61,9 @@
                             <td>{{date("h:i A", strtotime($data->out_time));}}</td>
                             <td>
                                 @php
-                                $inTime = strtotime($data->in_time);
-                                $outTime = strtotime($data->out_time);
-
-                                $durationInSeconds = $outTime - $inTime;
-
-                                // Calculate hours and minutes
-                                $hours = floor($durationInSeconds / 3600);
-                                $minutes = floor(($durationInSeconds % 3600) / 60);
-
-                                // Format the duration as "h:s"
-                                $duration = sprintf("%d:%02d", $hours, $minutes);
+                                $inTime = new DateTime($data->in_time);
+                                $outTime = new DateTime($data->out_time);
+                                $duration = $inTime->diff($outTime)->format('%h:%i');
                                 echo $duration;
                                 @endphp
                             </td>
