@@ -27,6 +27,7 @@
                                     <th>Assign</th>
                                     <!-- <th>Total Time</th> -->
                                     <th>Status</th>
+                                    <th>Status Changed By</th>
                                     <th>Priority</th>
                                     <th>Action</th>
                                 </tr>
@@ -37,25 +38,36 @@
                                     <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->title )}}</td>
 
-                                    <td> @if(strlen($data->description)>=100)
-                                        {{ substr($data->description,0,100) }}..
+                                    <td>
+                                        @if(strlen($data->description) >= 100)
+                                        <span class="description">@php
+                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
+                                            $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
+                                            echo $limitedDescription;
+                                            @endphp
+                                        </span>
+                                        <span class="fullDescription" style="display: none;"> @php
+                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
+                                            echo $plainTextDescription;
+                                            @endphp
+                                        </span>
+                                        <a href="#" class="readMoreLink">Read More</a>
+                                        <a href="#" class="readLessLink" style="display: none;">Read Less</a>
                                         @else
-                                        {{ $data->description }} @endif </td>
+                                        {{ $data->description }}
+                                        @endif
+                                    </td>
 
                                     <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
                                             @if (!empty($assign->profile_picture))
-                                            <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20"
-                                                height="20" class="rounded-circle " alt="">
-                                            @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20"
-                                                class="rounded-circle">
+                                            <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
+                                            @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20" class="rounded-circle">
                                             @endif
                                             @endforeach
                                             @endif
 
                                             @if(count($data->ticketassign)!=0)
-                                            <a class="text-primary small pt-1 pointer text-right"
-                                                onClick="ShowAssignModal('{{$data->id}}')" id="view"><i
-                                                    class="bi-person-lines-fill"></i>
+                                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowAssignModal('{{$data->id}}')" id="view"><i class="bi-person-lines-fill"></i>
                                             </a>
                                             @else
                                             <span>NA</span>
@@ -76,6 +88,16 @@
                                     @else
                                     <td><span class="badge rounded-pill  bg-success">Complete</span></td>
                                     @endif
+                                    @php
+                                    $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
+                                    @endphp
+
+                                    @if ($ticketStatusData)
+                                    <!-- Display ticket status data -->
+                                    <td>{{ $ticketStatusData->first_name }} {{ $ticketStatusData->last_name }}</td>
+                                    @else
+                                    <td>---</td>
+                                    @endif
                                     <!-- <td>{{ $data->priority }}</td> -->
                                     @if($data->priority == 'normal')
                                     <td>
@@ -90,11 +112,9 @@
                                     @else
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
-                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;"
-                                                href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
-                                            <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')"
-                                                href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                            <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
                                 </tr>
                                 @empty
@@ -138,7 +158,8 @@
                                         <option value="" disabled>Select User</option>
                                         @foreach ($user as $data)
                                         <option value="{{$data->id}}">
-                                            {{$data->first_name}}</option>
+                                            {{$data->first_name}}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -183,8 +204,7 @@
                             <div class="row mb-3">
                                 <label for="document" class="col-sm-3 col-form-label ">Document</label>
                                 <div class="col-sm-9">
-                                    <input type="file" class="form-control" name="add_document[]" id="add_document"
-                                        multiple />
+                                    <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
                                 </div>
                             </div>
 
@@ -217,8 +237,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="edit_description"
-                                    class="col-sm-3 col-form-label required">Description</label>
+                                <label for="edit_description" class="col-sm-3 col-form-label required">Description</label>
                                 <div class="col-sm-9">
                                     <textarea name="description" class="form-control" id="edit_description"></textarea>
                                 </div>
@@ -230,7 +249,8 @@
                                         <option value="">Select User</option>
                                         @foreach ($user as $data)
                                         <option value="{{$data->id}}">
-                                            {{$data->first_name}}</option>
+                                            {{$data->first_name}}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -301,174 +321,199 @@
         @endsection
         @section('js_scripts')
         <script>
-        $(document).ready(function() {
-            setTimeout(function() {
-                $('.message').fadeOut("slow");
-            }, 2000);
-            $('#tickets').DataTable({
-                "order": []
+            $(document).ready(function() {
+                setTimeout(function() {
+                    $('.message').fadeOut("slow");
+                }, 2000);
+                $('#tickets').DataTable({
+                    "order": []
 
+                });
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $("#addTicketsForm").submit(function(event) {
+                    event.preventDefault();
+                    var formData = new FormData(this);
+                    // var totalfiles = document.getElementById('add_document').files.length;
+
+                    // for (var index = 0; index < totalfiles; index++) {
+                    //     formData.append("add_document[]" + index, document.getElementById('add_document')
+                    //         .files[
+                    //             index]);
+                    // }
+                    // console.log(formData);
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url('/add/tickets')}}",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: (data) => {
+                            if (data.errors) {
+                                $('.alert-danger').html('');
+                                $.each(data.errors, function(key, value) {
+                                    $('.alert-danger').show();
+                                    $('.alert-danger').append('<li>' + value + '</li>');
+                                })
+
+                            } else {
+                                $("#addTickets").modal('hide');
+                                location.reload();
+                            }
+                        },
+                        error: function(data) {}
+                    });
+                });
+
+                $('#editTicketsForm').submit(function(event) {
+                    event.preventDefault();
+                    var formData = new FormData(this);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url('/update/tickets') }}",
+                        data: formData,
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        success: function(res) {
+                            if (res.errors) {
+                                $('.alert-danger').html('');
+                                $.each(res.errors, function(key, value) {
+                                    $('.alert-danger').show();
+                                    $('.alert-danger').append('<li>' + value + '</li>');
+                                })
+                            } else {
+                                $('.alert-danger').html('');
+                                $("#editTickets").modal('hide');
+                                location.reload();
+                            }
+                        }
+                    });
+                });
             });
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
 
-            $("#addTicketsForm").submit(function(event) {
-                event.preventDefault();
-                var formData = new FormData(this);
-                // var totalfiles = document.getElementById('add_document').files.length;
-
-                // for (var index = 0; index < totalfiles; index++) {
-                //     formData.append("add_document[]" + index, document.getElementById('add_document')
-                //         .files[
-                //             index]);
-                // }
-                // console.log(formData);
+            function ShowAssignModal(id) {
+                $('.ticketAsssign').html('');
+                $('#ShowAssign').modal('show');
                 $.ajax({
                     type: 'POST',
-                    url: "{{ url('/add/tickets')}}",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
+                    url: "{{ url('/ticket/assign')}}",
+                    data: {
+                        id: id
+                    },
+                    cache: false,
                     success: (data) => {
-                        if (data.errors) {
-                            $('.alert-danger').html('');
-                            $.each(data.errors, function(key, value) {
-                                $('.alert-danger').show();
-                                $('.alert-danger').append('<li>' + value + '</li>');
+                        if (data.ticketAssigns.length > 0) {
+                            var html = '';
+                            $.each(data.ticketAssigns, function(key, assign) {
+                                var picture = 'blankImage';
+                                if (assign.profile_picture != "") {
+                                    picture = assign.profile_picture;
+                                }
+                                html +=
+                                    '<div class="row leaveUserContainer mt-2 "> <div class="col-md-2"><img src="{{asset("assets/img")}}/' +
+                                    picture +
+                                    '"" width="50" height="50" alt="" class="rounded-circle"></div><div class="col-md-10 "><p><b>' +
+                                    assign.first_name + '</b></p></div></div>';
                             })
-
+                            $('.ticketAsssign').html(html);
                         } else {
-                            $("#addTickets").modal('hide');
-                            location.reload();
+                            $('.ticketAsssign').html('<span>No record found <span>');
                         }
                     },
                     error: function(data) {}
                 });
-            });
 
-            $('#editTicketsForm').submit(function(event) {
-                event.preventDefault();
-                var formData = new FormData(this);
+            }
+
+            function openticketModal() {
+                document.getElementById("addTicketsForm").reset();
+                $('#addTickets').modal('show');
+            }
+
+            function editTickets(id) {
+                $('#editTickets').modal('show');
+                $('#ticket_id').val(id);
 
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('/update/tickets') }}",
-                    data: formData,
-                    dataType: 'json',
-                    processData: false,
-                    contentType: false,
-                    success: function(res) {
-                        if (res.errors) {
-                            $('.alert-danger').html('');
-                            $.each(res.errors, function(key, value) {
-                                $('.alert-danger').show();
-                                $('.alert-danger').append('<li>' + value + '</li>');
-                            })
-                        } else {
-                            $('.alert-danger').html('');
-                            $("#editTickets").modal('hide');
-                            location.reload();
-                        }
-                    }
-                });
-            });
-        });
-
-        function ShowAssignModal(id) {
-            $('.ticketAsssign').html('');
-            $('#ShowAssign').modal('show');
-            $.ajax({
-                type: 'POST',
-                url: "{{ url('/ticket/assign')}}",
-                data: {
-                    id: id
-                },
-                cache: false,
-                success: (data) => {
-                    if (data.ticketAssigns.length > 0) {
-                        var html = '';
-                        $.each(data.ticketAssigns, function(key, assign) {
-                            var picture = 'blankImage';
-                            if (assign.profile_picture != "") {
-                                picture = assign.profile_picture;
-                            }
-                            html +=
-                                '<div class="row leaveUserContainer mt-2 "> <div class="col-md-2"><img src="{{asset("assets/img")}}/' +
-                                picture +
-                                '"" width="50" height="50" alt="" class="rounded-circle"></div><div class="col-md-10 "><p><b>' +
-                                assign.first_name + '</b></p></div></div>';
-                        })
-                        $('.ticketAsssign').html(html);
-                    } else {
-                        $('.ticketAsssign').html('<span>No record found <span>');
-                    }
-                },
-                error: function(data) {}
-            });
-
-        }
-
-        function openticketModal() {
-            document.getElementById("addTicketsForm").reset();
-            $('#addTickets').modal('show');
-        }
-
-        function editTickets(id) {
-            $('#editTickets').modal('show');
-            $('#ticket_id').val(id);
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url('/edit/ticket') }}",
-                data: {
-                    id: id
-                },
-                success: function(res) {
-                    if (res.tickets != null) {
-                        $('#edit_title').val(res.tickets.title);
-                        $('#edit_description').val(res.tickets.description);
-                        $('#edit_status').val(res.tickets.status);
-                        $('#edit_comment').val(res.tickets.comment);
-
-                        $('#edit_priority').val(res.tickets.priority);
-                        // var test = "http://127.0.0.1:8000/public/assets/img/" + res.tickets.profile_picture;
-                        // $("#profile").html(
-                        //     '<img src="{{asset("assets/img")}}/' + res.tickets.profile_picture +
-                        //     '" width = "100" class = "img-fluid img-thumbnail" > '
-                        // );
-
-                    }
-                    if (res.ticketAssign != null) {
-                        $.each(res.ticketAssign, function(key, value) {
-                            $('#edit_assign option[value="' + value.user_id + '"]')
-                                .attr(
-                                    'selected', 'selected');
-                        })
-                    }
-                }
-            });
-        }
-
-        function deleteTickets(id) {
-            $('#ticket_id').val(id);
-            // var id = $('#department_name').val();
-
-            if (confirm("Are you sure ?") == true) {
-                $.ajax({
-                    type: "DELETE",
-                    url: "{{ url('/delete/tickets') }}",
+                    url: "{{ url('/edit/ticket') }}",
                     data: {
                         id: id
                     },
-                    dataType: 'json',
                     success: function(res) {
-                        location.reload();
+                        if (res.tickets != null) {
+                            $('#edit_title').val(res.tickets.title);
+                            $('#edit_description').val(res.tickets.description);
+                            $('#edit_status').val(res.tickets.status);
+                            $('#edit_comment').val(res.tickets.comment);
+
+                            $('#edit_priority').val(res.tickets.priority);
+                            // var test = "http://127.0.0.1:8000/public/assets/img/" + res.tickets.profile_picture;
+                            // $("#profile").html(
+                            //     '<img src="{{asset("assets/img")}}/' + res.tickets.profile_picture +
+                            //     '" width = "100" class = "img-fluid img-thumbnail" > '
+                            // );
+
+                        }
+                        if (res.ticketAssign != null) {
+                            $.each(res.ticketAssign, function(key, value) {
+                                $('#edit_assign option[value="' + value.user_id + '"]')
+                                    .attr(
+                                        'selected', 'selected');
+                            })
+                        }
                     }
                 });
             }
-        }
+
+            function deleteTickets(id) {
+                $('#ticket_id').val(id);
+                // var id = $('#department_name').val();
+
+                if (confirm("Are you sure ?") == true) {
+                    $.ajax({
+                        type: "DELETE",
+                        url: "{{ url('/delete/tickets') }}",
+                        data: {
+                            id: id
+                        },
+                        dataType: 'json',
+                        success: function(res) {
+                            location.reload();
+                        }
+                    });
+                }
+            }
+
+            $('.readMoreLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                description.text(fullDescription.text());
+                $(this).hide();
+                $(this).siblings('.readLessLink').show();
+            });
+
+            $('.readLessLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                var truncatedDescription = fullDescription.text().substring(0, 100) + '...';
+                description.text(truncatedDescription);
+                $(this).hide();
+                $(this).siblings('.readMoreLink').show();
+            });
         </script>
+
+
         @endsection

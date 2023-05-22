@@ -23,11 +23,25 @@
   <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet"> -->
+  <script src="https://cdn.tiny.cloud/1/bshawwe20jm5ajmuno8mc98vg549y1p9ty8nqon3yl8tqwgz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
   
     <!-- Template Main CSS File -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/datatables.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/datatables.min.css') }}" rel="stylesheet">
     <title>@yield('title')</title>
+<style>
+  #loader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.75) url('{{ asset('assets/img/loading.gif') }}') no-repeat center center;
+  z-index: 10000;
+}
+</style>
 
 </head>

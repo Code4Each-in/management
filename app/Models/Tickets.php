@@ -21,6 +21,7 @@ class Tickets extends Model
         'eta', 
         'upload',   
         'status', 
+        'status_changed_by', 
         'priority',
         'comment',   
     ];

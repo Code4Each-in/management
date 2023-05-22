@@ -40,7 +40,7 @@
                                 <td>{{ $data->salary }}</td>
                                 <td>{{$data->role->name ?? ''}}</td>
                                 <td>{{$data->department->name ?? ''}}</td>
-                                <td>{{ $data->address }}</td>
+                                <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">

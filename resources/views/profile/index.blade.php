@@ -80,7 +80,7 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Address</div>
-                        <div class="col-lg-9 col-md-8 detail_full_address">{{$usersProfile->address}}</div>
+                        <div class="col-lg-9 col-md-8 detail_full_address">{{$usersProfile->address}} , {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}</div>
                     </div>
 
                     <div class="row">
@@ -198,35 +198,32 @@
                                     value="{{$usersProfile->birth_date}}">
                             </div>
                         </div>
-                        @php
-                        $addressData=explode(",",$usersProfile->address);
-                        @endphp
                         <div class="row mb-3">
                             <label for="address" class="col-md-4 col-lg-3 col-form-label">Address</label>
                             <div class="col-md-8 col-lg-9">
                                 <input name="address" type="text" class="form-control" id="address"
-                                    value="{{$addressData[0]}}">
+                                    value="{{$usersProfile->address ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="city" class="col-sm-3 col-form-label">City</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="city" id="city"
-                                    value="{{$addressData[1] ?? ' '}}">
+                                    value="{{$usersProfile->city ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="state" class="col-sm-3 col-form-label">State</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="state" id="state"
-                                    value="{{$addressData[2] ?? ' '}}">
+                                    value="{{$usersProfile->state ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-4">
                             <label for="zip" class="col-sm-3 col-form-label">Zip</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="zip" id="zip"
-                                    value="{{$addressData[3] ?? ' '}}">
+                                    value="{{$usersProfile->zip?? ''}}">
                             </div>
                         </div>
                         <div class="alert alert-success message" style="display:none">

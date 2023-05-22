@@ -19,13 +19,16 @@ class TicketsController extends Controller
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
         $tickets=Tickets::orderBy('id','desc')->get(); 
         if (!empty($tickets)){
+            $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
+        ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
+        ->get();
         foreach ($tickets as $key=>$data) 
         {
             $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
             $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
         }}
        
-        return view('tickets.index',compact('user','tickets'));   
+        return view('tickets.index',compact('user','tickets', 'ticketStatus'));   
     }
     public function store(Request $request) 
 	{ 
@@ -154,6 +157,7 @@ class TicketsController extends Controller
             'title' => $validate['title'],        
             'description' => $validate['description'],
             'status' => $validate['status'],
+            'status_changed_by'=> auth()->user()->id,
             'priority' => $validate['priority'],
             'eta'=>$request['eta'],
             ]);
