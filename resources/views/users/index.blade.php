@@ -530,11 +530,10 @@ function editUsers(id) {
                     $('.edit_salary').show();
                     $('#edit_salary').val(res.users.salary);
                 }
-                var array = res.users.address.split(',');
-                $('#edit_address').val(array[0]);
-                $('#edit_city').val(array[1]);
-                $('#edit_state').val(array[2]);
-                $('#edit_zip').val(array[3]);
+                $('#edit_address').val(res.users.address);
+                $('#edit_city').val(res.users.city);
+                $('#edit_state').val(res.users.state);
+                $('#edit_zip').val(res.users.zip);
 
                 $('#edit_password').val(res.users.password);
                 $('#role_select option[value="' + res.users.role_id + '"]').attr('selected', 'selected');

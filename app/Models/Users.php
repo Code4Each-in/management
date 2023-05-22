@@ -30,6 +30,9 @@ class Users extends Authenticatable
         'birth_date',
         'profile_picture',
 		'address',
+		'city',
+		'state',
+		'zip',
 		'role_id',
 		'department_id',
 		'status'
