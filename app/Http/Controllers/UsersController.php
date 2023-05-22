@@ -82,7 +82,10 @@ class UsersController extends Controller
 			'email' => $validate['email'],
 			'password' => $validate['password'],
 			'salary'=>$salaried ,
-			'address'=>$validate['address'].', '.$validate['city'].', '.$validate['state'].', '.$validate['zip'],
+			'address'=>$validate['address'],
+			'city' => $validate['city'],
+			'state' => $validate['state'],
+			'zip' => $validate['zip'],
 			'phone'=>$validate['phone'],
 			'department_id'=>$validate['department_select'],
 			'role_id'=>$validate['role_select'],
@@ -171,7 +174,10 @@ class UsersController extends Controller
 			'salary' =>$salaried,
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
-			'address'=>$validate['address'].', '.$validate['edit_city'].', '.$validate['edit_state'].', '.$validate['edit_zip'],
+			'address'=>$validate['address'],
+			'city' => $validate['edit_city'],
+			'state' => $validate['edit_state'],
+			'zip' => $validate['edit_zip'],
 	
 			];
 		if (isset($path)){
