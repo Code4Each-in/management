@@ -9,28 +9,40 @@
             <form method="post" action="{{ route('attendance.store')}}">
                 @csrf
                 <div class="row mb-3 mt-4">
-                    <div class="col-sm-2">
-                        <label for="intime">In Time</label>
-                        <input type="time" id="intime" class="form-control" name="intime">
-                        @if ($errors->has('intime'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
-                        @endif
+                    <div class="col-sm-3 col-md-3">
+                        <div class="mb-4">
+                            <label for="intime" class="required">In Time</label>
+                            <input type="time" id="intime" class="form-control" name="intime">
+                            @if ($errors->has('intime'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
+                            @endif
+                        </div>
+                        <div class="mb-4">
+                            <label for="outtime" class="required">Out Time</label>
+                            <input type="time" id="outtime" class="form-control" name="outtime">
+                            @if ($errors->has('outtime'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
+                            @endif
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary " style="margin-top:10px;width:100%;" href="javascript:void(0)">Add</button>
+
+                        </div>
+
                     </div>
-                    <div class="col-sm-2">
-                        <label for="outtime">Out Time</label>
-                        <input type="time" id="outtime" class="form-control" name="outtime">
-                        @if ($errors->has('outtime'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
-                        @endif
+
+                    <div class="col-sm-9 col-md-9">
+                        <label for="tinymce_textarea">Notes</label>
+                        <textarea name="notes" rows="1" class="form-control" id="tinymce_textarea"></textarea>
                     </div>
-                    <div class="col-sm-4">
-                        <label for="notes">Notes</label>
-                        <textarea name="notes" rows="1" class="form-control" id="notes"></textarea>
-                    </div>
-                    <div class="col-sm-4">
-                        <button type="submit" class="btn btn-primary " style="margin-top:23px;" href="javascript:void(0)">Add</button>
-                    </div>
+                    <!-- <div class="col-sm-2">
+                    </div> -->
                 </div>
+                <!-- <div class="row mb-3 mt-4">
+                <div class="col-sm-2">
+                        
+                    </div>
+                </div> -->
             </form>
             @if(session()->has('message'))
             <div class="alert alert-success message">
@@ -70,7 +82,7 @@
                                 @endphp
                             </td>
 
-                            <td>{{ strip_tags($data->notes) }}</td>
+                            <td>{{ html_entity_decode(strip_tags($data->notes)) }}</td>
                         </tr>
                         @empty
                         @endforelse
@@ -99,19 +111,5 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-    tinymce.init({
-      selector: '#notes',
-      plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Author name',
-      mergetags_list: [
-        { value: 'First.Name', title: 'First Name' },
-        { value: 'Email', title: 'Email' },
-      ]
-    });
-
-
-    
 </script>
 @endsection

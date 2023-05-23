@@ -145,9 +145,9 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="description" class="col-sm-3 col-form-label required">Description</label>
+                                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                                 <div class="col-sm-9">
-                                    <textarea name="description" class="form-control" id="description"></textarea>
+                                    <textarea name="description" class="form-control" id="tinymce_textarea"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-3">

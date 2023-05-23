@@ -22,9 +22,9 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_description" class="col-sm-3 col-form-label required">Description</label>
+                    <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                     <div class=" col-sm-9">
-                        <textarea name="description" class="form-control" id="edit_description" >{{$tickets->description}}</textarea>
+                        <textarea name="description" class="form-control" id="tinymce_textarea" >{{$tickets->description}}</textarea>
                         @if ($errors->has('description'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif
@@ -334,24 +334,6 @@
         }
 
     }
-
-//     tinymce.init({
-//     selector: '#edit_description',
-//     height:350,
-// });
-
-tinymce.init({
-      selector: '#edit_description',
-      plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Author name',
-      mergetags_list: [
-        { value: 'First.Name', title: 'First Name' },
-        { value: 'Email', title: 'Email' },
-      ]
-    });
-
 
 </script>
 

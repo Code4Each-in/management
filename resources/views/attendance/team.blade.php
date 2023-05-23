@@ -42,7 +42,7 @@
                                 echo $duration;
                                 @endphp
                             </td>
-                            <td>{{ $data->notes}}</td>
+                            <td>{{ html_entity_decode(strip_tags($data->notes)) }}</td>
                             <td>
                                 <i style="color:#4154f1;" onClick="editAttendance ('{{ $data->id }}')" data-user-id="{{ $data->id}}" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
@@ -71,7 +71,7 @@
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="row mb-3">
                         <div class="col-sm-12">
-                            <label for="edit_intime">In Time:</label>
+                            <label for="edit_intime" class="required">In Time:</label>
                             <input type="time" id="edit_intime" class="form-control" name="edit_intime">
                             @if ($errors->has('edit_intime'))
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_intime') }}</span>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-12">
-                            <label for="edit_outtime">Out Time:</label>
+                            <label for="edit_outtime" class="required">Out Time:</label>
                             <input type="time" id="edit_outtime" class="form-control" name="edit_outtime">
                             @if ($errors->has('edit_outtime'))
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_outtime') }}</span>
@@ -90,7 +90,8 @@
                     <div class="row mb-3">
                         <div class="col-sm-12">
                             <!-- <div class="col-sm-4 mb-2"> -->
-                            <textarea name="notes" rows="4" col="3" class="form-control" id="edit_notes" Placeholder="Notes"></textarea>
+                            <label for="tinymce_textarea">Notes:</label>
+                            <textarea name="notes" rows="4" col="3" class="form-control" id="tinymce_textarea"></textarea>
                             <!-- / </div> -->
                             <div class="modal-footer">
                                 <input type="hidden" class="form-control" name="attendance_id" id="attendance_id" value="">
@@ -136,7 +137,10 @@
             dataType: 'json',
             success: (res) => {
                 $('#ShowAttendance').modal('show');
-                $('#edit_notes').val(res.attendance.notes);
+                $(tinymce.get('tinymce_textarea').getBody()).html(res.attendance.notes);
+                // $('#tinymce_textarea').val(res.attendance.notes);
+                // tinymce.get('tinymce_textarea').getBody().innerHTML = '<p>This is my new content!</p>';
+
                 $('#edit_intime').val(res.attendance.in_time);
                 $('#edit_outtime').val(res.attendance.out_time);
             }
@@ -147,7 +151,7 @@
         var AttendanceId = $('#attendance_id').val();
         var InTime = $('#edit_intime').val();
         var outTime = $('#edit_outtime').val();
-        var notes = $('#edit_notes').val();
+        var notes = $('#tinymce_textarea').val();
         $.ajax({
             type: "POST",
             url: "{{ url('/update/attendance') }}",
