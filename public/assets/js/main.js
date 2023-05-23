@@ -318,3 +318,8 @@
   }
 
 })();
+
+tinymce.init({
+  selector: '#tinymce_textarea',
+  height : "250"
+});

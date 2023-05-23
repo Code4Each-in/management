@@ -22,9 +22,9 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_description" class="col-sm-3 col-form-label required">Description</label>
+                    <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                     <div class=" col-sm-9">
-                        <textarea name="description" class="form-control" id="edit_description">{{$tickets->description}}</textarea>
+                        <textarea name="description" class="form-control" id="tinymce_textarea" >{{$tickets->description}}</textarea>
                         @if ($errors->has('description'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif
@@ -334,6 +334,7 @@
         }
 
     }
+
 </script>
 
 @endsection

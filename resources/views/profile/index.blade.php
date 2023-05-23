@@ -40,9 +40,9 @@
                         Profile</button>
                 </li>
 
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
-                </li>
+                </li> -->
 
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change
@@ -53,12 +53,12 @@
             <div class="tab-content pt-2">
 
                 <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                    <h5 class="card-title">About</h5>
+                    <!-- <h5 class="card-title">About</h5>
                     <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque
                         temporibus.
                         Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem
                         eveniet
-                        perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+                        perspiciatis odit. Fuga sequi sed ea saepe at unde.</p> -->
 
                     <h5 class="card-title">Profile Details</h5>
 
@@ -80,7 +80,7 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Address</div>
-                        <div class="col-lg-9 col-md-8 detail_full_address">{{$usersProfile->address}}</div>
+                        <div class="col-lg-9 col-md-8 detail_full_address">{{$usersProfile->address}} , {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}</div>
                     </div>
 
                     <div class="row">
@@ -198,35 +198,32 @@
                                     value="{{$usersProfile->birth_date}}">
                             </div>
                         </div>
-                        @php
-                        $addressData=explode(",",$usersProfile->address);
-                        @endphp
                         <div class="row mb-3">
                             <label for="address" class="col-md-4 col-lg-3 col-form-label">Address</label>
                             <div class="col-md-8 col-lg-9">
                                 <input name="address" type="text" class="form-control" id="address"
-                                    value="{{$addressData[0]}}">
+                                    value="{{$usersProfile->address ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="city" class="col-sm-3 col-form-label">City</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="city" id="city"
-                                    value="{{$addressData[1] ?? ' '}}">
+                                    value="{{$usersProfile->city ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="state" class="col-sm-3 col-form-label">State</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="state" id="state"
-                                    value="{{$addressData[2] ?? ' '}}">
+                                    value="{{$usersProfile->state ?? ''}}">
                             </div>
                         </div>
                         <div class="row mb-4">
                             <label for="zip" class="col-sm-3 col-form-label">Zip</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="zip" id="zip"
-                                    value="{{$addressData[3] ?? ' '}}">
+                                    value="{{$usersProfile->zip?? ''}}">
                             </div>
                         </div>
                         <div class="alert alert-success message" style="display:none">
@@ -238,8 +235,8 @@
                     </form><!-- End Profile Edit Form -->
                 </div>
                 <!-- <div> -->
-                <div class="tab-pane fade pt-3" id="profile-settings">
                     <!-- Settings Form -->
+                <!-- <div class="tab-pane fade pt-3" id="profile-settings">
                     <form>
                         <div class="row mb-3">
                             <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
@@ -275,8 +272,9 @@
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
-                    </form><!-- End settings Form -->
-                </div>
+                    </form>
+                </div> -->
+                <!-- End settings Form -->
                 <div class="tab-pane fade pt-3" id="profile-change-password">
                     <!-- Change Password Form -->
                     <form method="post" id="changeUserPassword">

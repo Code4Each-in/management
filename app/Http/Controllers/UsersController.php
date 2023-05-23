@@ -81,7 +81,7 @@ class UsersController extends Controller
 			'last_name' => $validate['last_name'], 
 			'email' => $validate['email'],
 			'password' => $validate['password'],
-			'salary'=>$salaried ,
+			// 'salary'=>$salaried ,
 			'address'=>$validate['address'],
 			'city' => $validate['city'],
 			'state' => $validate['state'],
@@ -171,7 +171,7 @@ class UsersController extends Controller
 			'joining_date' => $validate['edit_joining_date'],
 			'birth_date' => $validate['edit_birthdate'],
 			// 'eta'=>$request['eta'],
-			'salary' =>$salaried,
+			// 'salary' =>$salaried,
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
 			'address'=>$validate['address'],
@@ -262,7 +262,10 @@ class UsersController extends Controller
 			'phone' => $validate['phone'],
 			'joining_date' => $validate['joining_date'],
 			'birth_date' => $validate['birth_date'],
-			'address'=>$validate['address'].', '.$validate['city'].', '.$validate['state'].', '.$validate['zip'],
+			'address'=>$validate['address'],
+			'city' => $validate['city'], 
+			'state' => $validate['state'],
+			'zip' => $validate['zip'],
 		]);
 		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
 	}

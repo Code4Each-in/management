@@ -22,7 +22,7 @@
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Email</th>
-                                <th>Salary</th>
+                                <!-- <th>Salary</th> -->
                                 <th>Role</th>
                                 <th>Department</th>
                                 <th>Address</th>
@@ -37,10 +37,10 @@
                                 <td>{{ $data->first_name }}</td>
                                 <td>{{ $data->last_name }}</td>
                                 <td>{{ $data->email }}</td>
-                                <td>{{ $data->salary }}</td>
+                                <!-- <td>{{ $data->salary }}</td> -->
                                 <td>{{$data->role->name ?? ''}}</td>
                                 <td>{{$data->department->name ?? ''}}</td>
-                                <td>{{ $data->address }}</td>
+                                <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">
@@ -140,7 +140,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
                             <input type="checkbox" class="form-check-input" name="salaried" id="salaried">
@@ -152,7 +152,7 @@
                                 <span class="input-group-text">.00</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
                         <div class="col-sm-9">
@@ -290,7 +290,7 @@
 
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
                             <input type="checkbox" class="form-check-input" name="edit_salaried" id="edit_salaried">
@@ -302,7 +302,7 @@
                                 <span class="input-group-text">.00</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>

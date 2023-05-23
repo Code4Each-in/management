@@ -1,6 +1,8 @@
 <!-- Vendor JS Files -->
 <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+<script src="https://cdn.tiny.cloud/1/bshawwe20jm5ajmuno8mc98vg549y1p9ty8nqon3yl8tqwgz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
 <!-- <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/chart.js/chart.umd.js"></script>--->
 <script src="assets/vendor/echarts/echarts.min.js"></script>

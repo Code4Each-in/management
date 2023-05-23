@@ -53,6 +53,8 @@
     </div>
 </div>
 
+<div id="loader"></div>
+
 
 <!--start: Add users Modal -->
 <div class="modal fade" id="addleaves" tabindex="-1" aria-labelledby="role" aria-hidden="true">
@@ -166,31 +168,70 @@ function openleavesModal() {
     $('#addleaves').modal('show');
 }
 
+// function addleaves() {
+//     $.ajax({
+//         type: 'POST',
+//         url: "{{ url('/add/leaves')}}",
+//         data: $('#addLeavesForm').serialize(),
+//         cache: false,
+//         success: (data) => {
+
+//             if (data.errors) {
+//                 $('.alert-danger').html('');
+//                 $.each(data.errors, function(key, value) {
+//                     $('.alert-danger').show();
+//                     $('.alert-danger').append('<li>' + value + '</li>');
+//                 })
+//             } else {
+//                 $('.alert-danger').html('');
+
+//                 $("#addleaves").modal('hide');
+//                 location.reload();
+//             }
+//         },
+//         error: function(data) {
+//             console.log(data);
+//         }
+//     });
+// }
+
+//
 function addleaves() {
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/add/leaves')}}",
-        data: $('#addLeavesForm').serialize(),
-        cache: false,
-        success: (data) => {
+  var spinner = $('#loader');
+  spinner.show();
 
-            if (data.errors) {
-                $('.alert-danger').html('');
-                $.each(data.errors, function(key, value) {
-                    $('.alert-danger').show();
-                    $('.alert-danger').append('<li>' + value + '</li>');
-                })
-            } else {
-                $('.alert-danger').html('');
+  $.ajax({
+    url: "{{ url('/add/leaves')}}",
+    data: $('#addLeavesForm').serialize(),
+    method: 'POST',
+    dataType: 'JSON',
+    cache: false,
+    success: function(data) {
+      // Introduce a delay before hiding the spinner
+      setTimeout(function() {
+        spinner.hide();
 
-                $("#addleaves").modal('hide');
-                location.reload();
-            }
-        },
-        error: function(data) {
-            console.log(data);
+        if (data.errors) {
+          $('.alert-danger').html('');
+          $.each(data.errors, function(key, value) {
+            $('.alert-danger').show();
+            $('.alert-danger').append('<li>' + value + '</li>');
+          });
+        } else {
+          $('.alert-danger').html('');
+          $("#addleaves").modal('hide');
+          location.reload();
         }
-    });
+      }, 3000); // Adjust the duration (in milliseconds) as needed
+    },
+    error: function(data) {
+      spinner.hide();
+      console.log(data);
+    }
+  });
 }
+
+
 </script>
+
 @endsection

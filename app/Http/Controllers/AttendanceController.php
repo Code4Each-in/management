@@ -11,7 +11,7 @@ class AttendanceController extends Controller
     
     public function index()
     {
-        $attendanceData= UserAttendances::where('user_id',auth()->user()->id)->orderBy('id','desc')->get();
+        $attendanceData= UserAttendances::where('user_id',auth()->user()->id)->orderBy('created_at','desc')->get();
         return view('attendance.index',compact('attendanceData'));   
     }
     
@@ -57,12 +57,13 @@ class AttendanceController extends Controller
           {
             if (auth()->user()->role_id==env('SUPER_ADMIN'))
               {
-                $teamAttendance= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name']);;
+                $teamAttendance= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('created_at','desc')->get(['user_attendances.*','users.first_name']);;
               }
             else
             {
-            $teamAttendance = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->join('users', 'user_attendances.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_attendances.*', 'managers.user_id','users.first_name']);
+            $teamAttendance = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('created_at','desc')->where('managers.parent_user_id',auth()->user()->id)->get(['user_attendances.*', 'managers.user_id','users.first_name']);
             }
+            
             return view('attendance.team',compact('teamAttendance'));
         }
 
