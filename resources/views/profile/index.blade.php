@@ -40,9 +40,9 @@
                         Profile</button>
                 </li>
 
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
-                </li>
+                </li> -->
 
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change
@@ -53,12 +53,12 @@
             <div class="tab-content pt-2">
 
                 <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                    <h5 class="card-title">About</h5>
+                    <!-- <h5 class="card-title">About</h5>
                     <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque
                         temporibus.
                         Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem
                         eveniet
-                        perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+                        perspiciatis odit. Fuga sequi sed ea saepe at unde.</p> -->
 
                     <h5 class="card-title">Profile Details</h5>
 
@@ -235,8 +235,8 @@
                     </form><!-- End Profile Edit Form -->
                 </div>
                 <!-- <div> -->
-                <div class="tab-pane fade pt-3" id="profile-settings">
                     <!-- Settings Form -->
+                <!-- <div class="tab-pane fade pt-3" id="profile-settings">
                     <form>
                         <div class="row mb-3">
                             <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
@@ -272,8 +272,9 @@
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
-                    </form><!-- End settings Form -->
-                </div>
+                    </form>
+                </div> -->
+                <!-- End settings Form -->
                 <div class="tab-pane fade pt-3" id="profile-change-password">
                     <!-- Change Password Form -->
                     <form method="post" id="changeUserPassword">
