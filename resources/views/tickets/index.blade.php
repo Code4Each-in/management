@@ -40,13 +40,15 @@
 
                                     <td>
                                         @if(strlen($data->description) >= 100)
-                                        <span class="description">@php
+                                        <span class="description">
+                                            @php
                                             $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
                                             $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
                                             echo $limitedDescription;
                                             @endphp
                                         </span>
-                                        <span class="fullDescription" style="display: none;"> @php
+                                        <span class="fullDescription" style="display: none;">
+                                         @php
                                             $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
                                             echo $plainTextDescription;
                                             @endphp
@@ -54,7 +56,7 @@
                                         <a href="#" class="readMoreLink">Read More</a>
                                         <a href="#" class="readLessLink" style="display: none;">Read Less</a>
                                         @else
-                                        {{ $data->description }}
+                                        {{ strip_tags(htmlspecialchars_decode($data->description));}}
                                         @endif
                                     </td>
 
