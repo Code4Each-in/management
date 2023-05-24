@@ -65,7 +65,6 @@ class UsersController extends Controller
 		}
 
 		$validate = $validator->valid(); //getting all data from db
-
 		$profilePicture = time().'.'.$validate['profile_picture']->extension(); 
 		$validate['profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
 		$path ='profilePicture/'.$profilePicture;
@@ -80,7 +79,8 @@ class UsersController extends Controller
 			'last_name' => $validate['last_name'], 
 			'email' => $validate['email'],
 			'password' => $validate['password'],
-			// 'salary'=>$salaried ,
+			'salary'=>$salaried ,
+			'employee_id' => $validate['employee_id'],
 			'address'=>$validate['address'],
 			'city' => $validate['city'],
 			'state' => $validate['state'],
@@ -175,7 +175,8 @@ class UsersController extends Controller
 			'joining_date' => $validate['edit_joining_date'],
 			'birth_date' => $validate['edit_birthdate'],
 			// 'eta'=>$request['eta'],
-			// 'salary' =>$salaried,
+			'salary' =>$salaried,
+			'employee_id' => $validate['edit_employee_id'],
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
 			'address'=>$validate['address'],

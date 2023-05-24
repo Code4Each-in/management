@@ -27,7 +27,6 @@
                                     <th>Assign</th>
                                     <!-- <th>Total Time</th> -->
                                     <th>Status</th>
-                                    <th>Status Changed By</th>
                                     <th>Priority</th>
                                     <th>Action</th>
                                 </tr>
@@ -79,27 +78,21 @@
                                     <td>{{ $data->eta_to}}</td> -->
 
                                     <!-- <td>{{ $data->status }}</td> -->
-                                    @if($data->status == 'to_do')
-                                    <td>
-                                        <span class="badge rounded-pill bg-primary">To do</span>
-                                    </td>
-                                    @elseif($data->status == 'in_progress')
-                                    <td><span class="badge rounded-pill bg-warning text-dark">In Progress</span></td>
-                                    @elseif($data->status == 'ready')
-                                    <td><span class="badge bg-info text-dark">Ready</span></td>
-                                    @else
-                                    <td><span class="badge rounded-pill  bg-success">Complete</span></td>
-                                    @endif
                                     @php
                                     $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
                                     @endphp
-
-                                    @if ($ticketStatusData)
-                                    <!-- Display ticket status data -->
-                                    <td>{{ $ticketStatusData->first_name }} {{ $ticketStatusData->last_name }}</td>
+                                    <td>
+                                    @if($data->status == 'to_do')
+                                    <span class="badge rounded-pill bg-primary">To do</span>
+                                    @elseif($data->status == 'in_progress')
+                                    <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
+                                    @elseif($data->status == 'ready')
+                                    <span class="badge bg-info text-dark">Ready</span>
                                     @else
-                                    <td>---</td>
+                                    <span class="badge rounded-pill  bg-success">Complete</span>
                                     @endif
+                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $ticketStatusData->first_name ?? '' }} </p>
+                                    </td>
                                     <!-- <td>{{ $data->priority }}</td> -->
                                     @if($data->priority == 'normal')
                                     <td>
