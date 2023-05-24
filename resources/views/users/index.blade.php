@@ -246,6 +246,20 @@
                             <input type="text" class="form-control" name="edit_email" id="edit_email">
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <label for="password" class="col-sm-3 col-form-label">Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="edit_password" id="edit_password">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <label for="password_confirmation" class="col-sm-3 col-form-label"> Confirm
+                            Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control mb-6" name="password_confirmation"
+                                id="password_confirmation">
+                        </div>
+                    </div>
                     <div class="row mb-3 mt-2">
                         <label for="edit_username" class="col-sm-3 col-form-label required">First Name</label>
                         <div class="col-sm-9">
@@ -517,6 +531,7 @@ function editUsers(id) {
                 $('#edit_username').val(res.users.first_name);
                 $('#edit_lastname').val(res.users.last_name);
                 $('#edit_email').val(res.users.email);
+                // $('#edit_password').val(res.users.edit_password);
                 $('#edit_phone').val(res.users.phone);
                 $('#edit_joining_date').val(res.users.joining_date);
                 var Profile = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
