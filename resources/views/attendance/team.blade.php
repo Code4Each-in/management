@@ -151,7 +151,7 @@
         var AttendanceId = $('#attendance_id').val();
         var InTime = $('#edit_intime').val();
         var outTime = $('#edit_outtime').val();
-        var notes = $('#tinymce_textarea').val();
+        var notes = tinyMCE.get('tinymce_textarea').getContent();
         $.ajax({
             type: "POST",
             url: "{{ url('/update/attendance') }}",

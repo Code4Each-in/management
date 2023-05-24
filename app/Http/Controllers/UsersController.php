@@ -22,8 +22,7 @@ class UsersController extends Controller
 
 		if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
-			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();	
-			//dd($usersData);
+			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
 		}
 		else
 		{
@@ -66,7 +65,6 @@ class UsersController extends Controller
 		}
 
 		$validate = $validator->valid(); //getting all data from db
-
 		$profilePicture = time().'.'.$validate['profile_picture']->extension(); 
 		$validate['profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
 		$path ='profilePicture/'.$profilePicture;
@@ -81,7 +79,8 @@ class UsersController extends Controller
 			'last_name' => $validate['last_name'], 
 			'email' => $validate['email'],
 			'password' => $validate['password'],
-			// 'salary'=>$salaried ,
+			'salary'=>$salaried ,
+			'employee_id' => $validate['employee_id'],
 			'address'=>$validate['address'],
 			'city' => $validate['city'],
 			'state' => $validate['state'],
@@ -118,6 +117,7 @@ class UsersController extends Controller
 	public function edit(Request $request) 
 	{   
 		$users = Users::where(['id' => $request->id])->first();
+		
 		$managerSelectOptions = Users::where('id','!=',$request->id)->where('status','!=',0)->get();
 		// dd($managerSelectOptions);
 		$Managers = Managers::where(['user_id' => $request->id])->get();
@@ -134,6 +134,7 @@ class UsersController extends Controller
 	*/
 	public function update(Request $request){     // validation
 		// dd($request->users_id);
+		
 		$validator = \Validator::make($request->all(), [
 			'edit_username' => 'required',
 			'edit_lastname' => 'required',
@@ -144,6 +145,7 @@ class UsersController extends Controller
 			'role_select'=>'required',
 			'department_select'=>'required',
 			'address'=>'required',
+			'password' => 'confirmed',
 		]);
 
 		if ($validator->fails())
@@ -152,6 +154,8 @@ class UsersController extends Controller
 		}
 
 		$validate = $validator->valid();
+
+		$usersData = Users::find($request->users_id);
 		if (isset($request['edit_profile_picture'])){
 		$profilePicture = time().'.'.$request['edit_profile_picture']->extension(); 
 		$request['edit_profile_picture']->move(public_path('assets/img/profilePicture'), $profilePicture);
@@ -161,7 +165,7 @@ class UsersController extends Controller
 		if (isset($validate['edit_salaried'])) 
 		{
 			$salaried = $validate['edit_salary'];
-		}		
+		}
 		// $eta= $request['eta'];
 		$UpdateUserArr= [
 			'first_name' => $validate['edit_username'],        
@@ -171,15 +175,22 @@ class UsersController extends Controller
 			'joining_date' => $validate['edit_joining_date'],
 			'birth_date' => $validate['edit_birthdate'],
 			// 'eta'=>$request['eta'],
-			// 'salary' =>$salaried,
+			'salary' =>$salaried,
+			'employee_id' => $validate['edit_employee_id'],
 			'role_id'=> $validate['role_select'],
 			'department_id'=>$validate['department_select'],
 			'address'=>$validate['address'],
 			'city' => $validate['edit_city'],
 			'state' => $validate['edit_state'],
 			'zip' => $validate['edit_zip'],
-	
 			];
+
+			if (isset($request['edit_password'])){
+				$UpdateUserArr['password'] = Hash::make($validate['edit_password']);
+			}else{
+				$UpdateUserArr['password']= $usersData->password;
+			}	
+			
 		if (isset($path)){
 			$UpdateUserArr['profile_picture']=$path;
 		}

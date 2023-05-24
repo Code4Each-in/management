@@ -72,7 +72,7 @@
                     <div class="row mb-3">
                         <label for="user_name" class="col-sm-3 col-form-label required">From</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="from" id="from">
+                            <input type="date" class="form-control" name="from" id="from" min="{{ date('Y-m-d') }}">
                         </div>
                         @if ($errors->has('in_time'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('from') }}</span>
@@ -81,7 +81,7 @@
                     <div class="row mb-3">
                         <label for="last_name" class="col-sm-3 col-form-label required">To</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="to" id="to">
+                            <input type="date" class="form-control" name="to" id="to" min="{{ date('Y-m-d') }}">
                         </div>
                         @if ($errors->has('in_time'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('to') }}</span>

@@ -66,6 +66,7 @@ class TicketsController extends Controller
                 'status'=>$validate ['status'],
                 'priority'=>$validate ['priority'],
                 'eta'=>$eta,
+                'status_changed_by'=> auth()->user()->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     

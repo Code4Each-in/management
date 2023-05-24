@@ -19,6 +19,7 @@
                     <table class="table table-borderless dashboard" id="users_table">
                         <thead>
                             <tr>
+                                <th>Employee Id</th>
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Email</th>
@@ -34,6 +35,7 @@
                         <tbody>
                             @forelse($usersData as $data)
                             <tr>
+                                <td>{{ $data->employee_id }}</td>
                                 <td>{{ $data->first_name }}</td>
                                 <td>{{ $data->last_name }}</td>
                                 <td>{{ $data->email }}</td>
@@ -140,7 +142,7 @@
                         </div>
                     </div>
 
-                    <!-- <div class="row mb-3">
+                    <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
                             <input type="checkbox" class="form-check-input" name="salaried" id="salaried">
@@ -152,7 +154,13 @@
                                 <span class="input-group-text">.00</span>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
+                    <div class="row mb-3 mt-2">
+                        <label for="employee_id" class="col-sm-3 col-form-label required">Employee Id</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="employee_id" id="employee_id">
+                        </div>
+                    </div>    
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
                         <div class="col-sm-9">
@@ -246,6 +254,20 @@
                             <input type="text" class="form-control" name="edit_email" id="edit_email">
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <label for="password" class="col-sm-3 col-form-label">Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="edit_password" id="edit_password">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <label for="password_confirmation" class="col-sm-3 col-form-label"> Confirm
+                            Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control mb-6" name="password_confirmation"
+                                id="password_confirmation">
+                        </div>
+                    </div>
                     <div class="row mb-3 mt-2">
                         <label for="edit_username" class="col-sm-3 col-form-label required">First Name</label>
                         <div class="col-sm-9">
@@ -290,11 +312,11 @@
 
                     </div>
 
-                    <!-- <div class="row mb-3">
+                     <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
                             <input type="checkbox" class="form-check-input" name="edit_salaried" id="edit_salaried">
-                        </div>
+                        </div> 
                         <div class="col-sm-7">
                             <div style="display:none;" class="input-group edit_salary">
                                 <span class="input-group-text"></span>
@@ -302,7 +324,14 @@
                                 <span class="input-group-text">.00</span>
                             </div>
                         </div>
-                    </div> -->
+                    </div> 
+
+                    <div class="row mb-3 mt-2">
+                        <label for="edit_employee_id" class="col-sm-3 col-form-label required">Employee Id</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="edit_employee_id" id="edit_employee_id">
+                        </div>
+                    </div>  
 
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
@@ -517,6 +546,7 @@ function editUsers(id) {
                 $('#edit_username').val(res.users.first_name);
                 $('#edit_lastname').val(res.users.last_name);
                 $('#edit_email').val(res.users.email);
+                // $('#edit_password').val(res.users.edit_password);
                 $('#edit_phone').val(res.users.phone);
                 $('#edit_joining_date').val(res.users.joining_date);
                 var Profile = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
@@ -530,6 +560,7 @@ function editUsers(id) {
                     $('.edit_salary').show();
                     $('#edit_salary').val(res.users.salary);
                 }
+                $('#edit_employee_id').val(res.users.employee_id);
                 $('#edit_address').val(res.users.address);
                 $('#edit_city').val(res.users.city);
                 $('#edit_state').val(res.users.state);
