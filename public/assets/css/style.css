@@ -1434,3 +1434,27 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
 }
+
+.bootstrap-tagsinput .label {
+  display: inline;
+  padding: 0.2em 0.6em 0.3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 2;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25em;
+}
+.bootstrap-tagsinput .label-info {
+  background: #07ace7;
+}
+.bootstrap-tagsinput {
+  width: 100%;
+  border: none;
+  background: none;
+  box-shadow: none;
+  line-height: 32px;
+  padding: 0;
+}

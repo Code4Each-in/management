@@ -2,7 +2,6 @@
 @section('title', 'Projects')
 @section('subtitle', 'Projects')
 @section('content')
-
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
@@ -24,7 +23,7 @@
                                     <th>Project Id</id>
                                     <th>Project Name</th>
                                     <th>Description</th>
-                                    <th>Assigns</th>
+                                    <th>Assign</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
@@ -55,11 +54,11 @@
                                         <a href="#" class="readMoreLink">Read More</a>
                                         <a href="#" class="readLessLink" style="display: none;">Read Less</a>
                                         @else
-                                        {{ strip_tags(htmlspecialchars_decode($data->description));}}
+                                        {{ strip_tags(htmlspecialchars_decode($data->description ?? '---'));}}
                                         @endif
                                     </td>
 
-                                    <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
+                                    <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
                                             @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20" class="rounded-circle">
@@ -67,7 +66,7 @@
                                             @endforeach
                                             @endif
 
-                                            @if(count($data->ticketassign)!=0)
+                                            @if(count($data->projectassign)!=0)
                                             <a class="text-primary small pt-1 pointer text-right" onClick="ShowAssignModal('{{$data->id}}')" id="view"><i class="bi-person-lines-fill"></i>
                                             </a>
                                             @else
@@ -75,7 +74,7 @@
                                             @endif
                                     </td>
                                     <td>{{ $data->start_date}}</td>
-                                    <td>{{ $data->end_date}}</td>
+                                    <td>{{ $data->end_date ?? '---'}}</td>
                                     <td>
                                     @if($data->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
@@ -92,7 +91,7 @@
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        <!-- <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                                     </td>
                                 </tr>
                                 @empty
@@ -115,7 +114,7 @@
                         <h5 class="modal-title" id="role">Add Project</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="addProjectsForm" enctype="multipart/form-data">
+                    <form id="addProjectsForm" enctype="multipart/form-data" >
                         @csrf
                         <div class="modal-body">
                             <div class="alert alert-danger" style="display:none"></div>
@@ -126,9 +125,9 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">User</label>     
+                                <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
                                 <div class="col-sm-9">
-                                <select name="user[]" class="form-select form-control" id="user">
+                                <select name="user[]" class="form-select form-control" id="user" multiple size="1">
                                         <option value="" disabled>Select User</option>
                                          @foreach ($users as $data)
                                         <option value="{{$data->id}}">
@@ -159,7 +158,7 @@
                             <div class="row mb-3">
                                 <label for="title" class="col-sm-3 col-form-label">Tech Stacks</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="tech_stacks" id="tech_stacks">
+                                    <input type="text" class="form-control" name="tech_stacks" id="tech_stacks" data-role="taginput">
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -328,11 +327,11 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Ticket Assign To</h5>
+                        <h5 class="modal-title">Project Assign To</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row ticketAsssign">
+                        <div class="row projectAsssign">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -424,19 +423,19 @@
             });
 
             function ShowAssignModal(id) {
-                $('.ticketAsssign').html('');
+                $('.projectAsssign').html('');
                 $('#ShowAssign').modal('show');
                 $.ajax({
                     type: 'POST',
-                    url: "{{ url('/ticket/assign')}}",
+                    url: "{{ url('/project/assign')}}",
                     data: {
                         id: id
                     },
                     cache: false,
                     success: (data) => {
-                        if (data.ticketAssigns.length > 0) {
+                        if (data.projectAssigns.length > 0) {
                             var html = '';
-                            $.each(data.ticketAssigns, function(key, assign) {
+                            $.each(data.projectAssigns, function(key, assign) {
                                 var picture = 'blankImage';
                                 if (assign.profile_picture != "") {
                                     picture = assign.profile_picture;
@@ -447,9 +446,9 @@
                                     '"" width="50" height="50" alt="" class="rounded-circle"></div><div class="col-md-10 "><p><b>' +
                                     assign.first_name + '</b></p></div></div>';
                             })
-                            $('.ticketAsssign').html(html);
+                            $('.projectAsssign').html(html);
                         } else {
-                            $('.ticketAsssign').html('<span>No record found <span>');
+                            $('.projectAsssign').html('<span>No record found <span>');
                         }
                     },
                     error: function(data) {}
@@ -539,7 +538,19 @@
                 $(this).hide();
                 $(this).siblings('.readMoreLink').show();
             });
+
+            //TAGS KEY JS
+            $('#tech_stacks').tagsinput({
+            confirmKeys: [13, 188]
+            });
+
+            $('#tech_stacks').on('keypress', function(e){
+            if (e.keyCode == 13){
+                e.preventDefault();
+            };
+            });
+
+
         </script>
-
-
-        @endsection
+    <!-- <script src="{{ asset('assets/js/bootstrap-tags.js') }}"></script> -->
+@endsection
