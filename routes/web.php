@@ -7,6 +7,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeavesController;
+use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
 
 /*
@@ -78,6 +79,10 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
 	Route::delete('/delete/ticket/file', [TicketsController::class, 'deleteTicketFile']);
+
+	// Projects Routes
+	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
+	Route::post('/add/projects', [ProjectsController::class, 'store']);
 
 
  });
