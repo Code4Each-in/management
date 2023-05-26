@@ -12,10 +12,11 @@ class ProjectsController extends Controller
 {
     public function index()
     {
-        $managers = Users::join('roles', 'users.role_id', '=', 'roles.id')
-        ->where('roles.name', 'manager')
-        ->select('users.*')->where('status','!=',0)->orderBy('id','desc')
+        $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
+        ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'Hr Manager')
+        ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
         ->get();
+        // dd($managers);
         $projects = Projects::orderBy('id','desc')->get(); 
         // if (!empty($projects)){
         //     $ticketStatus = Projects::join('users', 'tickets.status_changed_by', '=', 'users.id')
@@ -27,19 +28,19 @@ class ProjectsController extends Controller
             $projects[$key]->ticketassign = !empty($projectAssigns)? $projectAssigns:null;
         }
 
-        return view('projects.index',compact('managers','projects'));   
+        return view('projects.index',compact('users','projects'));   
     }
 
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(),[
             'project_name' => 'required',
-            // 'manager'=>'required',
-            'live_url'=>'url',
-            'dev_url'=>'url',
-            'git_repo'=>'url',
+            'user'=>'required',
+            'live_url'=>'nullable|url',
+            'dev_url'=>'nullable|url',
+            'git_repo'=>'nullable|url',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'status'=>'required', 
             'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
@@ -60,6 +61,12 @@ class ProjectsController extends Controller
             }
             
     		$validate = $validator->valid();
+
+		$end_date=null;	 
+		if (isset($validate['end_date'])) 
+		{
+			$end_date = $validate['end_date'];
+		}	
         $projects =Projects::create([
             'project_name' => $validate['project_name'],
             'live_url' => $validate['live_url'],
@@ -67,7 +74,7 @@ class ProjectsController extends Controller
             'git_repo' => $validate['git_repo'], 
             'tech_stacks' => $validate['tech_stacks'], 
             'start_date' => $validate['start_date'], 
-            'end_date' => $validate['end_date'], 
+            'end_date' => $end_date, 
             'description' => $validate['description'], 
             'credentials' => $validate['credentials'], 
             'status'=>$validate ['status'],
@@ -105,5 +112,19 @@ class ProjectsController extends Controller
         $request->session()->flash('message','Project added successfully.');
     	return Response()->json(['status'=>200, 'projects'=>$projects]);
 
+    }
+
+    public function editProject($projectId)
+    {
+        // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
+        $managers = Users::join('roles', 'users.role_id', '=', 'roles.id')
+        ->where('roles.name', 'manager')
+        ->select('users.*')->where('status','!=',0)->orderBy('id','desc')
+        ->get();
+        $projects = Projects::where(['id' => $projectId])->first();
+        $projectAssign = ProjectAssigns::with('user')->where('project_id',$projectId)->get();
+        $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
+
+        return view('projects.edit',compact('projects','projectAssign','managers','ProjectDocuments'));
     }
 }

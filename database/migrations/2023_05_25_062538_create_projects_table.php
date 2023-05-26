@@ -21,9 +21,9 @@ class CreateProjectsTable extends Migration
             $table->string('git_repo')->nullable();
             $table->text('tech_stacks')->nullable();
             $table->date('start_date');
-            $table->date('end_date');
-            $table->text('description');
-            $table->text('credentials');
+            $table->date('end_date')->nullable();
+            $table->text('description')->nullable();
+            $table->text('credentials')->nullable();
             $table->string('status');
             $table->softDeletes();
             $table->timestamps();
