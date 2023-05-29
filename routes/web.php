@@ -83,6 +83,10 @@ Route::group(['middleware' => ['auth']], function() {
 	// Projects Routes
 	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
 	Route::post('/add/projects', [ProjectsController::class, 'store']);
+	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('project.edit');
+	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('project.update');
+	Route::delete('/delete/project/file', [ProjectsController::class, 'deleteProjectFile']);
+	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
 
 
  });
