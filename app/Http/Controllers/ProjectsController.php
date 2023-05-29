@@ -29,7 +29,7 @@ class ProjectsController extends Controller
     {
         $validator = \Validator::make($request->all(),[
             'project_name' => 'required',
-            'user'=>'required',
+            'assign_to'=>'required',
             'live_url'=>'nullable|url',
             'dev_url'=>'nullable|url',
             'git_repo'=>'nullable|url',
@@ -71,9 +71,9 @@ class ProjectsController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
             'user_id'=> auth()->user()->id,     
         ]);
-        if (isset($validate['manager']))
+        if (isset($validate['assign_to']))
         {				
-            foreach($validate['manager'] as $manager)
+            foreach($validate['assign_to'] as $manager)
             {				
                 $manager =ProjectAssigns::create([					
                     'project_id' => $projects->id,
@@ -146,8 +146,6 @@ class ProjectsController extends Controller
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }
     		$validate = $validator->valid();
-            
-            // dd($validate);
 
              if (isset($request->edit_assign))
             {				
