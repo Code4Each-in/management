@@ -33,7 +33,7 @@
                             <tbody>
                                 @forelse($projects as $data)
                                 <tr>
-                                    <td><a href="{{ url('/edit/project/'.$data->id)}}">#{{$data->id}}</a>
+                                    <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
 
                                     <td>
@@ -88,9 +88,15 @@
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
                                     <td> 
+                                        @if(auth()->user()->role['name'] != 'Employee' )     
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
+                                        @else
+                                        <a href="{{ url('/project/'.$data->id)}}">
+                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-eye fa-fw pointer"> </i>
+                                        </a>
+                                        @endif
                                         <!-- <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                                     </td>
                                 </tr>
@@ -127,7 +133,7 @@
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
                                 <div class="col-sm-9">
-                                <select class="form-select form-control" id="user" data-placeholder="Select User" multiple >
+                                <select class="form-select form-control" id="user" name="user[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
                                          @foreach ($users as $data)
                                         <option value="{{$data->id}}">
@@ -285,34 +291,6 @@
                         error: function(data) {}
                     });
                 });
-
-                $('#editTicketsForm').submit(function(event) {
-                    event.preventDefault();
-                    var formData = new FormData(this);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ url('/update/projects') }}",
-                        data: formData,
-                        dataType: 'json',
-                        processData: false,
-                        contentType: false,
-                        success: function(res) {
-                            if (res.errors) {
-                                $('.alert-danger').html('');
-                                $.each(res.errors, function(key, value) {
-                                    $('.alert-danger').show();
-                                    $('.alert-danger').append('<li>' + value + '</li>');
-                                })
-                            } else {
-                                $('.alert-danger').html('');
-                                $("#editTickets").modal('hide');
-                                location.reload();
-                            }
-                        }
-                    });
-                });
-
 
                 $( '#user' ).select2( {
                     dropdownParent: $('#addProjects')

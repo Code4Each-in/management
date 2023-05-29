@@ -88,6 +88,8 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/delete/project/file', [ProjectsController::class, 'deleteProjectFile']);
 	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
+	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
+
 
 
  });
