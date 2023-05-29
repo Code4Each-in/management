@@ -232,7 +232,6 @@ class ProjectsController extends Controller
 
     public function getProjectAssign(Request $request)
 	{
-        dd('here');
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$request->id)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
        
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
