@@ -87,6 +87,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('project.update');
 	Route::delete('/delete/project/file', [ProjectsController::class, 'deleteProjectFile']);
 	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
+	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
 
 
  });
