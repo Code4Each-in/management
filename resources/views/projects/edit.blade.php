@@ -270,6 +270,10 @@
                 }
             });
         });
+
+        $( '#edit_assign' ).select2( {
+                    // closeOnSelect: false,
+                } );
     });
 
     function deleteProjectAssign(id) {

@@ -29,7 +29,8 @@
     <link href="{{ asset('assets/css/datatables.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/datatables.min.css') }}" rel="stylesheet">
     <link rel='stylesheet'
-         href='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
+         href='//bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
+         <link href="//cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <title>@yield('title')</title>
 <style>
   #loader {
