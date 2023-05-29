@@ -1458,3 +1458,7 @@ input:checked + .slider:before {
   line-height: 32px;
   padding: 0;
 }
+
+.select2{
+width: 100% !important;
+}

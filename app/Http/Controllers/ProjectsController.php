@@ -16,18 +16,12 @@ class ProjectsController extends Controller
         ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'Hr Manager')
         ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
         ->get();
-        // dd($managers);
         $projects = Projects::orderBy('id','desc')->get(); 
-        // if (!empty($projects)){
-        //     $ticketStatus = Projects::join('users', 'tickets.status_changed_by', '=', 'users.id')
-        // ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
-        // ->get();
         foreach ($projects as $key=>$data) 
         {
             $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$data->id)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
             $projects[$key]->projectassign = !empty($projectAssigns)? $projectAssigns:null;
         }
-        // dd($projects);
         return view('projects.index',compact('users','projects'));   
     }
 
@@ -235,5 +229,12 @@ class ProjectsController extends Controller
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$request->id)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
        
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
+    }
+    public function showProject($projectId)
+    {
+        $projects = Projects::find($projectId); 
+        $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
+        $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
+        return view('projects.show',compact('projects','projectAssigns','ProjectDocuments'));
     }
 }

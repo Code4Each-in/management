@@ -33,7 +33,7 @@
                             <tbody>
                                 @forelse($projects as $data)
                                 <tr>
-                                    <td><a href="{{ url('/edit/project/'.$data->id)}}">#{{$data->id}}</a>
+                                    <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
 
                                     <td>
@@ -88,9 +88,15 @@
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
                                     <td> 
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
+                                        @else
+                                        <a href="{{ url('/project/'.$data->id)}}">
+                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-eye fa-fw pointer"> </i>
+                                        </a>
+                                        @endif
                                         <!-- <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                                     </td>
                                 </tr>
@@ -127,8 +133,8 @@
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
                                 <div class="col-sm-9">
-                                <select name="user[]" class="form-select form-control" id="user" multiple size="1">
-                                        <option value="" disabled>Select User</option>
+                                <select class="form-select form-control" id="user" name="user[]" data-placeholder="Select User" multiple>
+                                <option value="" disabled>Select User</option>
                                          @foreach ($users as $data)
                                         <option value="{{$data->id}}">
                                         {{$data->first_name}} - {{$data->role_name}}
@@ -215,114 +221,6 @@
         </div>
         <!---end Add modal-->
 
-        <!----Edit Projects--->
-        <div class="modal fade" id="editProjects" tabindex="-1" aria-labelledby="projects" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content" style="width: 630px;">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="role">Add Projects</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" id="editTicketsForm" action="">
-                        <div class="modal-body">
-                            <div class="alert alert-danger" style="display:none"></div>
-                            <div class="row mb-3">
-                                <label for="title" class="col-sm-3 col-form-label required">Project Name</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="project_name" id="project_name">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">User</label>     
-                                <div class="col-sm-9">
-                                <select name="user[]" class="form-select form-control" id="user">
-                                        <option value="" disabled>Select User</option>
-                                         @foreach ($users as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->first_name}} -{{$data->role_name}}
-                                        </option>
-                                        @endforeach
-                                    </select>
-
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="title" class="col-sm-3 col-form-label ">Live Url</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="live_url" id="live_url">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="title" class="col-sm-3 col-form-label ">Dev Url</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="dev_url" id="dev_url">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="title" class="col-sm-3 col-form-label ">Git Repository</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="git_repo" id="git_repo">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="title" class="col-sm-3 col-form-label">Tech Stacks</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="tech_stacks" id="tech_stacks">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
-                                <div class="col-sm-9">
-                                    <textarea name="description" class="form-control" id="tinymce_textarea"></textarea>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
-                                <div class="col-sm-9">
-                                    <input type="date" class="form-control" id="start_date" name="start_date">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label for="end_date" class="col-sm-3 col-form-label required">End Date</label>
-                                <div class="col-sm-9">
-                                    <input type="date" class="form-control" id="end_date" name="end_date">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Credentials</label>
-                                <div class="col-sm-9">
-                                    <textarea name="credentials" class="form-control" id="tinymce_textarea"></textarea>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="status" class="col-sm-3 col-form-label">Status</label>
-                                <div class="col-sm-9">
-                                    <select name="status" class="form-select" id="status">
-                                        <option value="not_started">Not Started</option>
-                                        <option value="active">Active</option>
-                                        <option value="deactivated">Deactivated</option>
-                                        <option value="completed">Completed</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="document" class="col-sm-3 col-form-label ">Document</label>
-                                <div class="col-sm-9">
-                                    <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
-                                </div>
-                            </div>
-                            <input type="hidden" class="form-control" name="ticket_id" id="ticket_id" value="">
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" href="javascript:void(0)">Save</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
         <div class="modal fade" id="ShowAssign" tabindex="-1" aria-labelledby="ShowAssign" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -394,32 +292,9 @@
                     });
                 });
 
-                $('#editTicketsForm').submit(function(event) {
-                    event.preventDefault();
-                    var formData = new FormData(this);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ url('/update/projects') }}",
-                        data: formData,
-                        dataType: 'json',
-                        processData: false,
-                        contentType: false,
-                        success: function(res) {
-                            if (res.errors) {
-                                $('.alert-danger').html('');
-                                $.each(res.errors, function(key, value) {
-                                    $('.alert-danger').show();
-                                    $('.alert-danger').append('<li>' + value + '</li>');
-                                })
-                            } else {
-                                $('.alert-danger').html('');
-                                $("#editTickets").modal('hide');
-                                location.reload();
-                            }
-                        }
-                    });
-                });
+                $( '#user' ).select2( {
+                    dropdownParent: $('#addProjects')
+                } );
             });
 
             function ShowAssignModal(id) {
