@@ -13,13 +13,13 @@
             @endif   
             <div class="row mb-2 mt-4">
 
-                <label for="" class="col-sm-3 col-form-label">Project Name</label>
+                <label for="" class="col-sm-3">Project Name</label>
                    <div class="col-sm-9">
                         {{$projects->project_name}}
                     </div>
                 </div>
                  <div class="row mb-1">
-                    <label for="" class="col-sm-3 col-form-label"> Project Assigned</label>
+                    <label for="" class="col-sm-3"> Project Assigned</label>
                     <div class="col-sm-9" id="Projectsdata">
                         @foreach ($projectAssigns as $data)
                         <button type="button" class="btn btn-outline-primary btn-sm ">
@@ -29,61 +29,72 @@
                     </div>
                 </div> 
                 <div class="row mb-1 mt-4">
-                    <label for="edit_liveurl" class="col-sm-3 col-form-label ">Live Url</label>
+                    <label for="edit_liveurl" class="col-sm-3 ">Live Url</label>
                     <div class="col-sm-9">
-                        {{$projects->live_url}}
+                        {{$projects->live_url ?? '---'}}
                     </div>
                 </div>
                 <div class="row mb-1 mt-4">
-                    <label for="dev_liveurl" class="col-sm-3 col-form-label ">Dev Url</label>
+                    <label for="dev_liveurl" class="col-sm-3 ">Dev Url</label>
                     <div class="col-sm-9">
-                        {{$projects->dev_url}}
+                        {{$projects->dev_url ?? '---'}}
                     </div>
                 </div>
                 <div class="row mb-1 mt-4">
-                    <label for="edit_gitrepo" class="col-sm-3 col-form-label ">Git Repository</label>
+                    <label for="edit_gitrepo" class="col-sm-3 ">Git Repository</label>
                     <div class="col-sm-9">
-                        {{$projects->git_repo}}
+                        {{$projects->git_repo ?? '---'}}
                     </div>
                 </div>
                 <div class="row mb-1 mt-4">
-                    <label for="edit_techstacks" class="col-sm-3 col-form-label ">Tech Stacks</label>
+                    <label for="edit_techstacks" class="col-sm-3 ">Tech Stacks</label>
                     <div class="col-sm-9">
-                            {{$projects->tech_stacks}}
+                            {{$projects->tech_stacks ?? '---'}}
                     </div>
                 </div>
                 <div class="row mb-1">
-                    <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
+                    <label for="tinymce_textarea" class="col-sm-3">Description</label>
                     <div class=" col-sm-9">
-                             {!!$projects->description!!}
+                             @if ($projects->description)
+                                    {!! $projects->description!!}
+                                    @else
+                                    {{ '---'}}
+                                    @endif
                     </div>
                 </div>
                 <div class="row mb-3">
-                                <label for="edit_startdate" class="col-sm-3 col-form-label">Start Date</label>
+                                <label for="edit_startdate" class="col-sm-3">Start Date</label>
                                 <div class="col-sm-9">
                                 {{date('d-m-Y', strtotime($projects->start_date));}}
 
                                 </div>
                 </div>
                 <div class="row mb-3">
-                                <label for="edit_enddate" class="col-sm-3 col-form-label">End Date</label>
+                                <label for="edit_enddate" class="col-sm-3">End Date</label>
                                 <div class="col-sm-9">
                                @if ($projects->end_date != Null)
                                {{\Carbon\Carbon::parse($projects->end_date)->format('d-m-Y') }}
+                               @else
+                               {{ '---' }}
                                @endif
                                
                                 
                                 </div>
                 </div>
                 <div class="row mb-3">
-                                <label for="tinymce_textarea" class="col-sm-3 col-form-label">Credentials</label>
+                                <label for="tinymce_textarea" class="col-sm-3">Credentials</label>
                                 <div class="col-sm-9">
-                                {!! $projects->credentials !!}
+                                    @if ($projects->credentials)
+                                    {!! $projects->credentials!!}
+                                    @else
+                                    {{ '---'}}
+                                    @endif
+                               
                                 </div>
                 </div>
                             
                  <div class="row mb-1">
-                    <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
+                    <label for="edit_document" class="col-sm-3">Uploaded Documents</label>
                     <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
                         @if (count($ProjectDocuments) < 1) 
                         No Uploaded Document Found 
@@ -124,7 +135,7 @@
                     </div>
                 </div> 
                 <div class="row mb-3">
-                                <label for="edit_status" class="col-sm-3 col-form-label">Status</label>
+                                <label for="edit_status" class="col-sm-3">Status</label>
                                 <div class="col-sm-9">
                                 @if($projects->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>

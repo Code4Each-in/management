@@ -27,7 +27,9 @@
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'Hr Manager')    
                                     <th>Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -87,18 +89,15 @@
                                     @endif
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'Hr Manager')    
                                     <td> 
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        @else
-                                        <a href="{{ url('/project/'.$data->id)}}">
-                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-eye fa-fw pointer"> </i>
-                                        </a>
-                                        @endif
+                                        
                                         <!-- <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                                     </td>
+                                    @endif
                                 </tr>
                                 @empty
                                 @endforelse
@@ -133,7 +132,7 @@
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
                                 <div class="col-sm-9">
-                                <select class="form-select form-control" id="user" name="user[]" data-placeholder="Select User" multiple>
+                                <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
                                          @foreach ($users as $data)
                                         <option value="{{$data->id}}">
