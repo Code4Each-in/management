@@ -33,7 +33,7 @@
                             <tbody>
                                 @forelse($projects as $data)
                                 <tr>
-                                    <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
+                                    <td><a href="{{ url('/edit/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
 
                                     <td>
@@ -79,9 +79,9 @@
                                     @if($data->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
                                     @elseif($data->status == 'active')
-                                    <span class="badge rounded-pill bg-info text-dark">Active</span>
+                                    <span class="badge rounded-pill bg-info text-mute">Active</span>
                                     @elseif($data->status == 'deactivated')
-                                    <span class="badge bg-dark text-dark">Deactivated</span>
+                                    <span class="badge rounded-pill bg-danger text-mute">Deactivated</span>
                                     @else
                                     <span class="badge rounded-pill  bg-success">Completed</span>
                                     @endif

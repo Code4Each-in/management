@@ -62,7 +62,7 @@
                 <div class="row mb-5 mt-4">
                     <label for="edit_techstacks" class="col-sm-3 col-form-label ">Tech Stacks</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="edit_techstacks" id="edit_techstacks" value="{{$projects->tech_stacks}}">
+                        <input type="text" class="form-control" name="edit_techstacks" id="edit_techstacks" value="{{$projects->tech_stacks}}" data-role="taginput">
                         @if ($errors->has('edit_techstacks'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_techstacks') }}</span>
                         @endif
@@ -321,6 +321,19 @@
 
     }
 
+</script>
+<script>
+
+            //TAGS KEY JS
+            $('#edit_techstacks').tagsinput({
+            confirmKeys: [13, 188]
+            });
+
+            $('#edit_techstacks').on('keypress', function(e){
+            if (e.keyCode == 13){
+                e.preventDefault();
+            };
+            });
 </script>
 
 @endsection
