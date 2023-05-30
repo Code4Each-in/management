@@ -145,7 +145,7 @@ class UsersController extends Controller
 			'role_select'=>'required',
 			'department_select'=>'required',
 			'address'=>'required',
-			'password' => 'confirmed',
+			'edit_password' => 'confirmed',
 		]);
 
 		if ($validator->fails())
@@ -185,11 +185,9 @@ class UsersController extends Controller
 			'zip' => $validate['edit_zip'],
 			];
 
-			if (isset($request['edit_password'])){
+			if (isset($validate['edit_password'])){
 				$UpdateUserArr['password'] = Hash::make($validate['edit_password']);
-			}else{
-				$UpdateUserArr['password']= $usersData->password;
-			}	
+			}
 			
 		if (isset($path)){
 			$UpdateUserArr['profile_picture']=$path;
