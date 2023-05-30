@@ -33,14 +33,13 @@
                 <div class="row mb-5">
                     <label for="edit_project_id" class="col-sm-3 col-form-label required">Project</label>
                     <div class="col-sm-9">
-                        <select name="edit_project_id" class="form-select" id="edit_project_id">
-                                        <option value="" disabled>Select User</option>
-                                        @foreach ($projects as $data)
-                                        <option value="{{$data->id}}"  {{$data->id == $tickets->project_id  ? 'selected' : ''}}>
-                                            {{$data->project_name}}
-                                        </option>
-                                        @endforeach
-                                    </select>
+                        <select name="edit_project_id" class="form-select form-control" id="edit_project_id">
+                            @foreach ($projects as $data)
+                            <option value="{{$data->id}}"  {{$data->id == $tickets->project_id  ? 'selected' : ''}}>
+                                {{$data->project_name}}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="row mb-5">
@@ -347,9 +346,6 @@
         }
 
     }
-    $('#edit_project_id').select2( {
-                } );
-
 </script>
 
 @endsection

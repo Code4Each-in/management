@@ -150,8 +150,7 @@
                                 <label for="" class="col-sm-3 col-form-label required ">Project</label>
 
                                 <div class="col-sm-9">
-                                    <select name="project_id" class="form-select" id="project_id">
-                                        <option value="" disabled>Select User</option>
+                                    <select name="project_id" class="form-select form-control" id="project_id">
                                         @foreach ($projects as $data)
                                         <option value="{{$data->id}}">
                                             {{$data->project_name}}
@@ -525,9 +524,6 @@
                 $(this).siblings('.readMoreLink').show();
             });
 
-             $( '#project_id' ).select2( {
-                    dropdownParent: $('#addTickets')
-                } );
         </script>
 
 
