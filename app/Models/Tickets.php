@@ -17,6 +17,7 @@ class Tickets extends Model
     protected $fillable = [
         'title',
         'description',
+        'project_id',
         'assign',
         'eta', 
         'upload',   
