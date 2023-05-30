@@ -48,7 +48,7 @@ class UsersController extends Controller
 		'user_name' => 'required', 
 		'last_name'=>'required', 
 		'email'=>'required|unique:users', 
-		'password'=>'required|confirmed:', 
+		'password'=>'required|confirmed|min:8', 
 		'phone'=>'required|unique:users', 
 		'joining_date'=>'required', 
 		'birth_date'=>'required', 
@@ -145,7 +145,7 @@ class UsersController extends Controller
 			'role_select'=>'required',
 			'department_select'=>'required',
 			'address'=>'required',
-			'password' => 'confirmed',
+			'edit_password' => 'confirmed',
 		]);
 
 		if ($validator->fails())
@@ -185,11 +185,9 @@ class UsersController extends Controller
 			'zip' => $validate['edit_zip'],
 			];
 
-			if (isset($request['edit_password'])){
+			if (isset($validate['edit_password'])){
 				$UpdateUserArr['password'] = Hash::make($validate['edit_password']);
-			}else{
-				$UpdateUserArr['password']= $usersData->password;
-			}	
+			}
 			
 		if (isset($path)){
 			$UpdateUserArr['profile_picture']=$path;
@@ -307,7 +305,7 @@ class UsersController extends Controller
 
 		$validator = \Validator::make($request->all(),[ 
 			'password' => 'required', 
-			'new_password'=>'required|confirmed:'
+			'new_password'=>'required|confirmed|min:8'
 			]);
 
 		if ($validator->fails()){

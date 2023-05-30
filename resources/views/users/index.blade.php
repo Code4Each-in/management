@@ -261,11 +261,11 @@
                         </div>
                     </div>
                     <div class="row mb-4">
-                        <label for="password_confirmation" class="col-sm-3 col-form-label"> Confirm
+                        <label for="edit_password_confirmation" class="col-sm-3 col-form-label"> Confirm
                             Password</label>
                         <div class="col-sm-9">
-                            <input type="password" class="form-control mb-6" name="password_confirmation"
-                                id="password_confirmation">
+                            <input type="password" class="form-control mb-6" name="edit_password_confirmation"
+                                id="edit_password_confirmation">
                         </div>
                     </div>
                     <div class="row mb-3 mt-2">
@@ -565,8 +565,8 @@ function editUsers(id) {
                 $('#edit_city').val(res.users.city);
                 $('#edit_state').val(res.users.state);
                 $('#edit_zip').val(res.users.zip);
-
-                $('#edit_password').val(res.users.password);
+                
+                $('#edit_password').val('');
                 $('#role_select option[value="' + res.users.role_id + '"]').attr('selected', 'selected');
                 $('#department_select option[value="' + res.users.department_id + '"]').attr('selected',
                     'selected');
