@@ -565,8 +565,8 @@ function editUsers(id) {
                 $('#edit_city').val(res.users.city);
                 $('#edit_state').val(res.users.state);
                 $('#edit_zip').val(res.users.zip);
-
-                $('#edit_password').val(res.users.password);
+                
+                $('#edit_password').val('');
                 $('#role_select option[value="' + res.users.role_id + '"]').attr('selected', 'selected');
                 $('#department_select option[value="' + res.users.department_id + '"]').attr('selected',
                     'selected');

@@ -48,7 +48,7 @@ class UsersController extends Controller
 		'user_name' => 'required', 
 		'last_name'=>'required', 
 		'email'=>'required|unique:users', 
-		'password'=>'required|confirmed:', 
+		'password'=>'required|confirmed|min:8', 
 		'phone'=>'required|unique:users', 
 		'joining_date'=>'required', 
 		'birth_date'=>'required', 
@@ -305,7 +305,7 @@ class UsersController extends Controller
 
 		$validator = \Validator::make($request->all(),[ 
 			'password' => 'required', 
-			'new_password'=>'required|confirmed:'
+			'new_password'=>'required|confirmed|min:8'
 			]);
 
 		if ($validator->fails()){
