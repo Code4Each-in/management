@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Projects;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use App\Models\Tickets;
@@ -17,6 +18,7 @@ class TicketsController extends Controller
     public function index()
     {
         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
+        $projects = Projects::all();
         $tickets=Tickets::orderBy('id','desc')->get(); 
         if (!empty($tickets)){
             $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
@@ -28,7 +30,7 @@ class TicketsController extends Controller
             $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
         }}
        
-        return view('tickets.index',compact('user','tickets', 'ticketStatus'));   
+        return view('tickets.index',compact('user','tickets', 'ticketStatus','projects'));   
     }
     public function store(Request $request) 
 	{ 
@@ -37,6 +39,7 @@ class TicketsController extends Controller
             'description'=>'required',
             // 'assign'=>'required',
             // 'eta_to' => 'required',
+            'project_id' => 'required',
              'status'=>'required', 
              'priority'=>'required',
              'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
@@ -47,7 +50,6 @@ class TicketsController extends Controller
                 'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
 
             ]);
-
             $validator->setAttributeNames([
                 'add_document.*' => 'document',
             ]);
@@ -62,10 +64,11 @@ class TicketsController extends Controller
 
             $tickets =Tickets::create([
                 'title' => $validate['title'],
-                'description' => $validate['description'], 
-                'status'=>$validate ['status'],
-                'priority'=>$validate ['priority'],
-                'eta'=>$eta,
+                'description' => $validate['description'],
+                'project_id' => $validate['project_id'], 
+                'status'=> $validate ['status'],
+                'priority'=> $validate ['priority'],
+                'eta'=> $eta,
                 'status_changed_by'=> auth()->user()->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -122,18 +125,19 @@ class TicketsController extends Controller
         }
         $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
         $tickets = Tickets::where(['id' => $ticketId])->first();
-     
+        $projects = Projects::all();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments'));   	
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
         $validator = \Validator::make($request->all(),[
             'title' => 'required', 
             'description'=>'required', 
-             'status'=>'required',
-             'priority'=>'required',
+            'status'=>'required',
+            'edit_project_id' => 'required',
+            'priority'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
                 'edit_document.*.file' => 'The :attribute must be a file.', 
@@ -157,6 +161,7 @@ class TicketsController extends Controller
             ->update([
             'title' => $validate['title'],        
             'description' => $validate['description'],
+            'project_id' => $validate['edit_project_id'],
             'status' => $validate['status'],
             'status_changed_by'=> auth()->user()->id,
             'priority' => $validate['priority'],
@@ -246,4 +251,5 @@ class TicketsController extends Controller
         return Response()->json(['status'=>200]); 
 
     }
+
 }

@@ -131,6 +131,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form id="addTicketsForm" enctype="multipart/form-data">
+                     @csrf
                         <div class="modal-body">
                             <div class="alert alert-danger" style="display:none"></div>
                             <div class="row mb-3">
@@ -146,6 +147,20 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
+                                <label for="" class="col-sm-3 col-form-label required ">Project</label>
+
+                                <div class="col-sm-9">
+                                    <select name="project_id" class="form-select form-control" id="project_id">
+                                        @foreach ($projects as $data)
+                                        <option value="{{$data->id}}">
+                                            {{$data->project_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign</label>
 
                                 <div class="col-sm-9">
@@ -159,7 +174,6 @@
                                     </select>
                                 </div>
                             </div>
-                            @csrf
                             <div class="row mb-3">
                                 <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                                 <div class="col-sm-9">
@@ -329,6 +343,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
+
 
                 $("#addTicketsForm").submit(function(event) {
                     event.preventDefault();
@@ -508,6 +523,7 @@
                 $(this).hide();
                 $(this).siblings('.readMoreLink').show();
             });
+
         </script>
 
 
