@@ -103,6 +103,17 @@
                         <div class="col-lg-3 col-md-4 label">Role</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->role->name}}</div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Skills</div>
+                        <div class="col-lg-9 col-md-8">
+                            @if ($usersProfile->skills)
+                            {{$usersProfile->skills}}
+                            @else
+                            {{'--'}}
+                            @endif
+                        </div>
+                    </div>
                     @if(isset($usersProfile->department->name))
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Departement</div>
@@ -156,7 +167,7 @@
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                         <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
 
-                        <div class="row mb-3">
+                        <!-- <div class="row mb-3">
                             <label for="first_name" class="col-md-4 col-lg-3 col-form-label">First Name</label>
                             <div class="col-md-8 col-lg-9">
                                 <input name="first_name" type="text" class="form-control" id="first_name"
@@ -225,7 +236,15 @@
                                 <input type="text" class="form-control" name="zip" id="zip"
                                     value="{{$usersProfile->zip?? ''}}">
                             </div>
+                        </div> -->
+                         <div class="row mb-3">
+                            <label for="add_skills" class="col-md-4 col-lg-3 col-form-label">Add Skills</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="skills" type="text" class="form-control" id="add_skills"
+                                    value='{{$usersProfile->skills}}' data-role="taginput">
+                            </div>
                         </div>
+                        
                         <div class="alert alert-success message" style="display:none">
                         </div>
                         <div class="text-center">
@@ -476,5 +495,17 @@
             });
         }
     });
+
+     //TAGS KEY JS
+     $('#add_skills').tagsinput({
+            confirmKeys: [13, 188]
+            });
+
+            $('#add_skills').on('keypress', function(e){
+            if (e.keyCode == 13){
+                e.preventDefault();
+            };
+     });
+
     </script>
     @endsection
