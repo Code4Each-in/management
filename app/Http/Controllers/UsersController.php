@@ -246,16 +246,17 @@ class UsersController extends Controller
 	// UPDATE LOGIN USER PROFILE 
 	public function updateProfile(Request $request){
 		$validator = \Validator::make($request->all(), [
-			'first_name' =>'required',
-			'last_name' =>'required',
-			'email' =>'required',
-			'phone'=>'required',
-			'joining_date'=>'required',
-			'birth_date'=>'required',
-			'address'=>'required',					
-			'city'=>'required',
-			'state'=>'required',
-			'zip'=>'required',
+			// 'first_name' =>'required',
+			// 'last_name' =>'required',
+			// 'email' =>'required',
+			// 'phone'=>'required',
+			// 'joining_date'=>'required',
+			// 'birth_date'=>'required',
+			// 'address'=>'required',					
+			// 'city'=>'required',
+			// 'state'=>'required',
+			// 'zip'=>'required',
+			'skills' => 'nullable',
 		]);
 
 		if ($validator->fails())
@@ -265,16 +266,7 @@ class UsersController extends Controller
 		$validate = $validator->valid();
 		Users::where('id',$request->user_id)
 			->update([
-			'first_name' => $validate['first_name'],        
-			'last_name' => $validate['last_name'],
-			'email' => $validate['email'],
-			'phone' => $validate['phone'],
-			'joining_date' => $validate['joining_date'],
-			'birth_date' => $validate['birth_date'],
-			'address'=>$validate['address'],
-			'city' => $validate['city'], 
-			'state' => $validate['state'],
-			'zip' => $validate['zip'],
+			'skills' => $validate['skills'],        
 		]);
 		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
 	}
