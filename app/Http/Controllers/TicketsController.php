@@ -17,20 +17,48 @@ class TicketsController extends Controller
 {
     public function index()
     {
-        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
-        $projects = Projects::all();
-        $tickets=Tickets::orderBy('id','desc')->get(); 
-        if (!empty($tickets)){
-            $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
-        ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
-        ->get();
-        foreach ($tickets as $key=>$data) 
-        {
-            $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
-            $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
-        }}
-       
-        return view('tickets.index',compact('user','tickets', 'ticketStatus','projects'));   
+            $ticketsFilter = request()->all() ;
+            $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
+            $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
+            $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
+            $projects = Projects::all();
+            $auth_user =  auth()->user()->id;
+            $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
+            if ($allTicketsFilter == 'on') {
+                if($completeTicketsFilter == 'on'){
+                    $tickets = $ticketFilterQuery;
+                }else{
+                    $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
+                }
+                
+            } else {
+                if (auth()->user()->role->name != "Super Admin") {
+                    $tickets = $ticketFilterQuery->whereRelation('ticketAssigns', 'user_id', 'like', '%' . $auth_user . '%')->where('status', '!=', 'complete');
+                    
+                    if ($completeTicketsFilter == 'on') {
+                        $tickets = $ticketFilterQuery->orWhere('status', 'complete');
+                    }
+                } else {
+                    $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
+                    $allTicketsFilter = 'on';
+                    if ($completeTicketsFilter == 'on') {
+                        $tickets = $ticketFilterQuery->orWhere('status', 'complete');
+                    }
+                }
+            }
+                $tickets = $tickets->get();
+            
+            if (!empty($tickets)){
+                $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
+            ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
+            ->get();
+            foreach ($tickets as $key=>$data) 
+            {
+                $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
+                $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
+            }}
+        
+            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter'));   
     }
     public function store(Request $request) 
 	{ 

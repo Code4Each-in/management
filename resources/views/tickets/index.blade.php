@@ -6,8 +6,31 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openticketModal()" href="javascript:void(0)">Add
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-primary mt-3" onClick="openticketModal()" href="javascript:void(0)">Add
                 Ticket</button>
+                </div>
+            </div>
+            <form id="filter-data" method="GET" action="{{ route('tickets.index') }}">
+                <div class="row mt-3 mx-auto">
+                    <div class="col-md-6 filtersContainer d-flex p-0">
+                        <div style="margin-right:20px;">
+                            
+                            <input type="checkbox" class="form-check-input" name="all_tickets" id="all_tickets"
+                                {{ $allTicketsFilter == 'on' ? 'checked' : '' }}> 
+                                <label for="all_tickets">All Tickets</label>
+                        </div>
+                        
+                        <div>
+                        <input type="checkbox" class="form-check-input" name="complete_tickets" id="complete_tickets"
+                            {{ $completeTicketsFilter == 'on' ? 'checked' : '' }}> 
+                        <label for="complete_tickets">Completed Tickets</label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </form>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 @if(session()->has('message'))
@@ -25,6 +48,7 @@
                                     <th>Title</th>
                                     <th>Description</th>
                                     <th>Assign</th>
+                                    <th>Project</th>
                                     <!-- <th>Total Time</th> -->
                                     <th>Status</th>
                                     <th>Priority</th>
@@ -74,6 +98,7 @@
                                             <span>NA</span>
                                             @endif
                                     </td>
+                                    <td>{{ $data->ticketRelatedTo->project_name ?? '---' }}</td>
                                     <!-- <td>{{ $data->eta_from}}</td>
                                     <td>{{ $data->eta_to}}</td> -->
 
@@ -523,6 +548,23 @@
                 $(this).hide();
                 $(this).siblings('.readMoreLink').show();
             });
+
+                   // Event listener for checkbox changes
+                $("#filter-data input:checkbox").change(function() {
+                    // Submit the form
+                    $("#filter-data").submit();
+                });
+
+                // Form submission
+                $("#filter-data").submit(function(event) {
+                    // Disable unchecked checkboxes
+                    if (!$("#all_tickets").prop('checked')) {
+                    $("#all_tickets").prop('disabled', true);
+                    }
+                    if (!$("#complete_tickets").prop('checked')) {
+                    $("#complete_tickets").prop('disabled', true);
+                    }
+                });
 
         </script>
 
