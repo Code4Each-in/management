@@ -30,4 +30,10 @@ class Tickets extends Model
     {
         return $this->hasMany(TicketAssigns::class, 'ticket_id','id');
     }
+
+    public function ticketRelatedTo()
+    {
+        return $this->belongsTo(Projects::class, 'project_id', 'id');
+    }
+    
 }

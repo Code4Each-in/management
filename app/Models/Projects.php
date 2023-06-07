@@ -24,4 +24,9 @@ class Projects extends Model
     {
         return $this->hasMany(ProjectAssigns::class, 'project_id','id');
     }
+
+    public function projectOnTicket()
+    {
+        return $this->hasMany(Ticket::class, 'project_id', 'id');
+    }
 }
