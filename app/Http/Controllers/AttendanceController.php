@@ -9,12 +9,30 @@ use Illuminate\Support\Facades\Redirect;
 class AttendanceController extends Controller
 {
     
-    public function index()
+    public function index(Request $request)
     {
-        $attendanceData= UserAttendances::where('user_id',auth()->user()->id)->orderBy('created_at','desc')->get();
+        $attendanceData= UserAttendances::where('user_id',auth()->user()->id)
+        ->orderBy('created_at','desc')
+        ->when($request->has('intervals_filter'), function ($query) use ($request) {
+          if($request->input('intervals_filter') == 'last_week'){
+          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+          }
+          if($request->input('intervals_filter') == 'last_month'){
+          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+          }
+          if($request->input('intervals_filter') == 'yesterday'){
+            return $query->whereRaw('DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
+            }
+            if($request->input('intervals_filter') == 'custom_intervals'){
+             return $query->whereBetween('created_at', [$request->get('date_from'), $request->get('date_to')]);      
+              }
+         }, function ($query) {
+          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+      })->get();
+
         return view('attendance.index',compact('attendanceData'));   
     }
-    
+
     public function store(Request $request)
 	  { 	
         $validator = \Validator::make($request->all(),[

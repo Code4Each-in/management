@@ -48,7 +48,35 @@
             <div class="alert alert-success message">
                 {{ session()->get('message') }}
             </div>
-            @endif
+            @endif  
+
+            <form action="" id="intervalsFilterForm" method="get">
+                <div class="row my-4">
+                <div class="col-md-2 form-group">
+                        <label for="intervalsFilterselectBox">Filter</label>
+                        <select class="form-control" id="intervalsFilterselectBox" name="intervals_filter">
+                            <option value="" selected disabled>Select Filter</option>
+                            <option value="yesterday" {{ request()->input('intervals_filter') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
+                            <option value="last_week" {{ request()->input('intervals_filter') == 'last_week' ? 'selected' : '' }}>Last Week</option>
+                            <option value="last_month" {{ request()->input('intervals_filter') == 'last_month' ? 'selected' : '' }} >Last Month</option>
+                            <option value="custom_intervals" {{ request()->input('intervals_filter') == 'custom_intervals' ? 'selected' : '' }}>Custom Intervals</option>
+                        </select>
+                    </div>
+                    <div class="col-md"></div>
+                    <div class="col-md-2 form-group custom-intervals" style = "{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
+                        <label for="">Date From</label>
+                        <input type="date" name="date_from" class="form-control custom-date">
+                    </div>
+                    <div class="col-md-2 form-group custom-intervals" style="{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
+                        <label for="">Date To</label>
+                        <input type="date" name="date_to" class="form-control custom-date" >
+                    </div>
+                    <div class="col-md-2 form-group custom-intervals" style="{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
+                        <input type="submit" class="btn btn-primary custom-search" value="Search" style="margin-top: 19px;">
+                    </div>
+                </div>
+            </form>
+
             <div class="box-body table-responsive" style="margin-bottom: 5%">
                 <table class="table table-borderless dashboard" id="attendance">
                     <thead>
@@ -111,5 +139,29 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
+    var intervalsFilterselectBox = document.getElementById('intervalsFilterselectBox');
+        var customIntervalsOption = document.querySelector('option[value="custom_intervals"]');
+        var customIntervalsSection = document.querySelectorAll('.custom-intervals');
+
+        intervalsFilterselectBox.addEventListener('change', function() {
+            if (this.value === customIntervalsOption.value) {
+                for (var i = 0; i < customIntervalsSection.length; i++) {
+                    customIntervalsSection[i].style.display = 'block';
+                }
+            } else {
+                for (var i = 0; i < customIntervalsSection.length; i++) {
+                    customIntervalsSection[i].style.display = 'none';
+                }
+            }
+        });
+
+        // Submit form when other select options are changed
+        intervalsFilterselectBox.addEventListener('change', function() {
+            if (this.value !== customIntervalsOption.value) {
+                document.getElementById('intervalsFilterForm').submit();
+            }
+        });
+        
 </script>
 @endsection
