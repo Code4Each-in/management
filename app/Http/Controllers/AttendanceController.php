@@ -11,6 +11,19 @@ class AttendanceController extends Controller
     
     public function index(Request $request)
     {
+      $validator = \Validator::make($request->all(),[
+        'date_from'=>'required_with:date_to|date|nullable', 
+        'date_to'=>'required_with:date_from|date|nullable',  
+          ],
+        [
+            'date_from.required_with' => 'The date from field is required.',
+            'date_to.required_with' => 'The date to field is required.',
+        ]
+        );
+      if ($validator->fails())
+       {
+           return Redirect::back()->withErrors($validator);
+        }  
         $attendanceData= UserAttendances::where('user_id',auth()->user()->id)
         ->orderBy('created_at','desc')
         ->when($request->has('intervals_filter'), function ($query) use ($request) {

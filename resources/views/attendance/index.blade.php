@@ -66,10 +66,16 @@
                     <div class="col-md-2 form-group custom-intervals" style = "{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
                         <label for="">Date From</label>
                         <input type="date" name="date_from" class="form-control custom-date">
+                        @if ($errors->has('date_from'))
+                            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_from') }}</span>
+                            @endif
                     </div>
                     <div class="col-md-2 form-group custom-intervals" style="{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
                         <label for="">Date To</label>
                         <input type="date" name="date_to" class="form-control custom-date" >
+                        @if ($errors->has('date_to'))
+                            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_to') }}</span>
+                            @endif
                     </div>
                     <div class="col-md-2 form-group custom-intervals" style="{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
                         <input type="submit" class="btn btn-primary custom-search" value="Search" style="margin-top: 19px;">
@@ -141,27 +147,24 @@
     });
 
     var intervalsFilterselectBox = document.getElementById('intervalsFilterselectBox');
-        var customIntervalsOption = document.querySelector('option[value="custom_intervals"]');
-        var customIntervalsSection = document.querySelectorAll('.custom-intervals');
+    var customIntervalsOption = document.querySelector('option[value="custom_intervals"]');
+    var customIntervalsSection = document.querySelectorAll('.custom-intervals');
 
-        intervalsFilterselectBox.addEventListener('change', function() {
-            if (this.value === customIntervalsOption.value) {
-                for (var i = 0; i < customIntervalsSection.length; i++) {
-                    customIntervalsSection[i].style.display = 'block';
-                }
-            } else {
-                for (var i = 0; i < customIntervalsSection.length; i++) {
-                    customIntervalsSection[i].style.display = 'none';
-                }
+    intervalsFilterselectBox.addEventListener('change', function() {
+        if (this.value === customIntervalsOption.value) {
+            for (var i = 0; i < customIntervalsSection.length; i++) {
+                customIntervalsSection[i].style.display = 'block';
             }
-        });
+        } else {
+            for (var i = 0; i < customIntervalsSection.length; i++) {
+                customIntervalsSection[i].style.display = 'none';
+            }
+        }
+        // Submit the form when any select option is changed
+        document.getElementById('intervalsFilterForm').submit();
 
-        // Submit form when other select options are changed
-        intervalsFilterselectBox.addEventListener('change', function() {
-            if (this.value !== customIntervalsOption.value) {
-                document.getElementById('intervalsFilterForm').submit();
-            }
-        });
-        
+    });
+
+
 </script>
 @endsection
