@@ -80,7 +80,11 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Address</div>
-                        <div class="col-lg-9 col-md-8 detail_full_address">{{$usersProfile->address}} , {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}</div>
+                        <div class="col-lg-9 col-md-8 detail_full_address"> 
+                            @if ($usersProfile->address)
+                            {{$usersProfile->address}}  {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}
+                            @endif
+                        </div>
                     </div>
 
                     <div class="row">
@@ -402,24 +406,24 @@
                     }, 2000);
                     // UPDATE OTHER VALUE ON PAGE
                     var user_profile_data = data.user_profile_data;
-                    $('.detail_full_name').html(user_profile_data.first_name + ' ' +
-                        user_profile_data
-                        .last_name);
+                    // $('.detail_full_name').html(user_profile_data.first_name + ' ' +
+                    //     user_profile_data
+                    //     .last_name);
                     $('.detail_tshirt_size').html(user_profile_data.tshirt_size);
                     $('.detail_skills').html(user_profile_data.skills);
-                    $('.detail_full_email').html(user_profile_data.email);
-                    $('.detail_full_address').html(user_profile_data.address + ', ' +
-                        user_profile_data
-                        .city +
-                        ', ' + user_profile_data.state + ', ' + user_profile_data.zip);
-                    $('.detail_full_phone').html(user_profile_data.phone);
-                    $('.detail_full_joining_date').html(moment(user_profile_data.joining_date)
-                        .format(
-                            'DD-MM-YYYY'));
-                    $('.detail_full_birth_date').html(moment(user_profile_data.birth_date).format(
-                        'DD-MM-YYYY'));
-                    $('.profile_name').html(user_profile_data.first_name + ' ' + user_profile_data
-                        .last_name);
+                    // $('.detail_full_email').html(user_profile_data.email);
+                    // $('.detail_full_address').html(user_profile_data.address + ', ' +
+                    //     user_profile_data
+                    //     .city +
+                    //     ', ' + user_profile_data.state + ', ' + user_profile_data.zip);
+                    // $('.detail_full_phone').html(user_profile_data.phone);
+                    // $('.detail_full_joining_date').html(moment(user_profile_data.joining_date)
+                    //     .format(
+                    //         'DD-MM-YYYY'));
+                    // $('.detail_full_birth_date').html(moment(user_profile_data.birth_date).format(
+                    //     'DD-MM-YYYY'));
+                    // $('.profile_name').html(user_profile_data.first_name + ' ' + user_profile_data
+                    //     .last_name);
                 }
             },
             error: function(data) {
