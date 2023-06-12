@@ -36,7 +36,7 @@
                         <tbody>
                             @forelse($usersData as $data)
                             <tr>
-                                <td>{{ $data->employee_id }}</td>
+                                <td>{{ $data->employee_id ?? '---' }}</td>
                                 <td>{{ $data->first_name }}</td>
                                 <td>{{ $data->last_name }}</td>
                                 <td>{{ $data->email }}</td>
@@ -45,7 +45,7 @@
                                 <td>{{$data->department->name ?? ''}}</td>
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
-                                <td class="tshirt-text">{{ $data->tshirt_size }}</td>
+                                <td class="tshirt-text">{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">
                                         <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"

@@ -110,7 +110,7 @@
                             @if ($usersProfile->skills)
                             {{$usersProfile->skills}}
                             @else
-                            {{'--'}}
+                            {{'---'}}
                             @endif
                         </div>
                     </div>
@@ -122,7 +122,7 @@
                             @if ($usersProfile->tshirt_size)
                             {{$usersProfile->tshirt_size}}
                             @else
-                            {{'--'}}
+                            {{'---'}}
                             @endif
                         </div>
                     </div>
@@ -266,11 +266,11 @@
                          <div class="col-md-8 col-lg-9">
                                 <select class="form-control" id="tShirtSize" name="tshirt_size">
                                     <option value="" selected disabled>Select Size</option>
-                                    <option value="s" {{ request()->input('tshirt_size') == 's' ? 'selected' : '' }}>S (Small)</option>
-                                    <option value="m" {{ request()->input('tshirt_size') == 'm' ? 'selected' : '' }}>M ( Medium)</option>
-                                    <option value="l" {{ request()->input('tshirt_size') == 'l' ? 'selected' : '' }} >L (Large)</option>
-                                    <option value="xl" {{ request()->input('tshirt_size') == 'xl' ? 'selected' : '' }}>XL (Extra Large)</option>
-                                    <option value="xxl" {{ request()->input('tshirt_size') == 'xxl' ? 'selected' : '' }}>XXL (Double Extra Large) </option>
+                                    <option value="s" {{ $usersProfile->tshirt_size == 's' ? 'selected' : '' }}>S (Small)</option>
+                                    <option value="m" {{ $usersProfile->tshirt_size == 'm' ? 'selected' : '' }}>M ( Medium)</option>
+                                    <option value="l" {{ $usersProfile->tshirt_size == 'l' ? 'selected' : '' }} >L (Large)</option>
+                                    <option value="xl" {{ $usersProfile->tshirt_size == 'xl' ? 'selected' : '' }}>XL (Extra Large)</option>
+                                    <option value="xxl" {{ $usersProfile->tshirt_size == 'xxl' ? 'selected' : '' }}>XXL (Double Extra Large) </option>
                                 </select>
                             </div>
                         </div>
