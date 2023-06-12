@@ -256,9 +256,10 @@ class UsersController extends Controller
 			// 'city'=>'required',
 			// 'state'=>'required',
 			// 'zip'=>'required',
+			'tshirt_size' => 'nullable',
 			'skills' => 'nullable',
 		]);
-
+		// dd($request->tshirt_size);
 		if ($validator->fails())
 		{
 			return response()->json(['errors'=>$validator->errors()->all()]);
@@ -266,7 +267,8 @@ class UsersController extends Controller
 		$validate = $validator->valid();
 		Users::where('id',$request->user_id)
 			->update([
-			'skills' => $validate['skills'],        
+			'skills' => $validate['skills'], 
+			'tshirt_size' => $validate['tshirt_size'],        
 		]);
 		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
 	}
