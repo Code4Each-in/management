@@ -106,7 +106,7 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Skills</div>
-                        <div class="col-lg-9 col-md-8">
+                        <div class="col-lg-9 col-md-8 detail_skills">
                             @if ($usersProfile->skills)
                             {{$usersProfile->skills}}
                             @else
@@ -114,6 +114,20 @@
                             @endif
                         </div>
                     </div>
+
+
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">T-Shirt Size</div>
+                        <div class="col-lg-9 col-md-8 detail_tshirt_size">
+                            @if ($usersProfile->tshirt_size)
+                            {{$usersProfile->tshirt_size}}
+                            @else
+                            {{'--'}}
+                            @endif
+                        </div>
+                    </div>
+
+                  
                     @if(isset($usersProfile->department->name))
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Departement</div>
@@ -245,6 +259,23 @@
                             </div>
                         </div>
                         
+
+
+                         <div class="row mb-3">
+                         <label for="add_skills" class="col-md-4 col-lg-3 col-form-label">T-Shirt Size</label>
+                         <div class="col-md-8 col-lg-9">
+                                <select class="form-control" id="tShirtSize" name="tshirt_size">
+                                    <option value="" selected disabled>Select Size</option>
+                                    <option value="s" {{ request()->input('tshirt_size') == 's' ? 'selected' : '' }}>S (Small)</option>
+                                    <option value="m" {{ request()->input('tshirt_size') == 'm' ? 'selected' : '' }}>M ( Medium)</option>
+                                    <option value="l" {{ request()->input('tshirt_size') == 'l' ? 'selected' : '' }} >L (Large)</option>
+                                    <option value="xl" {{ request()->input('tshirt_size') == 'xl' ? 'selected' : '' }}>XL (Extra Large)</option>
+                                    <option value="xxl" {{ request()->input('tshirt_size') == 'xxl' ? 'selected' : '' }}>XXL (Double Extra Large) </option>
+                                </select>
+                            </div>
+                        </div>
+
+
                         <div class="alert alert-success message" style="display:none">
                         </div>
                         <div class="text-center">
@@ -374,6 +405,8 @@
                     $('.detail_full_name').html(user_profile_data.first_name + ' ' +
                         user_profile_data
                         .last_name);
+                    $('.detail_tshirt_size').html(user_profile_data.tshirt_size);
+                    $('.detail_skills').html(user_profile_data.skills);
                     $('.detail_full_email').html(user_profile_data.email);
                     $('.detail_full_address').html(user_profile_data.address + ', ' +
                         user_profile_data
