@@ -118,7 +118,7 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">T-Shirt Size</div>
-                        <div class="col-lg-9 col-md-8 detail_tshirt_size">
+                        <div class="col-lg-9 col-md-8 detail_tshirt_size tshirt-text">
                             @if ($usersProfile->tshirt_size)
                             {{$usersProfile->tshirt_size}}
                             @else
