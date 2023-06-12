@@ -52,14 +52,14 @@
 
             <form action="" id="intervalsFilterForm" method="get">
                 <div class="row my-4">
-                <div class="col-md-2 form-group">
-                        <label for="intervalsFilterselectBox">Filter</label>
+                <div class="col-md-3 form-group">
+                        <label for="intervalsFilterselectBox">Date Range</label>
                         <select class="form-control" id="intervalsFilterselectBox" name="intervals_filter">
                             <option value="" selected disabled>Select Filter</option>
                             <option value="yesterday" {{ request()->input('intervals_filter') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                             <option value="last_week" {{ request()->input('intervals_filter') == 'last_week' ? 'selected' : '' }}>Last Week</option>
                             <option value="last_month" {{ request()->input('intervals_filter') == 'last_month' ? 'selected' : '' }} >Last Month</option>
-                            <option value="custom_intervals" {{ request()->input('intervals_filter') == 'custom_intervals' ? 'selected' : '' }}>Custom Intervals</option>
+                            <option value="custom_intervals" {{ request()->input('intervals_filter') == 'custom_intervals' ? 'selected' : '' }}>Custom Date Range</option>
                         </select>
                     </div>
                     <div class="col-md"></div>

@@ -40,7 +40,7 @@ class TicketsController extends Controller
                     }
                 } else {
                     $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
-                    $allTicketsFilter = 'on';
+                    // $allTicketsFilter = 'on';
                     if ($completeTicketsFilter == 'on') {
                         $tickets = $ticketFilterQuery->orWhere('status', 'complete');
                     }
