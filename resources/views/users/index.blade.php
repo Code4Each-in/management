@@ -45,7 +45,7 @@
                                 <td>{{$data->department->name ?? ''}}</td>
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
-                                <td class="tshirt-text">{{ $data->tshirt_size ?? '---' }}</td>
+                                <td>{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">
                                         <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
