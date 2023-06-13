@@ -329,4 +329,25 @@ class UsersController extends Controller
 		]);
 		return Response()->json(['status'=>200, 'message' => ' Profile picture deleted successfully.']);
 	}
+
+
+	public function saveCropedProfilePicture(Request $request)
+    {
+        $folderPath = public_path('assets/img/profilePicture/');
+        $image_parts = explode(";base64,", $request->image);
+        $image_type_aux = explode("image/", $image_parts[0]);
+        $image_type = $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+ 
+        $imageName = uniqid() . '.png';
+		$path ='profilePicture/'.$imageName;
+ 
+        $imageFullPath = $folderPath.$imageName;
+ 
+        file_put_contents($imageFullPath, $image_base64);
+		$userpath = Users::where('id', $request->user_id)->update(['profile_picture'=>$path]);
+		if($userpath){
+			return response()->json(['success'=>'Croped Image Uploaded Successfully','path' => $path]);
+		}
+    }
 }
