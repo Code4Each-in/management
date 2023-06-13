@@ -2,7 +2,29 @@
 @section('title', 'Profile')
 @section('subtitle', 'Profile')
 @section('content')
+<style type="text/css">
+    .crop_modal img{
+        display: block;
+        max-width: 100% !important; 
+    }
+    .preview {
+        text-align: center;
+        overflow: hidden;
+        width: 300px; 
+        height: 300px;
+        margin: 10px;
+        border: 1px solid red;
+    }
+    .modal-lg{
+        max-width: 1000px !important;
+    }
+</style>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
 
 <div class="col-xl-4 profile">
     <div class="card">
@@ -170,13 +192,48 @@
                                     <form id="update_profile_picture">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                                         <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
-                                        <input type="file" id="edit_profile_input" name="edit_profile_input"
-                                            style="display:none" />
+                                        <!-- <input type="file" name="image" class="image"> -->
+
+                                        <input type="file" id="edit_profile_input_option" name="edit_profile_input"
+                                        class="image_edit_profile_input" style="display:none" />
                                         <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"
                                             id="edit_profile_button"><i class="bi bi-upload"></i></a>
                                     </form>
+
+
+                                    <div class="modal fade crop_modal" id="modalCropImage" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalLabel">Crop Image</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="img-container">
+                                                        <div class="row">
+                                                            <div class="col-md-8">
+                                                                <img id="edit_profile_input" src="">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="preview"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-primary" id="crop">Crop</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
+
                             </div>
+                            
                         </div>
                     </div>
                     <form method="post" id="updateLoginUserProfile">
@@ -286,7 +343,9 @@
                             <button type="button" class="btn btn-primary" onClick="updateLoginUserProfile()">Save
                                 Changes</button>
                         </div>
-                    </form><!-- End Profile Edit Form -->
+                    </form>
+                  
+                    <!-- End Profile Edit Form -->
                 </div>
                 <!-- <div> -->
                     <!-- Settings Form -->
@@ -434,7 +493,7 @@
 
     // TRIGGER CHOOSE MEDIA DIALOG ON UPLOAD ICON CLICK
     $('#edit_profile_button').click(function() {
-        $('#edit_profile_input').trigger('click');
+        $('#edit_profile_input_option').trigger('click');
     });
 
     // CHAGE PROFILE IMAGE OF LOGIN USER
@@ -543,6 +602,81 @@
                 e.preventDefault();
             };
      });
+
+
+     var $modal = $('#modalCropImage');
+        var image = document.getElementById('edit_profile_input');
+        var cropper;
+        var user_id = $("input[name=user_id]").val();    
+
+
+        $("body").on("change", ".image_edit_profile_input", function(e){
+            var files = e.target.files;
+            var done = function (url) {
+                image.src = url;
+                $modal.modal('show');
+            };
+
+            var reader;
+            var file;
+            var url;
+
+            if (files && files.length > 0) {
+                file = files[0];
+
+                if (URL) {
+                    done(URL.createObjectURL(file));
+                } else if (FileReader) {
+                    reader = new FileReader();
+                    reader.onload = function (e) {
+                        done(reader.result);
+                    };
+                reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        $modal.on('shown.bs.modal', function () {
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 3,
+                preview: '.preview'
+            });
+        }).on('hidden.bs.modal', function () {
+            cropper.destroy();
+            cropper = null;
+        });
+
+        $("#crop").click(function(){
+            canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+            });
+
+            canvas.toBlob(function(blob) {
+                url = URL.createObjectURL(blob);
+                var reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = function() {
+                    var base64data = reader.result; 
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: "/update/profile/croped-picture",
+                        data: {'_token': $('meta[name="_token"]').attr('content'), 'image': base64data, 'user_id': user_id, },
+                        success: function(data){
+                            $modal.modal('hide');
+                            var baseUrl = window.location.protocol + "//" + window.location.host;
+                            var imagePath = "/assets/img/" + data.path;
+                            $("#profile_picture").attr("src", baseUrl + imagePath);
+                            $("#edit_profile_picture").attr("src", baseUrl + imagePath);
+
+                        }
+                    });
+                }
+            });
+        });
+
 
     </script>
     @endsection

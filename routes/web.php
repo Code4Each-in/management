@@ -32,17 +32,7 @@ Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.user');
 Route::group(['middleware' => ['auth']], function() {
 	Route::resource('/dashboard', DashboardController::class);
-	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
-	Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
-	Route::post('/add/department', [DepartmentsController::class, 'store']);
-	Route::post('/edit/department', [DepartmentsController::class, 'edit']);
-	Route::post('/update/department', [DepartmentsController::class, 'update']);
-	Route::delete('/delete/department', [DepartmentsController::class, 'destroy']);
-	Route::get('/role', [RolesController::class, 'index'])->name('role.index');
-	Route::post('/add/role', [RolesController::class, 'store']);
-	Route::post('/edit/role', [RolesController::class, 'edit']);
-	Route::post('/update/role', [RolesController::class, 'update']);
-	Route::delete('/delete/role', [RolesController::class, 'destroy']);
+	
 
 	Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 	Route::post('/add/users', [UsersController::class, 'store']);
@@ -79,6 +69,21 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
 	Route::delete('/delete/ticket/file', [TicketsController::class, 'deleteTicketFile']);
+	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
+
+
+	Route::group(['middleware' => 'admin'], function () {
+		// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
+	Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
+	Route::post('/add/department', [DepartmentsController::class, 'store']);
+	Route::post('/edit/department', [DepartmentsController::class, 'edit']);
+	Route::post('/update/department', [DepartmentsController::class, 'update']);
+	Route::delete('/delete/department', [DepartmentsController::class, 'destroy']);
+	Route::get('/role', [RolesController::class, 'index'])->name('role.index');
+	Route::post('/add/role', [RolesController::class, 'store']);
+	Route::post('/edit/role', [RolesController::class, 'edit']);
+	Route::post('/update/role', [RolesController::class, 'update']);
+	Route::delete('/delete/role', [RolesController::class, 'destroy']);
 
 	// Projects Routes
 	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
@@ -89,7 +94,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
 	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
-
-
+	
+	});
 
  });
