@@ -605,11 +605,23 @@
 
 
      var $modal = $('#modalCropImage');
+     $('INPUT[type="file"]').change(function () {
+            var ext = this.value.match(/\.(.+)$/)[1];
+            switch (ext) {
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                    // $('#edit_profile_button').attr('disabled', false);
+                    break;
+                default:
+                    alert('This is not an allowed file type.');
+                    this.value = '';
+            }
+        });
         var image = document.getElementById('edit_profile_input');
         var cropper;
         var user_id = $("input[name=user_id]").val();    
-
-
         $("body").on("change", ".image_edit_profile_input", function(e){
             var files = e.target.files;
             var done = function (url) {
