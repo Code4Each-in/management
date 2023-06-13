@@ -327,11 +327,11 @@
                          <div class="col-md-8 col-lg-9">
                                 <select class="form-control" id="tShirtSize" name="tshirt_size">
                                     <option value="" selected disabled>Select Size</option>
-                                    <option value="S" {{ $usersProfile->tshirt_size == 's' ? 'selected' : '' }}>S (Small)</option>
-                                    <option value="M" {{ $usersProfile->tshirt_size == 'm' ? 'selected' : '' }}>M ( Medium)</option>
-                                    <option value="L" {{ $usersProfile->tshirt_size == 'l' ? 'selected' : '' }} >L (Large)</option>
-                                    <option value="XL" {{ $usersProfile->tshirt_size == 'xl' ? 'selected' : '' }}>XL (Extra Large)</option>
-                                    <option value="XXL" {{ $usersProfile->tshirt_size == 'xxl' ? 'selected' : '' }}>XXL (Double Extra Large) </option>
+                                    <option value="S" {{ $usersProfile->tshirt_size == 'S' ? 'selected' : '' }}>S (Small)</option>
+                                    <option value="M" {{ $usersProfile->tshirt_size == 'M' ? 'selected' : '' }}>M ( Medium)</option>
+                                    <option value="L" {{ $usersProfile->tshirt_size == 'L' ? 'selected' : '' }} >L (Large)</option>
+                                    <option value="XL" {{ $usersProfile->tshirt_size == 'XL' ? 'selected' : '' }}>XL (Extra Large)</option>
+                                    <option value="XXL" {{ $usersProfile->tshirt_size == 'XXL' ? 'selected' : '' }}>XXL (Double Extra Large) </option>
                                 </select>
                             </div>
                         </div>
