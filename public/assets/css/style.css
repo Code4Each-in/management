@@ -1462,7 +1462,3 @@ input:checked + .slider:before {
 .select2{
 width: 100% !important;
 }
-
-.tshirt-text{
-  text-transform: uppercase;
-}
