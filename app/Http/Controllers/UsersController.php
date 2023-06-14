@@ -167,7 +167,7 @@ class UsersController extends Controller
 			$salaried = $validate['edit_salary'];
 		}
 		// $eta= $request['eta'];
-		$UpdateUserArr= [
+		$UpdateUserArr = [
 			'first_name' => $validate['edit_username'],        
 			'last_name' => $validate['edit_lastname'],
 			'email' => $validate['edit_email'],
@@ -256,20 +256,22 @@ class UsersController extends Controller
 			// 'city'=>'required',
 			// 'state'=>'required',
 			// 'zip'=>'required',
+			'edit_profile_picture' => 'required',
 			'tshirt_size' => 'nullable',
 			'skills' => 'nullable',
 		]);
-		// dd($request->tshirt_size);
 		if ($validator->fails())
 		{
 			return response()->json(['errors'=>$validator->errors()->all()]);
 		}
 		$validate = $validator->valid();
-		Users::where('id',$request->user_id)
-			->update([
-			'skills' => $validate['skills'], 
-			'tshirt_size' => $validate['tshirt_size'],        
+
+		$updateProfile = Users::where('id',$request->user_id)
+			->update(['skills' => $validate['skills'], 
+			'tshirt_size' => $validate['tshirt_size'],
+			'profile_picture' => $validate['edit_profile_picture'],
 		]);
+			// dd($updateProfile);
 		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
 	}
 	// UPDATE PROFILE PICTURE OF LOGIN USER
@@ -333,6 +335,7 @@ class UsersController extends Controller
 
 	public function saveCropedProfilePicture(Request $request)
     {
+
         $folderPath = public_path('assets/img/profilePicture/');
         $image_parts = explode(";base64,", $request->image);
         $image_type_aux = explode("image/", $image_parts[0]);
@@ -345,9 +348,8 @@ class UsersController extends Controller
         $imageFullPath = $folderPath.$imageName;
  
         file_put_contents($imageFullPath, $image_base64);
-		$userpath = Users::where('id', $request->user_id)->update(['profile_picture'=>$path]);
-		if($userpath){
-			return response()->json(['success'=>'Croped Image Uploaded Successfully','path' => $path]);
-		}
+		// dd($path);
+		// $userpath = Users::where('id', $request->user_id)->update(['profile_picture'=>$path]);
+			return response()->json(['success'=>'Image Croped Successfully','path' => $path]);
     }
 }
