@@ -26,7 +26,7 @@
                             <option value="custom_intervals" {{ request()->input('intervals_filter') == 'custom_intervals' ? 'selected' : '' }}>Custom Date Range</option>
                         </select>
                     </div>
-                    <div class="col-md-2 form-group">
+                    <div class="col-md-3 form-group">
                         <label for="userFilterselectBox">Team Member</label>
                         <select class="form-control" id="userFilterselectBox" name="team_member_filter">
                             <option value="" selected disabled>Select TeamMember</option>

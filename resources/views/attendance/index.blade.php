@@ -65,14 +65,14 @@
                     <div class="col-md"></div>
                     <div class="col-md-2 form-group custom-intervals" style = "{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
                         <label for="">Date From</label>
-                        <input type="date" name="date_from" class="form-control custom-date">
+                        <input type="date" name="date_from" class="form-control custom-date" value="{{ request()->input('intervals_filter') === 'custom_intervals' ? (request()->has('date_from') ? request()->input('date_from') : '') : '' }}" required >
                         @if ($errors->has('date_from'))
                             <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_from') }}</span>
                             @endif
                     </div>
                     <div class="col-md-2 form-group custom-intervals" style="{{ request()->input('intervals_filter') !== 'custom_intervals' ? 'display: none;' : '' }}">
                         <label for="">Date To</label>
-                        <input type="date" name="date_to" class="form-control custom-date" >
+                        <input type="date" name="date_to" class="form-control custom-date" value="{{ request()->input('intervals_filter') === 'custom_intervals' ? (request()->has('date_to') ? request()->input('date_to') : '') : '' }}" required>
                         @if ($errors->has('date_to'))
                             <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_to') }}</span>
                             @endif
