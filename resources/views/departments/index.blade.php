@@ -4,17 +4,28 @@
 @section('content')
 
 <div class="col-lg-12">
+    @if(session()->has('message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="dismissableAlert">
+                    <i class="bi bi-check-circle me-1"></i>
+                    {{ session()->get('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session()->has('error'))
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="dismissableAlert">
+        <i class="bi bi-exclamation-octagon me-1"></i>
+        {{ session()->get('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     <div class="card">
         <div class="card-body">
             <button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">Add
                 Department</button>
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">
-                @if(session()->has('message'))
-                <div class="alert alert-success message">
-                    {{ session()->get('message') }}
-                </div>
-                @endif
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
                     <table class="table table-borderless dashboard" id="department_table">
                         <thead>
@@ -213,20 +224,26 @@ function updateDepartment() {
     });
 }
 
-function deleteDepartment(id) {
-    if (confirm("Are you sure?") == true) {
-        $.ajax({
-            type: "DELETE",
-            url: "{{ url('/delete/department') }}",
-            data: {
-                id: id
-            },
-            dataType: 'json',
-            success: function(res) {
-                location.reload();
-            }
-        });
+    function deleteDepartment(id) {
+        if (confirm("Are you sure?") == true) {
+            $.ajax({
+                type: "DELETE",
+                url: "{{ url('/delete/department') }}",
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(res) {
+                    location.reload();
+                }
+            });
+        }
     }
-}
+
+       // Make Alert Auto Dissapear After Few Time
+       $(".alert-dismissible").delay(3000).slideUp(200, function() {
+        $(this).alert('close');
+    });
+    
 </script>
 @endsection
