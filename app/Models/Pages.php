@@ -12,6 +12,8 @@ class Pages extends Model
 	 protected $fillable =[
         'name',     
     ];
+    
+    public $timestamps = true;
 	
 	public function module()
     {

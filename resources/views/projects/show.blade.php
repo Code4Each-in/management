@@ -4,13 +4,24 @@
 @section('content')
 
 <div class="col-lg-8 mx-auto">
+@if(session()->has('message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="dismissableAlert">
+                    <i class="bi bi-check-circle me-1"></i>
+                    {{ session()->get('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session()->has('error'))
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="dismissableAlert">
+        <i class="bi bi-exclamation-octagon me-1"></i>
+        {{ session()->get('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     <div class="card">
         <div class="card-body">
-            @if(session()->has('message'))
-            <div class=" alert alert-success message mt-4">
-                {{ session()->get('message') }}
-            </div>
-            @endif   
             <div class="row mb-1 mt-4">
 
                 <label for="" class="col-sm-3">Project Name</label>
@@ -167,6 +178,12 @@
     </div>
 </div>
 @endsection
+<script>
+     $(".alert-dismissible").delay(3000).slideUp(200, function() {
+                    $(this).alert('close');
+        });
+
+</script>
 @section('js_scripts')
 
 @endsection

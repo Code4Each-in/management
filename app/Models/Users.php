@@ -77,4 +77,35 @@ class Users extends Authenticatable
     {
         return $this->belongsTo(Departments::class, 'department_id');
     }
+    //   public function permissions()
+    // {
+    //     return $this->belongsToMany(RolePermission::class, 'role_id');
+    // }
+    // public function hasPermission($permission)
+    // {
+    //     // dd($permission->id);
+    //     // Logic to check if the user has the specified permissiond
+    //     // dd($this->permissions()->where('role_id', $permission->id)->exists());
+    //     return $this->permissions()->where('role_id', $permission->id)->exists();
+    // }
+   
+    // public function hasRole($role)
+    // {
+    //     // Logic to check if the user has the specified role
+    //     return $this->role()->where('name', $role->name)->exists();   
+    // }
+
+
+
+    public function isAdmin()
+    {
+        if($this->role_id === 1)
+        { 
+            return true; 
+        } 
+        else 
+        { 
+            return false; 
+        }
+    }
 }

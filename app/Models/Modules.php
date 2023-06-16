@@ -12,4 +12,7 @@ class Modules extends Model
         'page_id',  
 		'module_name',
     ];
+    // protected $casts = [
+    //     'route_name' => 'nullable',
+    // ];
 }
