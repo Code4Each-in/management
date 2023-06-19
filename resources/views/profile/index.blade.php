@@ -312,8 +312,6 @@
                                     value="{{$usersProfile->zip?? ''}}">
                             </div>
                         </div> -->
-                        <input type="hidden" id="edit_profile_picture_input" name="edit_profile_picture" value="">
-
                          <div class="row mb-3">
                             <label for="add_skills" class="col-md-4 col-lg-3 col-form-label">Add Skills</label>
                             <div class="col-md-8 col-lg-9">
@@ -446,8 +444,6 @@
     });
     // UPDATE LOGIN USER PROFILE
     function updateLoginUserProfile() {
-
-
         $.ajax({
             type: 'POST',
             url: "{{ url('/update/profile')}}",
@@ -684,7 +680,7 @@
                             $modal.modal('hide');
                             var baseUrl = window.location.protocol + "//" + window.location.host;
                             var imagePath = "/assets/img/" + data.path;
-                            // $("#profile_picture").attr("src", baseUrl + imagePath);
+                            $("#profile_picture").attr("src", baseUrl + imagePath);
                             $("#edit_profile_picture").attr("src", baseUrl + imagePath);
 
                         }
@@ -693,20 +689,6 @@
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-        // var profileImg = document.getElementById('edit_profile_picture');
-        var profileImgInput = document.getElementById('edit_profile_picture_input');
-        var imageElement = document.getElementById('edit_profile_picture');
-        var imageUrl = imageElement.src;
-        var halfUrl = imageUrl.substring(imageUrl.indexOf("profilePicture"));
-        // Set the initial value of the hidden input field
-        profileImgInput.value = halfUrl;
-
-        // Update the hidden input field whenever the image source changes
-        profileImg.addEventListener('change', function() {
-        profileImgInput.value = halfUrl;
-        });
-    });
 
     </script>
     @endsection
