@@ -10,7 +10,7 @@ class Pages extends Model
     use HasFactory;
 	
 	 protected $fillable =[
-        'name',     
+        'name',  'parent_id',
     ];
     
     public $timestamps = true;
@@ -19,4 +19,17 @@ class Pages extends Model
     {
         return $this->hasMany(Modules::class, 'page_id');
     }
+
+
+    public function parentpage()
+    {
+        return $this->belongsTo(Pages::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Pages::class, 'parent_id');
+    }
+
+
 }

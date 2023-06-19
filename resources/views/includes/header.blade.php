@@ -200,6 +200,22 @@
             </li><!-- End Dashboard Nav -->
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
+                <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
+                    href="{{ route('pages.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span>Pages</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('modules') ? '' : 'collapsed' }}"
+                    href="{{ route('modules.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span>Modules</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">
                     <i class="bi bi-buildings"></i>

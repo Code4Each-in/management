@@ -7,6 +7,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeavesController;
+use App\Http\Controllers\ModulesController;
+use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
 
@@ -79,6 +81,21 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/role', [RolesController::class, 'edit'])->name('role.edit');
 	Route::post('/update/role', [RolesController::class, 'update'])->name('role.update');
 	Route::delete('/delete/role', [RolesController::class, 'destroy'])->name('role.delete');
+
+	// Pages Routes
+	Route::get('/pages', [PagesController::class, 'index'])->name('pages.index');
+	Route::post('/add/page', [PagesController::class, 'store'])->name('pages.add');
+	Route::post('/edit/page', [PagesController::class, 'edit'])->name('pages.edit');
+	Route::post('/update/page', [PagesController::class, 'update'])->name('pages.update');
+	Route::delete('/delete/page', [PagesController::class, 'destroy'])->name('pages.delete');
+
+	// Modules Routes
+	Route::get('/modules', [ModulesController::class, 'index'])->name('modules.index');
+	Route::post('/add/module', [ModulesController::class, 'store'])->name('modules.add');
+	Route::post('/edit/module', [ModulesController::class, 'edit'])->name('modules.edit');
+	Route::post('/update/module', [ModulesController::class, 'update'])->name('modules.update');
+	Route::delete('/delete/module', [ModulesController::class, 'destroy'])->name('modules.delete');
+
 
 	// Projects Routes
 	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');

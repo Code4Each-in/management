@@ -11,8 +11,14 @@ class Modules extends Model
 	protected $fillable =[
         'page_id',  
 		'module_name',
+        'route_name',
     ];
     // protected $casts = [
     //     'route_name' => 'nullable',
     // ];
+
+    public function page()
+    {
+        return $this->belongsTo(Pages::class,);
+    }
 }
