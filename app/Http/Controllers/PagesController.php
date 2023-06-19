@@ -30,7 +30,6 @@ class PagesController extends Controller
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
-        // dd("here");
         $pageName = $request->get('pageName');
         $parentId = $request->get('parentId');
         // dd($pageName);

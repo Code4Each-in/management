@@ -155,7 +155,15 @@
                     <div class="row mb-3">
                         <label for="edit_route_name" class="col-sm-3 col-form-label required">Route Name</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="route_name" id="edit_route_name">
+                            <!-- <input type="text" class="form-control" name="route_name" id="edit_route_name"> -->
+                            <select class="form-select form-control" id="edit_route_name" name="route_name" data-placeholder="Select Route">
+                                <option value="" disabled>Select Route</option>
+                                         @foreach ($routeNames as $route)
+                                        <option value="{{$route}}">
+                                        {{$route}}
+                                        </option>
+                                        @endforeach
+                                </select>
                         </div>
                     </div>
 
