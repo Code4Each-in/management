@@ -10,11 +10,6 @@
 
             <div class="box-header with-border" id="filter-box">
                 <br>
-                @if(session()->has('message'))
-                <div class="alert alert-success message">
-                    {{ session()->get('message') }}
-                </div>
-                @endif
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
                     <table class="table table-borderless dashboard" id="users_table">
                         <thead>

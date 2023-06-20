@@ -6,11 +6,6 @@
 <div class="col-lg-8 mx-auto">
     <div class="card">
         <div class="card-body">
-            @if(session()->has('message'))
-            <div class=" alert alert-success message mt-4">
-                {{ session()->get('message') }}
-            </div>
-            @endif   
             <div class="row mb-1 mt-4">
 
                 <label for="" class="col-sm-3">Project Name</label>

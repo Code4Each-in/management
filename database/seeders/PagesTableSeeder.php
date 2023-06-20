@@ -35,7 +35,9 @@ class PagesTableSeeder extends Seeder
             [
                 'name' => "Tickets",
             ],
-
+            [
+                'name' => "Projects",
+            ],
         ]);
         
     }

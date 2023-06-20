@@ -185,6 +185,21 @@
             </ul>
         </nav><!-- End Icons Navigation -->
 
+        @if(session()->has('message'))
+            <div class="alert alert-success fade show" role="alert" id="dismissableAlert">
+                        <i class="bi bi-check-circle me-1"></i>
+                        {{ session()->get('message') }}
+            </div>
+        @endif
+
+        @if(session()->has('error'))
+
+        <div class="alert alert-danger fade show" role="alert" id="dismissableAlert">
+                        <i class="bi bi-exclamation-octagon me-1"></i>
+                        {{ session()->get('error') }}
+        </div>
+        @endif
+
     </header><!-- End Header -->
 
     <!-- ======= Sidebar ======= -->
@@ -199,6 +214,22 @@
                 </a>
             </li><!-- End Dashboard Nav -->
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
+                    href="{{ route('pages.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span>Pages</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('modules') ? '' : 'collapsed' }}"
+                    href="{{ route('modules.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span>Modules</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
                     href="{{ route('departments.index') }}">

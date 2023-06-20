@@ -2,7 +2,6 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
-
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
@@ -33,11 +32,11 @@
             </form>
             <div class="box-header with-border" id="filter-box">
                 <br>
-                @if(session()->has('message'))
+                <!-- @if(session()->has('message'))
                 <div class="alert alert-success message">
                     {{ session()->get('message') }}
                 </div>
-                @endif
+                @endif -->
                 <!-- filter -->
                 <div class="box-header with-border mt-4" id="filter-box">
                     <div class="box-body table-responsive" style="margin-bottom: 5%">

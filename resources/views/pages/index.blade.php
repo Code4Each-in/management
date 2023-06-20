@@ -1,13 +1,13 @@
 @extends('layout')
-@section('title', 'Departments')
-@section('subtitle', 'Departments')
+@section('title', 'Pages')
+@section('subtitle', 'Pages')
 @section('content')
 
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">Add
-                Department</button>
+            <button class="btn btn-primary mt-3 mb-4" onClick="openPageModel()" href="javascript:void(0)">Add
+                Page</button>
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -15,17 +15,19 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Parent Page</th>
                                 <th>Action</th>
 
                             </tr>
                         </thead>
 
                         <tbody>
-                            @forelse($departmentData as $data)
+                            @forelse($pageData as $data)
                             <tr>
                                 <td>{{ $data->name }}</td>
+                                <td>{{ $name = $data->parentpage->name ?? ''; }}</td>
                                 <td>
-                                    <i style="color:#4154f1;" onClick="editDepartment('{{ $data->id }}')"
+                                    <i style="color:#4154f1;" onClick="editPage('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
                                     <i style="color:#4154f1;" onClick="deleteDepartment('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
@@ -41,12 +43,12 @@
     </div>
 </div>
 
-<!--start: Add department Modal -->
-<div class="modal fade" id="addDepartment" tabindex="-1" aria-labelledby="addDepartmentLabel" aria-hidden="true">
+<!--start: Add Page Modal -->
+<div class="modal fade" id="addPage" tabindex="-1" aria-labelledby="addPageLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addDepartmentLabel">Add Department</h5>
+                <h5 class="modal-title" id="addPageLabel">Add Page</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" id="addDeaprtmentForm" action="">
@@ -56,58 +58,71 @@
 
 
                     <div class="row mb-3">
-                        <label for="department_name" class="col-sm-3 col-form-label required">Name</label>
+                        <label for="page_name" class="col-sm-3 col-form-label required">Name</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="department_name" id="department_name">
+                            <input type="text" class="form-control" name="page_name" id="page_name">
                         </div>
                     </div>
-
+                    
+                    <div class="row mb-3">
+                        <label for="page_name" class="col-sm-3 col-form-label required">Sub Page</label>
+                        <div class="col-sm-9">
+                        <select class="form-select form-control" id="parent_id" name="parent_id" data-placeholder="Select Page">
+                                <option value="" disabled>Select Page</option>
+                                         @foreach ($parentPage as $data)
+                                        <option value="{{$data->id}}">
+                                         {{$data->name}}
+                                        </option>
+                                        @endforeach
+                                </select>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onClick="addDepartment()"
+                    <button type="button" class="btn btn-primary" onClick="addPage()"
                         href="javascript:void(0)">Save</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<!--end: Add department Modal -->
+<!--end: Add Page Modal -->
 
-<!--start: Edit department Modal -->
-<div class="modal fade" id="editDepartment" tabindex="-1" aria-labelledby="editDepartmentLabel" aria-hidden="true">
+<!--start: Edit Page Modal -->
+<div class="modal fade" id="editPage" tabindex="-1" aria-labelledby="editPageLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editDepartmentLabel">Edit Department</h5>
+                <h5 class="modal-title" id="editPageLabel">Edit Page</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" id="editDeaprtmentForm" action="">
+            <form method="post" id="editPageForm" action="">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
 
                     <div class="row mb-3">
-                        <label for="edit_department_name" class="col-sm-3 col-form-label required">Name</label>
+                        <label for="edit_page_name" class="col-sm-3 col-form-label required">Name</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="edit_department_name"
-                                id="edit_department_name">
+                            <input type="text" class="form-control" name="edit_page_name"
+                                id="edit_page_name">
                         </div>
                     </div>
 
-                    <input type="hidden" class="form-control" id="hidden_department_id" value="">
+                    <input type="hidden" class="form-control" id="hidden_page_id" value="">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onClick="updateDepartment()"
+                    <button type="button" class="btn btn-primary" onClick="updatePage()"
                         href="javascript:void(0)">Update</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<!--end: Edit department Modal -->
+<!--end: Edit Page Modal -->
 @endsection
 @section('js_scripts')
 <script>
@@ -127,18 +142,20 @@ $(document).ready(function() {
     });
 });
 
-function openDepartmentModal() {
-    $('#department_name').val('');
-    $('#addDepartment').modal('show');
+function openPageModel() {
+    $('#page_name').val('');
+    $('#addPage').modal('show');
 }
 
-function addDepartment() {
-    var departmentName = $('#department_name').val();
+function addPage() {
+    var pageName = $('#page_name').val();
+    var parentId = $('#parent_id').val();
     $.ajax({
         type: 'POST',
-        url: "{{ url('/add/department')}}",
+        url: "{{ url('/add/page')}}",
         data: {
-            departmentName: departmentName
+            pageName: pageName,
+            parentId:parentId,
         },
         cache: false,
         success: (data) => {
@@ -151,7 +168,7 @@ function addDepartment() {
                 })
             } else {
                 $('.alert-danger').html('');
-                $("#addDepartment").modal('hide');
+                $("#addPage").modal('hide');
                 location.reload();
             }
         },
@@ -161,31 +178,31 @@ function addDepartment() {
     });
 }
 
-function editDepartment(id) {
-    $('#hidden_department_id').val(id);
+function editPage(id) {
+    $('#hidden_page_id').val(id);
 
     $.ajax({
         type: "POST",
-        url: "{{ url('/edit/department') }}",
+        url: "{{ url('/edit/page') }}",
         data: {
             id: id
         },
         dataType: 'json',
         success: function(res) {
-            if (res.department != null) {
-                $('#editDepartment').modal('show');
-                $('#edit_department_name').val(res.department.name);
+            if (res.page != null) {
+                $('#editPage').modal('show');
+                $('#edit_page_name').val(res.page.name);
             }
         }
     });
 }
 
-function updateDepartment() {
-    var id = $('#hidden_department_id').val();
-    var name = $('#edit_department_name').val();
+function updatePage() {
+    var id = $('#hidden_page_id').val();
+    var name = $('#edit_page_name').val();
     $.ajax({
         type: "POST",
-        url: "{{ url('/update/department') }}",
+        url: "{{ url('/update/page') }}",
         data: {
             id: id,
             name: name
@@ -201,7 +218,7 @@ function updateDepartment() {
                 })
             } else {
                 $('.alert-danger').html('');
-                $("#editDepartment").modal('hide');
+                $("#editPage").modal('hide');
                 location.reload();
             }
         }
@@ -212,7 +229,7 @@ function updateDepartment() {
         if (confirm("Are you sure?") == true) {
             $.ajax({
                 type: "DELETE",
-                url: "{{ url('/delete/department') }}",
+                url: "{{ url('/delete/page') }}",
                 data: {
                     id: id
                 },
@@ -224,5 +241,6 @@ function updateDepartment() {
         }
     }
 
+    
 </script>
 @endsection

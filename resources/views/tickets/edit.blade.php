@@ -2,16 +2,11 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
-
 <div class="col-lg-6">
     <div class="card">
         <div class="card-body">
-            @if(session()->has('message'))
-            <div class=" alert alert-success message mt-4">
-                {{ session()->get('message') }}
-            </div>
-            @endif
-            <form method="post" id="editTicketsForm" action="{{route('ticket.update',$tickets->id)}}" enctype="multipart/form-data">
+           
+            <form method="post" id="editTicketsForm" action="{{route('tickets.update',$tickets->id)}}" enctype="multipart/form-data">
                 <div class="row mb-5 mt-4">
                     <label for="edit_title" class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
@@ -346,6 +341,7 @@
         }
 
     }
+
 </script>
 
 @endsection

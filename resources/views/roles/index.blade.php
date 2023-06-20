@@ -8,12 +8,6 @@
         <div class="card-body">
             <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">Add Role</button>
             <div class="box-header with-border" id="filter-box">
-                @if(session()->has('message'))
-                <div class="alert alert-success message">
-                    {{ session()->get('message') }}
-                </div>
-
-                @endif
                 <br>
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
                     <table class="table table-borderless dashboard" id="role_table">
@@ -273,5 +267,7 @@ function deleteRole(id) {
         });
     }
 }
+
+
 </script>
 @endsection

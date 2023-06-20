@@ -6,11 +6,6 @@
 <div class="col-lg-8 mx-auto">
     <div class="card">
         <div class="card-body">
-            @if(session()->has('message'))
-            <div class=" alert alert-success message mt-4">
-                {{ session()->get('message') }}
-            </div>
-            @endif
             <form method="post" id="editProjectsForm" action="{{route('project.update',$projects->id)}}" enctype="multipart/form-data">
             @csrf    
             <div class="row mb-5 mt-4">
@@ -338,6 +333,7 @@
                 e.preventDefault();
             };
             });
+
 </script>
 
 @endsection

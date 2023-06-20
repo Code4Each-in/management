@@ -9,11 +9,6 @@
                 Project</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
-                @if(session()->has('message'))
-                <div class="alert alert-success message">
-                    {{ session()->get('message') }}
-                </div>
-                @endif
                 <!-- filter -->
                 <div class="box-header with-border mt-4" id="filter-box">
                     <div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -423,7 +418,6 @@
                 e.preventDefault();
             };
             });
-
 
         </script>
     <!-- <script src="{{ asset('assets/js/bootstrap-tags.js') }}"></script> -->

@@ -1462,3 +1462,16 @@ input:checked + .slider:before {
 .select2{
 width: 100% !important;
 }
+
+
+header .alert{
+  position: absolute;
+  font-weight: 200;
+  left: 0;
+  width: 100%;
+  top: 0;
+  text-align: center;
+  color: black;
+  z-index: -1;
+  font-weight: 500;
+}
