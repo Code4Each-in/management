@@ -4,22 +4,6 @@
 @section('content')
 
 <div class="col-lg-8 mx-auto">
-    @if(session()->has('message'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="dismissableAlert">
-                    <i class="bi bi-check-circle me-1"></i>
-                    {{ session()->get('message') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if(session()->has('error'))
-
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="dismissableAlert">
-        <i class="bi bi-exclamation-octagon me-1"></i>
-        {{ session()->get('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
     <div class="card">
         <div class="card-body">
             <form method="post" id="editProjectsForm" action="{{route('project.update',$projects->id)}}" enctype="multipart/form-data">
@@ -348,10 +332,6 @@
             if (e.keyCode == 13){
                 e.preventDefault();
             };
-            });
-
-            $(".alert-dismissible").delay(3000).slideUp(200, function() {
-                $(this).alert('close');
             });
 
 </script>

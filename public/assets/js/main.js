@@ -323,3 +323,11 @@ tinymce.init({
   selector: '#tinymce_textarea',
   height : "250"
 });
+
+
+$(document).ready(function(){
+    // Make Alert Auto Dissapear After Few Time
+      $(".alert").delay(3000).slideUp(200, function() {
+        $(this).alert('close');
+    });
+});

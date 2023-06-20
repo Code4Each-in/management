@@ -11,54 +11,46 @@ class ModulesController extends Controller
 {
     public function index()
     {
-        // dd("index");
-        // $routes = Route::getRoutes();
         $routes = Route::getRoutes()->getRoutes();
-    $routeNames = [];
+        $routeNames = [];
 
-    $excludedRouteNames = [
-        'ignition.healthCheck',
-        'ignition.executeSolution',
-        'ignition.shareReport',
-        'ignition.scripts',
-        'ignition.styles',
-        'login',
-        'login.user',
-        'logout',
-    ];
+        $excludedRouteNames = [
+            'ignition.healthCheck',
+            'ignition.executeSolution',
+            'ignition.shareReport',
+            'ignition.scripts',
+            'ignition.styles',
+            'login',
+            'login.user',
+            'logout',
+        ];
 
-    foreach ($routes as $route) {
-        $routeName = $route->getName();
+        foreach ($routes as $route) {
+            $routeName = $route->getName();
 
-        if ($routeName && $routeName !== '' && !in_array($routeName, $excludedRouteNames)) {
-            $routeNames[] = $routeName;
+            if ($routeName && $routeName !== '' && !in_array($routeName, $excludedRouteNames)) {
+                $routeNames[] = $routeName;
+            }
         }
-    }
 
-        // dd($routeNames);
-        // dd($routes);
         $pages = Pages::orderBy('id','desc')->get();
         $modulesData = Modules::with('page')->orderBy('id','desc')->get();
-        // dd($modulesData);
         return view('modules.index', compact('modulesData','pages','routeNames'));
     }
 
     public function store(Request $request)
     {
-        // dd($request);
 		 $validator = \Validator::make($request->all(), [
             'pageId' => 'required', 
             'moduleName' => 'required', 
             'routeName' => 'required', 
-        ]);
-        // dd($validator->pageName);
-        
+        ]);        
 
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
-        // dd("here");
+
         $pageId = $request->get('pageId');
         $moduleName = $request->get('moduleName');
         $routeName = $request->get('routeName');
@@ -70,7 +62,7 @@ class ModulesController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
-        // $pageRouteName = $this->routeNaming($page);
+
 		$request->session()->flash('message','Module added successfully.');
         return Response()->json(['status'=>200, 'module'=>$module]);
     }
@@ -83,7 +75,6 @@ class ModulesController extends Controller
 
     public function update(Request $request)
     {
-        // dd($request);
 		$validator = \Validator::make($request->all(), [
             'edit_page_id' => 'required',   
             'edit_module_name' => 'required',   
@@ -113,34 +104,5 @@ class ModulesController extends Controller
         return Response()->json($modules);
     }
 
-
-    public function showRoutes(Request $request)
-    {
-        $routes = Route::getRoutes()->getRoutes();
-    $routeNames = [];
-
-    $excludedRouteNames = [
-        'ignition.healthCheck',
-        'ignition.executeSolution',
-        'ignition.shareReport',
-        'ignition.scripts',
-        'ignition.styles',
-        'login',
-        'login.user',
-        'logout',
-    ];
-
-    foreach ($routes as $route) {
-        $routeName = $route->getName();
-
-        if ($routeName && $routeName !== '' && !in_array($routeName, $excludedRouteNames)) {
-            $routeNames[] = $routeName;
-        }
-    }
-
-        dd($routeNames);
-  
-        return view('modules.route-list', compact('routeNames'));
-    }
 
 }

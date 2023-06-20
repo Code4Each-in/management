@@ -4,22 +4,6 @@
 @section('content')
 
 <div class="col-lg-12">
-    @if(session()->has('message'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="dismissableAlert">
-                    <i class="bi bi-check-circle me-1"></i>
-                    {{ session()->get('message') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if(session()->has('error'))
-
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="dismissableAlert">
-        <i class="bi bi-exclamation-octagon me-1"></i>
-        {{ session()->get('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
     <div class="card">
         <div class="card-body">
             <button class="btn btn-primary mt-3 mb-4" onClick="openModuleModel()" href="javascript:void(0)">Add
@@ -156,7 +140,7 @@
                         <label for="edit_route_name" class="col-sm-3 col-form-label required">Route Name</label>
                         <div class="col-sm-9">
                             <!-- <input type="text" class="form-control" name="route_name" id="edit_route_name"> -->
-                            <select class="form-select form-control" id="edit_route_name" name="route_name" data-placeholder="Select Route">
+                            <select class="form-select form-control" id="edit_route_name" name="route_name" data-placeholder="Select ">
                                 <option value="" disabled>Select Route</option>
                                          @foreach ($routeNames as $route)
                                         <option value="{{$route}}">
@@ -306,10 +290,6 @@ function updateModule() {
         }
     }
 
-       // Make Alert Auto Dissapear After Few Time
-       $(".alert-dismissible").delay(3000).slideUp(200, function() {
-        $(this).alert('close');
-    });
     
 </script>
 @endsection
