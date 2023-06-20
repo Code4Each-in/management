@@ -76,11 +76,11 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/department', [DepartmentsController::class, 'edit'])->name('departments.edit');
 	Route::post('/update/department', [DepartmentsController::class, 'update']);
 	Route::delete('/delete/department', [DepartmentsController::class, 'destroy'])->name('departments.delete');
-	Route::get('/role', [RolesController::class, 'index'])->name('role.index');
-	Route::post('/add/role', [RolesController::class, 'store'])->name('role.add');
-	Route::post('/edit/role', [RolesController::class, 'edit'])->name('role.edit');
-	Route::post('/update/role', [RolesController::class, 'update'])->name('role.update');
-	Route::delete('/delete/role', [RolesController::class, 'destroy'])->name('role.delete');
+	Route::get('/roles', [RolesController::class, 'index'])->name('roles.index');
+	Route::post('/add/role', [RolesController::class, 'store'])->name('roles.add');
+	Route::post('/edit/role', [RolesController::class, 'edit'])->name('roles.edit');
+	Route::post('/update/role', [RolesController::class, 'update'])->name('roles.update');
+	Route::delete('/delete/role', [RolesController::class, 'destroy'])->name('roles.delete');
 
 	// Pages Routes
 	Route::get('/pages', [PagesController::class, 'index'])->name('pages.index');
@@ -99,9 +99,9 @@ Route::middleware(['role_permission'])->group(function () {
 
 	// Projects Routes
 	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
-	Route::post('/add/projects', [ProjectsController::class, 'store'])->name('project.add');
-	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('project.edit');
-	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('project.update');
+	Route::post('/add/projects', [ProjectsController::class, 'store'])->name('projects.add');
+	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('projects.edit');
+	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('projects.update');
 	Route::delete('/delete/project/file', [ProjectsController::class, 'deleteProjectFile']);
 	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);

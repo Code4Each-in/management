@@ -6,7 +6,7 @@
 <div class="col-lg-8 mx-auto">
     <div class="card">
         <div class="card-body">
-            <form method="post" id="editProjectsForm" action="{{route('project.update',$projects->id)}}" enctype="multipart/form-data">
+            <form method="post" id="editProjectsForm" action="{{route('projects.update',$projects->id)}}" enctype="multipart/form-data">
             @csrf    
             <div class="row mb-5 mt-4">
                     <label for="edit_projectname" class="col-sm-3 col-form-label required">Project Name</label>

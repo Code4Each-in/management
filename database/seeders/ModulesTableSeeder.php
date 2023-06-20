@@ -62,22 +62,22 @@ class ModulesTableSeeder extends Seeder
             [
                 'page_id' => 3,
                 'module_name' => "Listing",
-                'route_name' => "role.index",
+                'route_name' => "roles.index",
             ],
             [
                 'page_id' => 3,
                 'module_name' => "Add",
-                'route_name' => "role.add",
+                'route_name' => "roles.add",
             ],
             [
                 'page_id' => 3,
                 'module_name' => "Edit",
-                'route_name' => "role.edit",
+                'route_name' => "roles.edit",
             ],
             [
                 'page_id' => 3,
                 'module_name' => "Delete",
-                'route_name' => "role.delete",
+                'route_name' => "roles.delete",
             ],
             [
                 'page_id' => 4,
