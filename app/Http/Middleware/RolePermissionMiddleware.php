@@ -22,7 +22,7 @@ class RolePermissionMiddleware
             return $next($request);
         }else{
             //Get The Name Of Route From Request 
-           $name = Request::route()->getName();
+           $name = \Request::route()->getName();
            //find Modules Related To The Route Name
            $modules = Modules::where('route_name',$name)->first();
            $moduleId = $modules->id;
