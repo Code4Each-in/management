@@ -1,6 +1,6 @@
 @extends('layout')
 @section('title', 'Projects')
-@section('subtitle', 'Edit')
+@section('subtitle', 'Show')
 @section('content')
 
 <div class="col-lg-8 mx-auto">

@@ -276,7 +276,7 @@
         if (confirm("Are you sure ?") == true) {
             $.ajax({
                 type: 'DELETE',
-                url: "{{ url('/delete/project')}}",
+                url: "{{ url('/delete/project/assign')}}",
                 data: {
                     id: id,
                     ProjectId: ProjectId,

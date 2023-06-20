@@ -111,6 +111,20 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <label for="edit_parent_id" class="col-sm-3 col-form-label">Parent Page</label>
+                        <div class="col-sm-9">
+                        <select class="form-select form-control" id="edit_parent_id" name="edit_parent_id" data-placeholder="Select Page">
+                                <option value="0" >Select Page</option>
+                                         @foreach ($parentPage as $data)
+                                        <option value="{{$data->id}}">
+                                         {{$data->name}}
+                                        </option>
+                                        @endforeach
+                                </select>
+                        </div>
+                    </div>
+
                     <input type="hidden" class="form-control" id="hidden_page_id" value="">
                 </div>
                 <div class="modal-footer">
@@ -192,6 +206,7 @@ function editPage(id) {
             if (res.page != null) {
                 $('#editPage').modal('show');
                 $('#edit_page_name').val(res.page.name);
+                $('#edit_parent_id').val(res.page.parent_id);
             }
         }
     });
@@ -200,12 +215,14 @@ function editPage(id) {
 function updatePage() {
     var id = $('#hidden_page_id').val();
     var name = $('#edit_page_name').val();
+    var parent_id = $('#edit_parent_id').val();
     $.ajax({
         type: "POST",
         url: "{{ url('/update/page') }}",
         data: {
             id: id,
-            name: name
+            name: name,
+            parent_id: parent_id,
         },
         dataType: 'json',
         success: function(res) {
