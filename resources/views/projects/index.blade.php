@@ -90,7 +90,7 @@
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
                                         
-                                        <!-- <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
+                                        <!-- <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
                                     </td>
                                     @endif
                                 </tr>
@@ -366,24 +366,24 @@
                 });
             }
 
-            function deleteTickets(id) {
-                $('#ticket_id').val(id);
-                // var id = $('#department_name').val();
+            // function deleteProjects(id) {
+            //     $('#ticket_id').val(id);
+            //     // var id = $('#department_name').val();
 
-                if (confirm("Are you sure ?") == true) {
-                    $.ajax({
-                        type: "DELETE",
-                        url: "{{ url('/delete/projects') }}",
-                        data: {
-                            id: id
-                        },
-                        dataType: 'json',
-                        success: function(res) {
-                            location.reload();
-                        }
-                    });
-                }
-            }
+            //     if (confirm("Are you sure ?") == true) {
+            //         $.ajax({
+            //             type: "DELETE",
+            //             url: "{{ url('/delete/projects') }}",
+            //             data: {
+            //                 id: id
+            //             },
+            //             dataType: 'json',
+            //             success: function(res) {
+            //                 location.reload();
+            //             }
+            //         });
+            //     }
+            // }
 
             $('.readMoreLink').click(function(event) {
                 event.preventDefault();

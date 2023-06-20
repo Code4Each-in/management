@@ -49,7 +49,8 @@ class PagesController extends Controller
     public function update(Request $request)
     {
 		$validator = \Validator::make($request->all(), [
-            'name' => 'required',       
+            'name' => 'required',     
+            'parent_id' => 'nullable',  
         ]);
  
         if ($validator->fails())
@@ -59,7 +60,8 @@ class PagesController extends Controller
 		
         Pages::where('id', $request->id)
         ->update([
-            'name' => $request->name
+            'name' => $request->name,
+            'parent_id' => $request->parent_id,
         ]);
 		$request->session()->flash('message','Page updated successfully.');
         return Response()->json(['status'=>200]);

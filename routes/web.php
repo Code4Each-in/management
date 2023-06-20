@@ -49,10 +49,16 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/attendance', [AttendanceController::class, 'edit'])->name('attendance.edit');
 	Route::post('/update/attendance', [AttendanceController::class, 'update'])->name('attendance.update');
 	Route::delete('/delete/attendance', [AttendanceController::class, 'delete'])->name('attendance.delete');
+	Route::get('/attendance/team', [AttendanceController::class, 'showTeamsAttendance'])->name('attendance.team.index');
+
 
 	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');
 	Route::post('/add/leaves', [leavesController::class, 'store'])->name('leaves.add');
 	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
+	Route::get('/leaves/team', [leavesController::class, 'showTeamData'])->name('leaves.team.index');
+
+
+
 	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
 	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
 	// Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
@@ -102,14 +108,14 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/add/projects', [ProjectsController::class, 'store'])->name('projects.add');
 	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('projects.edit');
 	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('projects.update');
+	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
 	Route::delete('/delete/project/file', [ProjectsController::class, 'deleteProjectFile']);
-	Route::delete('/delete/project/', [ProjectsController::class, 'deleteProjectAssign']);
+	Route::delete('/delete/project/assign', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
+
 	});
 	
-	Route::get('/attendance/teams', [AttendanceController::class, 'showTeamsAttendance'])->name('teams.attendance');
-	Route::get('/leaves/teams', [leavesController::class, 'showTeamData'])->name('team.leaves');
-	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
+	
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
  });

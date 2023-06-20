@@ -253,8 +253,8 @@
             </li>
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('attendance/teams') ? '' : 'collapsed' }} show"
-                    href="{{ route('teams.attendance') }}">
+                <a class="nav-link {{ request()->is('attendance/team') ? '' : 'collapsed' }} show"
+                    href="{{ route('attendance.team.index') }}">
                     <i class="bi bi-person-vcard-fill"></i>
                     <span>Attendance</span>
                 </a>
@@ -267,7 +267,7 @@
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="attendance-nav"
-                    class="nav-content collapse {{ request()->is('attendance') || request()->is('attendance/teams') ? 'show' : '' }}"
+                    class="nav-content collapse {{ request()->is('attendance') || request()->is('attendance/team') ? 'show' : '' }}"
                     data-bs-parent="#sidebar-nav">
                     <li>
                         <a class="{{ request()->is('attendance') ? 'active' : 'collapsed' }}"
@@ -276,8 +276,8 @@
                         </a>
                     </li>
                     <li>
-                        <a class="{{ request()->is('attendance/teams') ? 'active' : 'collapsed ' }}"
-                            href="{{ route('teams.attendance')}}">
+                        <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed ' }}"
+                            href="{{ route('attendance.team.index')}}">
                             <i class="bi bi-circle"></i><span>Team Attendance</span>
                         </a>
                     </li>
@@ -287,7 +287,7 @@
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('leaves/team') ? '' : 'collapsed' }}"
-                    href=" {{ route('team.leaves')}}">
+                    href=" {{ route('leaves.team.index')}}">
                     <i class="bi bi-menu-button-wide"></i>
                     <span>Leaves</span>
                 </a>
@@ -300,7 +300,7 @@
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="leaves-nav"
-                    class="nav-content collapse {{ request()->is('leaves') || request()->is('leaves/teams') ? 'show' : '' }}"
+                    class="nav-content collapse {{ request()->is('leaves') || request()->is('leaves/team') ? 'show' : '' }}"
                     data-bs-parent="#sidebar-nav">
                     <li>
                         <a class=" {{ request()->is('leaves') ? 'active' : 'collapsed' }} "
@@ -309,8 +309,8 @@
                         </a>
                     </li>
                     <li>
-                        <a class=" {{ request()->is('leaves/teams') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('team.leaves')}}">
+                        <a class=" {{ request()->is('leaves/team') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('leaves.team.index')}}">
                             <i class="bi bi-circle"></i><span>Team Leaves</span>
                         </a>
                     </li>

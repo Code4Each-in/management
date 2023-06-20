@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <form method="post" action="{{ route('attendance.store')}}">
+            <form method="post" action="{{ route('attendance.add')}}">
                 @csrf
                 <div class="row mb-3 mt-4">
                     <div class="col-sm-3 col-md-3">
