@@ -186,7 +186,7 @@
         </nav><!-- End Icons Navigation -->
 
         @if(session()->has('message'))
-            <div class="alert alert-success fade show" role="alert" id="dismissableAlert">
+            <div class="alert alert-success header-alert fade show" role="alert" id="header-alert">
                         <i class="bi bi-check-circle me-1"></i>
                         {{ session()->get('message') }}
             </div>
@@ -194,7 +194,7 @@
 
         @if(session()->has('error'))
 
-        <div class="alert alert-danger fade show" role="alert" id="dismissableAlert">
+        <div class="alert alert-danger header-alert fade show" role="alert" id="header-alert">
                         <i class="bi bi-exclamation-octagon me-1"></i>
                         {{ session()->get('error') }}
         </div>

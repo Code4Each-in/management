@@ -44,6 +44,8 @@ class ModulesController extends Controller
             'pageId' => 'required', 
             'moduleName' => 'required', 
             'routeName' => 'required', 
+        ],[
+            'pageId.required' => 'The page field is required.'
         ]);        
 
         if ($validator->fails())

@@ -26,8 +26,8 @@
                             @forelse($modulesData as $data)
                             <tr>
                                 <td>{{ $data->module_name }}</td>
-                                <td>{{ $data->page->name ?? '---'}}</td>
-                                <td>{{ $data->route_name}}</td>
+                                <td>{{ $data->page->name}}</td>
+                                <td>{{ $data->route_name ?? '---'}}</td>
                                 <td>
                                     <i style="color:#4154f1;" onClick="editModule('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
@@ -63,7 +63,7 @@
                         <div class="col-sm-9">
                             <!-- <input type="text" class="form-control" name="page_name" id="page_name"> -->
                             <select class="form-select form-control" id="page_id" name="page_id" data-placeholder="Select Page">
-                                <option value="" disabled>Select Page</option>
+                                <option value="" >Select Page</option>
                                          @foreach ($pages as $data)
                                         <option value="{{$data->id}}">
                                          {{$data->name}}
