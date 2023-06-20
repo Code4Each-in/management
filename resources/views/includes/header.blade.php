@@ -238,7 +238,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('role.index') }}">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
                     <i class="bi bi-people"></i>
                     <span>Roles</span>
                 </a>
