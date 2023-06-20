@@ -327,7 +327,7 @@ tinymce.init({
 
 $(document).ready(function(){
     // Make Alert Auto Dissapear After Few Time
-      $(".alert").delay(3000).slideUp(200, function() {
+      $(".header-alert").delay(3000).slideUp(200, function() {
         $(this).alert('close');
     });
 });

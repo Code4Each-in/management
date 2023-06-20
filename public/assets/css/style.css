@@ -1464,7 +1464,7 @@ width: 100% !important;
 }
 
 
-header .alert{
+header .header-alert{
   position: absolute;
   font-weight: 200;
   left: 0;
