@@ -25,7 +25,7 @@
                             @forelse($pageData as $data)
                             <tr>
                                 <td>{{ $data->name }}</td>
-                                <td>{{ $name = $data->parentpage->name ?? ''; }}</td>
+                                <td>{{ $name = $data->parentpage->name ?? '---'; }}</td>
                                 <td>
                                     <i style="color:#4154f1;" onClick="editPage('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
@@ -65,10 +65,10 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <label for="page_name" class="col-sm-3 col-form-label required">Sub Page</label>
+                        <label for="page_name" class="col-sm-3 col-form-label">Parent Page</label>
                         <div class="col-sm-9">
                         <select class="form-select form-control" id="parent_id" name="parent_id" data-placeholder="Select Page">
-                                <option value="" disabled>Select Page</option>
+                                <option value="0" >Select Page</option>
                                          @foreach ($parentPage as $data)
                                         <option value="{{$data->id}}">
                                          {{$data->name}}
