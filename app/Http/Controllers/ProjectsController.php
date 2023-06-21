@@ -13,7 +13,7 @@ class ProjectsController extends Controller
     public function index()
     {
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
-        ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'Hr Manager')
+        ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'HR Manager')
         ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
         ->get();
         $projects = Projects::orderBy('id','desc')->get(); 
@@ -106,7 +106,7 @@ class ProjectsController extends Controller
     {
         // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
-        ->where('roles.name','!=', 'Super Admin')->where('roles.name','!=','Hr Manager')
+        ->where('roles.name','!=', 'Super Admin')->where('roles.name','!=','HR Manager')
         ->select('users.*' ,'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
         ->get();
         $projects = Projects::where(['id' => $projectId])->first();
