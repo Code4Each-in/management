@@ -19,7 +19,7 @@ class CreateUserLeaves extends Migration
             $table->date('from')->nullable();
             $table->date('to')->nullable();
             $table->string('type')->nullable();
-            $table->string('notes')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
 
         });

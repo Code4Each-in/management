@@ -40,9 +40,8 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/add/users', [UsersController::class, 'store'])->name('users.add');
 	Route::post('/edit/users', [UsersController::class, 'edit'])->name('users.edit');
 	Route::delete('/delete/users', [UsersController::class, 'destroy'])->name('users.delete');
-	
-	Route::post('/update/users', [UsersController::class, 'update']);
-	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus']);
+	Route::post('/update/users', [UsersController::class, 'update'])->name('users.update');
+	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
 	
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.add');
@@ -54,16 +53,9 @@ Route::middleware(['role_permission'])->group(function () {
 
 	Route::get('/leaves', [LeavesController::class, 'index'])->name('leaves.index');
 	Route::post('/add/leaves', [leavesController::class, 'store'])->name('leaves.add');
-	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved']);
+	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved'])->name('leaves.team.approval');
 	Route::get('/leaves/team', [leavesController::class, 'showTeamData'])->name('leaves.team.index');
 
-
-
-	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
-	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
-	// Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
-	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
-	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	
 	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
 	Route::post('/add/tickets', [TicketsController::class, 'store'])->name('tickets.add');
@@ -74,7 +66,6 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
 	Route::delete('/delete/ticket/file', [TicketsController::class, 'deleteTicketFile']);
-	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 	Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
@@ -115,7 +106,13 @@ Route::middleware(['role_permission'])->group(function () {
 
 	});
 	
-	
+	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
+	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
+	// Route::post('/update/profile/picture', [UsersController::class, 'updateProfilePicture'])->name('update.profile_picture');
+	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
+	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
+	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
+
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
  });

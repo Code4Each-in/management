@@ -26,7 +26,7 @@
                             @forelse($modulesData as $data)
                             <tr>
                                 <td>{{ $data->module_name }}</td>
-                                <td>{{ $data->page->name}}</td>
+                                <td>{{ $data->page->name ?? '---'}}</td>
                                 <td>{{ $data->route_name ?? '---'}}</td>
                                 <td>
                                     <i style="color:#4154f1;" onClick="editModule('{{ $data->id }}')"

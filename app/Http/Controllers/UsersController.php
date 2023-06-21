@@ -23,6 +23,9 @@ class UsersController extends Controller
 		if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
 			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
+		}elseif (auth()->user()->role->name == 'HR Manager') {
+			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
+			
 		}
 		else
 		{
