@@ -107,8 +107,8 @@
 <!--end: Add department Modal -->
 <!--start: Edit department Modal -->
 <div class="modal fade" id="editRole" tabindex="-1" aria-labelledby="editRoleLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="width: 630px;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editRoleLabel">Edit role</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -127,12 +127,12 @@
                     <input type="hidden" class="form-control" name="role_id" id="hidden_role_id" value="">
                     <label class="mb-2" for="permission">Permissions:</label>
                     @forelse($pages as $page)
-                    <div class="row">
-                        <div class="col-md-4">
+                    <div class="row mb-4 permission_cont_row">
+                        <div class="col">
                             <label class="form-check-label permissionLabel" for=""> {{$page->name}}</label>
                         </div>
                         @forelse($page->module as $val)
-                        <div class="form-check col-md-2 mb-4">
+                        <div class="form-check col">
                             <label class="form-check-label" for="{{'role_permissions_'.$val->id}}">
                                 {{$val->module_name}}</label>
                             <input class="form-check-input" name="role_permissions[]" type="checkbox"
