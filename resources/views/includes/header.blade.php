@@ -332,12 +332,14 @@
                 </ul>
             </li>
             @endif
+            @if (auth()->user()->role->name != 'HR Manager')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
                     href="{{ route('tickets.index') }}">
                     <i class="bi bi-journal-code"></i> <span>Tickets</span>
                 </a>
             </li>
+            @endif
             @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
