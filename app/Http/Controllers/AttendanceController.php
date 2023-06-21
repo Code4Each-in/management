@@ -120,6 +120,38 @@ class AttendanceController extends Controller
                 ->orderByDesc('user_attendances.created_at')
                 ->get();
               }
+              // If Role Is HR Manager Fetch Data Accordingly
+              elseif (auth()->user()->role->name == 'HR Manager') {
+                $teamAttendance = UserAttendances::
+                select('user_attendances.*', 'users.first_name')
+                ->join('users', 'user_attendances.user_id', '=', 'users.id')
+                ->where('user_attendances.user_id','!=', auth()->user()->id)
+                ->when($request->has('team_member_filter'), function ($query) use ($request) {
+                  $query->where('user_attendances.user_id', $request->get('team_member_filter'));
+                })
+                ->when($request->has('intervals_filter'), function ($query) use ($request) {
+                  if ($request->input('intervals_filter') == 'last_week') {
+                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+                  }
+                  if ($request->input('intervals_filter') == 'last_month') {
+                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+                  }
+                  if ($request->input('intervals_filter') == 'yesterday') {
+                      return $query->whereRaw('DATE(user_attendances.created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
+                  }
+                  if ($request->input('intervals_filter') == 'today') {
+                    $currentDate = Carbon::now()->toDateString();
+                    return $query->whereDate('user_attendances.created_at', '=', $currentDate);
+                }
+                  if ($request->input('intervals_filter') == 'custom_intervals') {
+                      return $query->whereBetween('user_attendances.created_at', [$request->get('date_from'), $request->get('date_to')]);
+                  }
+              }, function ($query) {
+                  return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)');
+              })
+                ->orderByDesc('user_attendances.created_at')
+                ->get();
+              }
             else
             {
               $teamAttendance = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')

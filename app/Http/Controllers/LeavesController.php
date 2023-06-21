@@ -131,6 +131,9 @@ class LeavesController extends Controller
         if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
             $teamLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
+        }elseif (auth()->user()->role->name == 'HR Manager') {
+            $teamLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->where('user_leaves.user_id','!=', auth()->user()->id)->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
+            
         }
          else
          {
