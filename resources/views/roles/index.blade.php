@@ -41,8 +41,8 @@
 
 <!--start: Add role Modal -->
 <div class="modal fade" id="addRole" tabindex="-1" aria-labelledby="role" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="width: 630px;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="role">Add Role</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -61,12 +61,12 @@
 
                     <label class="mb-2" for="permission">Permissions:</label>
                     @forelse($pages as $page)
-                    <div class="row">
-                        <div class="col-md-4">
+                    <div class="row mb-4 permission_cont_row">
+                        <div class="col">
                             <label class="form-check-label permissionLabel" for=""> {{$page->name}}</label>
                         </div>
                         @forelse($page->module as $val)
-                        <div class="form-check col-md-2 mb-4">
+                        <div class="form-check col">
                             <label class="form-check-label" for="{{'listing_page_'.$val->id}}">
                                 {{$val->module_name}}</label>
                             <input class="form-check-input" name="role_permissions[]" type="checkbox"
