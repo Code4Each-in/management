@@ -213,7 +213,7 @@
                     <span>Dashboard</span>
                 </a>
             </li><!-- End Dashboard Nav -->
-            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+          @if(auth()->user()->role_id==env('SUPER_ADMIN'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -243,7 +243,22 @@
                     <span>Roles</span>
                 </a>
             </li>
-            @endif
+          @endif
+          @if (auth()->user()->role->name == 'HR Manager')
+          <li class="nav-item">
+                <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
+                    href="{{ route('departments.index') }}">
+                    <i class="bi bi-buildings"></i>
+                    <span>Departments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Roles</span>
+                </a>
+            </li>
+          @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
                     <i class="bi bi-person-square"></i>
