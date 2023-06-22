@@ -62,14 +62,19 @@
                         Profile</button>
                 </li>
 
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#upload-documents">Documents</button>
+                </li>
+
                 <!-- <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
                 </li> -->
 
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change
                         Password</button>
-                </li>
+                </li>     
 
             </ul>
             <div class="tab-content pt-2">
@@ -428,6 +433,65 @@
                     </form><!-- End Change Password Form -->
                 </div>
                 <!-- </div> -->
+
+                <!-- Documents Tab -->
+                <div class="tab-pane fade pt-3" id="upload-documents">
+                        <div class="row mb-3">
+                            <!-- <label for="upload_document" class="col-md-4 col-lg-3 col-form-label">Upload Documents</label> -->
+                            <div class="col-md-8 col-lg-9 text-center">
+                                <!-- <input type="file" class="form-control" name="upload_document" id="upload_document"> -->
+                                <button class="btn btn-primary mt-3 mb-4" onClick="openUploadDocumentModal()" href="javascript:void(0)">Upload Document</button>
+                            </div>
+                        </div>
+                </div>
+                <!-- End Documents Tab -->
+
+                <!--start: Upload Document Modal -->
+                <div class="modal fade" id="uploadDocumentModal" tabindex="-1" aria-labelledby="uploadDocumentLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="uploadDocumentLabel">Upload Document</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="post" id="uploadDocumentForm" action="">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                            <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
+                                <div class="modal-body">
+                                    <div class="alert alert-danger" style="display:none"></div>
+
+
+                                    <div class="row mb-3">
+                                        <label for="department_name" class="col-sm-3 col-form-label required">Document</label>
+                                        <div class="col-sm-9">
+                                            <input type="file" class="form-control" name="upload_document" id="upload_document">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row mb-3">
+                                        <label for="document_name" class="col-md-4 col-lg-3 col-form-label required">Document Name</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input type="text" class="form-control" name="document_name" id="document_name">
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onClick="uploadDocument()"
+                                        href="javascript:void(0)">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!--end: Upload Document Modal -->
+
+
+
+
             </div>
         </div>
     </div>
@@ -442,6 +506,7 @@
             }
         });
     });
+
     // UPDATE LOGIN USER PROFILE
     function updateLoginUserProfile() {
         $.ajax({
@@ -562,6 +627,52 @@
             }
         });
     }
+
+
+    // Open Model To Uplod Document
+    function openUploadDocumentModal() {
+        // $('#department_name').val('');
+        $('#uploadDocumentModal').modal('show');
+    }
+
+    // Upload Document
+    function uploadDocument() {
+        var document_name = $('#document_name').val();
+        var user_id = $("input[name=user_id]").val();
+        var upload_document = $('#upload_document')[0].files[0]; // Retrieve the file object
+
+        var formData = new FormData();
+        formData.append('document_name', document_name);
+        formData.append('user_id', user_id);
+        formData.append('upload_document', upload_document);
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/profile/upload/document')}}",
+            data: formData,
+            cache: false,
+            contentType: false, // Set content type to false for proper file uploads
+            processData: false, // Prevent automatic processing of data
+            success: function(data) {
+                if (data.errors) {
+                    $('.alert-danger').html('');
+
+                    $.each(data.errors, function(key, value) {
+                        $('.alert-danger').show();
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    });
+                } else {
+                    $('.alert-danger').html('');
+                    $("#uploadDocumentModal").modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    }
+
 
     $("#delete_profile").click(function() {
         if (confirm("Are you sure ?") == true) {
@@ -688,6 +799,9 @@
                 }
             });
         });
+
+
+
 
 
     </script>
