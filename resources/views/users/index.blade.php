@@ -23,6 +23,9 @@
                                 <th>Department</th>
                                 <th>Address</th>
                                 <th>Phone</th>
+                                @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
+                                    <th>Documents</th>
+                                @endif
                                 <th>Tshirt Size</th>
                                 <th>Active</th>
                                 <th>Action</th>
@@ -40,6 +43,16 @@
                                 <td>{{$data->department->name ?? ''}}</td>
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
+                                @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
+                                    <td>
+                                        @if (count($data->documents) > 0)
+                                        <a href="{{ route('users.documents.show',$data->id)}}" >Show Documents</a>
+                                        @else
+                                        <p>No Documents</p>
+                                        @endif
+                                    
+                                    </td>
+                                @endif
                                 <td>{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">

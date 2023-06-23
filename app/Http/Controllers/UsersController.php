@@ -24,9 +24,10 @@ class UsersController extends Controller
 
 		if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
-			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
+			$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
+			// dd($usersData);
 		}elseif (auth()->user()->role->name == 'HR Manager') {
-			$usersData = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
+			$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
 			
 		}
 		else
@@ -365,7 +366,7 @@ class UsersController extends Controller
 		$validator = \Validator::make($request->all(),[ 
 			'user_id' => 'required', 
 			'document_name' => 'required',
-			'upload_document' => 'required|file|mimes:jpg,jpeg,png,pdf,doc|max:2048'
+			'upload_document' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx'
 			]);
 
 		if ($validator->fails()){
@@ -383,7 +384,7 @@ class UsersController extends Controller
 			if ($request->hasFile('upload_document')) {
 				$file = $request->file('upload_document');
 				$ext = strtolower($file->getClientOriginalExtension()); // Get the file extension in lowercase
-				$allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc']; // Allowed file extensions
+				$allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc' , 'docx']; // Allowed file extensions
 		
 				if (in_array($ext, $allowedExtensions)) {
 					$document_title = ucfirst($userDetail->first_name) . '_' . $user_id . '_' . time().'_'. $documentName . '.' . $ext;
@@ -408,14 +409,24 @@ class UsersController extends Controller
 
 	// public function userUploadedDocuments()
 	// {
-
+		
 	// 	// Retrieve the documents from the database
-	// 	$documents = UserDocuments::all();
+	// 	$documents = UserDocuments::where('user_id', auth()->user()->id)->get();
 
 	// 	// Return the documents as JSON response
 	// 	return response()->json($documents);
 
 	// }
+
+	public function showUsersDocuments($id)
+	{
+		// dd("herre");
+		// dd($id);
+		$userDocuments = UserDocuments::where('user_id',$id)->get();
+		// dd($userDocuments);
+		return view('users.documents.show', compact('userDocuments')); 
+	}
+
 
 	public function deleteProfileDocument(Request $request)
 	{

@@ -108,4 +108,11 @@ class Users extends Authenticatable
             return false; 
         }
     }
+
+    public function documents()
+    {
+        return $this->hasMany(UserDocuments::class, 'user_id');
+    }
+
+
 }

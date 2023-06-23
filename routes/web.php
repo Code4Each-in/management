@@ -111,7 +111,9 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/change/profile/password', [UsersController::class, 'changeUserPassword']);
 	Route::post('/profile/upload/document', [UsersController::class, 'uploadDocument']);
 	Route::delete('/delete/profile/document', [UsersController::class, 'deleteProfileDocument']);
-	// Route::get('/profile/upload/document', [UsersController::class, 'userUploadedDocuments']);
+	// Route::get('/profile/documents', [UsersController::class, 'userUploadedDocuments']);
+	Route::get('/users/documents/{user}', [UsersController::class, 'showUsersDocuments'])->name('users.documents.show');
+
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
 
