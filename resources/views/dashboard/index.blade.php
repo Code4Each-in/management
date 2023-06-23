@@ -115,7 +115,7 @@
             </ul> -->
             </div>
             <div class="card-body">
-                <h5 class="card-title"> Teams Leave <span>| Today</span></h5>
+                <h5 class="card-title"> Teams Leave</h5>
                 <table class="table table-borderless datatable" id="leavesss">
                     <thead>
                         <tr>

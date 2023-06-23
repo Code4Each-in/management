@@ -437,12 +437,35 @@
                 <!-- Documents Tab -->
                 <div class="tab-pane fade pt-3" id="upload-documents">
                         <div class="row mb-3">
-                            <!-- <label for="upload_document" class="col-md-4 col-lg-3 col-form-label">Upload Documents</label> -->
-                            <div class="col-md-8 col-lg-9 text-center">
+                            <label for="upload_document" class="col-md-4 col-lg-3 col-form-label">Upload Documents</label>
+                            <div class="col-md-8 col-lg-9">
                                 <!-- <input type="file" class="form-control" name="upload_document" id="upload_document"> -->
-                                <button class="btn btn-primary mt-3 mb-4" onClick="openUploadDocumentModal()" href="javascript:void(0)">Upload Document</button>
+                                <button class="btn btn-primary  mb-4" onClick="openUploadDocumentModal()" href="javascript:void(0)">Upload Document</button>
                             </div>
                         </div>
+                        @if ($documents->count() > 0)
+                        <div class="row mb-3">
+                            <div class="col-md-2">
+                                Uploaded Documents
+                            </div>
+                            <div class="col-md-8">
+                                <div class="documents-grid">
+                                    @foreach ($documents as $document )
+                                    <div class="display-document" id="1">
+                                        <div>
+                                            <!-- <a href=""><span class="cross-icon">&times;</span></a> -->
+                                            <a href="#" onclick="deleteDocument({{ $document->id }})"><span class="cross-icon text-danger">&times;</span></a>
+                                            <!-- <a href=""><span class="edit-icon"><i class="fa fa-edit"></i></span></a> -->
+                                        </div>
+                                        <img src="{{asset('assets/img/').'/'.$document->document_link}}" alt="{{ $document->document_title }}" id="document">
+                                        <div class="text-center" id="uploaded_document_name">{{ $document->document_title }}</div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div> 
+                        @endif
+                     
                 </div>
                 <!-- End Documents Tab -->
 
@@ -499,7 +522,7 @@
     @section('js_scripts')
     <script>
     $(document).ready(function() {
-
+        // loadDocuments(); 
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -629,6 +652,7 @@
     }
 
 
+
     // Open Model To Uplod Document
     function openUploadDocumentModal() {
         // $('#department_name').val('');
@@ -672,6 +696,44 @@
             }
         });
     }
+
+
+    // function loadDocuments() {
+    //     // Perform an Ajax request to retrieve the documents
+    //     $.ajax({
+    //         url: "{{ url('/profile/upload/document') }}",
+    //         type: "GET",
+    //         success: function(response) {
+    //             var documents = response;
+    //             console.log(documents);
+
+    //             // Clear the existing documents grid
+    //             $('#documents-grid').empty();
+
+    //             // Loop through the documents and create the display-document elements
+    //             $.each(documents, function(index, document) {
+    //                 var documentElement = $('<div class="display-document"></div>');
+    //                 var actionsElement = $('<div class="document-actions"></div>');
+    //                 var crossIconElement = $('<a href="#"><span class="cross-icon">&times;</span></a>');
+    //                 var editIconElement = $('<a href="#"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>');
+    //                 var imageElement = $('<img src="' + document.image_path + '" alt="" id="document">');
+    //                 var nameElement = $('<div class="text-center document-name">' + document.document_name + '</div>');
+
+    //                 documentElement.attr('id', document.id);
+    //                 actionsElement.append(crossIconElement);
+    //                 actionsElement.append(editIconElement);
+    //                 documentElement.append(actionsElement);
+    //                 documentElement.append(imageElement);
+    //                 documentElement.append(nameElement);
+
+    //                 $('#documents-grid').append(documentElement);
+    //             });
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.log(xhr.responseText);
+    //         }
+    //     });
+    // }
 
 
     $("#delete_profile").click(function() {
@@ -800,6 +862,28 @@
             });
         });
 
+
+     function deleteDocument(documentId) {
+        if (confirm("Are you sure You Want To Delete Document?") == true) {
+            $.ajax({
+                url: "{{ url('/delete/profile/document')}}",
+                data: {
+                    documentId: documentId,
+                },
+                type: 'DELETE',
+                success: function(response) {
+                    // Handle success response
+                    // For example, remove the document item from the DOM
+                    $('#document-' + documentId).remove();
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+    }
 
 
 

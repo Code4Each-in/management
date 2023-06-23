@@ -245,7 +245,10 @@ class UsersController extends Controller
 	// GET LOGIN USER PROFILE DETAILS
 	public function Userprofile(Request $request){
 		$usersProfile=Users::with('role','department')->where('id',auth()->user()->id)->first();
-		return view('profile.index',compact('usersProfile'));
+		
+		$documents = UserDocuments::where('user_id', $usersProfile->id)->get();
+		
+		return view('profile.index',compact('usersProfile','documents'));
 	}
 
 	// UPDATE LOGIN USER PROFILE 
@@ -359,8 +362,6 @@ class UsersController extends Controller
 
 	public function uploadDocument(Request $request)
 	{
-		// dd($request);
-
 		$validator = \Validator::make($request->all(),[ 
 			'user_id' => 'required', 
 			'document_name' => 'required',
@@ -385,7 +386,7 @@ class UsersController extends Controller
 				$allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc']; // Allowed file extensions
 		
 				if (in_array($ext, $allowedExtensions)) {
-					$document_title = ucfirst($userDetail->first_name) . '_' . $user_id . '_' . time() . $documentName . '.' . $ext;
+					$document_title = ucfirst($userDetail->first_name) . '_' . $user_id . '_' . time().'_'. $documentName . '.' . $ext;
 					$file->move(public_path('assets/img/userDocuments'), $document_title);
 		
 					$path = 'userDocuments/' . $document_title;
@@ -403,5 +404,25 @@ class UsersController extends Controller
 		}
 
 		return Response()->json(['status'=>200, 'message' => 'Document Uploaded successfully.','document' => $document]);
+	}
+
+	// public function userUploadedDocuments()
+	// {
+
+	// 	// Retrieve the documents from the database
+	// 	$documents = UserDocuments::all();
+
+	// 	// Return the documents as JSON response
+	// 	return response()->json($documents);
+
+	// }
+
+	public function deleteProfileDocument(Request $request)
+	{
+
+		$document = UserDocuments::where('id',$request->documentId)->delete();
+        $request->session()->flash('message','Document deleted successfully.');
+
+		return Response()->json(['status'=>200 ,'documents' => $document]);
 	}
 }
