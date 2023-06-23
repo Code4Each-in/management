@@ -8,6 +8,8 @@ use App\Models\Users;
 use App\Models\Departments;
 use App\Models\Roles;
 use App\Models\Managers;
+use App\Models\UserDocuments;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
@@ -243,7 +245,10 @@ class UsersController extends Controller
 	// GET LOGIN USER PROFILE DETAILS
 	public function Userprofile(Request $request){
 		$usersProfile=Users::with('role','department')->where('id',auth()->user()->id)->first();
-		return view('profile.index',compact('usersProfile'));
+		
+		$documents = UserDocuments::where('user_id', $usersProfile->id)->get();
+		
+		return view('profile.index',compact('usersProfile','documents'));
 	}
 
 	// UPDATE LOGIN USER PROFILE 
@@ -353,4 +358,71 @@ class UsersController extends Controller
 			return response()->json(['success'=>'Croped Image Uploaded Successfully','path' => $path]);
 		}
     }
+
+
+	public function uploadDocument(Request $request)
+	{
+		$validator = \Validator::make($request->all(),[ 
+			'user_id' => 'required', 
+			'document_name' => 'required',
+			'upload_document' => 'required|file|mimes:jpg,jpeg,png,pdf,doc|max:2048'
+			]);
+
+		if ($validator->fails()){
+			return response()->json(['errors'=>$validator->errors()->all()]);
+		}
+		
+		$validate = $validator->valid();
+
+		if (isset($request['upload_document'])) {
+			$user_id = $validate['user_id'];
+			$userDetail = User::find($user_id);
+			$document_name = $validate['document_name'];
+			$documentName = str_replace(' ', '', $document_name);
+		
+			if ($request->hasFile('upload_document')) {
+				$file = $request->file('upload_document');
+				$ext = strtolower($file->getClientOriginalExtension()); // Get the file extension in lowercase
+				$allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc']; // Allowed file extensions
+		
+				if (in_array($ext, $allowedExtensions)) {
+					$document_title = ucfirst($userDetail->first_name) . '_' . $user_id . '_' . time().'_'. $documentName . '.' . $ext;
+					$file->move(public_path('assets/img/userDocuments'), $document_title);
+		
+					$path = 'userDocuments/' . $document_title;
+		
+					$document = new UserDocuments();
+					$document->user_id = $validate['user_id'];
+					$document->document_title = $validate['document_name'];
+					$document->document_link = $path;
+					$document->save();
+				} else {
+					// Handle case when the file extension is not allowed
+					return response()->json(['error' => 'Invalid file extension. Allowed extensions: jpg, jpeg, png, pdf, doc'], 400);
+				}
+			}
+		}
+
+		return Response()->json(['status'=>200, 'message' => 'Document Uploaded successfully.','document' => $document]);
+	}
+
+	// public function userUploadedDocuments()
+	// {
+
+	// 	// Retrieve the documents from the database
+	// 	$documents = UserDocuments::all();
+
+	// 	// Return the documents as JSON response
+	// 	return response()->json($documents);
+
+	// }
+
+	public function deleteProfileDocument(Request $request)
+	{
+
+		$document = UserDocuments::where('id',$request->documentId)->delete();
+        $request->session()->flash('message','Document deleted successfully.');
+
+		return Response()->json(['status'=>200 ,'documents' => $document]);
+	}
 }
