@@ -452,9 +452,9 @@
                                 <div class="documents-grid">
                                     @foreach ($documents as $document )
                                     <div class="display-document" id="1">
-                                        <div>
+                                        <div class="document-head">
                                             <!-- <a href=""><span class="cross-icon">&times;</span></a> -->
-                                            <a href="#" onclick="deleteDocument({{ $document->id }})"><span class="cross-icon text-danger">&times;</span></a>
+                                            <a href="#" title="delete Document" onclick="deleteDocument({{ $document->id }})"><span class="cross-icon text-danger">&times;</span></a>
                                             <!-- <a href=""><span class="edit-icon"><i class="fa fa-edit"></i></span></a> -->
                                         </div>
                                         <img src="{{asset('assets/img/').'/'.$document->document_link}}" alt="{{ $document->document_title }}" id="document">
@@ -701,7 +701,7 @@
     // function loadDocuments() {
     //     // Perform an Ajax request to retrieve the documents
     //     $.ajax({
-    //         url: "{{ url('/profile/upload/document') }}",
+    //         url: "{{ url('/profile/documents') }}",
     //         type: "GET",
     //         success: function(response) {
     //             var documents = response;
@@ -778,7 +778,7 @@
 
 
      var $modal = $('#modalCropImage');
-     $('INPUT[type="file"]').change(function () {
+     $('input#edit_profile_input_option[type="file"]').change(function () {
             var ext = this.value.match(/\.(.+)$/)[1];
             switch (ext) {
                 case 'jpg':

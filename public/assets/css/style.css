@@ -1487,4 +1487,13 @@ header .header-alert{
   height: 130px;
 }
 
+.document-head{
+  display: flex;
+    justify-content: end;
+}
+
+.cros-icon{
+  font-size: 18px;
+}
+
 
