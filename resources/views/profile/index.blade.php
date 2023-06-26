@@ -26,6 +26,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
 
+<div id="loader">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
+
 <div class="col-xl-4 profile">
     <div class="card">
         <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
@@ -445,20 +449,41 @@
                         </div>
                         @if ($documents->count() > 0)
                         <div class="row mb-3">
-                            <div class="col-md-2">
-                                Uploaded Documents
+                            <div class="">
+                                    Uploaded Documents
                             </div>
-                            <div class="col-md-8">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
                                 <div class="documents-grid">
                                     @foreach ($documents as $document )
-                                    <div class="display-document" id="1">
-                                        <div class="document-head">
-                                            <!-- <a href=""><span class="cross-icon">&times;</span></a> -->
-                                            <a href="#" title="delete Document" onclick="deleteDocument({{ $document->id }})"><span class="cross-icon text-danger">&times;</span></a>
-                                            <!-- <a href=""><span class="edit-icon"><i class="fa fa-edit"></i></span></a> -->
+                                    <div class="card doc-card">
+                                        <div class="card-body" style="padding: 0;">
+                                            <div class="imagePreview">
+                                                <a href="#" onclick="window.open('{{asset('assets/img/').'/'.$document->document_link}}', '_blank')">
+                                                @php
+                                                    $extension = pathinfo($document->document_link, PATHINFO_EXTENSION);
+                                                @endphp
+
+                                                @if (in_array($extension, ['pdf', 'doc', 'docx']))
+                                                    <!-- Show icons for PDF, DOC, and DOCX file formats -->
+                                                    <div class="file-icon">
+                                                        @if ($extension === 'pdf')
+                                                            <i class="bi bi-file-earmark-pdf" style="padding-left: 38px;font-size: 100px;"></i>
+                                                        @elseif (in_array($extension, ['doc', 'docx']))
+                                                            <i class="bi bi-file-earmark-word" style="padding-left: 38px;font-size: 100px;"></i>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <!-- Show image for other file formats -->
+                                                    <img src="{{ asset('assets/img/') . '/' . $document->document_link }}" alt="{{ $document->document_title }}" id="document">
+                                                @endif
+                                            <a href="#" title="delete Document" onclick="deleteDocument({{ $document->id }})"> <i class="fa fa-times del"></i></a>
+                                            </div>
+                                            <div class="form-input">
+                                                <p>{{ $document->document_title }}</p>
+                                            </div>
                                         </div>
-                                        <img src="{{asset('assets/img/').'/'.$document->document_link}}" alt="{{ $document->document_title }}" id="document">
-                                        <div class="text-center" id="uploaded_document_name">{{ $document->document_title }}</div>
                                     </div>
                                     @endforeach
                                 </div>
@@ -661,6 +686,8 @@
 
     // Upload Document
     function uploadDocument() {
+        var spinner = $('#loader');
+        spinner.show();
         var document_name = $('#document_name').val();
         var user_id = $("input[name=user_id]").val();
         var upload_document = $('#upload_document')[0].files[0]; // Retrieve the file object
@@ -678,6 +705,9 @@
             contentType: false, // Set content type to false for proper file uploads
             processData: false, // Prevent automatic processing of data
             success: function(data) {
+                 // Introduce a delay before hiding the spinner
+                setTimeout(function() {
+                    spinner.hide();
                 if (data.errors) {
                     $('.alert-danger').html('');
 
@@ -690,6 +720,7 @@
                     $("#uploadDocumentModal").modal('hide');
                     location.reload();
                 }
+            }, 3000); // Adjust the duration (in milliseconds) as needed
             },
             error: function(data) {
                 console.log(data);

@@ -1496,4 +1496,69 @@ header .header-alert{
   font-size: 18px;
 }
 
+#loader {
+  display: none;
+  position:fixed;
+  z-index:99999;
+  top:0;
+  left:0;
+  bottom:0;
+  right:0;
+  background:rgba(0,0,0,70%);
+  transition: 1s 0.4s;
+}
+.loader-image{
+  
+  position: absolute;
+  top: 40%;
+  left: 45%;
+  height: 80px;
 
+}
+
+/* DOCUMENTS CARDS  */
+.doc-card .imagePreview {
+  display: flex;
+  position: relative;
+  width: 100%;
+  min-height: 150px;
+}
+.doc-card .imagePreview fa-times {
+  display: flex;
+}
+.doc-card .card-body img {
+  width: 100%;
+  border-radius: 4px;
+}
+.doc-card {
+  margin-bottom: 0;
+  border: 1px solid #c3c2c2;
+  border-radius: 0;
+  padding: 8px;
+}
+.doc-card .form-input {
+  background: #abb6b9;
+  color: #000;
+  margin: 0px;
+  padding: 8px 0px;
+  text-align: center;
+}
+.doc-card .form-input p{
+  margin: 0;
+  
+}
+.doc-card .del {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  background-color:rgb(227 0 0);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #f7f7f7;
+  font-size: 11px;
+  border-radius: 25px;
+}

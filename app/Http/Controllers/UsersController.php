@@ -9,6 +9,7 @@ use App\Models\Departments;
 use App\Models\Roles;
 use App\Models\Managers;
 use App\Models\UserDocuments;
+use App\Notifications\EmailNotificaion;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -378,6 +379,7 @@ class UsersController extends Controller
 		if (isset($request['upload_document'])) {
 			$user_id = $validate['user_id'];
 			$userDetail = User::find($user_id);
+			$user_name = ucfirst($userDetail->first_name);
 			$document_name = $validate['document_name'];
 			$documentName = str_replace(' ', '', $document_name);
 		
@@ -397,6 +399,24 @@ class UsersController extends Controller
 					$document->document_title = $validate['document_name'];
 					$document->document_link = $path;
 					$document->save();
+					if($document){
+						$notifiableusers = Users::with('role')
+						->whereHas('role', function($query) { 
+							$query->where('name', 'Super Admin')->orWhere('name', 'HR Manager'); 
+						})
+						->where('status',1)
+						->get(); 
+
+						foreach ($notifiableusers as $user) {
+							$messages["subject"] = "New Document Uploaded By - {$user_name}";
+							$messages["title"] = "{$user_name} has uploaded a new document Named as {$document->document_title}.";
+							$messages["body-text"] = "To access the uploaded documents, kindly click on the link provided below.";
+							$messages["url-title"] = "View Documents";
+							$messages["url"] = "/users/documents/" . $document->user_id;
+	
+							$user->notify(new EmailNotificaion($messages));
+						}
+					}
 				} else {
 					// Handle case when the file extension is not allowed
 					return response()->json(['error' => 'Invalid file extension. Allowed extensions: jpg, jpeg, png, pdf, doc'], 400);
@@ -420,10 +440,7 @@ class UsersController extends Controller
 
 	public function showUsersDocuments($id)
 	{
-		// dd("herre");
-		// dd($id);
 		$userDocuments = UserDocuments::where('user_id',$id)->get();
-		// dd($userDocuments);
 		return view('users.documents.show', compact('userDocuments')); 
 	}
 

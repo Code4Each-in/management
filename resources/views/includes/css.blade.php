@@ -32,18 +32,5 @@
          href='//bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
          <link href="//cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <title>@yield('title')</title>
-<style>
-  #loader {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.75) url('{{ asset('assets/img/loading.gif') }}') no-repeat center center;
-  z-index: 10000;
-}
-</style>
 
 </head>

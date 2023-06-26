@@ -56,11 +56,12 @@ class LeavesController extends Controller
            $roles =Roles::select('*')->where('id', '=',$role_id)->first();
            if($roles->name == "Employee")
            {
-    		    $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->get([ 'managers.user_id','users.email']);
+    		    $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->where('status',1)->get([ 'managers.user_id','users.email']);
                 // Gets the Only Emails of managers Related to user with pluck method
                 $managerEmails = $managersData->pluck('email');
                 $rolesData = Users::join('roles', 'users.role_id', '=', 'roles.id')
                 ->select('users.id', 'users.email')
+                ->where('status',1)
                 ->whereIn('roles.name', ['Super Admin', 'HR Manager'])
                 ->get();
                 $roleEmails = $rolesData->pluck('email');
@@ -70,11 +71,12 @@ class LeavesController extends Controller
                 
            }elseif ($roles->name == "Manager") {
             
-            $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->get([ 'managers.user_id','users.email']);
+            $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->where('status',1)->get([ 'managers.user_id','users.email']);
             // Gets the Only Emails of managers Related to user with pluck method
             $managerEmails = $managersData->pluck('email');
             $rolesData = Users::join('roles', 'users.role_id', '=', 'roles.id')
             ->select('users.id', 'users.email')
+            ->where('status',1)
             ->whereIn('roles.name', ['Super Admin', 'HR Manager'])
             ->get();
             $roleEmails = $rolesData->pluck('email');
@@ -84,11 +86,12 @@ class LeavesController extends Controller
             
            }elseif ($roles->name == "HR Manager") {
 
-            $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->get([ 'managers.user_id','users.email']);
+            $managersData = Users::join('managers', 'users.id', '=', 'managers.parent_user_id')->where('managers.user_id',auth()->user()->id)->where('status',1)->get([ 'managers.user_id','users.email']);
             // Gets the Only Emails of managers Related to user with pluck method
             $managerEmails = $managersData->pluck('email');
             $rolesData = Users::join('roles', 'users.role_id', '=', 'roles.id')
             ->select('users.id', 'users.email')
+            ->where('status',1)
             ->whereIn('roles.name', ['Super Admin'])
             ->get();
             $roleEmails = $rolesData->pluck('email');
@@ -139,8 +142,13 @@ class LeavesController extends Controller
          {
              $teamLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_leaves.*', 'managers.user_id','users.first_name']);
          }
+         if (!empty($teamLeaves)){
+            $leaveStatus = UserLeaves::join('users', 'user_leaves.status_change_by', '=', 'users.id')
+        ->select('user_leaves.leave_status','user_leaves.id as leave_id','user_leaves.updated_at', 'users.first_name', 'users.last_name', )
+        ->get();
+         }
 
-        return view('leaves.team',compact('teamLeaves'));
+        return view('leaves.team',compact('teamLeaves','leaveStatus'));
 	 }
 
 

@@ -21,7 +21,8 @@ class UsersTableseeder extends Seeder
         $user->last_name = 'admin';
         $user->email='admin@gmail.com';
         $user->password = 'admin';
-        $user->role_id =1;
+        $user->role_id = 1;
+        $user->status = 1;
         $user->save();
         
     }
