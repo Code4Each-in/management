@@ -2,6 +2,9 @@
 @section('title', 'My Leaves')
 @section('subtitle', 'My Leaves')
 @section('content')
+<div id="loader">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
 
 <div class="col-lg-12">
     <div class="card">
@@ -47,9 +50,6 @@
         </div>
     </div>
 </div>
-
-<div id="loader"></div>
-
 
 <!--start: Add users Modal -->
 <div class="modal fade" id="addleaves" tabindex="-1" aria-labelledby="role" aria-hidden="true">

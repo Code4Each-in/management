@@ -29,6 +29,9 @@
                                 <td>{{$data->type }}</td>
                                 <td>{{$data->notes }}</td>
                                 <td>
+                                     @php
+                                    $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
+                                    @endphp
                                     @if ($data->to >= date('Y-m-d'))
                                     <select style="width:150px;" user-leave-id="{{$data->id}}" name="leave_status"
                                         class="form-select leave_status" id="leave_status">
@@ -44,6 +47,9 @@
                                     @else
                                     <span class="badge rounded-pill requested">{{$data->leave_status ?? 'Requested'}}</span>
                                     @endif   
+                                    @if (!empty($leaveStatusData))
+                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $leaveStatusData->first_name ?? '' }} </p>
+                                    @endif
                                 </td>
                             </tr>
                             @empty

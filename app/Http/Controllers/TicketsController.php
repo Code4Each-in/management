@@ -56,7 +56,8 @@ class TicketsController extends Controller
             {
                 $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
                 $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
-            }}
+            }
+        }
         
             return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter'));   
     }

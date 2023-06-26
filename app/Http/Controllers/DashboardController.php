@@ -21,7 +21,7 @@ class DashboardController extends Controller
         if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-	
-            $userCount = Users::orderBy('id','desc')->get()->count();
+            $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count();
