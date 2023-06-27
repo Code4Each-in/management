@@ -8,6 +8,21 @@
         <div class="card-body">
             <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">Add User</button>
 
+            <form id="filter-data" method="GET" action="{{ route('users.index') }}">
+                <div class="row mt-3 mx-auto">
+                    <div class="col-md-6 filtersContainer d-flex p-0">
+                        <div style="margin-right:20px;">
+                            
+                            <input type="checkbox" class="form-check-input" name="all_users" id="all_users"
+                                {{ $allUsersFilter == 'on' ? 'checked' : '' }}>  
+                                <label for="all_users">All Users</label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </form>
+
+
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -598,20 +613,26 @@ function editUsers(id) {
     });
 }
 
-function deleteUsers(id) {
-    if (confirm("Are you sure ?") == true) {
-        $.ajax({
-            type: "DELETE",
-            url: "{{ url('/delete/users') }}",
-            data: {
-                id: id
-            },
-            dataType: 'json',
-            success: function(res) {
-                location.reload();
+        function deleteUsers(id) {
+            if (confirm("Are you sure ?") == true) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ url('/delete/users') }}",
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        location.reload();
+                    }
+                });
             }
-        });
-    }
-}
+        }
+
+        // Event listener for checkbox changes
+        $("#filter-data input:checkbox").change(function() {
+                // Submit the form
+                $("#filter-data").submit();
+            });
 </script>
 @endsection
