@@ -41,7 +41,9 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/users', [UsersController::class, 'edit'])->name('users.edit');
 	Route::delete('/delete/users', [UsersController::class, 'destroy'])->name('users.delete');
 	Route::post('/update/users', [UsersController::class, 'update'])->name('users.update');
-	
+	Route::get('/users/documents/{user}', [UsersController::class, 'showUsersDocuments'])->name('users.documents.show');
+
+
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
 	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.add');
 	Route::post('/edit/attendance', [AttendanceController::class, 'edit'])->name('attendance.edit');
@@ -112,7 +114,6 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/profile/upload/document', [UsersController::class, 'uploadDocument']);
 	Route::delete('/delete/profile/document', [UsersController::class, 'deleteProfileDocument']);
 	// Route::get('/profile/documents', [UsersController::class, 'userUploadedDocuments']);
-	Route::get('/users/documents/{user}', [UsersController::class, 'showUsersDocuments'])->name('users.documents.show');
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
