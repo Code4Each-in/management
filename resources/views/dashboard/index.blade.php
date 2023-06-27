@@ -6,7 +6,7 @@
 <div class="col-lg-8 dashboard">
     <div class="row">
         <!-- Sales Card -->
-        @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+        @if(auth()->user()->role_id==env('SUPER_ADMIN') || auth()->user()->role->name == 'HR Manager')
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card sales-card">
                 <div class="filter">
@@ -133,13 +133,21 @@
                             <td>{{date("d-m-Y", strtotime($data->from));}}</td>
                             <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                             <td>{{$data->type }}</td>
+                            <td>
+                            @php
+                              $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
+                            @endphp
                             @if($data->leave_status == 'approved')
-                            <td><span class="badge rounded-pill approved">Approved</span></td>
+                            <span class="badge rounded-pill approved">Approved</span>
                             @elseif($data->leave_status == 'decline')
-                            <td><span class="badge rounded-pill denied">Decline</span></td>
+                            <span class="badge rounded-pill denied">Decline</span>
                             @else
-                            <td><span class="badge rounded-pill requested">Requested</span></td>
+                            <span class="badge rounded-pill requested">Requested</span>
                             @endif
+                            @if (!empty($leaveStatusData))
+                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $leaveStatusData->first_name ?? '' }} </p>
+                            @endif
+                            </td>
                         </tr>
                         @empty
                         @endforelse

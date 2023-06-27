@@ -22,26 +22,49 @@ class UsersController extends Controller
 	 */
 	public function index()
 	{
-
+		$usersFilter = request()->all() ;
+        $allUsersFilter = $usersFilter['all_users'] ?? '';
 		if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
-			$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
-			// dd($usersData);
+			
+			if ($allUsersFilter == 'on') {
+				
+				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
+			}else{
+				
+				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('status',1)->orderBy('id','desc')->get();
+			}
 		}elseif (auth()->user()->role->name == 'HR Manager') {
-			$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
+
+			if ($allUsersFilter == 'on') {
+				
+				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
+
+			}else{
+				
+				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
+				
+			}
 			
 		}
 		else
 		{
-		$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
+			if ($allUsersFilter == 'on') {
+			
+				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
+
+			}else{
+				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('status',1)->get([ 'managers.user_id','users.*']);
+
+			}
+			
 		}
 		//database query
 		$users_Data=Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //database query
-		// dd($users_Data);
 		$roleData=Roles::orderBy('id','desc')->get();//database query
 		$departmentData = Departments::orderBy('id','desc')->get();
 		// dd($departmentData);
-		return view('users.index',compact('usersData','roleData','departmentData','users_Data'));
+		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter'));
 	}
 	/**
 	* Store a newly created resource in storage.
