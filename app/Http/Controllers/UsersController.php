@@ -9,7 +9,7 @@ use App\Models\Departments;
 use App\Models\Roles;
 use App\Models\Managers;
 use App\Models\UserDocuments;
-use App\Notifications\EmailNotificaion;
+use App\Notifications\EmailNotification;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -429,7 +429,6 @@ class UsersController extends Controller
 						})
 						->where('status',1)
 						->get(); 
-
 						foreach ($notifiableusers as $user) {
 							$messages["subject"] = "New Document Uploaded By - {$user_name}";
 							$messages["title"] = "{$user_name} has uploaded a new document Named as {$document->document_title}.";
@@ -437,7 +436,7 @@ class UsersController extends Controller
 							$messages["url-title"] = "View Documents";
 							$messages["url"] = "/users/documents/" . $document->user_id;
 	
-							$user->notify(new EmailNotificaion($messages));
+							$user->notify(new EmailNotification($messages));
 						}
 					}
 				} else {

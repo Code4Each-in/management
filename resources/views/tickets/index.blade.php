@@ -13,20 +13,43 @@
             </div>
             <form id="filter-data" method="GET" action="{{ route('tickets.index') }}">
                 <div class="row mt-3 mx-auto">
-                    <div class="col-md-6 filtersContainer d-flex p-0">
+                    <div class="col-md-4 filtersContainer d-flex p-0">
                         <div style="margin-right:20px;">
-                            
                             <input type="checkbox" class="form-check-input" name="all_tickets" id="all_tickets"
                                 {{ $allTicketsFilter == 'on' ? 'checked' : '' }}> 
                                 <label for="all_tickets">All Tickets</label>
                         </div>
-                        
                         <div>
                         <input type="checkbox" class="form-check-input" name="complete_tickets" id="complete_tickets"
                             {{ $completeTicketsFilter == 'on' ? 'checked' : '' }}> 
                         <label for="complete_tickets">Completed Tickets</label>
                         </div>
-                        
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label for="projectFilterselectBox">Project</label>
+                        <select class="form-control" id="projectFilterselectBox" name="project_filter">
+                            <option value="" selected >Select Project</option>
+                            @foreach ( $projects as $project)
+                            <option value="{{$project->id}}" {{ request()->input('project_filter') == $project->id ? 'selected' : '' }} >{{$project->project_name}}</option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('project_filter'))
+                            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('project_filter') }}</span>
+                        @endif
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label for="assigneeFilterselectBox">Assigned To</label>
+
+                        <select class="form-control" id="assigneeFilterselectBox" name="assigned_to_filter">
+                            <option value="" selected >Select Assignee</option>
+                            @foreach ($user as $u)
+                            <option value="{{$u->id}}" {{ request()->input('assigned_to_filter') == $u->id ? 'selected' : '' }} >{{ $u->first_name . ' ' . $u->last_name }}</option>
+                            @endforeach
+                        </select>
+
+                        @if ($errors->has('assigned_to_filter'))
+                            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('assigned_to_filter') }}</span>
+                            @endif
                     </div>
                 </div>
             </form>
@@ -563,6 +586,16 @@
                     if (!$("#complete_tickets").prop('checked')) {
                     $("#complete_tickets").prop('disabled', true);
                     }
+                });
+
+                //Submit form on change the value of Project
+                document.getElementById("projectFilterselectBox").addEventListener("change", function() {
+                    document.getElementById("filter-data").submit();
+                });
+
+                  //Submit form on change the value of Assigned to 
+                  document.getElementById("assigneeFilterselectBox").addEventListener("change", function() {
+                    document.getElementById("filter-data").submit();
                 });
 
         </script>
