@@ -196,7 +196,6 @@ class TicketsController extends Controller
            $validate = $validator->valid();
         
            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$ticketId)->get(['ticket_assigns.*','users.first_name','users.email']);
-            // dd($assignedUsers);
            $ticketData = Tickets::with('ticketAssigns')->where('id',$ticketId)->first();
            $changed_by = auth()->user()->first_name;
 
@@ -293,7 +292,11 @@ class TicketsController extends Controller
             $messages["body-text"] = "Please review the comment and provide a response if necessary.";
             $messages["url-title"] = "View Ticket";
             $messages["url"] = "/edit/ticket/" .$validate['id'];
-            $user->notify(new EmailNotification($messages));
+            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$validate['id'])->get(['ticket_assigns.*','users.first_name','users.email']);
+            foreach ($assignedUsers as $assignedUser) {
+                $assignedUser->notify(new EmailNotification($messages));    
+            }
+            
         }
 
 
