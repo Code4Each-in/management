@@ -139,8 +139,8 @@
                             @endphp
                             @if($data->leave_status == 'approved')
                             <span class="badge rounded-pill approved">Approved</span>
-                            @elseif($data->leave_status == 'decline')
-                            <span class="badge rounded-pill denied">Decline</span>
+                            @elseif($data->leave_status == 'declined')
+                            <span class="badge rounded-pill denied">Declined</span>
                             @else
                             <span class="badge rounded-pill requested">Requested</span>
                             @endif
