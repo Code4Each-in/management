@@ -9,8 +9,7 @@ use App\Models\Tickets;
 use App\Models\TicketAssigns;
 use App\Models\TicketComments;
 use App\Models\TicketFiles;
-
-
+use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Redirect;
 
 class TicketsController extends Controller
@@ -19,6 +18,7 @@ class TicketsController extends Controller
     {
             $ticketsFilter = request()->all() ;
             $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
+            $projectFilter =  $ticketsFilter['project_filter'] ?? '';
             $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
             $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
             $projects = Projects::all();
@@ -30,7 +30,6 @@ class TicketsController extends Controller
                 }else{
                     $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
                 }
-                
             } else {
                 if (auth()->user()->role->name != "Super Admin") {
                     $tickets = $ticketFilterQuery->whereRelation('ticketAssigns', 'user_id', 'like', '%' . $auth_user . '%')->where('status', '!=', 'complete');
@@ -45,6 +44,16 @@ class TicketsController extends Controller
                         $tickets = $ticketFilterQuery->orWhere('status', 'complete');
                     }
                 }
+            }
+            if (request()->has('project_filter') && request()->input('project_filter')!= '') {
+                $tickets = $ticketFilterQuery->whereHas('ticketRelatedTo', function($query) { 
+                    $query->where('id', request()->input('project_filter')); 
+                });
+            }
+            if (request()->has('assigned_to_filter') && request()->input('assigned_to_filter')!= '') {
+                $tickets = $ticketFilterQuery->whereHas('ticketAssigns', function($query) { 
+                    $query->where('user_id', request()->input('assigned_to_filter')); 
+                });
             }
                 $tickets = $tickets->get();
             
@@ -68,7 +77,7 @@ class TicketsController extends Controller
             'description'=>'required',
             // 'assign'=>'required',
             // 'eta_to' => 'required',
-            'project_id' => 'required',
+             'project_id' => 'required',
              'status'=>'required', 
              'priority'=>'required',
              'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
@@ -185,8 +194,12 @@ class TicketsController extends Controller
                 return Redirect::back()->withErrors($validator);
             }
            $validate = $validator->valid();
-           
-         $tickets=   Tickets::where('id', $ticketId)  
+        
+           $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$ticketId)->get(['ticket_assigns.*','users.first_name','users.email']);
+           $ticketData = Tickets::with('ticketAssigns')->where('id',$ticketId)->first();
+           $changed_by = auth()->user()->first_name;
+
+            $tickets=   Tickets::where('id', $ticketId)  
             ->update([
             'title' => $validate['title'],        
             'description' => $validate['description'],
@@ -196,16 +209,38 @@ class TicketsController extends Controller
             'priority' => $validate['priority'],
             'eta'=>$request['eta'],
             ]);
+            
+
+            if($tickets && $ticketData->status != $validate['status']){
+                foreach ($assignedUsers as $assignedUser) {
+                    $messages["subject"] = "Status Changed By - {$changed_by}";
+                    $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
+                    $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
+                    $messages["url-title"] = "View Ticket";
+                    $messages["url"] = "/edit/ticket/" . $assignedUser->ticket_id;
+                    $assignedUser->notify(new EmailNotification($messages));
+                }
+            }
 
             if (isset($request->assign))
             {				
                 foreach($request->assign as $data)
                 {				
-                    $data =TicketAssigns::create([					
+                    $newTicketAssign =TicketAssigns::create([					
                         'ticket_id' => $ticketId,
                         'user_id' => $data,
                     ]);
-                }		
+                    if($newTicketAssign){
+                        $messages["subject"] = "New Ticket #{$ticketId} Assigned By - {$changed_by}";
+                        $messages["title"] = "You have been assigned a new ticket #{$ticketId} by {$changed_by}.";
+                        $messages["body-text"] = " Please review and take necessary action.";
+                        $messages["url-title"] = "View Ticket";
+                        $messages["url"] = "/edit/ticket/" . $ticketId;
+                        $user = Users::find($data);
+                        $user->notify(new EmailNotification($messages));
+                    }	
+                }
+               	
             }
             if($request->hasfile('edit_document')){
                 foreach($request->file('edit_document') as $file)
@@ -249,6 +284,22 @@ class TicketsController extends Controller
             'ticket_id'=>$validate['id'],
             'comment_by'=> auth()->user()->id,     
         ]);
+        if($ticket){
+            $id = auth()->user()->id;
+            $user = Users::find($id);
+            $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+            $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. You are assigned to this ticket.";
+            $messages["body-text"] = "Please review the comment and provide a response if necessary.";
+            $messages["url-title"] = "View Ticket";
+            $messages["url"] = "/edit/ticket/" .$validate['id'];
+            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$validate['id'])->get(['ticket_assigns.*','users.first_name','users.email']);
+            foreach ($assignedUsers as $assignedUser) {
+                $assignedUser->notify(new EmailNotification($messages));    
+            }
+            
+        }
+
+
         $CommentsData = TicketComments::with('user')->where('id',$ticket->id)->get();
         return Response()->json(['status'=>200,'CommentsData' => $CommentsData,'Commentmessage' => 'Comments added successfully.']); 
     }

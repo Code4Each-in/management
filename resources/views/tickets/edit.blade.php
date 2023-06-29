@@ -2,6 +2,11 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
+
+<div id="loader">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
+
 <div class="col-lg-6">
     <div class="card">
         <div class="card-body">
@@ -240,6 +245,8 @@
         });
 
         $("#commentsData").submit(function() {
+            var spinner = $('#loader');
+            spinner.show();
             event.preventDefault();
             var comment = $('#comment').val();
             var id = $('#hidden_id').val();
@@ -252,6 +259,9 @@
                     id: id,
                 },
                 success: (data) => {
+                      // Introduce a delay before hiding the spinner
+                setTimeout(function() {
+                    spinner.hide();
                     if (data.errors) {
                         $('.alert-danger').html('');
                         $.each(data.errors, function(key, value) {
@@ -288,6 +298,7 @@
                             $('.Commentmessage').fadeOut("slow");
                         }, 2000);
                     }
+                }, 3000); // Adjust the duration (in milliseconds) as needed
                 }
             });
         });
@@ -341,6 +352,13 @@
         }
 
     }
+
+    $(function(){
+  $('#editTicketsForm').submit(function() {
+    $('#loader').show(); 
+    return true;
+  });
+});
 
 </script>
 

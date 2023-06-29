@@ -25,6 +25,9 @@
                             <option value="last_month" {{ request()->input('intervals_filter') == 'last_month' ? 'selected' : '' }} >Last Month</option>
                             <option value="custom_intervals" {{ request()->input('intervals_filter') == 'custom_intervals' ? 'selected' : '' }}>Custom Date Range</option>
                         </select>
+                        @if ($errors->has('intervals_filter'))
+                            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('intervals_filter') }}</span>
+                        @endif
                     </div>
                     <div class="col-md-3 form-group">
                         <label for="userFilterselectBox">Team Member</label>
@@ -34,7 +37,7 @@
                             <option value="{{$user->id}}" {{ request()->input('team_member_filter') == $user->id ? 'selected' : '' }}>{{$user->first_name}}</option>
                             @endforeach
                         </select>
-                        @if ($errors->has('date_from'))
+                        @if ($errors->has('team_member_filter'))
                             <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_from') }}</span>
                             @endif
                     </div>

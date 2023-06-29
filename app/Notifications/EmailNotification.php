@@ -7,10 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class EmailNotificaion extends Notification
+class EmailNotification extends Notification
 {
     use Queueable;
-
     private $messages;
 
     /**
@@ -22,7 +21,6 @@ class EmailNotificaion extends Notification
     {
         $this->messages = $messages;
     }
-
     /**
      * Get the notification's delivery channels.
      *
