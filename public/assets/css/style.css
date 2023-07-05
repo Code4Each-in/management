@@ -1562,3 +1562,13 @@ header .header-alert{
   font-size: 11px;
   border-radius: 25px;
 }
+
+
+.upcoming-holiday-alert{
+  width: 55%;
+  left: 43%;
+  top: 10%;
+  position: absolute;
+  z-index: 1;
+  background-color: rgba(182, 239, 251, 0.4);
+}

@@ -8,7 +8,12 @@
         @include('includes.header')
         <!-- Navigation -->
         <div class="pagetitle">
-            <h1>@yield('title')</h1>
+            <div class="row">
+                <div class="col">
+                    <h1>@yield('title')</h1>
+                </div>
+            </div>
+            
             <!-- <nav>
                 <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="index.html">Home</a></li>

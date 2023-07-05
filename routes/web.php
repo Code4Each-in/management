@@ -6,6 +6,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeavesController;
 use App\Http\Controllers\ModulesController;
 use App\Http\Controllers\PagesController;
@@ -93,6 +94,15 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/module', [ModulesController::class, 'edit'])->name('modules.edit');
 	Route::post('/update/module', [ModulesController::class, 'update'])->name('modules.update');
 	Route::delete('/delete/module', [ModulesController::class, 'destroy'])->name('modules.delete');
+
+
+	// Holidays Routes
+	Route::get('/holidays', [HolidaysController::class, 'index'])->name('holidays.index');
+	Route::post('/add/holiday', [HolidaysController::class, 'store'])->name('holidays.add');
+	Route::post('/edit/holiday', [HolidaysController::class, 'edit'])->name('holidays.edit');
+	Route::post('/update/holiday', [HolidaysController::class, 'update'])->name('holidays.update');
+	Route::delete('/delete/holiday', [HolidaysController::class, 'destroy'])->name('holidays.delete');
+
 
 
 	// Projects Routes

@@ -2,9 +2,22 @@
 @section('title', 'Dashboard')
 @section('subtitle', 'Dashboard')
 @section('content')
+@if ($upcomingHoliday)
+                <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
+                    <i class="bi bi-info-circle me-1"></i>
+                    @if ($upcomingHoliday->from === $upcomingHoliday->to)
+                    You have Upcoming Holiday on {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}}! Of {{$upcomingHoliday->name ?? ''}}      
+                    @else
+                    You have Upcoming Holiday from {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}} to {{date("d-M-Y", strtotime($upcomingHoliday->to)) ?? ''}} ! Of {{$upcomingHoliday->name ?? ''}}      
+                    @endif
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+@endif
+
 <!-- <div class=""> -->
-<div class="col-lg-8 dashboard">
+<div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
     <div class="row">
+       
         <!-- Sales Card -->
         @if(auth()->user()->role_id==env('SUPER_ADMIN') || auth()->user()->role->name == 'HR Manager')
         <div class="col-xxl-4 col-md-6">
@@ -78,7 +91,7 @@
 
             </div>
         </div>
-        <!---End Revenue Card--->
+        <!---End Revenue Card--->     
 
         <!-- Customers Card -->
 
@@ -115,7 +128,7 @@
             </ul> -->
             </div>
             <div class="card-body">
-                <h5 class="card-title"> Teams Leave</h5>
+                <h5 class="card-title">Teams Leave</h5>
                 <table class="table table-borderless datatable" id="leavesss">
                     <thead>
                         <tr>
@@ -157,7 +170,7 @@
         </div>
     </div><!-- End Recent Sales -->
 </div>
-<div class="col-lg-4 dashboard">
+<div class="col-lg-4 dashboard" style="margin-top: 20px ">
     <!-- Recent Activity -->
 
     <div class="card">

@@ -1,6 +1,8 @@
 <?php
  
 namespace App\Http\Controllers;
+
+use App\Models\Holidays;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Managers;
@@ -18,6 +20,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
+
+        $today = Carbon::now();
+        $endDate = Carbon::today()->addDays(7);
+        $upcomingHoliday = Holidays::whereBetween('from', [$today, $endDate])
+        ->orderBy('from')->first();
+            // dd($upcomingHoliday);
+        
         if (auth()->user()->role_id==env('SUPER_ADMIN'))
 		{
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-	
@@ -73,6 +83,6 @@ class DashboardController extends Controller
         ->select('user_leaves.leave_status','user_leaves.id as leave_id','user_leaves.updated_at', 'users.first_name', 'users.last_name', )
         ->get();
          }
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus'));
+        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday'));
     }
 }

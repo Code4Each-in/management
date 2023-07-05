@@ -8,7 +8,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h1 class="card-title text-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Access Unauthorized <i class="fa fa-exclamation-triangle" aria-hidden="true"></i></h1>
-                    <p class="card-text text-danger">You do not have permission to access this page.</p>
+                    <p class="card-text text-danger">You do not have permission to access this page.Please Contact To Admin To Ask For Permission.</p>
                 </div>
             </div>
         </div>
