@@ -213,7 +213,7 @@ class TicketsController extends Controller
 
             if($tickets && $ticketData->status != $validate['status']){
                 foreach ($assignedUsers as $assignedUser) {
-                    $messages["subject"] = "Status Changed By - {$changed_by}";
+                    $messages["subject"] = "Status Of #{$assignedUser->ticket_id} Changed By - {$changed_by}";
                     $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
                     $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
                     $messages["url-title"] = "View Ticket";
@@ -288,7 +288,7 @@ class TicketsController extends Controller
             $id = auth()->user()->id;
             $user = Users::find($id);
             $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-            $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. You are assigned to this ticket.";
+            $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.Where You are assigned to this ticket.";
             $messages["body-text"] = "Please review the comment and provide a response if necessary.";
             $messages["url-title"] = "View Ticket";
             $messages["url"] = "/edit/ticket/" .$validate['id'];

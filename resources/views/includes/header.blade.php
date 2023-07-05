@@ -348,6 +348,15 @@
                 </a>
             </li>
             @endif
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('holidays') ? '' : 'collapsed' }}"
+                    href="{{ route('holidays.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Holidays</span>
+                </a>
+            </li>
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
