@@ -39,7 +39,7 @@ class HolidaysController extends Controller
         $validator = \Validator::make($request->all(), [
             'holidayName' => 'required', 
             'from' => 'required', 
-            'to' => 'required|after:from', 
+            'to' => 'required|after_or_equal:from', 
         ],[
             'pageId.required' => 'The page field is required.'
         ]);        
@@ -100,7 +100,7 @@ class HolidaysController extends Controller
         $validator = \Validator::make($request->all(), [
             'edit_holiday_name' => 'required',   
             'edit_from' => 'required',   
-            'edit_to' => 'requiredafter:edit_from',   
+            'edit_to' => 'required|after_or_equal:edit_from',   
         ]);
  
         if ($validator->fails())
