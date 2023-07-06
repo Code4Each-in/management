@@ -36,9 +36,10 @@ class DevicesController extends Controller
             'deviceName' => 'required', 
             'deviceModel' => 'nullable',
             'brand' => 'nullable',
+            'serialNumber' => 'nullable',
             'buyingDate' => 'required',  
         ]);        
-
+        // dd($request);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -47,12 +48,15 @@ class DevicesController extends Controller
         $deviceName = $request->get('deviceName');
         $deviceModel = $request->get('deviceModel');
         $brand = $request->get('brand');
+        $serialNumber = $request->get('serialNumber');
+        // dd($serialNumber);
         $buyingDate = $request->get('buyingDate');
         
         $device = Devices::Create([
             'name' => $deviceName,
             'device_model' => $deviceModel,
             'brand' => $brand,
+            'serial_number' => $serialNumber,
             'buying_date' => $buyingDate,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -95,6 +99,8 @@ class DevicesController extends Controller
             'edit_device_model' => 'nullable',   
             'edit_buying_date' => 'required',   
             'edit_brand' => 'nullable',   
+            'edit_serial_number' => 'nullable',   
+
         ]);
  
         if ($validator->fails())
@@ -107,6 +113,7 @@ class DevicesController extends Controller
             'name' => $request->edit_device_name,
             'device_model' => $request->edit_device_model,
             'buying_date' => $request->edit_buying_date,
+            'serial_number' => $request->edit_serial_number,
             'brand' => $request->edit_brand,
         ]);
 		$request->session()->flash('message','Device updated successfully.');

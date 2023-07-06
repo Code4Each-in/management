@@ -12,10 +12,16 @@ class Devices extends Model
     protected $fillable = [
     'name',
     'brand',
+    'serial_number',
     'device_model',
     'buying_date',
     ];
     protected $casts = [
         'status' => 'boolean'
     ];
+
+    public function assignedDevices()
+    {
+        return $this->hasMany(AssignedDevices::class);
+    }
 }

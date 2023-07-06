@@ -18,6 +18,7 @@ class CreateDevicesTable extends Migration
             $table->string('name');
             $table->string('device_model')->nullable();
             $table->string('brand')->nullable();
+            $table->string('serial_number')->nullable();
             $table->date('buying_date');
             $table->tinyInteger('status')->default('1');
             $table->softDeletes();

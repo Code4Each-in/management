@@ -115,4 +115,9 @@ class Users extends Authenticatable
     }
 
 
+    public function assignedDevices()
+    {
+        return $this->hasMany(AssignedDevice::class);
+    }
+
 }

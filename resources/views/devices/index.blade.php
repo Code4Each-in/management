@@ -18,6 +18,7 @@
                                 <th>Device Name</th>
                                 <th>Device Model</th>
                                 <th>Brand</th>
+                                <th>Serial Number</th>
                                 <th>Buying Date</th>
                                 <th>Status</th>
                                 @if (auth()->user()->role->name == "Super Admin" ||auth()->user()->role->name == "HR Manager")
@@ -35,8 +36,14 @@
                                 <td>{{$data->name}}</td>
                                 <td>{{$data->device_model ?? ''}}</td>
                                 <td>{{$data->brand ?? ''}}</td>
+                                <td>{{$data->serial_number ?? ''}}</td>
                                 <td>{{date("d-m-Y", strtotime($data->buying_date));}}</td>
-                                <td>{{$data->status }}</td>
+                                <td> @if ($data->status == 1)
+                                    <span class="badge rounded-pill bg-success">Free</span>
+                                    @else
+                                    <span class="badge rounded-pill bg-primary">In Use</span>
+                                    @endif
+                                </td>
                                 <!-- <td> {{$data->status}}</td> -->
                                 @if (auth()->user()->role->name == "Super Admin" ||auth()->user()->role->name == "HR Manager")
                                 <td>
@@ -83,7 +90,7 @@
                     <div class="row mb-3">
                         <label for="device_model" class="col-sm-3 col-form-label">Device Model</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="device_model" id="device_model">
+                            <input type="text" title="Add If Any" class="form-control" name="device_model" id="device_model">
                         </div>
                         @if ($errors->has('device_model'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('device_model') }}</span>
@@ -92,10 +99,20 @@
                     <div class="row mb-3">
                         <label for="brand" class="col-sm-3 col-form-label ">Brand</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="brand" id="brand">
+                            <input type="text" title="Add If Any" class="form-control" name="brand" id="brand">
                         </div>
                         @if ($errors->has('brand'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('brand') }}</span>
+                        @endif
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="serial_number" class="col-sm-3 col-form-label ">Serial Number</label>
+                        <div class="col-sm-9">
+                            <input type="text" title="Add If Any" class="form-control" name="serial_number" id="serial_number">
+                        </div>
+                        @if ($errors->has('serial_number'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('serial_number') }}</span>
                         @endif
                     </div>
 
@@ -164,6 +181,16 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label for="edit_serial_number" class="col-sm-3 col-form-label ">Serial Number</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="edit_serial_number" id="edit_serial_number">
+                        </div>
+                        @if ($errors->has('edit_serial_number'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_serial_number') }}</span>
+                        @endif
+                    </div>
+
+                    <div class="row mb-3">
                         <label for="edit_buying_date" class="col-sm-3 col-form-label required">Buying Date</label>
                         <div class="col-sm-9">
                             <input type="date" class="form-control" name="edit_buying_date" id="edit_buying_date">
@@ -213,6 +240,7 @@ function addDevice() {
     var deviceName = $('#device_name').val();
     var deviceModel = $('#device_model').val();
     var brand = $('#brand').val();
+    var serialNumber = $('#serial_number').val();
     var buyingDate = $('#buying_date').val();
     $.ajax({
         type: 'POST',
@@ -221,6 +249,7 @@ function addDevice() {
             deviceName: deviceName,
             deviceModel:deviceModel,
             brand: brand,
+            serialNumber: serialNumber,
             buyingDate: buyingDate     
         },
         cache: false,
@@ -260,6 +289,7 @@ function editDevice(id) {
                 $('#edit_device_name').val(res.device.name);
                 $('#edit_device_model').val(res.device.device_model);
                 $('#edit_brand').val(res.device.brand);
+                $('#edit_serial_number').val(res.device.serial_number);
                 $('#edit_buying_date').val(res.device.buying_date);
 
             }
@@ -272,6 +302,7 @@ function updateDevice() {
     var edit_device_name = $('#edit_device_name').val();
     var edit_device_model = $('#edit_device_model').val();
     var edit_brand = $('#edit_brand').val();
+    var edit_serial_number = $('#edit_serial_number').val();
     var edit_buying_date = $('#edit_buying_date').val();
 
 
@@ -283,6 +314,7 @@ function updateDevice() {
             edit_device_name: edit_device_name,
             edit_device_model: edit_device_model,
             edit_brand: edit_brand,
+            edit_serial_number:edit_serial_number,
             edit_buying_date: edit_buying_date,
         },
         dataType: 'json',

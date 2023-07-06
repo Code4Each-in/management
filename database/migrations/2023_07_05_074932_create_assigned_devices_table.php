@@ -19,7 +19,7 @@ class CreateAssignedDevicesTable extends Migration
             $table->integer('user_id')->constrained();
             $table->date('from');
             $table->date('to')->nullable();
-            $table->tinyInteger('status');
+            $table->tinyInteger('status')->default('1');
             $table->softDeletes();
             $table->timestamps();
         });
