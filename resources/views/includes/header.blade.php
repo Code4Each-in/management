@@ -357,7 +357,7 @@
                     <span>Holidays</span>
                 </a>
             </li>
-
+            @if (auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('devices') ? '' : 'collapsed' }}"
                     data-bs-target="#devices-nav" data-bs-toggle="collapse" href="#">
@@ -381,6 +381,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
