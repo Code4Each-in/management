@@ -39,7 +39,6 @@ class DevicesController extends Controller
             'serialNumber' => 'nullable',
             'buyingDate' => 'required',  
         ]);        
-        // dd($request);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -49,7 +48,6 @@ class DevicesController extends Controller
         $deviceModel = $request->get('deviceModel');
         $brand = $request->get('brand');
         $serialNumber = $request->get('serialNumber');
-        // dd($serialNumber);
         $buyingDate = $request->get('buyingDate');
         
         $device = Devices::Create([
@@ -128,8 +126,13 @@ class DevicesController extends Controller
      */
     public function destroy(Request $request)
     {
-        $device = Devices::where('id',$request->id)->delete();
-        $request->session()->flash('message','Device deleted successfully.');
+        $device = Devices::where('id',$request->id)->first();
+        if($device->status == 1){
+            $request->session()->flash('error','You Cannot Delete In Use Device .');
+        }else{
+            $device->delete();
+            $request->session()->flash('message','Device deleted successfully.');
+        }
        return Response()->json($device);
     }
 }

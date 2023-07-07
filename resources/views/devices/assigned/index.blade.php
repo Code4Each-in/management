@@ -32,7 +32,12 @@
                             <tbody>
                                 @forelse($assignedDevices as $index => $data)
                                 <tr>
-                                    <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{ $index + 1 }}</a>
+                                    <td>
+                                    @if ($data->status == 1)
+                                    <a href="{{ url('/edit/assigned-device/'.$data->id)}}">#{{ $index + 1 }}</a>
+                                    @else
+                                       <a href="#"> #{{ $index + 1 }}</a>
+                                    @endif
                                     <td>{{($data->device->name ?? '' )}}</td>
                                     <td>{{($data->device->device_model ?? '' )}}</td>
                                     <td>{{($data->device->serial_number ?? '')}}</td>
@@ -43,11 +48,18 @@
                                             {{date("d-m-Y", strtotime($data->to)) }}
                                         @endif
                                     </td>
-                                    <td>{{ $data->status }}</td>
+                                    <td>
+                                    @if ($data->status == 0)
+                                    <span class="badge rounded-pill bg-success">Free</span>
+                                    @else
+                                    <span class="badge rounded-pill bg-primary">Assigned</span>
+                                    @endif    
+                                    </td>
                                     <td> 
-                                        <a href="{{ url('/edit/assigned-device/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i></a>
-
                                         <i style="color:#4154f1;" onClick="deleteAssignedDevice('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        @if ($data->status == 1)
+                                        <a href="{{ url('/edit/assigned-device/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i></a>
+                                         @endif
                                     </td>
                                 </tr>
                                 @empty

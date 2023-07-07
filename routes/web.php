@@ -117,7 +117,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/assigned-devices', [AssignedDevicesController::class, 'index'])->name('devices.assigned.index');
 	Route::post('/add/assigned-device', [AssignedDevicesController::class, 'store'])->name('devices.assigned.add');
 	Route::get('/edit/assigned-device/{id}', [AssignedDevicesController::class, 'edit'])->name('devices.assigned.edit');
-	Route::post('/update/assigned-device', [AssignedDevicesController::class, 'update'])->name('devices.assigned.update');
+	Route::post('/update/assigned-device/{id}', [AssignedDevicesController::class, 'update'])->name('devices.assigned.update');
 	Route::delete('/delete/assigned-device', [AssignedDevicesController::class, 'destroy'])->name('devices.assigned.delete');
 
 	// Projects Routes
