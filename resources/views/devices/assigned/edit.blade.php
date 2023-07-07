@@ -84,56 +84,6 @@
         </div>
     </div>
 </div>
-{{-- <div class="col-lg-6 dashboard ">
-    <div class="card" style="height:730px;">
-        <div class="card-body ">
-
-
-            <div class="alert alert-success Commentmessage mt-4" style="display:none">
-
-            </div>
-            <h5 class="card-title">Comments</h5>
-            <div class="news commentSection">
-                <div class="comments">
-                    @if(count($CommentsData) !=0)
-                    @foreach ($CommentsData as $data)
-                    <div class="row">
-                        @if(!empty($data->user->profile_picture))
-                        <div class="col-md-2 comment-user-profile">
-                            <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle " alt="">
-                        </div>
-                        @else
-                        <img src="{{asset('assets/img/blankImage')}}" alt="Profile" class="rounded-circle">
-                        @endif
-                        <div class="col-md-3">
-                            <p>{{$data->user->first_name}}</p>
-                            <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
-
-                        </div>
-                        <div class="col-md-7 ">
-                            {{$data->comments}}
-                        </div>
-                    </div>
-                    @endforeach
-                    @else
-                    <div class="center text-center mt-2 ">
-                        <span class="center" id="NoComments"> No Comments </span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            <form method="post" id="commentsData" action="{{route('comments.add')}}">
-                <div class=" post-item clearfix mb-3 mt-3">
-                    <textarea class="form-control comment nt-3" name="comment" id="comment" placeholder="Enter your comment" rows="3"></textarea>
-                </div>
-                <div class="alert alert-danger" style="display:none"></div>
-                <input type="hidden" class="form-control" id="hidden_id" value="{{$tickets->id}}">
-                <button type="submit" style="float: right;" class="btn btn-primary"><i class="bi bi-send-fill"></i>
-                    Comment</button>
-            </form>
-        </div>
-    </div>
-</div> --}}
 @endsection
 @section('js_scripts')
 <script>
