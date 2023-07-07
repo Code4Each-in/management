@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\AssignedDevicesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
@@ -6,6 +8,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DevicesController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeavesController;
 use App\Http\Controllers\ModulesController;
@@ -102,8 +105,20 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/holiday', [HolidaysController::class, 'edit'])->name('holidays.edit');
 	Route::post('/update/holiday', [HolidaysController::class, 'update'])->name('holidays.update');
 	Route::delete('/delete/holiday', [HolidaysController::class, 'destroy'])->name('holidays.delete');
+	
+	// Devices Routes
+	Route::get('/devices', [DevicesController::class, 'index'])->name('devices.index');
+	Route::post('/add/device', [DevicesController::class, 'store'])->name('devices.add');
+	Route::post('/edit/device', [DevicesController::class, 'edit'])->name('devices.edit');
+	Route::post('/update/device', [DevicesController::class, 'update'])->name('devices.update');
+	Route::delete('/delete/device', [DevicesController::class, 'destroy'])->name('devices.delete');
 
-
+	// Assigned Devices Routes
+	Route::get('/assigned-devices', [AssignedDevicesController::class, 'index'])->name('devices.assigned.index');
+	Route::post('/add/assigned-device', [AssignedDevicesController::class, 'store'])->name('devices.assigned.add');
+	Route::get('/edit/assigned-device/{id}', [AssignedDevicesController::class, 'edit'])->name('devices.assigned.edit');
+	Route::post('/update/assigned-device/{id}', [AssignedDevicesController::class, 'update'])->name('devices.assigned.update');
+	Route::delete('/delete/assigned-device', [AssignedDevicesController::class, 'destroy'])->name('devices.assigned.delete');
 
 	// Projects Routes
 	Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');

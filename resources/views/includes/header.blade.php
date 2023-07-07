@@ -357,6 +357,30 @@
                     <span>Holidays</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('devices') ? '' : 'collapsed' }}"
+                    data-bs-target="#devices-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-person-vcard-fill"></i></i><span>Devices</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="devices-nav"
+                    class="nav-content collapse {{ request()->is('devices') || request()->is('devices/team') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class="{{ request()->is('devices') ? 'active' : 'collapsed' }}"
+                            href="{{ route('devices.index') }}" href="">
+                            <i class="bi bi-circle "></i><span>All Devices</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="{{ request()->is('assigned-devices') ? 'active' : 'collapsed ' }}"
+                            href="{{ route('devices.assigned.index')}}">
+                            <i class="bi bi-circle"></i><span>Assigned Devices</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
