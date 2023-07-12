@@ -645,7 +645,7 @@ function editUsers(id) {
 
             function ShowDeviceRecoveryMessage(checkbox) {
         if (!checkbox.checked) {
-            alert("Please recover assigned devices before unchecking the checkbox.");
+            alert("Please recover assigned devices before Deactivating this User.");
             // Provide link to assigned device section with ID
             window.location.href = "/assigned-devices";
         }
