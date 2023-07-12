@@ -1,7 +1,8 @@
 <?php
  
 namespace App\Http\Controllers;
- 
+
+use App\Models\AssignedDevices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Users;
@@ -59,11 +60,18 @@ class UsersController extends Controller
 			}
 			
 		}
-		//database query
-		$users_Data=Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //database query
-		$roleData=Roles::orderBy('id','desc')->get();//database query
+		if(!empty($usersData)){
+			foreach ($usersData as $key=>$data) 
+			{
+				$assignedDevices = AssignedDevices::where('user_id', $data->id)
+						->whereNull('deleted_at')->where('status',1)
+						->count();
+				$usersData[$key]->assignedDevices = !empty($assignedDevices)? $assignedDevices:null;
+			}
+	   }
+		$users_Data=Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //Users data with role and department relation
+		$roleData=Roles::orderBy('id','desc')->get();// Roles Data
 		$departmentData = Departments::orderBy('id','desc')->get();
-		// dd($departmentData);
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter'));
 	}
 	/**

@@ -117,7 +117,7 @@ class Users extends Authenticatable
 
     public function assignedDevices()
     {
-        return $this->hasMany(AssignedDevice::class);
+        return $this->hasMany(AssignedDevices::class);
     }
 
 }

@@ -365,7 +365,7 @@
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="devices-nav"
-                    class="nav-content collapse {{ request()->is('devices') || request()->is('devices/team') ? 'show' : '' }}"
+                    class="nav-content collapse {{ request()->is('devices') || request()->is('assigned-devices') ? 'show' : '' }}"
                     data-bs-parent="#sidebar-nav">
                     <li>
                         <a class="{{ request()->is('devices') ? 'active' : 'collapsed' }}"

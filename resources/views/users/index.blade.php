@@ -71,10 +71,17 @@
                                 <td>{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">
+                                    @if ($data->assignedDevices > 0)
+                                    <input type="checkbox" onClick="ShowDeviceRecoveryMessage(this)" data-user-id="{{ $data->id }}"
+                                        class="form-check-input" id="{{ 'active_user_'.$data->id }}"
+                                        {{ $data->status == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="{{ 'active_user_'.$data->id }}"></label>
+                                        @else
                                         <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
                                             class="form-check-input" id="{{'active_user_'.$data->id}}"
                                             {{$data->status == 1 ? 'checked' : ''}}>
                                         <label class="form-check-label" for="active_user"></label>
+                                    @endif
                                     </div>
                                 </td>
                                 <td>
@@ -634,5 +641,14 @@ function editUsers(id) {
                 // Submit the form
                 $("#filter-data").submit();
             });
+
+
+            function ShowDeviceRecoveryMessage(checkbox) {
+        if (!checkbox.checked) {
+            alert("Please recover assigned devices before Deactivating this User.");
+            // Provide link to assigned device section with ID
+            window.location.href = "/assigned-devices";
+        }
+    }
 </script>
 @endsection
