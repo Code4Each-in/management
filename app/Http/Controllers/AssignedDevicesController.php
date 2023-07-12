@@ -45,7 +45,7 @@ class AssignedDevicesController extends Controller
             'device_id' => 'required', 
             'user_id' => 'required',
             'assigned_from' => 'required',
-            'assigned_to' => 'nullable|after_or_equal:assigned_from|before:today',  
+            'assigned_to' => 'nullable|after_or_equal:assigned_from|before_or_equal:today',  
         ]);        
         if ($validator->fails())
         {
@@ -129,7 +129,7 @@ class AssignedDevicesController extends Controller
             'edit_device_id' => 'required',   
             'edit_user_id' => 'required',   
             'edit_assigned_from' => 'required',   
-            'edit_assigned_to' => 'nullable|after_or_equal:edit_assigned_from|before:today',      
+            'edit_assigned_to' => 'nullable|after_or_equal:edit_assigned_from|before_or_equal:today',      
         ]);
  
         if ($validator->fails())
