@@ -2,6 +2,11 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
+
+<div id="loader">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
+
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
@@ -597,6 +602,14 @@
                   document.getElementById("assigneeFilterselectBox").addEventListener("change", function() {
                     document.getElementById("filter-data").submit();
                 });
+
+                $(function(){
+                    $('#addTickets').submit(function() {
+                        $('#loader').show(); 
+                        return true;
+                    });
+                });
+
 
         </script>
 

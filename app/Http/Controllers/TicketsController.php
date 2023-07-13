@@ -114,7 +114,7 @@ class TicketsController extends Controller
             ]);
             
             if (isset($validate['assign']))
-            {				
+            {			
                 foreach($validate['assign'] as $assign)
                 {				
                     $assign =TicketAssigns::create([					
@@ -139,6 +139,33 @@ class TicketsController extends Controller
                     ]); 
                 }
            }
+
+           //if user assigned then send email Notification to the Assigned Users
+           if($assign){
+                $ticketAuthor = Users::find(auth()->user()->id);
+                $projectDetail = Projects::find($tickets->project_id); 
+                $authorName = $ticketAuthor->first_name. ' '. $ticketAuthor->last_name;
+                $ticket_id = $tickets->id;
+                $ticket_eta = "Not Mentioned";
+                if ($tickets->eta){
+                    $ticket_eta = $tickets->eta;
+                }
+                $assignee_ids = TicketAssigns::where('ticket_id', $ticket_id)->pluck('user_id as id');
+                foreach ($assignee_ids as $id) {
+                    $assignedUsers = Users::where('id',$id)->get();
+                }
+                if($tickets){
+                    foreach ($assignedUsers as $assignedUser) {
+                        $messages["subject"] = "New Ticket #{$tickets->id} Has Been Created - {$authorName}";
+                        $messages["title"] = "The New Ticket #{$tickets->id} has been created for project '{$projectDetail->project_name}' subject  '{$tickets->title}' and priority level '{$tickets->priority}' end time is '{$ticket_eta}'.";
+                        $messages["body-text"] = "We kindly request you to review the ticket details and take necessary actions or provide a response if needed. ";
+                        $messages["action-message"] = "To Preview The Change, Click on the link provided below.";
+                        $messages["url-title"] = "View Ticket";
+                        $messages["url"] = "/edit/ticket/" . $tickets->id;
+                        $assignedUser->notify(new EmailNotification($messages));
+                    }
+                }
+            }
             $request->session()->flash('message','Tickets added successfully.');
     		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
     }
