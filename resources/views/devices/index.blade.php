@@ -39,7 +39,9 @@
                                 <td>{{$data->device_model ?? ''}}</td>
                                 <td>{{$data->brand ?? ''}}</td>
                                 <td>{{$data->serial_number ?? ''}}</td>
-                                <td>{{date("d-m-Y", strtotime($data->buying_date));}}</td>
+                                <td>
+                                    {{ $data->buying_date ? date("d-m-Y", strtotime($data->buying_date)) : '---' }}
+                                </td>
                                 <td> @if ($data->status == 0)
                                     <span class="badge rounded-pill bg-success">Free</span>
                                     @else
