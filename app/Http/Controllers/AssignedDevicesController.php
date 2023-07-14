@@ -22,7 +22,7 @@ class AssignedDevicesController extends Controller
         $users = Users::with('department')->whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->where('status',1)->get();
-        $assignedDevices = AssignedDevices::with('user','device')->get();
+        $assignedDevices = AssignedDevices::with('user','device')->where('status',1)->orderBy('id','desc')->get();
 
         return view('devices.assigned.index', compact('devices','users','assignedDevices'));
     }
@@ -44,8 +44,8 @@ class AssignedDevicesController extends Controller
         $validator = \Validator::make($request->all(), [
             'device_id' => 'required', 
             'user_id' => 'required',
-            'assigned_from' => 'required',
-            'assigned_to' => 'nullable|after_or_equal:assigned_from|before_or_equal:today',  
+            // 'assigned_from' => 'required',
+            // 'assigned_to' => 'nullable|after_or_equal:assigned_from|before_or_equal:today',  
         ]);        
         if ($validator->fails())
         {
@@ -59,8 +59,8 @@ class AssignedDevicesController extends Controller
         $deviceassigned = AssignedDevices::Create([
             'device_id' => $validate['device_id'],
             'user_id' => $validate['user_id'],
-            'from' => $validate['assigned_from'],
-            'to' => $validate['assigned_to'],
+            'from' => date('y-m-d'),
+            // 'to' => $validate['assigned_to'],
             'status' => $status,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -94,27 +94,27 @@ class AssignedDevicesController extends Controller
      * @param  \App\Models\AssignedDevices  $assignedDevices
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        $assignedDevice = AssignedDevices::with('user','device')->where('id', $id)->first();
-          //Get Free Devices For Assign
-          $devices = Devices::all();
-        $freeDevices = [];
-        $inUseDevices = [];
+    // public function edit($id)
+    // {
+    //     $assignedDevice = AssignedDevices::with('user','device')->where('id', $id)->first();
+    //       //Get Free Devices For Assign
+    //       $devices = Devices::all();
+    //     $freeDevices = [];
+    //     $inUseDevices = [];
 
-        foreach ($devices as $device) {
-            if ($device->status == 0) {
-                $freeDevices[] = $device;
-            } else {
-                $inUseDevices[] = $device;
-            }
-        }
-          //Get Users Without Admin To Assign Device Where Users Are Active 
-          $users = Users::with('department')->whereHas('role', function($q){
-              $q->where('name', '!=', 'Super Admin');
-          })->where('status',1)->get();
-        return view('devices.assigned.edit',compact('assignedDevice','freeDevices','inUseDevices','users'));
-    }
+    //     foreach ($devices as $device) {
+    //         if ($device->status == 0) {
+    //             $freeDevices[] = $device;
+    //         } else {
+    //             $inUseDevices[] = $device;
+    //         }
+    //     }
+    //       //Get Users Without Admin To Assign Device Where Users Are Active 
+    //       $users = Users::with('department')->whereHas('role', function($q){
+    //           $q->where('name', '!=', 'Super Admin');
+    //       })->where('status',1)->get();
+    //     return view('devices.assigned.edit',compact('assignedDevice','freeDevices','inUseDevices','users'));
+    // }
 
     /**
      * Update the specified resource in storage.
@@ -123,13 +123,13 @@ class AssignedDevicesController extends Controller
      * @param  \App\Models\AssignedDevices  $assignedDevices
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'edit_device_id' => 'required',   
-            'edit_user_id' => 'required',   
-            'edit_assigned_from' => 'required',   
-            'edit_assigned_to' => 'nullable|after_or_equal:edit_assigned_from|before_or_equal:today',      
+            'id' => 'required',   
+            'status' => 'required',   
+            // 'edit_assigned_from' => 'required',   
+            // 'edit_assigned_to' => 'nullable|after_or_equal:edit_assigned_from|before_or_equal:today',      
         ]);
  
         if ($validator->fails())
@@ -137,26 +137,22 @@ class AssignedDevicesController extends Controller
             // return response()->json(['errors'=>$validator->errors()->all()]);
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        $status = 1;
-		if ($request->edit_assigned_to != null) {
-            $status = 0;
-        }
-      $assignedDevice =  AssignedDevices::where('id', $id)
+        $id = $request->id;
+        $assignedDeviceData = AssignedDevices::find($id);
+        $assignedDevice =  AssignedDevices::where('id', $id)
         ->update([
-            'device_id' => $request->edit_device_id,
-            'user_id' => $request->edit_user_id,
-            'from' => $request->edit_assigned_from,
-            'to' => $request->edit_assigned_to,
-            'status' => $status,
+            'to' => date('Y-m-d'),
+            'status' => $request->status,
         ]);
+        $device_id =  $assignedDeviceData->device_id;
         if($assignedDevice){
-            $deviceStatus = Devices::where('id', $request->edit_device_id)->update([
-                'status' => $status,
+            $deviceStatus = Devices::where('id', $device_id)->update([
+                'status' => $request->status,
             ]);
         }
 		
         $request->session()->flash('message','Assigned Device updated successfully.');
-        return redirect()->route('devices.assigned.index')->with('assignedDevices', $assignedDevice);
+        return Response()->json(['status'=>200]);
     }
 
 
@@ -170,7 +166,7 @@ class AssignedDevicesController extends Controller
     {   
         $device = AssignedDevices::where('id',$request->id)->first();
         if($device->to == null){
-        $request->session()->flash('error','You Cannot Delete Assigned Device without Adding To Date.');
+        $request->session()->flash('error','You cannot delete an assigned device without recovering the device.');
         }else{
             $device_id = $device->device_id;
             $device->status = 0;
