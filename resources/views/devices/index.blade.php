@@ -176,7 +176,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="edit_device_model" class="col-sm-3 col-form-label">Device Model</label>
+                        <label for="edit_device_model" class="col-sm-3 col-form-label required">Device Model</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="edit_device_model" id="edit_device_model">
                         </div>
@@ -185,7 +185,7 @@
                         @endif
                     </div>
                     <div class="row mb-3">
-                        <label for="edit_brand" class="col-sm-3 col-form-label ">Brand</label>
+                        <label for="edit_brand" class="col-sm-3 col-form-label required">Brand</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="edit_brand" id="edit_brand">
                         </div>
@@ -197,7 +197,7 @@
                     <div class="row mb-3">
                         <label for="edit_serial_number" class="col-sm-3 col-form-label ">Serial Number</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="edit_serial_number" id="edit_serial_number">
+                            <input type="text" title="Add If Any" class="form-control" name="edit_serial_number" id="edit_serial_number">
                         </div>
                         @if ($errors->has('edit_serial_number'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_serial_number') }}</span>
@@ -205,7 +205,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="edit_buying_date" class="col-sm-3 col-form-label required">Buying Date</label>
+                        <label for="edit_buying_date" class="col-sm-3 col-form-label">Buying Date</label>
                         <div class="col-sm-9">
                             <input type="date" class="form-control" name="edit_buying_date" id="edit_buying_date">
                         </div>
