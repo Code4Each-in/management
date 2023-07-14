@@ -111,9 +111,9 @@ class DevicesController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'edit_device_name' => 'required',   
-            'edit_device_model' => 'nullable',   
-            'edit_buying_date' => 'required',   
-            'edit_brand' => 'nullable',   
+            'edit_device_model' => 'required',   
+            'edit_buying_date' => 'nullable',   
+            'edit_brand' => 'required',   
             'edit_serial_number' => 'nullable',   
 
         ]);
