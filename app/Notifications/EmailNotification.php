@@ -41,7 +41,7 @@ class EmailNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    // ->from($address = 'noreply@example.com', $name = 'Code4each')
+                    ->greeting(isset($this->messages['greeting-text']) ? $this->messages['greeting-text'] : 'Hello!')
                     ->subject(isset($this->messages['subject']) ? $this->messages['subject'] : 'Notification Email')
                     ->line(isset($this->messages['title']) ? $this->messages['title'] : 'Title')
                     ->line(isset($this->messages['body-text']) ? $this->messages['body-text'] : 'Body Text')
