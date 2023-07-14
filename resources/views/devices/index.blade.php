@@ -32,7 +32,9 @@
                             
                             @forelse($devices as $index => $data)
                             <tr>
-                                <td> {{ $index + 1 }}</td>
+                                <td>
+                                    <a href="{{ url('/device/'.$data->id)}}">#{{ $index + 1 }}</a>
+                                </td>
                                 <td>{{$data->name}}</td>
                                 <td>{{$data->device_model ?? ''}}</td>
                                 <td>{{$data->brand ?? ''}}</td>
@@ -88,18 +90,18 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="device_model" class="col-sm-3 col-form-label">Device Model</label>
+                        <label for="device_model" class="col-sm-3 col-form-label required">Device Model</label>
                         <div class="col-sm-9">
-                            <input type="text" title="Add If Any" class="form-control" name="device_model" id="device_model">
+                            <input type="text"  class="form-control" name="device_model" id="device_model">
                         </div>
                         @if ($errors->has('device_model'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('device_model') }}</span>
                         @endif
                     </div>
                     <div class="row mb-3">
-                        <label for="brand" class="col-sm-3 col-form-label ">Brand</label>
+                        <label for="brand" class="col-sm-3 col-form-label required">Brand</label>
                         <div class="col-sm-9">
-                            <input type="text" title="Add If Any" class="form-control" name="brand" id="brand">
+                            <input type="text" class="form-control" name="brand" id="brand">
                         </div>
                         @if ($errors->has('brand'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('brand') }}</span>
@@ -117,14 +119,24 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="brand" class="col-sm-3 col-form-label required">Buying Date</label>
+                        <label for="brand" class="col-sm-3 col-form-label">Buying Date</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="buying_date" id="buying_date">
+                            <input type="date" title="Add If Any" class="form-control" name="buying_date" id="buying_date">
                         </div>
                         @if ($errors->has('buying_date'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('buying_date') }}</span>
                         @endif
                     </div>
+
+                    <!-- <div class="row mb-3">
+                        <label for="document" class="col-sm-3 col-form-label ">Document</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
+                        </div>
+                                @if ($errors->has('add_document'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('add_document') }}</span>
+                        @endif
+                    </div> -->
 
                 </div>
                 <div class="modal-footer">

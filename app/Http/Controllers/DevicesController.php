@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Devices;
+use App\Models\DevicesDocuments;
 use Illuminate\Http\Request;
 
 class DevicesController extends Controller
@@ -14,7 +15,7 @@ class DevicesController extends Controller
      */
     public function index()
     {
-        $devices = Devices::all();
+        $devices = Devices::orderBy('id','desc')->get();
         return view('devices.index', compact('devices'));
     }
 
@@ -34,10 +35,11 @@ class DevicesController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'deviceName' => 'required', 
-            'deviceModel' => 'nullable',
-            'brand' => 'nullable',
+            'deviceModel' => 'required',
+            'brand' => 'required',
             'serialNumber' => 'nullable',
-            'buyingDate' => 'required',  
+            'buyingDate' => 'nullable',  
+            // 'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
         ]);        
         if ($validator->fails())
         {
@@ -59,6 +61,21 @@ class DevicesController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+
+    //     if($request->hasfile('add_document')){
+    //         foreach($request->file('add_document') as $file)
+    //         {
+    //         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    //         $dateString = date('YmdHis');
+    //         $name = $dateString . '_' . $fileName . '.' . $file->extension();
+    //         $file->move(public_path('assets/img/devicesAssets'), $name);  
+    //         $path='devicesAssets/'.$name;
+    //             $documents = DevicesDocuments::create([
+    //             'document' => $path,
+    //             'device_id'=> $device->id,
+    //             ]); 
+    //         }
+    //    }
 
 		$request->session()->flash('message','Device added successfully.');
         return Response()->json(['status'=>200, 'device'=>$device]);
@@ -134,5 +151,12 @@ class DevicesController extends Controller
             $request->session()->flash('message','Device deleted successfully.');
         }
        return Response()->json($device);
+    }
+
+
+    public function show($id)
+    {
+        $device = Devices::find($id); 
+        return view('devices.show',compact('device'));
     }
 }

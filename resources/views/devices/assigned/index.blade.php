@@ -21,10 +21,11 @@
                                     <th>#</id>
                                     <th>Device Name</th>
                                     <th>Model Name</th>
-                                    <th>Serial Number</th>
+                                    <!-- <th>Serial Number</th> -->
                                     <th>Assigned To</th>
                                     <th>From</th>
                                     <th>To</th>
+                                    <th>Recover Device</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -33,15 +34,12 @@
                                 @forelse($assignedDevices as $index => $data)
                                 <tr>
                                     <td>
-                                    @if ($data->status == 1)
-                                    <a href="{{ url('/edit/assigned-device/'.$data->id)}}">#{{ $index + 1 }}</a>
-                                    @else
-                                       <a href="#"> #{{ $index + 1 }}</a>
-                                    @endif
+                                       {{ $index + 1 }}
+                                    </td>
                                     <td>{{($data->device->name ?? '' )}}</td>
                                     <td>{{($data->device->device_model ?? '' )}}</td>
-                                    <td>{{($data->device->serial_number ?? '')}}</td>
-                                    <td>{{ $data->user->first_name ?? '' }}</td>
+                                    <!-- <td>{{($data->device->serial_number ?? '')}}</td> -->
+                                    <td>{{ $data->user->first_name ?? '' }} {{ $data->user->last_name ?? '' }}</td>
                                     <td>{{date("d-m-Y", strtotime($data->from))}}</td>
                                     <td>
                                         @if ($data->to)
@@ -49,17 +47,26 @@
                                         @endif
                                     </td>
                                     <td>
+                                      @if ($data->status == 1)
+                                      <div class="text-center">
+                                        <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
+                                            class="form-check-input" id="{{'active_user_'.$data->id}}"
+                                            {{$data->status == 0 ? 'checked' : ''}}>
+                                        <label class="form-check-label" for="active_user"></label>
+                                        <!-- <a href="{{ url('/edit/assigned-device/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i></a> -->
+                                        </div>
+                                         @endif
+                                    </td>
+                                    <td>
                                     @if ($data->status == 0)
-                                    <span class="badge rounded-pill bg-success">Free</span>
+                                    <span class="badge rounded-pill bg-success">Recovered</span>
                                     @else
                                     <span class="badge rounded-pill bg-primary">Assigned</span>
                                     @endif    
                                     </td>
                                     <td> 
                                         <i style="color:#4154f1;" onClick="deleteAssignedDevice('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
-                                        @if ($data->status == 1)
-                                        <a href="{{ url('/edit/assigned-device/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i></a>
-                                         @endif
+                                       
                                     </td>
                                 </tr>
                                 @empty
@@ -112,7 +119,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <!-- <div class="row mb-3">
                                 <label for="assigned_from" class="col-sm-3 col-form-label required">Assigned From</label>
                                 <div class="col-sm-9">
                                     <input type="date" class="form-control" name="assigned_from" id="assigned_from">
@@ -120,9 +127,9 @@
                                 @if ($errors->has('assigned_from'))
                                 <span style="font-size: 12px;" class="text-danger">{{ $errors->first('assigned_from') }}</span>
                                 @endif
-                            </div>
+                            </div> -->
 
-                            <div class="row mb-3">
+                            <!-- <div class="row mb-3">
                                 <label for="assigned_to" class="col-sm-3 col-form-label">Assigned To</label>
                                 <div class="col-sm-9">
                                     <input type="date" class="form-control" name="assigned_to" id="assigned_to">
@@ -130,7 +137,7 @@
                                 @if ($errors->has('assigned_to'))
                                 <span style="font-size: 12px;" class="text-danger">{{ $errors->first('assigned_to') }}</span>
                                 @endif
-                            </div>
+                            </div> -->
 
 
                             <div class="modal-footer">
@@ -240,5 +247,31 @@
                     });
                 }
             }
+
+            function Showdata(ele) {
+                var dataId = $(ele).attr("data-user-id");
+
+                var status = 1;
+                if ($("#active_user_" + dataId).prop('checked') == true) {
+                    status = 0;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url('/update/assigned-device')}}",
+                    data: {
+                        id: dataId,
+                        status: status,
+                    },
+                    cache: false,
+                    success: (data) => {
+                        if (data.status == 200) {
+                            location.reload();
+                        }
+                    },
+                    error: function(data) {}
+                });
+
+            }
+
         </script>
         @endsection

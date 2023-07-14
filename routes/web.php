@@ -112,12 +112,14 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/device', [DevicesController::class, 'edit'])->name('devices.edit');
 	Route::post('/update/device', [DevicesController::class, 'update'])->name('devices.update');
 	Route::delete('/delete/device', [DevicesController::class, 'destroy'])->name('devices.delete');
+	Route::get('/device/{id}', [DevicesController::class, 'show'])->name('devices.show');
+
 
 	// Assigned Devices Routes
 	Route::get('/assigned-devices', [AssignedDevicesController::class, 'index'])->name('devices.assigned.index');
 	Route::post('/add/assigned-device', [AssignedDevicesController::class, 'store'])->name('devices.assigned.add');
-	Route::get('/edit/assigned-device/{id}', [AssignedDevicesController::class, 'edit'])->name('devices.assigned.edit');
-	Route::post('/update/assigned-device/{id}', [AssignedDevicesController::class, 'update'])->name('devices.assigned.update');
+	// Route::get('/edit/assigned-device/{id}', [AssignedDevicesController::class, 'edit'])->name('devices.assigned.edit');
+	Route::post('/update/assigned-device', [AssignedDevicesController::class, 'update'])->name('devices.assigned.update');
 	Route::delete('/delete/assigned-device', [AssignedDevicesController::class, 'destroy'])->name('devices.assigned.delete');
 
 	// Projects Routes
