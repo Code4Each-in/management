@@ -2,6 +2,7 @@
  
 namespace App\Http\Controllers;
 
+use App\Models\AssignedDevices;
 use App\Models\Holidays;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -83,6 +84,9 @@ class DashboardController extends Controller
         ->select('user_leaves.leave_status','user_leaves.id as leave_id','user_leaves.updated_at', 'users.first_name', 'users.last_name', )
         ->get();
          }
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday'));
+
+        $assignedDevices = AssignedDevices::with('user','device')->where('user_id', '=',  auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
+
+        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices'));
     }
 }

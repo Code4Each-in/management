@@ -39,7 +39,7 @@ class DevicesController extends Controller
             'brand' => 'required',
             'serialNumber' => 'nullable',
             'buyingDate' => 'nullable',  
-            // 'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
         ]);        
         if ($validator->fails())
         {
@@ -62,20 +62,20 @@ class DevicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-    //     if($request->hasfile('add_document')){
-    //         foreach($request->file('add_document') as $file)
-    //         {
-    //         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    //         $dateString = date('YmdHis');
-    //         $name = $dateString . '_' . $fileName . '.' . $file->extension();
-    //         $file->move(public_path('assets/img/devicesAssets'), $name);  
-    //         $path='devicesAssets/'.$name;
-    //             $documents = DevicesDocuments::create([
-    //             'document' => $path,
-    //             'device_id'=> $device->id,
-    //             ]); 
-    //         }
-    //    }
+        if($request->hasfile('add_document')){
+            foreach($request->file('add_document') as $file)
+            {
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $dateString = date('YmdHis');
+            $name = $dateString . '_' . $fileName . '.' . $file->extension();
+            $file->move(public_path('assets/img/devicesAssets'), $name);  
+            $path='devicesAssets/'.$name;
+                $documents = DevicesDocuments::create([
+                'document' => $path,
+                'device_id'=> $device->id,
+                ]); 
+            }
+       }
 
 		$request->session()->flash('message','Device added successfully.');
         return Response()->json(['status'=>200, 'device'=>$device]);
@@ -115,15 +115,14 @@ class DevicesController extends Controller
             'edit_buying_date' => 'nullable',   
             'edit_brand' => 'required',   
             'edit_serial_number' => 'nullable',   
-
+            'edit_add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
         ]);
  
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
-		
-        Devices::where('id', $request->id)
+        $device = Devices::where('id', $request->id)
         ->update([
             'name' => $request->edit_device_name,
             'device_model' => $request->edit_device_model,
@@ -131,8 +130,24 @@ class DevicesController extends Controller
             'serial_number' => $request->edit_serial_number,
             'brand' => $request->edit_brand,
         ]);
+
+        if($request->hasfile('edit_add_document')){
+            foreach($request->file('edit_add_document') as $file)
+            {
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $dateString = date('YmdHis');
+            $name = $dateString . '_' . $fileName . '.' . $file->extension();
+            $file->move(public_path('assets/img/devicesAssets'), $name);  
+            $path='devicesAssets/'.$name;
+                $documents = DevicesDocuments::create([
+                'document' => $path,
+                'device_id'=> $request->id,
+                ]); 
+            }
+       }
+
 		$request->session()->flash('message','Device updated successfully.');
-        return Response()->json(['status'=>200]);
+        return Response()->json(['status'=>200, 'device' => $device]);
     }
 
     /**
@@ -157,6 +172,16 @@ class DevicesController extends Controller
     public function show($id)
     {
         $device = Devices::find($id); 
-        return view('devices.show',compact('device'));
+        $deviceDocuments = DevicesDocuments::where('device_id',$id)->get();
+        return view('devices.show',compact('device','deviceDocuments'));
     }
+
+
+    public function deleteDocument(Request $request)
+	{
+		$document = DevicesDocuments::where('id',$request->documentId)->delete();
+        $request->session()->flash('message','Document deleted successfully.');
+
+		return Response()->json(['status'=>200 ,'documents' => $document]);
+	}
 }

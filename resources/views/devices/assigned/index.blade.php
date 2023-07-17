@@ -10,6 +10,21 @@
                     <button class="btn btn-primary mt-3" onClick="openassignDeviceModel()" href="javascript:void(0)">Assign Device</button>
                 </div>
             </div>
+
+             <form id="filter-data" method="GET" action="{{ route('devices.assigned.index') }}">
+                <div class="row mt-3 mx-auto">
+                    <div class="col-md-6 filtersContainer d-flex p-0">
+                        <div style="margin-right:20px;">
+                            
+                            <input type="checkbox" class="form-check-input" name="all_devices" id="all_devices"
+                                {{ $allDevicesFilter == 'on' ? 'checked' : '' }}>  
+                                <label for="all_devices">All </label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </form> 
+
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <!-- filter -->
@@ -44,6 +59,8 @@
                                     <td>
                                         @if ($data->to)
                                             {{date("d-m-Y", strtotime($data->to)) }}
+                                        @else
+                                            ---
                                         @endif
                                     </td>
                                     <td>
@@ -272,6 +289,13 @@
                 });
 
             }
+
+
+              // Event listener for checkbox changes
+        $("#filter-data input:checkbox").change(function() {
+                // Submit the form
+                $("#filter-data").submit();
+            });
 
         </script>
         @endsection

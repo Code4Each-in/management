@@ -16,15 +16,24 @@ class AssignedDevicesController extends Controller
      */
     public function index()
     {   
+        $assignedDeviceFilter = request()->all() ;
+        $allDevicesFilter = $assignedDeviceFilter['all_devices'] ?? '';
+
         //Get Free Devices For Assign
         $devices = Devices::where('status',0)->get();
         //Get Users Without Admin To Assign Device Where Users Are Active 
         $users = Users::with('department')->whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->where('status',1)->get();
+        if ($allDevicesFilter == 'on') {
+        $assignedDevices = AssignedDevices::with('user','device')->orderBy('id','desc')->get();
+        } else {
         $assignedDevices = AssignedDevices::with('user','device')->where('status',1)->orderBy('id','desc')->get();
 
-        return view('devices.assigned.index', compact('devices','users','assignedDevices'));
+        }
+        
+
+        return view('devices.assigned.index', compact('devices','users','assignedDevices','allDevicesFilter'));
     }
 
     /**

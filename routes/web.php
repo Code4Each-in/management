@@ -159,6 +159,10 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/project/assign', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
 
+
+	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
+
+
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
  });
