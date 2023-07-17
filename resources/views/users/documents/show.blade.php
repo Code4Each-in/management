@@ -9,7 +9,7 @@
         <div class="row mb-3"> 
             <div class="col-md-12">
                 <div class="documents-grid mt-4">
-                @foreach ($userDocuments as $document )
+                 @foreach ($userDocuments as $document )
                                     <div class="card doc-card">
                                         <div class="card-body" style="padding: 0;">
                                             <div class="imagePreview">

@@ -25,6 +25,10 @@ class RolePermissionMiddleware
            $name = \Request::route()->getName();
            //find Modules Related To The Route Name
            $modules = Modules::where('route_name',$name)->first();
+           if ($modules == null) {
+            return Redirect::back()->with('error', 'Permission Module Is Not Registered. Try to Access Again After Register.');
+            
+           }
            $moduleId = $modules->id;
            $role_id = $user->role_id;
            $role_permission = RolePermission::where('role_id',$role_id)->where('module_id',$moduleId)->exists();

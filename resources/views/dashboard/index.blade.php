@@ -14,7 +14,9 @@
                 </div>
 @endif
 
+
 <!-- <div class=""> -->
+<div class="row">
 <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
     <div class="row">
        
@@ -113,62 +115,6 @@
             </div>
         </div>
     </div>
-    <div class="col-12 dashboard">
-        <div class="card recent-sales overflow-auto">
-            <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Teams Leave</h5>
-                <table class="table table-borderless datatable" id="leavesss">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">From</th>
-                            <th scope="col">To</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($userLeaves as $data)
-                        <tr>
-                            <td>{{ $data->first_name}}</td>
-                            <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                            <td>{{date("d-m-Y", strtotime($data->to));}}</td>
-                            <td>{{$data->type }}</td>
-                            <td>
-                            @php
-                              $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
-                            @endphp
-                            @if($data->leave_status == 'approved')
-                            <span class="badge rounded-pill approved">Approved</span>
-                            @elseif($data->leave_status == 'declined')
-                            <span class="badge rounded-pill denied">Declined</span>
-                            @else
-                            <span class="badge rounded-pill requested">Requested</span>
-                            @endif
-                            @if (!empty($leaveStatusData))
-                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $leaveStatusData->first_name ?? '' }} </p>
-                            @endif
-                            </td>
-                        </tr>
-                        @empty
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div><!-- End Recent Sales -->
 </div>
 <div class="col-lg-4 dashboard" style="margin-top: 20px ">
     <!-- Recent Activity -->
@@ -227,6 +173,117 @@
 </div>
 <!-- Recent Sales -->
 
+<div class="row">
+    <div class="col-6 dashboard">
+        <div class="card recent-sales overflow-auto">
+            <div class="filter">
+                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+            </ul> -->
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Teams Leave</h5>
+                <table class="table table-borderless datatable" id="leavesss">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($userLeaves as $data)
+                        <tr>
+                            <td>{{ $data->first_name}}</td>
+                            <td>{{date("d-m-Y", strtotime($data->from));}}</td>
+                            <td>{{date("d-m-Y", strtotime($data->to));}}</td>
+                            <td>{{$data->type }}</td>
+                            <td>
+                            @php
+                              $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
+                            @endphp
+                            @if($data->leave_status == 'approved')
+                            <span class="badge rounded-pill approved">Approved</span>
+                            @elseif($data->leave_status == 'declined')
+                            <span class="badge rounded-pill denied">Declined</span>
+                            @else
+                            <span class="badge rounded-pill requested">Requested</span>
+                            @endif
+                            @if (!empty($leaveStatusData))
+                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $leaveStatusData->first_name ?? '' }} </p>
+                            @endif
+                            </td>
+                        </tr>
+                        @empty
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 dashboard">
+    <div class="card recent-sales overflow-auto">
+            <div class="filter">
+                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+            </ul> -->
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Assigned Devices</h5>
+                <table class="table table-borderless datatable" id="devices">
+                    <thead>
+                        <tr>
+                            <th scope="col">Device Name</th>
+                            <th scope="col">Model Name</th>
+                            <th scope="col">Serial Number</th>
+                            <th scope="col">From</th>
+                            <!-- <th scope="col">To</th> -->
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($assignedDevices as $data)
+                        <tr>
+                            <td>{{ $data->device->name ?? ''}}</td>
+                            <td>{{ $data->device->device_model ?? ''}}</td>
+                            <td>{{ $data->device->serial_number ?? '---'}}</td>
+                            <td>{{date("d-m-Y", strtotime($data->from));}}</td>
+                            <!-- <td> @if ($data->to)
+                                            {{date("d-m-Y", strtotime($data->to)) }}
+                                        @endif
+                            </td> -->
+                            <td>  @if ($data->status == 0)
+                                    <span class="badge rounded-pill bg-success">Recovered</span>
+                                    @else
+                                    <span class="badge rounded-pill bg-primary">Assigned</span>
+                                    @endif    
+                            </td>
+                        </tr>
+                        @empty
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
     <div class="modal-dialog">
@@ -261,6 +318,10 @@
     $(document).ready(function() {
 
         $('#leavesss').DataTable({
+            "order": []
+        });
+
+        $('#devices').DataTable({
             "order": []
         });
 

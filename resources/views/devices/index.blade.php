@@ -8,6 +8,9 @@
         <div class="card-body">
             <button class="btn btn-primary mt-3 mb-4" onClick="openDeviceModel()" href="javascript:void(0)">Add
                 Device</button>
+
+               
+
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -38,7 +41,7 @@
                                 <td>{{$data->name}}</td>
                                 <td>{{$data->device_model ?? ''}}</td>
                                 <td>{{$data->brand ?? ''}}</td>
-                                <td>{{$data->serial_number ?? ''}}</td>
+                                <td>{{$data->serial_number ?? '---' }}</td>
                                 <td>
                                     {{ $data->buying_date ? date("d-m-Y", strtotime($data->buying_date)) : '---' }}
                                 </td>
@@ -76,7 +79,7 @@
                 <h5 class="modal-title" id="addDeviceLabel">Add Device</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" id="addDeviceForm" action="">
+            <form method="post" id="addDeviceForm" action="" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
@@ -130,7 +133,7 @@
                         @endif
                     </div>
 
-                    <!-- <div class="row mb-3">
+                    <div class="row mb-3">
                         <label for="document" class="col-sm-3 col-form-label ">Document</label>
                         <div class="col-sm-9">
                             <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
@@ -138,7 +141,7 @@
                                 @if ($errors->has('add_document'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('add_document') }}</span>
                         @endif
-                    </div> -->
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -160,7 +163,7 @@
                 <h5 class="modal-title" id="editDeviceLabel">Edit Device</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" id="editDeviceForm" action="">
+            <form method="post" id="editDeviceForm" action="" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
@@ -214,6 +217,18 @@
                         @endif
                     </div>
 
+
+                    <div class="row mb-3">
+                        <label for="edit_add_document" class="col-sm-3 col-form-label ">Document</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" name="edit_add_document[]" id="edit_add_document" multiple />
+                        </div>
+                                @if ($errors->has('edit_add_document'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_add_document') }}</span>
+                        @endif
+                    </div>
+
+
                     <input type="hidden" class="form-control" id="hidden_device_id" value="">
                 </div>
                 <div class="modal-footer">
@@ -256,25 +271,34 @@ function addDevice() {
     var brand = $('#brand').val();
     var serialNumber = $('#serial_number').val();
     var buyingDate = $('#buying_date').val();
+    var add_document = $('#add_document')[0].files;
+
+    var formData = new FormData();
+    formData.append('deviceName', deviceName);
+    formData.append('deviceModel', deviceModel);
+    formData.append('brand', brand);
+    formData.append('serialNumber', serialNumber);
+    formData.append('buyingDate', buyingDate);
+
+    // Append each file to the FormData object
+    for (var i = 0; i < add_document.length; i++) {
+        formData.append('add_document[]', add_document[i]);
+    }
+
     $.ajax({
         type: 'POST',
         url: "{{ url('/add/device')}}",
-        data: {
-            deviceName: deviceName,
-            deviceModel:deviceModel,
-            brand: brand,
-            serialNumber: serialNumber,
-            buyingDate: buyingDate     
-        },
+        data: formData,
         cache: false,
-        success: (data) => {
+        processData: false,
+        contentType: false,
+        success: function(data) {
             if (data.errors) {
                 $('.alert-danger').html('');
-
                 $.each(data.errors, function(key, value) {
                     $('.alert-danger').show();
                     $('.alert-danger').append('<li>' + value + '</li>');
-                })
+                });
             } else {
                 $('.alert-danger').html('');
                 $("#addDevice").modal('hide');
@@ -318,19 +342,28 @@ function updateDevice() {
     var edit_brand = $('#edit_brand').val();
     var edit_serial_number = $('#edit_serial_number').val();
     var edit_buying_date = $('#edit_buying_date').val();
+    var edit_add_document = $('#edit_add_document')[0].files;
 
+    var formData = new FormData();
+    formData.append('id', id);
+    formData.append('edit_device_name', edit_device_name);
+    formData.append('edit_device_model', edit_device_model);
+    formData.append('edit_brand', edit_brand);
+    formData.append('edit_serial_number', edit_serial_number);
+    formData.append('edit_buying_date', edit_buying_date);
+
+    // Append each file to the FormData object
+    for (var i = 0; i < edit_add_document.length; i++) {
+        formData.append('edit_add_document[]', edit_add_document[i]);
+    }
 
     $.ajax({
         type: "POST",
         url: "{{ url('/update/device') }}",
-        data: {
-            id: id,
-            edit_device_name: edit_device_name,
-            edit_device_model: edit_device_model,
-            edit_brand: edit_brand,
-            edit_serial_number:edit_serial_number,
-            edit_buying_date: edit_buying_date,
-        },
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
         dataType: 'json',
         success: function(res) {
             if (res.errors) {
@@ -339,12 +372,15 @@ function updateDevice() {
                 $.each(res.errors, function(key, value) {
                     $('.alert-danger').show();
                     $('.alert-danger').append('<li>' + value + '</li>');
-                })
+                });
             } else {
                 $('.alert-danger').html('');
                 $("#editDevice").modal('hide');
                 location.reload();
             }
+        },
+        error: function(data) {
+            console.log(data);
         }
     });
 }
@@ -360,6 +396,29 @@ function updateDevice() {
                 dataType: 'json',
                 success: function(res) {
                     location.reload();
+                }
+            });
+        }
+    }
+
+
+    function deleteDocument(documentId) {
+        if (confirm("Are you sure You Want To Delete Document?") == true) {
+            $.ajax({
+                url: "{{ url('/delete/device/document')}}",
+                data: {
+                    documentId: documentId,
+                },
+                type: 'DELETE',
+                success: function(response) {
+                    // Handle success response
+                    // For example, remove the document item from the DOM
+                    $('#document-' + documentId).remove();
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.log(xhr.responseText);
                 }
             });
         }
