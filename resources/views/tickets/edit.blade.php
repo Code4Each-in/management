@@ -72,7 +72,8 @@
                 <div class="row mb-5">
                     <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                     <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="{{$tickets->eta}}">
+                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="@if ($tickets->eta) {{ 
+                            $tickets->eta}}@endif}}">
                     </div>
                 </div>
                 <div class="row mb-5">
