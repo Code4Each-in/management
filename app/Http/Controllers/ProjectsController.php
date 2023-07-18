@@ -208,7 +208,9 @@ class ProjectsController extends Controller
         $request->session()->flash('message','ProjectAssign deleted successfully.');
         $AssignData = ProjectAssigns::where(['project_id' => $request->ProjectId])->get();
         
-        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
+        $user = Users::whereHas('role', function($q){
+            $q->where('name', '!=', 'Super Admin');
+        })->orderBy('id','desc')->get()->toArray();	
     
        foreach($user as $key1=> $data1)
        {

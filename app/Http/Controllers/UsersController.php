@@ -25,25 +25,33 @@ class UsersController extends Controller
 	{
 		$usersFilter = request()->all() ;
         $allUsersFilter = $usersFilter['all_users'] ?? '';
-		if (auth()->user()->role_id==env('SUPER_ADMIN'))
+		if (auth()->user()->role->name == 'Super Admin')
 		{
 			
 			if ($allUsersFilter == 'on') {
 				
-				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get();
+				$usersData = Users::with('documents')->whereHas('role', function($q){
+					$q->where('name', '!=', 'Super Admin');
+				})->orderBy('id','desc')->get();
 			}else{
 				
-				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('status',1)->orderBy('id','desc')->get();
+				$usersData = Users::with('documents')->whereHas('role', function($q){
+					$q->where('name', '!=', 'Super Admin');
+				})->where('status',1)->orderBy('id','desc')->get();
 			}
 		}elseif (auth()->user()->role->name == 'HR Manager') {
 
 			if ($allUsersFilter == 'on') {
 				
-				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
+				$usersData = Users::with('documents')->whereHas('role', function($q){
+					$q->where('name', '!=', 'Super Admin');
+				})->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
 
 			}else{
 				
-				$usersData = Users::with('documents')->where('users.role_id','!=',env('SUPER_ADMIN'))->where('users.role_id','!=',auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
+				$usersData = Users::with('documents')->whereHas('role', function($q){
+					$q->where('name', '!=', 'Super Admin');
+				})->where('users.role_id','!=',auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
 				
 			}
 			

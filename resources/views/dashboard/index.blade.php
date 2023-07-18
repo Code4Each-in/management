@@ -21,7 +21,7 @@
     <div class="row">
        
         <!-- Sales Card -->
-        @if(auth()->user()->role_id==env('SUPER_ADMIN') || auth()->user()->role->name == 'HR Manager')
+        @if(auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card sales-card">
                 <div class="filter">

@@ -136,8 +136,14 @@
 
                 <!-- </li>End Messages Nav -->
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                    @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
-                        alt="Profile" height="50px" width="50px" class="rounded-circle picture">
+                        alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                    @else
+                    <img src="{{asset('assets/img/blankImage.jpg')}}" id="profile_picture"
+                        alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                    @endif
+                   
                 </a>
                 <li class="nav-item dropdown pe-3">
 
@@ -151,9 +157,15 @@
                         <li class="dropdown-header">
                             <div class="row">
                                 <div class="col-md-4">
+                                    @if (auth()->user()->profile_picture)
                                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}"
                                         id="profile_picture" alt="Profile" height="50px" width="50px"
-                                        class="rounded-circle picture">
+                                        class="rounded-circle picture js-profile-picture">
+                                    @else
+                                    <img src="{{asset('assets/img/blankImage.jpg')}}"
+                                        id="profile_picture" alt="Profile" height="50px" width="50px"
+                                        class="rounded-circle picture js-profile-picture">
+                                    @endif
                                 </div>
                                 <div class="col-md-5">
                                     <h6>{{ auth()->user()->first_name ?? " " }}</h6>
@@ -213,7 +225,7 @@
                     <span>Dashboard</span>
                 </a>
             </li><!-- End Dashboard Nav -->
-          @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+          @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -266,7 +278,7 @@
                     </span>
                 </a>
             </li>
-            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('attendance/team') ? '' : 'collapsed' }} show"
                     href="{{ route('attendance.team.index') }}">
@@ -299,7 +311,7 @@
                 </ul>
             </li>
             @endif
-            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('leaves/team') ? '' : 'collapsed' }}"
                     href=" {{ route('leaves.team.index')}}">
@@ -340,7 +352,7 @@
                 </a>
             </li>
             @endif
-            @if(auth()->user()->role_id==env('SUPER_ADMIN'))
+            @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
                     href="{{ route('projects.index') }}">
