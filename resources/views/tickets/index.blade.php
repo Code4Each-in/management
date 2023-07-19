@@ -113,7 +113,8 @@
                                     <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
-                                            @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20" class="rounded-circle">
+                                            @else 
+                                            <img src="{{ asset('assets/img/blankImage.jpg') }}" alt="Profile" width="20" height="20" class="rounded-circle">
                                             @endif
                                             @endforeach
                                             @endif
@@ -473,8 +474,10 @@
                         if (data.ticketAssigns.length > 0) {
                             var html = '';
                             $.each(data.ticketAssigns, function(key, assign) {
-                                var picture = 'blankImage';
-                                if (assign.profile_picture != "") {
+
+                                var picture = '/blankImage.jpg';
+                                console.log(assign.profile_picture);
+                                if (assign.profile_picture != null) {
                                     picture = assign.profile_picture;
                                 }
                                 html +=

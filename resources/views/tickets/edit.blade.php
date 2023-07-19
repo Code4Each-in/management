@@ -200,11 +200,11 @@
                             <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle " alt="">
                         </div>
                         @else
-                        <img src="{{asset('assets/img/blankImage')}}" alt="Profile" class="rounded-circle">
+                        <img src="{{asset('assets/img/blankImage.jpg')}}" alt="Profile" class="rounded-circle">
                         @endif
                         <div class="col-md-3">
                             <p>{{$data->user->first_name}}</p>
-                            <p>{{date("M d h:s a", strtotime($data->created_at));}}</p>
+                            <p>{{date("M d h:s A", strtotime($data->created_at));}}</p>
 
                         </div>
                         <div class="col-md-7 ">

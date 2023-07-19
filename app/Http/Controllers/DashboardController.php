@@ -29,7 +29,7 @@ class DashboardController extends Controller
         ->orderBy('from')->first();
             // dd($upcomingHoliday);
         
-        if (auth()->user()->role_id==env('SUPER_ADMIN'))
+        if (auth()->user()->role->name == 'Super Admin')
 		{
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-	
             $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();

@@ -20,7 +20,9 @@ class TicketsController extends Controller
             $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
             $projectFilter =  $ticketsFilter['project_filter'] ?? '';
             $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
-            $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->where('status','!=',0)->orderBy('id','desc')->get();	
+            $user = Users::whereHas('role', function($q){
+                $q->where('name', '!=', 'Super Admin');
+            })->where('status','!=',0)->orderBy('id','desc')->get();	
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
             $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
@@ -178,7 +180,9 @@ class TicketsController extends Controller
      public function editTicket($ticketId)
      { 
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
-         $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
+         $user = Users::whereHas('role', function($q){
+            $q->where('name', '!=', 'Super Admin');
+        })->orderBy('id','desc')->get()->toArray();	
          $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
         foreach($user as $key1=> $data1)
         {
@@ -336,7 +340,9 @@ class TicketsController extends Controller
         $request->session()->flash('message','TicketAssign deleted successfully.');
         $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
         
-        $user = Users::where('users.role_id','!=',env('SUPER_ADMIN'))->orderBy('id','desc')->get()->toArray();	
+        $user = Users::whereHas('role', function($q){
+            $q->where('name', '!=', 'Super Admin');
+        })->orderBy('id','desc')->get()->toArray();	
     
        foreach($user as $key1=> $data1)
        {

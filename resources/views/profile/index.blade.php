@@ -35,9 +35,9 @@
         <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
             @if(!empty($usersProfile->profile_picture))
             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" id="profile_picture" alt="Profile"
-                class="rounded-circle picture">
+                class="rounded-circle picture js-profile-picture">
             @else
-            <img src="assets/img/blankImage" alt="Profile" class="rounded-circle">
+            <img src="{{ asset('assets/img/blankImage.jpg')}}" id="profile_picture" alt="Profile" class="rounded-circle js-profile-picture">
             @endif
             <h2 class="profile_name">{{$usersProfile->first_name." ".$usersProfile->last_name}}</h2>
             <h3>{{$usersProfile->role->name}}</h3>
@@ -180,10 +180,10 @@
                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label ">Profile Image</label>
                         <div class="col-md-8 col-lg-9 ">
                             @if(!empty($usersProfile->profile_picture))
-                            <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" class="picture"
+                            <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" class="picture js-profile-picture"
                                 id="edit_profile_picture" alt="Profile">
                             @else
-                            <img src="assets/img/blankImage" alt="Profile" class="rounded-circle">
+                            <img src="{{ asset('assets/img/blankImage.jpg')}}" id="edit_profile_picture" alt="Profile" class="js-profile-picture">
                             @endif
 
                             <div class="row pt-2 ">
@@ -321,6 +321,7 @@
                                     value="{{$usersProfile->zip?? ''}}">
                             </div>
                         </div> -->
+
                          <div class="row mb-3">
                             <label for="add_skills" class="col-md-4 col-lg-3 col-form-label">Add Skills</label>
                             <div class="col-md-8 col-lg-9">
@@ -635,8 +636,8 @@
                     setTimeout(function() {
                         $('.profile_message').fadeOut("slow");
                     }, 2000);
-                    $("#profile_picture").attr("src", data.path);
-                    $("#edit_profile_picture").attr("src", data.path);
+                    // console.log(data.path);
+                    $("img.js-profile-picture").attr("src", data.path);
                 }
             },
             error: function(data) {}
@@ -787,8 +788,7 @@
                     setTimeout(function() {
                         $('.delete_message').fadeOut("slow");
                     }, 2000);
-                    $("#profile_picture").attr("src", '{{asset("assets/img/blankImage")}}');
-                    $("#edit_profile_picture").attr("src", '{{asset("assets/img/blankImage")}}');
+                    $("img.js-profile-picture").attr("src", '{{asset("assets/img/blankImage.jpg")}}');
 
                 },
                 error: function(data) {}
@@ -884,9 +884,7 @@
                             $modal.modal('hide');
                             var baseUrl = window.location.protocol + "//" + window.location.host;
                             var imagePath = "/assets/img/" + data.path;
-                            $("#profile_picture").attr("src", baseUrl + imagePath);
-                            $("#edit_profile_picture").attr("src", baseUrl + imagePath);
-
+                            $(".js-profile-picture").attr("src", baseUrl + imagePath);
                         }
                     });
                 }
