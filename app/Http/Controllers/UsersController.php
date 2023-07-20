@@ -406,7 +406,7 @@ class UsersController extends Controller
 		$validator = \Validator::make($request->all(),[ 
 			'user_id' => 'required', 
 			'document_name' => 'required',
-			'upload_document' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx'
+			'upload_document' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5128'
 			]);
 
 		if ($validator->fails()){

@@ -4,9 +4,15 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
+
+    protected $commands = [
+        Commands\QuarterlyLeaves::class,
+    ];
+
     /**
      * Define the application's command schedule.
      *
@@ -15,6 +21,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->call(function () {
+            try {
+                Artisan::call('leaves:quarterly');
+                info('Cron job executed successfully!');
+            } catch (\Exception $e) {
+                // Log or handle the exception
+                \Log::error('Error executing cron job: ' . $e->getMessage());
+            }
+        })->everyMinute();
+        // $schedule->command('credit-leaves:quarterly')->cron('0 0 1 */3 *');
+
         // $schedule->command('inspire')->hourly();
     }
 
