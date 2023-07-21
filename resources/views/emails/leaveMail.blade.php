@@ -42,7 +42,7 @@
     <div class="container">
         <h1>Leave Request</h1>
         <p>Dear HR Team,</p>
-        <p>I hope this email finds you well. I am writing to formally request a leave of absence from {{date('d-m-Y', strtotime($data['from'])) }} to {{date('d-m-Y', strtotime($data['to'])) }}.</p>
+        <p>I hope this email finds you well. I am writing to make a formal request for a leave of absence from {{date('d-M-Y', strtotime($data['from'])) }} to {{date('d-M-Y', strtotime($data['to'])) }} @if ($data['half_day'] != null), during the {{$data['half_day']}} of the day @endif.</p>
         <p>Please review the details below:</p>
         
         <table>

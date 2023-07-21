@@ -18,8 +18,9 @@ class UserLeaves extends Model
         'from',
         'to',
         'type',  
-        'notes',   
- 
+        'notes',  
+        'half_day',
+        'leave_day_count', 
     ];
 
     public function role()
