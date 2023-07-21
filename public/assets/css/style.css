@@ -1572,3 +1572,10 @@ header .header-alert{
   z-index: 1;
   background-color: rgba(182, 239, 251, 0.4);
 }
+.dashboard-my-leaves {
+  min-height: 170px;
+}
+
+.dashboard-my-leaves h6 {
+  font-size: 25px !important;
+}

@@ -86,7 +86,31 @@ class DashboardController extends Controller
          }
 
         $assignedDevices = AssignedDevices::with('user','device')->where('user_id', '=',  auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
+        
+        // Get Leaves Count For Dashbaord Total leaves And Availed Leaves
+        $currentYear = Carbon::now()->year;
+        $availableLeaves = Users::join('company_leaves', 'users.employee_id', '=', 'company_leaves.employee_id')
+        ->select('users.first_name', 'users.last_name', 'users.employee_id', 'company_leaves.leaves_count')
+        ->whereYear('company_leaves.created_at', $currentYear)->where('users.id', auth()->user()->id)
+        ->get();
+        // dd($availableLeaves);
+        $availableLeave = 0;
+        foreach ($availableLeaves as $avLeave) {
+            $availableLeave += $avLeave->leaves_count;
+        }
 
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices'));
+        $approvedLeaves = UserLeaves::where('leave_status', 'approved')
+                                    ->join('users', 'users.id', '=', 'user_leaves.user_id')
+                                    ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')->where('users.id', auth()->user()->id)
+                                    ->get();
+        $approvedLeave = 0;
+        foreach ($approvedLeaves as $apLeave) {
+            $approvedLeave += $apLeave->leave_day_count;
+        }
+        // $availedLeaves =  $availableLeave - $approvedLeave;
+        $totalLeaves = $availableLeave ;
+        //end Count for total leave and approved leaves
+
+        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves'));
     }
 }
