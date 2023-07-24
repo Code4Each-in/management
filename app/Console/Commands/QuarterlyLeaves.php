@@ -40,7 +40,7 @@ class QuarterlyLeaves extends Command
      */
     public function handle()
     {
-        $usersData = Users::where('status', 1)->Where('joining_date','>',Carbon::now()->subMonth(3))->get();
+        $usersData = Users::where('status', 1)->Where('joining_date','<',Carbon::now()->subMonth(3))->get();
         foreach ($usersData as $data) {
                 $company_leaves = CompanyLeaves::Create([
                     'employee_id' => $data->employee_id,

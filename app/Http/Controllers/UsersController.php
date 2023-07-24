@@ -10,7 +10,9 @@ use App\Models\Departments;
 use App\Models\Roles;
 use App\Models\Managers;
 use App\Models\UserDocuments;
+use App\Models\UserLeaves;
 use App\Notifications\EmailNotification;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -77,10 +79,22 @@ class UsersController extends Controller
 				$usersData[$key]->assignedDevices = !empty($assignedDevices)? $assignedDevices:null;
 			}
 	   }
-		$users_Data=Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //Users data with role and department relation
-		$roleData=Roles::orderBy('id','desc')->get();// Roles Data
+		$users_Data = Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //Users data with role and department relation
+		$roleData = Roles::orderBy('id','desc')->get();  // Roles Data
 		$departmentData = Departments::orderBy('id','desc')->get();
-		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter'));
+
+		        // Get Leaves Count For Dashbaord Total leaves And Availed Leaves
+				$currentYear = Carbon::now()->year;
+				$totalLeaves = Users::join('company_leaves', 'users.employee_id', '=', 'company_leaves.employee_id')
+				->select('users.first_name', 'users.last_name','users.id', 'users.employee_id', 'company_leaves.leaves_count')
+				->whereYear('company_leaves.created_at', $currentYear)
+				->get();
+				$approvedLeaves = UserLeaves::where('leave_status', 'approved')
+											->join('users', 'users.id', '=', 'user_leaves.user_id')
+											->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')
+											->get();
+
+		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter','totalLeaves','approvedLeaves'));
 	}
 	/**
 	* Store a newly created resource in storage.

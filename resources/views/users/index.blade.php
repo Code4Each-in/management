@@ -40,6 +40,7 @@
                                 <th>Phone</th>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
                                     <th>Documents</th>
+                                    <th>Leaves</th>
                                 @endif
                                 <th>Tshirt Size</th>
                                 <th>Active</th>
@@ -66,6 +67,21 @@
                                         <p>No Documents</p>
                                         @endif
                                     
+                                    </td>
+                                    <td>
+                                    @php
+                                        // Calculate the total leaves count for a specific user (data->id)
+                                        $totalLeavesCount = $totalLeaves->where('id', $data->id)->sum('leaves_count');
+
+                                        // Calculate the approved leaves count for the same user (data->id)
+                                        $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
+                                    @endphp
+                                    @if ($approvedLeavesCount > $totalLeavesCount )
+                                        <span class="text-danger">{{$approvedLeavesCount}}</span>
+                                    @else
+                                        {{$approvedLeavesCount}}
+                                    @endif/{{$totalLeavesCount}}
+
                                     </td>
                                 @endif
                                 <td>{{ $data->tshirt_size ?? '---' }}</td>
