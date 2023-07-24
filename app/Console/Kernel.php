@@ -25,12 +25,12 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             try {
                 Artisan::call('leaves:quarterly');
-                info('Cron job executed successfully!');
+                info('Cron job for quarterly leave executed successfully!');
             } catch (\Exception $e) {
                 // Log or handle the exception
-                \Log::error('Error executing cron job: ' . $e->getMessage());
+                \Log::error('Error executing quarterly leaves cron job: ' . $e->getMessage());
             }
-        })->everyMinute();
+        })->cron('0 0 1 */3 *');
         // $schedule->command('credit-leaves:quarterly')->cron('0 0 1 */3 *');
 
         // $schedule->command('inspire')->hourly();

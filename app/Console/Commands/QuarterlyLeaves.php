@@ -41,8 +41,6 @@ class QuarterlyLeaves extends Command
     public function handle()
     {
         $usersData = Users::where('status', 1)->Where('joining_date','>',Carbon::now()->subMonth(3))->get();
-        // print_r($usersData);
-        // echo "\n"; 
         foreach ($usersData as $data) {
                 $company_leaves = CompanyLeaves::Create([
                     'employee_id' => $data->employee_id,
@@ -52,14 +50,8 @@ class QuarterlyLeaves extends Command
                 ]);
             }
             if($company_leaves){
-                echo "leaves added Successfully.";
-                echo "\n"; 
+                info("leaves added Successfully.");
             }
-        
-            // echo "out";
-            // echo "\n";
-
-
         return 0;
     }
 }
