@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Holidays;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class HolidaysController extends Controller
@@ -14,8 +15,18 @@ class HolidaysController extends Controller
      */
     public function index()
     {
-        $holidays = Holidays::get();
-        return view('holidays.index', compact('holidays'));
+        $holidaysFilter = request()->all() ;
+        $allHolidaysFilter = $holidaysFilter['all_holidays'] ?? '';
+        if ($allHolidaysFilter == 'on' ) {
+            $holidays = Holidays::get();   
+        } else {
+           // Get the current date
+        $currentDate = Carbon::now()->toDateString();
+
+        // Fetch holidays greater than or equal to the current date
+        $holidays = Holidays::where('to', '>=', $currentDate)->get();
+        }
+        return view('holidays.index', compact('holidays','allHolidaysFilter'));
     }
 
     /**

@@ -111,6 +111,12 @@ class DashboardController extends Controller
         $totalLeaves = $availableLeave ;
         //end Count for total leave and approved leaves
 
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves'));
+        // Fetch the next four holidays where "from" date is greater than today
+        $upcomingFourHolidays = Holidays::where('from', '>', $today)
+                                ->orderBy('from', 'asc')
+                                ->limit(4)
+                                ->get();
+
+        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays'));
     }
 }
