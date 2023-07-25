@@ -40,7 +40,13 @@ class QuarterlyLeaves extends Command
      */
     public function handle()
     {
-        $usersData = Users::where('status', 1)->Where('joining_date','<',Carbon::now()->subMonth(3))->get();
+        $usersData = Users::whereHas('role', function ($q) {
+            $q->where('name', '!=', 'Super Admin');
+        })
+        ->where('status', 1) // Filter where status is 1
+        ->where('joining_date', '<', Carbon::now()->subMonth(3)) // Filter where joining_date is older than 3 months ago
+        ->whereNotNull('employee_id') // Filter where employee_id is not NULL
+        ->get();
         foreach ($usersData as $data) {
                 $company_leaves = CompanyLeaves::Create([
                     'employee_id' => $data->employee_id,
