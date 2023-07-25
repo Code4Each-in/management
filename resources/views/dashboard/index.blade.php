@@ -117,12 +117,32 @@
                             <!-- <i class="fas fa-calendar-times"></i> -->
                         </div>
                         <div class="ps-3">
+                        @php
+                        // Get the authenticated user
+                            $user = auth()->user();
 
-                            <h6>@if ($approvedLeave > $totalLeaves )
-                                <span class="text-danger">{{$approvedLeave}}</span>
+                            // Convert the joining_date attribute to a Carbon date instance
+                            $joiningDate = \Carbon\Carbon::parse($user->joining_date);
+
+                            // Calculate the date 3 months ago from the current date
+                            $threeMonthsAgo = now()->subMonths(3);
+                        @endphp
+                        <h6>
+                        @if ($joiningDate >= $threeMonthsAgo)
+                          <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                        @else
+                            @if ($approvedLeave > $totalLeaves )
+                                <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                             @else
-                                {{$approvedLeave}}
-                            @endif/ {{$totalLeaves}}</h6>
+                                <span title="Your leaves">{{$approvedLeave}}</span>
+                            @endif
+                        @endif
+                            / @if ($joiningDate < $threeMonthsAgo)
+                                 <span title="Total Leaves">{{$totalLeaves}}</span>
+                                @else
+                                <span title="Total Leaves">0</span>
+                              @endif
+                        </h6>
                             <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
                                     class="text-muted small pt-2 ps-1">increase</span> -->
                         </div>

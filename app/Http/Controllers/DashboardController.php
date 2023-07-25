@@ -93,7 +93,7 @@ class DashboardController extends Controller
         ->select('users.first_name', 'users.last_name', 'users.id', 'company_leaves.leaves_count')
         ->whereYear('company_leaves.created_at', $currentYear)->where('users.id', auth()->user()->id)
         ->get();
-        // dd($availableLeaves);
+
         $availableLeave = 0;
         foreach ($availableLeaves as $avLeave) {
             $availableLeave += $avLeave->leaves_count;
