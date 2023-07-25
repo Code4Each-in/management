@@ -15,7 +15,7 @@ class CreateCompanyLeavesTable extends Migration
     {
         Schema::create('company_leaves', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
+            $table->integer('user_id')->constrained();
             $table->float('leaves_count',8,1);
             $table->timestamps();
         });

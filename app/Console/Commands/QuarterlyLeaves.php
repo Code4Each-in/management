@@ -45,12 +45,11 @@ class QuarterlyLeaves extends Command
         })
         ->where('status', 1) // Filter where status is 1
         ->where('joining_date', '<', Carbon::now()->subMonth(3)) // Filter where joining_date is older than 3 months ago
-        ->whereNotNull('employee_id') // Filter where employee_id is not NULL
         ->get();
         foreach ($usersData as $data) {
                 $company_leaves = CompanyLeaves::Create([
-                    'employee_id' => $data->employee_id,
-                    'leaves_count' => 4.5,
+                    'user_id' => $data->id,
+                    'leaves_count' => 1.5,
                     'created_at' =>  Carbon::now(),
                     'updated_at' =>  Carbon::now(),
                 ]);

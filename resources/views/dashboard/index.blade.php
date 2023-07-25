@@ -122,7 +122,7 @@
                                 <span class="text-danger">{{$approvedLeave}}</span>
                             @else
                                 {{$approvedLeave}}
-                            @endif/{{$totalLeaves}}</h6>
+                            @endif/ {{$totalLeaves}}</h6>
                             <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
                                     class="text-muted small pt-2 ps-1">increase</span> -->
                         </div>
