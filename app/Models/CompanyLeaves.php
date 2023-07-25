@@ -9,7 +9,7 @@ class CompanyLeaves extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'employee_id',
+        'user_id',
         'leaves_count',
     ];
 }
