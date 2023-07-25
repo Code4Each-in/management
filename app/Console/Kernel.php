@@ -30,10 +30,10 @@ class Kernel extends ConsoleKernel
                 // Log or handle the exception
                 \Log::error('Error executing quarterly leaves cron job: ' . $e->getMessage());
             }
-        })->cron('0 0 1 */3 *');
+        })->monthly();
         // $schedule->command('credit-leaves:quarterly')->cron('0 0 1 */3 *');
-
-        // $schedule->command('inspire')->hourly();
+        // $schedule->command('credit-leaves:quarterly')->everyMinute();
+        
     }
 
     /**
