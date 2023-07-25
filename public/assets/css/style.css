@@ -818,10 +818,11 @@ h6 {
 /* Info Cards */
 .dashboard .info-card {
   padding-bottom: 10px;
+  min-height: 182px;
 }
 
 .dashboard .info-card h6 {
-  font-size: 28px;
+  font-size: 22px;
   color: #012970;
   font-weight: 700;
   margin: 0;
@@ -829,10 +830,10 @@ h6 {
 }
 
 .dashboard .card-icon {
-  font-size: 32px;
+  font-size: 25px;
   line-height: 0;
-  width: 64px;
-  height: 64px;
+  width: 55px;
+  height: 55px;
   flex-shrink: 0;
   flex-grow: 0;
 }
