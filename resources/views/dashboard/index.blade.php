@@ -94,6 +94,45 @@
             </div>
         </div>
         <!---End Revenue Card--->     
+        @if(auth()->user()->role->name != 'Super Admin')
+        <div class="col-xxl-4 col-md-6">
+            <div class="card info-card sales-card">
+                <div class="filter">
+                    <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow"> -->
+                    <!-- <li class="dropdown-header text-start">
+                                <h6>Filter</h6>
+                            </li> -->
+                    <!-- 
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li> -->
+                    </ul>
+                </div>
+                <div class="card-body dashboard-my-leaves">
+                    <h5 class="card-title">My Leaves</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calendar-week"></i>
+                            <!-- <i class="fas fa-calendar-times"></i> -->
+                        </div>
+                        <div class="ps-3">
+
+                            <h6>@if ($approvedLeave > $totalLeaves )
+                                <span class="text-danger">{{$approvedLeave}}</span>
+                            @else
+                                {{$approvedLeave}}
+                            @endif/{{$totalLeaves}}</h6>
+                            <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
+                                    class="text-muted small pt-2 ps-1">increase</span> -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- End Sales Card -->
+        @endif
+
 
         <!-- Customers Card -->
 
@@ -174,7 +213,7 @@
 <!-- Recent Sales -->
 
 <div class="row">
-    <div class="col-6 dashboard">
+    <div class="col-8 dashboard">
         <div class="card recent-sales overflow-auto">
             <div class="filter">
                 <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
@@ -230,7 +269,46 @@
             </div>
         </div>
     </div>
-    <div class="col-6 dashboard">
+   <div class="col-4 dashboard">
+   <div class="card upcoming-holidays">
+            <!-- <div class="filter">
+              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                  <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+              </ul>
+            </div> -->
+
+            <div class="card-body pb-0">
+              <h5 class="card-title"> Upcoming Holidays</h5>
+
+              <div class="news">
+                @foreach ($upcomingFourHolidays as $holiday)
+                    <div class="post-item clearfix">
+                    <h4>{{$holiday->name}} <span>|  @if ($holiday->from === $holiday->to)
+                                    {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                @else
+                                    {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                @endif</span></h4>
+                    <p>Holiday @if ($holiday->from === $holiday->to) On {{date("d-m-Y", strtotime($holiday->from));}} @else From {{date("d-m-Y", strtotime($holiday->from));}}  to {{date("d-m-Y", strtotime($holiday->to));}} @endif</p>
+                    </div>
+                @endforeach
+              </div><!-- End sidebar recent posts-->
+
+            </div>
+          </div>
+   </div>
+</div>
+
+
+<div class="row">
+
+<div class="col-8 dashboard">
     <div class="card recent-sales overflow-auto">
             <div class="filter">
                 <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->

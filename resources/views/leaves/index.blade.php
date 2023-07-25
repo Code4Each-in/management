@@ -65,23 +65,39 @@
                     <div class="alert alert-danger" style="display:none"></div>
 
                     <div class="row mb-3">
-                        <label for="user_name" class="col-sm-3 col-form-label required">From</label>
+                        <label for="from" class="col-sm-3 col-form-label required">From</label>
                         <div class="col-sm-9">
                             <input type="date" class="form-control" name="from" id="from" min="{{ date('Y-m-d') }}">
                         </div>
-                        @if ($errors->has('in_time'))
+                        @if ($errors->has('from'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('from') }}</span>
                         @endif
                     </div>
                     <div class="row mb-3">
-                        <label for="last_name" class="col-sm-3 col-form-label required">To</label>
+                        <label for="to" class="col-sm-3 col-form-label required">To</label>
                         <div class="col-sm-9">
                             <input type="date" class="form-control" name="to" id="to" min="{{ date('Y-m-d') }}">
                         </div>
-                        @if ($errors->has('in_time'))
+                        @if ($errors->has('to'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('to') }}</span>
                         @endif
                     </div>
+
+                    <div class="row mb-3" id="halfDayDiv" style="display: none;">
+                        <label for="halfday" class="col-sm-3 col-form-label ">Half Day</label>
+                        <div class="col-sm-9">
+                            <!-- <input type="checkbox" class="form-check-input" id="is_halfday" name="is_halfday"> -->
+                            <select name="halfday" class="form-select" id="halfday">
+                                <option value="">-- Select Half Day --</option>
+                                <option value="first_half">First Half</option>
+                                <option value="second_half">Second Half</option>
+                            </select>
+                        </div>
+                        @if ($errors->has('halfday'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('halfday') }}</span>
+                        @endif
+                    </div>
+
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label ">Type</label>
                         <div class="col-sm-9">
@@ -159,45 +175,78 @@ function openleavesModal() {
 
     $('.alert-danger').html('');
     $('#from').val('');
-
     $('#addleaves').modal('show');
+    $(document).ready(function() {
+        // Listen for changes in the date inputs
+        $('#from, #to').on('change', function() {
+            const fromDate = $('#from').val();
+            const toDate = $('#to').val();
+            
+            // Compare the dates and update the "Half Day" checkbox visibility
+            const isHalfDay = $('#halfDayDiv');
+            if (fromDate === toDate) {
+                isHalfDay.show();
+            } else {
+                isHalfDay.hide();
+            }
+        });
+    });
+    
 }
 
-// function addleaves() {
-//     $.ajax({
-//         type: 'POST',
-//         url: "{{ url('/add/leaves')}}",
-//         data: $('#addLeavesForm').serialize(),
-//         cache: false,
-//         success: (data) => {
 
-//             if (data.errors) {
-//                 $('.alert-danger').html('');
-//                 $.each(data.errors, function(key, value) {
-//                     $('.alert-danger').show();
-//                     $('.alert-danger').append('<li>' + value + '</li>');
-//                 })
-//             } else {
-//                 $('.alert-danger').html('');
-
-//                 $("#addleaves").modal('hide');
-//                 location.reload();
-//             }
-//         },
-//         error: function(data) {
-//             console.log(data);
-//         }
-//     });
-// }
-
-//
 function addleaves() {
   var spinner = $('#loader');
   spinner.show();
 
+
+    function updateTotalDays() {
+    const fromDateStr = $('#from').val();
+    const toDateStr = $('#to').val();
+    const HalfDay = $('#halfday').val();
+    
+    // Convert the date strings to Date objects
+    const fromDate = new Date(fromDateStr);
+    const toDate = new Date(toDateStr);
+
+    // Check if the dates are valid
+    if (isNaN(fromDate) || isNaN(toDate)) {
+        console.error('Invalid date format');
+        return null;
+    }
+
+    // Calculate the difference in milliseconds
+    const diffInMilliseconds = toDate - fromDate;
+    
+    // Calculate the total days
+    let totalDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
+
+    // Check if half day should be considered
+    if (HalfDay != ""  && totalDays === 0) {
+        totalDays = 0.5;
+    }else{
+        totalDays += 1;
+    }
+
+    return totalDays;
+    }
+
+    // Call the function to get the total days
+    const totalDays = updateTotalDays();
+
+    // Prepare the data object manually
+    const data = {
+    from: $('#from').val(),
+    to: $('#to').val(),
+    half_day:  $('#halfday').val(),
+    total_days: totalDays,
+    type : $('#type').val(),
+    notes : $('#notes').val(),
+    };
+
   $.ajax({
     url: "{{ url('/add/leaves')}}",
-    data: $('#addLeavesForm').serialize(),
+    data: data, // Send the data object
     method: 'POST',
     dataType: 'JSON',
     cache: false,

@@ -8,6 +8,20 @@
         <div class="card-body">
             <button class="btn btn-primary mt-3 mb-4" onClick="openHolidayModel()" href="javascript:void(0)">Add
                 Holiday</button>
+
+            <form id="filter-data" method="GET" action="{{ route('holidays.index') }}">
+                <div class="row mt-3 mx-auto">
+                    <div class="col-md-6 filtersContainer d-flex p-0">
+                        <div style="margin-right:20px;">
+                            
+                            <input type="checkbox" class="form-check-input" name="all_holidays" id="all_holidays"
+                                {{ $allHolidaysFilter == 'on' ? 'checked' : '' }}>  
+                                <label for="all_holiday">All</label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </form>
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
@@ -307,6 +321,12 @@ function updateHoliday() {
             });
         }
     }
+
+   // Event listener for checkbox changes
+   $("#filter-data input:checkbox").change(function() {
+                // Submit the form
+                $("#filter-data").submit();
+            });
 
     
 </script>

@@ -913,7 +913,7 @@ h6 {
 
 .dashboard .news h4 {
   font-size: 15px;
-  margin-left: 95px;
+  /* margin-left: 95px; */
   font-weight: bold;
   margin-bottom: 5px;
 }
@@ -1571,4 +1571,23 @@ header .header-alert{
   position: absolute;
   z-index: 1;
   background-color: rgba(182, 239, 251, 0.4);
+}
+.dashboard-my-leaves {
+  min-height: 170px;
+}
+
+.dashboard-my-leaves h6 {
+  font-size: 25px !important;
+}
+
+.upcoming-holidays .news h4 {
+  font-size: 16px !important;
+  text-transform: capitalize;
+  color: #012970;
+}
+
+.upcoming-holidays .news h4 span {
+  color: #899bbd;
+  font-size: 14px;
+  font-weight: 400;
 }

@@ -24,6 +24,7 @@ class LeavesController extends Controller
     }  
     public function store(StoreUserLeavesRequest $request)
     {
+        // dd($request);
         if (isset($request->validator) && $request->validator->fails()) {
             return response()->json(['errors'=>$request->validator->errors()->all()]);
         } 
@@ -33,12 +34,26 @@ class LeavesController extends Controller
         foreach ($parts as $part) {
             $type .= ucfirst($part) . ' ';
         }
-        $type = trim($type);
+        $type = trim($type); 
+        
+        if (isset($request->half_day)) {
+            $string = $request->half_day;
+            $parts = explode("_", $string);
+            $halfday = "";
+            foreach ($parts as $part) {
+                $halfday .= ucfirst($part) . ' ';
+            }
+            $halfday = trim($halfday);
+        } else {
+            $halfday = NULL; // Set to null if 'half_day' is not present in the request
+        }
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
             'from'=>$request->from,
             'to'=>$request->to,
-            'type'=>  $type,
+            'type'=> $type,
+            'half_day' => $halfday,
+            'leave_day_count' => $request->total_days,
             'notes'=>$request->notes,
            ]);    
 
@@ -116,7 +131,7 @@ class LeavesController extends Controller
 			 ]);
              $userObj = UserLeaves::join('users', 'users.id', '=', 'user_leaves.user_id')
                         ->where('user_leaves.id', $request->LeavesId)
-                        ->select('users.email','users.first_name','users.last_name','user_leaves.type','user_leaves.from' ,'user_leaves.notes','user_leaves.to','user_leaves.leave_status' )->first();
+                        ->select('users.email','users.first_name','users.last_name','user_leaves.type','user_leaves.from' ,'user_leaves.notes','user_leaves.to','user_leaves.leave_status','user_leaves.half_day' ,'user_leaves.leave_day_count')->first();
             $data = $userObj;
             $subject = "Leave Request - ".ucfirst($userObj->leave_status);
             $data->subject = $subject;
