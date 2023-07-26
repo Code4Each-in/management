@@ -75,14 +75,31 @@
 
                                         // Calculate the approved leaves count for the same user (data->id)
                                         $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
-                                    @endphp
-                                    @if ($approvedLeavesCount > $totalLeavesCount )
-                                        <span class="text-danger">{{$approvedLeavesCount}}</span>
-                                    @else
-                                        {{$approvedLeavesCount}}
-                                    @endif/{{$totalLeavesCount}}
 
-                                    </td>
+                                        $joiningDate = $data->joining_date;
+                                        // Calculate the date 3 months ago from the current date
+                                         $threeMonthsAgo = now()->subMonths(3);
+
+                                    @endphp               
+                                    @if ($joiningDate >= $threeMonthsAgo)
+                                    @if ($approvedLeavesCount > 0)
+                                            <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
+                                        @else
+                                            <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                        @endif
+                                    @else
+                                        @if ($approvedLeavesCount > $totalLeavesCount)
+                                            <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
+                                        @else
+                                            <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                        @endif
+                                    @endif
+                                    / @if ($joiningDate < $threeMonthsAgo)
+                                        <span title="Total Leaves">{{$totalLeavesCount}}</span>
+                                    @else
+                                        <span title="Total Leaves">0</span>
+                                    @endif
+                                </td>
                                 @endif
                                 <td>{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
