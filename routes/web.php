@@ -60,6 +60,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/add/leaves', [leavesController::class, 'store'])->name('leaves.add');
 	Route::post('/update/leaves', [leavesController::class, 'setLeavesApproved'])->name('leaves.team.update');
 	Route::get('/leaves/team', [leavesController::class, 'showTeamData'])->name('leaves.team.index');
+	Route::post('/leaves/team/add', [leavesController::class, 'addTeamLeaves'])->name('leaves.team.add');
 
 	
 	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');

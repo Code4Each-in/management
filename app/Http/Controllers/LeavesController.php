@@ -12,6 +12,7 @@ use App\Models\Managers;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotifyMail;
 use App\Models\Users;
+use App\Notifications\EmailNotification;
 
 class LeavesController extends Controller
 {
@@ -146,6 +147,10 @@ class LeavesController extends Controller
      
      public function showTeamData()
 	 {
+        $members = Users::whereHas('role', function ($q) {
+            $q->where('name', '!=', 'Super Admin');
+        })->where('status',1)->where('id','!=',auth()->user()->id)->get();
+
         if (auth()->user()->role->name == 'Super Admin')
 		{
             $teamLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
@@ -163,8 +168,72 @@ class LeavesController extends Controller
         ->get();
          }
 
-        return view('leaves.team',compact('teamLeaves','leaveStatus'));
+        return view('leaves.team',compact('teamLeaves','leaveStatus','members'));
 	 }
 
+
+     public function addTeamLeaves(Request $request)
+     {
+        $validator = \Validator::make($request->all(), [
+            'from' => 'required|date',
+            'to' => 'required|date',
+            'half_day' => 'nullable', 
+            'total_days' => 'required',
+            'from' => 'required',       
+            'type' => 'required',
+            'notes' => 'nullable',
+            'member_id' => 'required',       
+        ]);
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+        if (isset($request->half_day)) {
+            $string = $request->half_day;
+            $parts = explode("_", $string);
+            $halfday = "";
+            foreach ($parts as $part) {
+                $halfday .= ucfirst($part) . ' ';
+            }
+            $halfday = trim($halfday);
+        } else {
+            $halfday = NULL; // Set to null if 'half_day' is not present in the request
+        }
+        $string = $request->type;
+        $parts = explode("_", $string);
+        $type = '';
+        foreach ($parts as $part) {
+            $type .= ucfirst($part) . ' ';
+        }
+        $type = trim($type); 
+        $teamLeave = UserLeaves::create([     
+            'user_id'=> $request->member_id,     
+            'from'=>$request->from,
+            'to'=>$request->to,
+            'type'=> $type,
+            'half_day' => $halfday,
+            'leave_day_count' => $request->total_days,
+            'notes'=>$request->notes,
+           ]);  
+        $leave_id = $teamLeave->id;
+        $leavesDetail = UserLeaves::find($leave_id);
+           if($teamLeave){
+            $userLeavesStatus = UserLeaves::where(['id'=>$leave_id])
+			->update([
+            'leave_status' => 'approved',
+            'status_change_by'=> auth()->user()->id,
+          
+			 ]);
+            $messages["subject"] = "Your Leave Is Added #$leavesDetail->id for $leavesDetail->from to $leavesDetail->to";
+            $messages["title"] = "Your Leave has been added from $leavesDetail->from to $leavesDetail->to for $leavesDetail->leave_day_count days and reason is $leavesDetail->notes .";
+            $messages["body-text"] = "If a leave is added incorrectly or for any other queries, please contact HR";
+            $user = Users::find($leavesDetail->user_id);
+            $user->notify(new EmailNotification($messages));
+        }	
+	    
+        $request->session()->flash('message', 'Team Leave Added Successfully.' );
+        return Response()->json(['status'=>200]);	
+     }
 
 }

@@ -27,12 +27,13 @@ class DashboardController extends Controller
         $endDate = Carbon::today()->addDays(7);
         $upcomingHoliday = Holidays::whereBetween('from', [$today, $endDate])
         ->orderBy('from')->first();
-            // dd($upcomingHoliday);
+        // user count For dashboard
+        $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
         
         if (auth()->user()->role->name == 'Super Admin')
 		{
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-	
-            $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
+            // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count();
@@ -48,7 +49,7 @@ class DashboardController extends Controller
                 ->get();
         }
         elseif (auth()->user()->role->name == 'HR Manager') {
-            $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
+            // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count();
@@ -65,7 +66,7 @@ class DashboardController extends Controller
         }
         else
         {
-            $userCount=Managers::where('parent_user_id',auth()->user()->id)->get()->count();
+            // $userCount=Managers::where('parent_user_id',auth()->user()->id)->get()->count();
             $userLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_leaves.*', 'managers.user_id','users.first_name']);
 
             $currentDate = date('Y-m-d'); //current date

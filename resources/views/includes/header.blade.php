@@ -344,22 +344,20 @@
                 </ul>
             </li>
             @endif
-            @if (auth()->user()->role->name != 'HR Manager')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
-                    href="{{ route('tickets.index') }}">
-                    <i class="bi bi-journal-code"></i> <span>Tickets</span>
-                </a>
-            </li>
-            @endif
-            @if(auth()->user()->role->name == 'Super Admin')
+    
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
                     href="{{ route('projects.index') }}">
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
-            @endif
+            
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
+                    href="{{ route('tickets.index') }}">
+                    <i class="bi bi-journal-code"></i> <span>Tickets</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('holidays') ? '' : 'collapsed' }}"

@@ -21,7 +21,6 @@
     <div class="row">
        
         <!-- Sales Card -->
-        @if(auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card sales-card">
                 <div class="filter">
@@ -37,7 +36,7 @@
                     </ul>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Total organization members</h5>
+                    <h5 class="card-title">Total Members</h5>
                     <div class="d-flex align-items-center">
                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                             <i class="bi bi-person"></i>
@@ -53,7 +52,6 @@
 
             </div>
         </div><!-- End Sales Card -->
-        @endif
         <!-- Revenue Card -->
         <div class="col-xxl-4 col-md-6">
             <div class="card info-card revenue-card">
@@ -70,7 +68,7 @@
                         </ul> -->
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Total members on leave today </h5>
+                    <h5 class="card-title">Today's On Leave</h5>
 
                     <div class="d-flex align-items-center leavesMemberCont">
                         <div class="leavesMemeberInnerCont">
@@ -319,7 +317,7 @@
                                 @else
                                     {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
                                 @endif</span></h4>
-                    <p>Holiday @if ($holiday->from === $holiday->to) On {{date("d-m-Y", strtotime($holiday->from));}} @else From {{date("d-m-Y", strtotime($holiday->from));}}  to {{date("d-m-Y", strtotime($holiday->to));}} @endif</p>
+                    <p>Holiday @if ($holiday->from === $holiday->to) On {{date("d-M-Y", strtotime($holiday->from));}} @else From {{date("d-M-Y", strtotime($holiday->from));}}  to {{date("d-M-Y", strtotime($holiday->to));}} @endif</p>
                     </div>
                 @endforeach
               </div><!-- End sidebar recent posts-->
@@ -331,59 +329,62 @@
 
 
 <div class="row">
+    @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
+    <div class="col-8 dashboard">
+        <div class="card recent-sales overflow-auto">
+                <div class="filter">
+                    <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                    <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                    </li>
 
-<div class="col-8 dashboard">
-    <div class="card recent-sales overflow-auto">
-            <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Assigned Devices</h5>
-                <table class="table table-borderless datatable" id="devices">
-                    <thead>
-                        <tr>
-                            <th scope="col">Device Name</th>
-                            <th scope="col">Model Name</th>
-                            <th scope="col">Serial Number</th>
-                            <th scope="col">From</th>
-                            <!-- <th scope="col">To</th> -->
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($assignedDevices as $data)
-                        <tr>
-                            <td>{{ $data->device->name ?? ''}}</td>
-                            <td>{{ $data->device->device_model ?? ''}}</td>
-                            <td>{{ $data->device->serial_number ?? '---'}}</td>
-                            <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                            <!-- <td> @if ($data->to)
-                                            {{date("d-m-Y", strtotime($data->to)) }}
-                                        @endif
-                            </td> -->
-                            <td>  @if ($data->status == 0)
-                                    <span class="badge rounded-pill bg-success">Recovered</span>
-                                    @else
-                                    <span class="badge rounded-pill bg-primary">Assigned</span>
-                                    @endif    
-                            </td>
-                        </tr>
-                        @empty
-                        @endforelse
-                    </tbody>
-                </table>
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                </ul> -->
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Assigned Devices</h5>
+                    <table class="table table-borderless datatable" id="devices">
+                        <thead>
+                            <tr>
+                                <th scope="col">Device Name</th>
+                                <th scope="col">Model Name</th>
+                                <th scope="col">Serial Number</th>
+                                <th scope="col">From</th>
+                                <!-- <th scope="col">To</th> -->
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($assignedDevices as $data)
+                            <tr>
+                                <td>{{ $data->device->name ?? ''}}</td>
+                                <td>{{ $data->device->device_model ?? ''}}</td>
+                                <td>{{ $data->device->serial_number ?? '---'}}</td>
+                                <td>{{date("d-m-Y", strtotime($data->from));}}</td>
+                                <!-- <td> @if ($data->to)
+                                                {{date("d-m-Y", strtotime($data->to)) }}
+                                            @endif
+                                </td> -->
+                                <td>  @if ($data->status == 0)
+                                        <span class="badge rounded-pill bg-success">Recovered</span>
+                                        @else
+                                        <span class="badge rounded-pill bg-primary">Assigned</span>
+                                        @endif    
+                                </td>
+                            </tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </div>
+    @endif
 </div>
 
 
