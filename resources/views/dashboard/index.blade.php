@@ -129,7 +129,11 @@
                         @endphp
                         <h6>
                         @if ($joiningDate >= $threeMonthsAgo)
-                          <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                         @if ($approvedLeave > 0 )
+                                <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                            @else
+                                <span title="Your leaves">{{$approvedLeave}}</span>
+                            @endif
                         @else
                             @if ($approvedLeave > $totalLeaves )
                                 <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>

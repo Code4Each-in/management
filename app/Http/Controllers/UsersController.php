@@ -86,12 +86,12 @@ class UsersController extends Controller
 		        // Get Leaves Count For Dashbaord Total leaves And Availed Leaves
 				$currentYear = Carbon::now()->year;
 				$totalLeaves = Users::join('company_leaves', 'users.id', '=', 'company_leaves.user_id')
-				->select('users.first_name', 'users.last_name','users.id', 'company_leaves.leaves_count')
+				->select('users.first_name', 'users.last_name','users.id','users.joining_date', 'company_leaves.leaves_count')
 				->whereYear('company_leaves.created_at', $currentYear)
 				->get();
 				$approvedLeaves = UserLeaves::where('leave_status', 'approved')
 											->join('users', 'users.id', '=', 'user_leaves.user_id')
-											->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')
+											->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.joining_date' , 'users.status')
 											->get();
 
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter','totalLeaves','approvedLeaves'));
