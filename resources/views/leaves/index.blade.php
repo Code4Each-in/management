@@ -22,6 +22,8 @@
                                 <th>To</th>
                                 <th>Type</th>
                                 <th>Notes</th>
+                                <th>Half Day</th>
+                                <th>Day Count</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -32,7 +34,9 @@
                                 <td>{{date("d-m-Y", strtotime($data->from));}}</td>
                                 <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                                 <td>{{$data->type }}</td>
-                                <td>{{$data->notes }}</td>
+                                <td>{{$data->notes ?? '---'}}</td>
+                                <td class="text-center">{{$data->half_day ?? '---' }}</td>
+                                <td>{{$data->leave_day_count ?? '---' }}</td>
                                 @if($data->leave_status == 'approved')
                                 <td><span class="badge rounded-pill approved">Approved</span></td>
                                 @elseif($data->leave_status == 'declined')
@@ -117,7 +121,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onClick="addleaves(this)"
-                            href="javascript:void(0)">Save</button>
+                            href="javascript:void(0)">Add Leave</button>
                     </div>
             </form>
         </div>

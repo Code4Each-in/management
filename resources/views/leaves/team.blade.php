@@ -22,6 +22,8 @@
                                 <th>To</th>
                                 <th>Type</th>
                                 <th>Notes</th>
+                                <th>Half Day</th>
+                                <th>Day Count</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -32,7 +34,9 @@
                                 <td>{{date("d-m-Y", strtotime($data->from));}}</td>
                                 <td>{{date("d-m-Y", strtotime($data->to));}}</td>
                                 <td>{{$data->type }}</td>
-                                <td>{{$data->notes }}</td>
+                                <td>{{$data->notes ?? '---' }}</td>
+                                <td class="text-center">{{$data->half_day ?? '---' }}</td>
+                                <td>{{$data->leave_day_count ?? '---' }}</td>
                                 <td>
                                      @php
                                     $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
@@ -134,7 +138,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="" class="col-sm-3 col-form-label ">Type</label>
+                        <label for="" class="col-sm-3 col-form-label required">Type</label>
                         <div class="col-sm-9">
                             <select name="type" class="form-select" id="type">
                                 <option value="">-- Select type --</option>
