@@ -29,7 +29,11 @@ class DashboardController extends Controller
         ->orderBy('from')->first();
         // user count For dashboard
         $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
-        
+        $dayMonth = date('m-d');
+        $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
+                ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
+                ->where('status',1)->get();
+
         if (auth()->user()->role->name == 'Super Admin')
 		{
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-	
@@ -42,11 +46,6 @@ class DashboardController extends Controller
             //count of userleaves acc to current date
              $userAttendanceData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
 
-            $dayMonth = date('m-d');
-
-            $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
-                ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
-                ->get();
         }
         elseif (auth()->user()->role->name == 'HR Manager') {
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
@@ -57,12 +56,6 @@ class DashboardController extends Controller
          
             //count of userleaves acc to current date
              $userAttendanceData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
-
-            $dayMonth = date('m-d');
-
-            $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
-                ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
-                ->get(); 
         }
         else
         {
@@ -74,10 +67,7 @@ class DashboardController extends Controller
             $userAttendanceData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->whereDate('user_attendances.created_at', '=',$currentDate)->get()->count(); //count of userAttendance acc to current date
             $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get();
             
-            $dayMonth = date('m-d');
-            $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
-                ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
-                ->get();
+            
 
         }
         if (!empty($showLeaves)){
