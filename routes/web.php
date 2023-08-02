@@ -13,6 +13,7 @@ use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeavesController;
 use App\Http\Controllers\ModulesController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\PoliciesController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
 
@@ -129,6 +130,17 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('projects.edit');
 	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('projects.update');
 	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
+
+
+	// Policies Routes
+	Route::get('/policies', [PoliciesController::class, 'index'])->name('policies.index');
+	Route::post('/add/policy', [PoliciesController::class, 'store'])->name('policies.add');
+	Route::post('/add/policy-document', [PoliciesController::class, 'storeDocument'])->name('policies.add');
+	Route::get('/edit/policy/{policyId}', [PoliciesController::class, 'edit'])->name('policies.edit');
+	Route::post('/update/policy/{policyId}', [PoliciesController::class, 'update'])->name('policies.update');
+	Route::get('/policy/{policyId}', [PoliciesController::class, 'showPolicy'])->name('policies.show');
+	Route::delete('/delete/policy', [PoliciesController::class, 'destroy'])->name('policies.delete');
+
 	
 	});
 
