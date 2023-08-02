@@ -36,7 +36,7 @@ use App\Http\Controllers\TicketsController;
 * Login Routes
 */
 Route::get('/', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.user');
+Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
 Route::group(['middleware' => ['auth']], function() {
 Route::resource('/dashboard', DashboardController::class);
 Route::middleware(['role_permission'])->group(function () {
@@ -135,7 +135,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Policies Routes
 	Route::get('/policies', [PoliciesController::class, 'index'])->name('policies.index');
 	Route::post('/add/policy', [PoliciesController::class, 'store'])->name('policies.add');
-	Route::post('/add/policy-document', [PoliciesController::class, 'storeDocument'])->name('policies.add');
+	Route::post('/add/policy-document', [PoliciesController::class, 'storeDocument'])->name('policies.add-document');
 	Route::get('/edit/policy/{policyId}', [PoliciesController::class, 'edit'])->name('policies.edit');
 	Route::post('/update/policy/{policyId}', [PoliciesController::class, 'update'])->name('policies.update');
 	Route::get('/policy/{policyId}', [PoliciesController::class, 'showPolicy'])->name('policies.show');

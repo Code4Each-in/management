@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use Spatie\PdfToText\Pdf;
+use thiagoalessio\TesseractOCR\TesseractOCR;
 
 class PoliciesController extends Controller
 {
@@ -200,36 +202,73 @@ class PoliciesController extends Controller
 
     public function storeDocument(Request $request)
     {
+        // dd($request->add_document);
         $validator = \Validator::make($request->all(),[
-            'name' => 'required',
-            'policy_text' => 'required',
-            'pdf'   => 'required',
-            'word' => 'nullable',
-            'text' => 'nullable',
+            'policy_name' => 'required',
+            'add_document.*' => 'file|mimes:pdf|max:5000',
+        ],[
+            'add_document.*.file' => 'The :attribute must be a file.', 
+            'add_document.*.mimes' => 'The :attribute must be a file of type: pdf.',
+            'add_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
+            'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+
         ]);
 
-            if ($validator->fails())
-            {
-                return response()->json(['errors'=>$validator->errors()->all()]);
-            }
-            
-    		$validate = $validator->valid();
-           //     if($request->hasfile('add_document')){
-    //         foreach($request->file('add_document') as $file)
-    //         {
-    //         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    //         $dateString = date('YmdHis');
-    //         $name = $dateString . '_' . $fileName . '.' . $file->extension();
-    //         $file->move(public_path('assets/img/projectAssets'), $name);  
-    //         $path='projectAssets/'.$name;
-    //             $documents = ProjectFiles::create([
-    //             'document' => $path,
-    //             'project_id'=> $projects->id,
-    //             ]); 
-    //         }
-    //    }
+        $validator->setAttributeNames([
+            'add_document.*' => 'document',
+        ]);
 
-    $request->session()->flash('message','Policy added successfully.');
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+            
+    	$validate = $validator->valid();
+        $policies = Policies::create([
+            'name' => $validate['policy_name'],
+            'policy_text' => "",
+        ]);
+        if($policies){
+            $policy_id = $policies->id;
+
+            if($request->hasfile('add_document')){
+                foreach($request->file('add_document') as $file)
+                {
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $dateString = date('YmdHis');
+                $fileExtension =  $file->extension();
+                $name = $dateString . '_' . $fileName . '.' . $fileExtension;
+                // $file->move(public_path('assets/img/projectAssets'), $name); 
+                Storage::disk('public')->put('policyDocuments/' . $name, file_get_contents($file)); 
+                $path='policyDocuments/'.$name;
+                    $documents = PoliciesFiles::create([
+                    'policy_id' => $policy_id ,
+                    'document_name' => $name,
+                    'document_link' => $path,
+                    'document_type' => ucfirst($fileExtension),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),  
+                    ]);  
+                    if($documents){
+                         // Get the full path to the PDF file
+                        $fullPath = Storage::path('public/' . $path);
+                        // Perform PDF to text conversion
+                            $text = Pdf::getText($fullPath);
+                        // dd($text);
+                        $policies = Policies::where('id', $policy_id)  
+                        ->update([
+                            'policy_text' => $text,
+                            'updated_at' => date('Y-m-d H:i:s'),  
+                        ]);
+                    }
+                   
+                }
+                    
+            }
+        }
+       
+
+    $request->session()->flash('message','Policy Document Added successfully.');
     return Response()->json(['status'=>200, 'policies'=>$policies]);
 
     }

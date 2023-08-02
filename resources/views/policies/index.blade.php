@@ -108,56 +108,86 @@
                     </div>
                     <div class="modal-body">
                             <div class="alert alert-danger" style="display:none"></div>
-                    <form id="addProjectsForm" enctype="multipart/form-data" >
-                        @csrf
-                      
-                           
-                            <div class="row mb-3">
-                                <label for="name" class="col-sm-3 col-form-label required">Name</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="name" id="name">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Polict Text</label>
-                                <div class="col-sm-9">
-                                    <textarea name="policy_text" class="form-control" id="tinymce_textarea"></textarea>
-                                </div>
-                            </div>
+                <div class="card">
+                    <div class="card-body">
+                        <!-- <h5 class="card-title">Pills Tabs</h5> -->
 
-                            <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required">Save File In Format</label>
-                                <div class="col-sm-9">
-                                <input type="checkbox" class="form-check-input" name="pdf" id="pdf">
-                                <label for="pdf" class="">PDF</label>
-                                <input type="checkbox" class="form-check-input" name="word" id="word">
-                                <label for="word" class="">WORD</label>
-                                <input type="checkbox" class="form-check-input" name="text" id="text">
-                                <label for="text" class="">TEXT</label>
+                        <!-- Pills Tabs -->
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-policy-tab" data-bs-toggle="pill" data-bs-target="#pills-policy" type="button" role="tab" aria-controls="pills-policy" aria-selected="true">Add Policy</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-upload-document-tab" data-bs-toggle="pill" data-bs-target="#pills-upload-document" type="button" role="tab" aria-controls="pills-upload-document" aria-selected="false" tabindex="-1">Upload Document</button>
+                        </li>
+                        <!-- <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false" tabindex="-1">Contact</button>
+                        </li> -->
+                        </ul>
+                        <div class="tab-content pt-2" id="myTabContent">
+                        <div class="tab-pane fade active show" id="pills-policy" role="tabpanel" aria-labelledby="home-tab">
+                            <form id="addProjectsForm" enctype="multipart/form-data" >
+                            @csrf
+                                <div class="row mb-3">
+                                    <label for="name" class="col-sm-3 col-form-label required">Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" name="name" id="name">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="text-center">
-                                <button type="submit" class="btn btn-primary" href="javascript:void(0)">Add Policy</button>
+                                <div class="row mb-3">
+                                    <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Polict Text</label>
+                                    <div class="col-sm-9">
+                                        <textarea name="policy_text" class="form-control" id="tinymce_textarea"></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                    </form>
-                    <hr>
-                    <h5 class="text-center">OR</h5>
-                    <form action="" id="addPolicyDocumentsForm" enctype="multipart/form-data" >
-                        @csrf
-                        <div class="row mb-3">
-                            <label for="document" class="col-sm-3 col-form-label ">Document</label>
-                            <div class="col-sm-9">
-                                <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
-                            </div>
+
+                                <div class="row mb-3">
+                                    <label for="" class="col-sm-3 col-form-label required">Save File In Format</label>
+                                    <div class="col-sm-9">
+                                    <input type="checkbox" class="form-check-input" name="pdf" id="pdf">
+                                    <label for="pdf" class="">PDF</label>
+                                    <input type="checkbox" class="form-check-input" name="word" id="word">
+                                    <label for="word" class="">WORD</label>
+                                    <input type="checkbox" class="form-check-input" name="text" id="text">
+                                    <label for="text" class="">TEXT</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center">
+                                    <button type="submit" class="btn btn-primary" href="javascript:void(0)">Add Policy</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                    <div class="row mb-3">
-                                <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Upload Document</button>
+                        <div class="tab-pane fade" id="pills-upload-document" role="tabpanel" aria-labelledby="profile-tab">
+                            <form id="addPolicyDocumentsForm" enctype="multipart/form-data" >
+                            @csrf
+                            <div class="row mb-3">
+                                <label for="policy_name" class="col-sm-3 col-form-label ">Name</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="policy_name" id="policy_name">
                                 </div>
                             </div>
+                            <div class="row mb-3">
+                                <label for="add_document" class="col-sm-3 col-form-label ">Document</label>
+                                <div class="col-sm-9">
+                                    <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
+                                </div>
+                            </div>
+                        <div class="row mb-3">
+                                    <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Add Policy</button>
+                                    </div>
+                        </div>
+                        </form>
+                        </div>
+                        <!-- <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="contact-tab">
+                            Saepe animi et soluta ad odit soluta sunt. Nihil quos omnis animi debitis cumque. Accusantium quibusdam perspiciatis qui qui omnis magnam. Officiis accusamus impedit molestias nostrum veniam. Qui amet ipsum iure. Dignissimos fuga tempore dolor.
+                        </div> -->
+                        </div><!-- End Pills Tabs -->
+
+                    </div>
+                </div>
                     <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -240,11 +270,11 @@
 
                 $("#addPolicyDocumentsForm").submit(function(event) {
                     event.preventDefault();
-                    var formData = new FormData(this);
+                    var formDataDoc = new FormData(this);
                     $.ajax({
                         type: 'POST',
                         url: "{{ url('/add/policy-document')}}",
-                        data: formData,
+                        data: formDataDoc,
                         processData: false,
                         contentType: false,
                         success: (data) => {
