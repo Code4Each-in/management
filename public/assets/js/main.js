@@ -275,7 +275,13 @@
     contextmenu: 'link image table',
     skin: useDarkMode ? 'oxide-dark' : 'oxide',
     content_css: useDarkMode ? 'dark' : 'default',
-    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+    external_plugins:
+                {
+                    'saveToPdf': 'https://cdn.rawgit.com/Api2Pdf/api2pdf.tinymce/master/save-to-pdf/dist/save-to-pdf/plugin.js'
+                },
+            toolbar: 'saveToPdf',
+            saveToPdfHandler: '/REPLACE-WITH-HANDLER-URL'
   });
 
   /**

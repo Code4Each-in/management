@@ -391,6 +391,14 @@
                     </li>
                 </ul>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('policies') ? '' : 'collapsed' }}"
+                    href="{{ route('policies.index') }}">
+                    <i class="bi bi-files"></i> <span>Policies</span>
+                </a>
+            </li>
+
             @endif
             <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
