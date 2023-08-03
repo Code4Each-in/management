@@ -17,6 +17,7 @@
                         @endif
                     </div>
                 </div>
+                @if ($policies->policy_text != null)
                 <div class="row mb-5">
                     <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                     <div class=" col-sm-9">
@@ -26,6 +27,8 @@
                         @endif
                     </div>
                 </div>
+                @endif
+               
                  <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Document Formats</label>
                     <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
@@ -61,7 +64,7 @@
                 <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required">Save File In Format</label>
                                 <div class="col-sm-9">
-                                <input type="checkbox" class="form-check-input" name="pdf" id="pdf" value="{{$policies->name}}">
+                                <input type="checkbox" class="form-check-input" name="pdf" id="pdf">
                                 <label for="pdf" class="">PDF</label>
                                 <input type="checkbox" class="form-check-input" name="word" id="word">
                                 <label for="word" class="">WORD</label>

@@ -78,9 +78,11 @@
                                     </td>
                                     @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
                                     <td> 
-                                        <a href="{{ url('/edit/policy/'.$data->id)}}">
-                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
-                                        </a>
+                                        @if($data->policy_text != null)
+                                            <a href="{{ url('/edit/policy/'.$data->id)}}">
+                                            <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                            </a>
+                                        @endif
                                         
                                         <i style="color:#4154f1;" onClick="deletePolicy('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
