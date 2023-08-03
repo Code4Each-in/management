@@ -28,7 +28,12 @@ class LoginController extends Controller
 	public function login(Request $request)
 	{	
         if ($request->isMethod('get')) {
-            return view('auth.login');
+            $userId = request()->user()->id ?? null;
+            if ($userId) {
+                return redirect()->route('dashboard.index');
+            } else {
+                return view('auth.login');
+            }
         }
         if ($request->isMethod('post')) {
             $credentials = $request->validate([
