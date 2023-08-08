@@ -235,7 +235,7 @@
 <!-- Recent Sales -->
 
 <div class="row">
-    <div class="col-8 dashboard">
+    <div class="col-md-8 dashboard">
         <div class="card recent-sales overflow-auto">
             <div class="filter">
                 <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
@@ -291,7 +291,7 @@
             </div>
         </div>
     </div>
-   <div class="col-4 dashboard">
+   <div class="col-md-4 dashboard">
    <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
