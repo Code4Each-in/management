@@ -25,7 +25,7 @@ class ContactUsController extends Controller
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
         $validate = $validator->valid();
-        $WebsiteContactUs =WebsiteContactUs::create([
+        $websiteContactUs =WebsiteContactUs::create([
             'name' => $validate['name'],
             'email' => $validate['email'],
             'phone' => $validate['phone'],
@@ -34,11 +34,11 @@ class ContactUsController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $data = $WebsiteContactUs;
+        $data = $websiteContactUs;
         $subject = "Contact us from Code4Each website";
         $data->subject = $subject;
         Mail::to(array("info@code4each.com", "hr@code4each.com"))->send(new ContactUsMail($data));
 
-        return Response()->json(['status'=>200, 'contactus'=>$WebsiteContactUs]);
+        return Response()->json(['status'=>200, 'contactus'=>$websiteContactUs]);
     }
 }
