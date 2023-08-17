@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\WebsiteContactUs;
- 
+use App\Http\Controllers\Controller;
+
 class ContactUsController extends Controller
 {
     public function contactUs(Request $request)
