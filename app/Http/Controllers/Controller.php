@@ -29,7 +29,7 @@ class Controller extends BaseController
             'name' => $validate['name'],
             'email' => $validate['email'],
             'phone' => $validate['phone'],
-            'message' => $validate['name'],
+            'message' => $validate['note'],
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
