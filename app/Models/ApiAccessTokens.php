@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class WebsiteContactUs extends Authenticatable
+class ApiAccessTokens extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes;
 
@@ -20,10 +20,8 @@ class WebsiteContactUs extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable =[
-        'name',
-        'email',
-        'phone',
-        'message',
-        'ipaddress'    
+        'ipaddress',
+        'token',
+        'expire_date' 
     ];
 }

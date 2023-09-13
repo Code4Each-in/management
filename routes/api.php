@@ -18,3 +18,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/contactus', [ContactUsController::class, 'contactUs'])->name('contactUs.add');
+Route::get('/generate-token', [ContactUsController::class, 'generateToken']);
