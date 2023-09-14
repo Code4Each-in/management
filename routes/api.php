@@ -18,5 +18,6 @@ use App\Http\Controllers\Api\ContactUsController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('get/random', [WebsiteApiController::class, 'getrandomchar'])->name('getrandomchar');
+Route::get('/random', [WebsiteApiController::class, 'getrandomchar']);
 Route::post('/contactus', [ContactUsController::class, 'contactUs'])->name('contactUs.add');
+Route::get('/delete/captchas', [WebsiteApiController::class, 'deleteCaptcha']);
