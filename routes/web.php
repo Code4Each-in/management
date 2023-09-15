@@ -172,6 +172,12 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/project/assign', [ProjectsController::class, 'deleteProjectAssign']);
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
 
+	// Migration run command route
+	Route::get('/migrations', function () {
+		Artisan::call('migrate');
+		// Dump and die (dd) the migration output
+		dd(Artisan::output());
+	});
 
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
 
