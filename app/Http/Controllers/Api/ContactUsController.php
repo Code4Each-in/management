@@ -8,6 +8,7 @@ use App\Models\WebsiteContactUs;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContactUsMail;
+use App\Models\Captchas;
 
 class ContactUsController extends Controller
 {
@@ -17,7 +18,8 @@ class ContactUsController extends Controller
             'name' => 'required',       
             'email' => 'required|email',           
             'note' => 'required',       
-            'phone' => 'required',       
+            'phone' => 'required', 
+            'captcha' => 'required',    
         ]);
  
         if ($validator->fails())
@@ -25,6 +27,13 @@ class ContactUsController extends Controller
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
         $validate = $validator->valid();
+
+        $getcapctcha = Captchas::where('captcha_id', $validate['captcha_id'])->first();
+        if ($getcapctcha->captcha_string != $validate['captcha'])
+        {
+            return response()->json(['errors'=>"You entered an incorrect Captcha."]);
+        }
+  
         $websiteContactUs =WebsiteContactUs::create([
             'name' => $validate['name'],
             'email' => $validate['email'],
