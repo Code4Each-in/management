@@ -173,11 +173,11 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/project/assign', [ProjectsController::class, 'getProjectAssign']);
 
 	// Migration run command route
-	Route::get('/migrations', function () {
-		Artisan::call('migrate');
-		// Dump and die (dd) the migration output
-		dd(Artisan::output());
-	});
+	// Route::get('/migrations', function () {
+	// 	Artisan::call('migrate');
+	// 	// Dump and die (dd) the migration output
+	// 	dd(Artisan::output());
+	// });
 
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
 
