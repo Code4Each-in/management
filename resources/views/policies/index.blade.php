@@ -165,13 +165,13 @@
                             <form id="addPolicyDocumentsForm" enctype="multipart/form-data" >
                             @csrf
                             <div class="row mb-3">
-                                <label for="policy_name" class="col-sm-3 col-form-label ">Name</label>
+                                <label for="policy_name" class="col-sm-3 col-form-label required ">Name</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="policy_name" id="policy_name">
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="add_document" class="col-sm-3 col-form-label ">Document</label>
+                                <label for="add_document" class="col-sm-3 col-form-label required ">Document</label>
                                 <div class="col-sm-9">
                                     <input type="file" class="form-control" name="add_document[]" id="add_document" multiple />
                                 </div>
