@@ -4,7 +4,7 @@
 @section('content')
 
 <div id="loader">
-    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
 
 <div class="col-lg-12">
