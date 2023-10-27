@@ -310,7 +310,8 @@
               <h5 class="card-title"> Upcoming Holidays</h5>
 
               <div class="news">
-                @foreach ($upcomingFourHolidays as $holiday)
+              @if ($upcomingHoliday)            
+                  @foreach ($upcomingFourHolidays as $holiday)
                     <div class="post-item clearfix">
                     <h4>{{$holiday->name}} <span>|  @if ($holiday->from === $holiday->to)
                                     {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
@@ -320,8 +321,12 @@
                     <p>Holiday @if ($holiday->from === $holiday->to) On {{date("d-M-Y", strtotime($holiday->from));}} @else From {{date("d-M-Y", strtotime($holiday->from));}}  to {{date("d-M-Y", strtotime($holiday->to));}} @endif</p>
                     </div>
                 @endforeach
-              </div><!-- End sidebar recent posts-->
-
+              </div><!-- End sidebar recent posts--> 
+                 @else
+                   <div class="alert" role="alert">
+                      No upcoming holidays found.
+                   </div>
+                @endif
             </div>
           </div>
    </div>

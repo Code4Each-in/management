@@ -93,6 +93,8 @@
                         @endif
                     </div>
                 </div>
+
+                
                 <div class="row mb-5">
                     <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
                     <div class="col-sm-9">
@@ -190,7 +192,12 @@
 
             </div>
             <h5 class="card-title">Comments</h5>
-            <div class="news commentSection">
+
+        <td>
+          <div>Created by:
+          {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</div>
+        </td>
+
                 <div class="comments">
                     @if(count($CommentsData) !=0)
                     @foreach ($CommentsData as $data)

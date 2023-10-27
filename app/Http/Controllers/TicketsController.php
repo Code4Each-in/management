@@ -47,6 +47,7 @@ class TicketsController extends Controller
                     }
                 }
             }
+            
             if (request()->has('project_filter') && request()->input('project_filter')!= '') {
                 $tickets = $ticketFilterQuery->whereHas('ticketRelatedTo', function($query) { 
                     $query->where('id', request()->input('project_filter')); 
@@ -110,6 +111,7 @@ class TicketsController extends Controller
                 'priority'=> $validate ['priority'],
                 'eta'=> $eta,
                 'status_changed_by'=> auth()->user()->id,
+                'created_by'=> auth()->user()->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     
@@ -180,6 +182,7 @@ class TicketsController extends Controller
      public function editTicket($ticketId)
      { 
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
+
          $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->orderBy('id','desc')->get()->toArray();	
@@ -196,8 +199,10 @@ class TicketsController extends Controller
         $tickets = Tickets::where(['id' => $ticketId])->first();
         $projects = Projects::all();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
-        $CommentsData=TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects'));   	
+        $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
+        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
+        // dd($ticketsCreatedByUser);
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
