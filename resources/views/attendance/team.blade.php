@@ -96,7 +96,7 @@
                                 echo $duration;
                                 @endphp
                             </td>
-                            <td>{{ html_entity_decode(strip_tags($data->notes)) }}</td>
+                            <td>{!! $data->notes !!}</td>
                             <td>
                                 <i style="color:#4154f1;" onClick="editAttendance ('{{ $data->id }}')" data-user-id="{{ $data->id}}" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 

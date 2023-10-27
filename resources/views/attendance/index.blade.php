@@ -112,7 +112,7 @@
                                 @endphp
                             </td>
 
-                            <td>{{ html_entity_decode(strip_tags($data->notes)) }}</td>
+                            <td>{!! $data->notes !!}</td>
                         </tr>
                         @empty
                         @endforelse
