@@ -310,7 +310,7 @@
               <h5 class="card-title"> Upcoming Holidays</h5>
 
               <div class="news">
-              @if ($upcomingHoliday)            
+              @if ($upcomingFourHolidays)            
                   @foreach ($upcomingFourHolidays as $holiday)
                     <div class="post-item clearfix">
                     <h4>{{$holiday->name}} <span>|  @if ($holiday->from === $holiday->to)
