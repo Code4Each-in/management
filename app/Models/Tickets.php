@@ -23,6 +23,7 @@ class Tickets extends Model
         'upload',   
         'status', 
         'status_changed_by', 
+        'created_by', 
         'priority',
         'comment',   
     ];
@@ -35,5 +36,9 @@ class Tickets extends Model
     {
         return $this->belongsTo(Projects::class, 'project_id', 'id');
     }
-    
+
+    public function ticketby() 
+    {
+        return $this->belongsTo(Users::class, 'created_by', 'id');
+    }
 }
