@@ -29,4 +29,10 @@ class Projects extends Model
     {
         return $this->hasMany(Ticket::class, 'project_id', 'id');
     }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
 }

@@ -351,6 +351,14 @@
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('clients') ? '' : 'collapsed' }}"
+                    href="{{ route('clients.index') }}">
+                    <i class="bi bi-person-square"></i>
+                    <span>Clients</span>
+                </a>
+            </li>
             
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"

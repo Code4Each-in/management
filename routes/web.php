@@ -8,6 +8,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DevicesController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeavesController;
@@ -182,6 +183,17 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
 
 
+	//Client section routes
+	Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+	Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
+	Route::post('/clients/store', [ClientController::class, 'store'])->name('clients.store');
+	Route::get('/clients/show/{id}', [ClientController::class, 'show'])->name('clients.show');
+	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
+	Route::get('/clients/delete/{id}', [ClientController::class, 'destroy'])->name('clients.delete');
+
+
+
+    //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
  });

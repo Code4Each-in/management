@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\ProjectAssigns;
 use App\Models\ProjectFiles;
 use App\Models\Projects;
 use App\Models\Users;
+use Dotenv\Validator;
 use Illuminate\Http\Request;
 
 class ProjectsController extends Controller
@@ -25,9 +27,14 @@ class ProjectsController extends Controller
         return view('projects.index',compact('users','projects'));   
     }
 
+    public function create(Client $client)
+    {
+        return view('projects.create', compact('client'));
+    }
+
     public function store(Request $request)
     {
-        $validator = \Validator::make($request->all(),[
+        $validator = Validator::make($request->all(),[
             'project_name' => 'required',
             'assign_to'=>'required',
             'live_url'=>'nullable|url',
@@ -119,7 +126,7 @@ class ProjectsController extends Controller
     public function updateProject(Request $request ,$projectId)
     {
 
-        $validator = \Validator::make($request->all(),[
+        $validator = Validator::make($request->all(),[
             'edit_projectname' => 'required',
             // 'user'=>'required',
             'edit_liveurl'=>'nullable|url',
@@ -237,4 +244,6 @@ class ProjectsController extends Controller
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
         return view('projects.show',compact('projects','projectAssigns','ProjectDocuments'));
     }
+   
+
 }
