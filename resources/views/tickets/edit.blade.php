@@ -194,11 +194,11 @@
             <h5 class="card-title">Comments</h5>
 
         <td>
-          <div>Created by:
-          {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</div>
+          
         </td>
-
                 <div class="comments">
+                    <div class="row">Created by:
+                        {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</div>
                     @if(count($CommentsData) !=0)
                     @foreach ($CommentsData as $data)
                     <div class="row">
@@ -214,6 +214,7 @@
                             <p>{{date("M d h:s A", strtotime($data->created_at));}}</p>
 
                         </div>
+                        
                         <div class="col-md-7 ">
                             {{$data->comments}}
                         </div>
