@@ -18,7 +18,8 @@ class Client extends Model
         'status',
         'zip',
         'state',
-        'projects'
+        'projects',
+        'company'
         
     ];
 

@@ -38,16 +38,9 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'phone' => ['required', 'regex:/^\d{5,15}$/'],
-            'birth_date' => ['required', 'date', 'before:20 years ago'],
-            'address' => 'required',
-            'city' => 'required',
-            'zip' => 'required',
-            'state' => 'required'
+            'phone' => ['regex:/^\d{5,15}$/']
         ], [
-            'phone.regex' => 'The phone number must be between 5 and 15 digits.',
-            'birth_date.date' => 'Invalid birth date.',
-            'birth_date.before' => 'The person must be at least 20 years old.'
+            'phone.regex' => 'The phone number must be between 5 and 15 digits.'
         ]);
         
         if(Client::create($request->all())) {
@@ -58,36 +51,35 @@ class ClientController extends Controller
 
 
     public function edit(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email',
-        'phone' => ['required', 'regex:/^\d{5,15}$/'],
-        'birth_date' => ['required', 'date', 'before:20 years ago'],
-        'address' => 'required',
-        'city' => 'required',
-        'zip' => 'required',
-        'state' => 'required'
-    ], [
-        'phone.regex' => 'The phone number must be between 5 and 15 digits.',
-        'birth_date.date' => 'Invalid birth date.',
-        'birth_date.before' => 'The person must be at least 20 years old.'
-    ]);
-
-    $client = Client::find($id);
-
-    if ($client) {
-        $client->update($request->all());
-        return redirect()->route('clients.show', ['id' => $client->id])->with('success', 'Client updated successfully');
-    } else {
-        return back()->with('error', 'Client not found');
+    {
+        $getClient = Client::where('id', $id)->first();
+    
+        if(!empty($getClient)) {
+            return $getClient;
+        }
+        
     }
-}
-
-
-public function destroy(Request $request, $id)
+    
+    public function update(Request $request) {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => ['regex:/^\d{5,15}$/']
+        ], [
+            'phone.regex' => 'The phone number must be between 5 and 15 digits.'
+        ]);
+    
+        $client = Client::find($request->id);
+    
+        if ($client) {
+            $client->update($request->all());
+            return "success";
+        }
+    }
+    public function destroy(Request $request, $id)
 {
     $deleteClient = Client::where('id', $id)->delete();
     return redirect()->route('clients.index')->with('success', 'Client deleted successfully');
 }
 }
+

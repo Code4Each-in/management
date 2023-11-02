@@ -21,10 +21,11 @@ class CreateClientsTable extends Migration
             $table->date('birth_date')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
-            $table->string('status')->default(0);
+            $table->string('status')->default(1);
             $table->integer('zip')->nullable();
             $table->integer('state')->nullable();
             $table->string('projects')->nullable();
+            $table->string('company')->nullable();
             $table->timestamps();
         });
     }

@@ -189,10 +189,10 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/clients/store', [ClientController::class, 'store'])->name('clients.store');
 	Route::get('/clients/show/{id}', [ClientController::class, 'show'])->name('clients.show');
 	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
+	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
 	Route::get('/clients/delete/{id}', [ClientController::class, 'destroy'])->name('clients.delete');
 
-
-
+	
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
