@@ -1281,7 +1281,7 @@ h6 {
       border-left: 1px solid #e7e7e7;
   }
 }
-.required::after 
+.required::after
 {
   content:"*";
   color:red;
@@ -1300,7 +1300,7 @@ h6 {
   height: 34px;
 }
 
-.switch input { 
+.switch input {
   opacity: 0;
   width: 0;
   height: 0;
@@ -1395,7 +1395,7 @@ input:checked + .slider:before {
 }
 
 .table thead th {
-  border: 0!important; 
+  border: 0!important;
  }
 
  .leaveUserContainer {
@@ -1434,6 +1434,10 @@ input:checked + .slider:before {
 .comments .row .comment-user-profile {
   display: flex;
   justify-content: center;
+}
+
+.comments .comment-user-profile img.rounded-circle {
+  width: 100%;
 }
 
 .bootstrap-tagsinput .label {
@@ -1509,7 +1513,7 @@ header .header-alert{
   transition: 1s 0.4s;
 }
 .loader-image{
-  
+
   position: absolute;
   top: 40%;
   left: 45%;
@@ -1546,7 +1550,7 @@ header .header-alert{
 }
 .doc-card .form-input p{
   margin: 0;
-  
+
 }
 .doc-card .del {
   position: absolute;
