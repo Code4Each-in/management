@@ -13,6 +13,12 @@
                         {{$projects->project_name}}
                     </div>
                 </div>
+                <div class="row mb-1 mt-4">
+                    <label for="" class="col-sm-3">Client Name</label>
+                       <div class="col-sm-9">
+                        {{$projects->client->name ?? '--'}}
+                        </div>
+                    </div>
                  <div class="row mb-1 mt-4">
                     <label for="" class="col-sm-3"> Project Assigned</label>
                     <div class="col-sm-9" id="Projectsdata">

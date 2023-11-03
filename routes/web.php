@@ -190,7 +190,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/clients/show/{id}', [ClientController::class, 'show'])->name('clients.show');
 	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
 	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
-	Route::get('/clients/delete/{id}', [ClientController::class, 'destroy'])->name('clients.delete');
+	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient']);
 
 	
     //For logout

@@ -76,10 +76,13 @@ class ClientController extends Controller
             return "success";
         }
     }
-    public function destroy(Request $request, $id)
-{
-    $deleteClient = Client::where('id', $id)->delete();
-    return redirect()->route('clients.index')->with('success', 'Client deleted successfully');
-}
+    
+    public function deleteClient(Request $request) {
+        $deleteClient = Client::where('id', $request->id)->delete();
+        $request->session()->flash('message', 'Client deleted successfully.');
+        return response()->json(["status"=>200]);
+    }
+    
+
 }
 

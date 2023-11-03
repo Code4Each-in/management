@@ -33,42 +33,90 @@ use App\Models\Client;?>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Birth date</label>
-                   <div class="col-sm-9">{{  $client->birth_date }}</div>
+                   <div class="col-sm-9">
+                      @if (!empty($client->birth_date ))
+                         {{  $client->birth_date }}
+                      @else
+                        ---
+                      @endif
+                   </div>
             </div>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Address</label>
-                   <div class="col-sm-9">{{ $client->address}}</div>
+                   <div class="col-sm-9">
+                      @if (!empty($client->address))
+                        {{ $client->address}}
+                      @else
+                        ---
+                      @endif
+                  </div>
             </div>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">City</label>
-                   <div class="col-sm-9">{{ $client->city }}</div>
+                   <div class="col-sm-9">
+                   @if (!empty($client->city ))
+                     {{ $client->city }}
+                   @else
+                     ---
+                   @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Status</label>
-                   <div class="col-sm-9">{{ Client::getStatus($client->status) }}</></div>
+                   <div class="col-sm-9">
+                     @if (!empty(Client::getStatus($client->status) ))
+                     {{ Client::getStatus($client->status)}}
+                   @else
+                     ---
+                   @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Zip</label>
-                   <div class="col-sm-9">{{ $client->zip }}</div>
+                   <div class="col-sm-9">
+                     @if (!empty($client->zip  ))
+                     {{$client->zip}}
+                   @else
+                     ---
+                   @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
-                   <label for="" class="col-sm-3">State</label>
-                   <div class="col-sm-9">{{ $client->state }}</div>
+                   <label for="" class="col-sm-3">Country</label>
+                   <div class="col-sm-9">
+                     @if (!empty($client->country))
+                     {{$client->country}}
+                   @else
+                     ---
+                   @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Projects</label>
-                   <div class="col-sm-9">{{ Client::getProjectName($client->projects)}}</div>
+                   <div class="col-sm-9">
+                     @if(!empty(Client::getProjectName($client->projects)))
+                     {{ Client::getProjectName($client->projects)}}
+                     @else
+                     ---
+                   @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
               <label for="" class="col-sm-3">Company</label>
-              <div class="col-sm-9">{{ $client->company }}</div>
+              <div class="col-sm-9">
+                     @if(!empty($client->company))
+                     {{ $client->company}}
+                     @else
+                     ---
+                   @endif
+              </div>
            </div>
 
             <div class="row mb-1 mt-4">

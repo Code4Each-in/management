@@ -10,6 +10,7 @@ class Projects extends Model
     use HasFactory;
     protected $fillable = [
         'project_name',
+        'client_name',
         'live_url',
         'dev_url',
         'git_repo', 
@@ -32,7 +33,15 @@ class Projects extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+      return $this->belongsTo(Client::class);
     }
+    
 
+    public static function getClientName($id) {
+        $getName = Client::where('id',$id)->first();
+
+        if(!empty($getName)) {
+            return $getName->client_name;
+        }
+    }
 }

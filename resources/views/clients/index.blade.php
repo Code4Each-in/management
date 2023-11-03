@@ -11,7 +11,7 @@ use App\Models\Client;?>
         <div class="card">
             <div class="card-body">
                 <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()">Add
-                    client
+                    Client
                 </button>
                 <table class="table table-borderless dashboard" id="clients">
                     <thead>
@@ -21,11 +21,9 @@ use App\Models\Client;?>
                             <th>Email</th>
                             <th>Phone number</th>
                             <th>Birth date</th>
-                            <th>Address</th>
-                            <th>City</th>
                             <th>Status</th>
-                            <th>Zip</th>
-                            <th>State</th>
+                            <th>Company</th>
+                            <th>Country</th>
                             @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
                                 <th>Actions</th>
                             @endif
@@ -39,12 +37,28 @@ use App\Models\Client;?>
                             <td>{{ $client->name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->phone }}</td>
-                            <td>{{ $client->birth_date }}</td>
-                            <td>{{ $client->address }}</td>
-                            <td>{{ $client->city }}</td>
+                            <td> 
+                                @if (!empty($client->birth_date ))
+                                    {{  $client->birth_date }}
+                                @else
+                                  ---
+                                @endif
+                            </td>
                             <td>{{ Client::getStatus($client->status) }}</td>
-                            <td>{{ $client->zip }}</td>
-                            <td>{{ $client->state }}</td>
+                            <td>
+                                @if(!empty($client->company))
+                                   {{ $client->company}}
+                                @else
+                                     ---
+                                @endif
+                            </td>
+                            <td>
+                                @if (!empty($client->country))
+                                   {{$client->country}}
+                                @else
+                                   ---
+                                @endif
+                            </td>
                             @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
                                 <td>  
                                     <a href="{{ route('clients.show', ['id' => $client->id]) }}">
@@ -54,10 +68,10 @@ use App\Models\Client;?>
                                     <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
                                          <i class="fas fa-edit" style="color: #007bff;"></i>                                       
                                     </a>
-                                    <a href="{{ route('clients.delete', ['id' => $client->id]) }}">
-                                        <i class="fas fa-trash" style="color: #007bff;"></i>
-
-                                    </a>
+                                    {{-- <a href="javascript:void(0)" onclick="deleteClient('{{ $client->id }}')"> --}}
+                                        <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: #007bff;"></i>
+                                    {{-- </a> --}}
+                                    
                                 </td>
                             @endif
                         </tr>
@@ -143,9 +157,9 @@ use App\Models\Client;?>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="address" class="col-sm-3 col-form-label">State</label>
+                                <label for="address" class="col-sm-3 col-form-label">Country</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="state" id="state" placeholder="Enter state">
+                                    <input type="text" class="form-control" name="country" id="country" placeholder="Enter country">
                                 </div>
                             </div>
                         
@@ -255,9 +269,9 @@ use App\Models\Client;?>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="state" class="col-sm-3 col-form-label">State</label>
+                        <label for="state" class="col-sm-3 col-form-label">Country</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="state" id="state" placeholder="Enter state">
+                            <input type="text" class="form-control" name="country" id="country" placeholder="Enter country">
                         </div>  
                     </div>
 
@@ -369,6 +383,24 @@ use App\Models\Client;?>
                 }
             });
         });
+
+        $(".deleteclientbtn").click(function(event) {
+            var id = $(this).attr("client-id");
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ url('/delete/client') }}", // Include the id in the URL
+                    data: {
+                        "_token": "{{ csrf_token() }}", // Include the CSRF token
+                        id: id
+                    },
+                    success: function (res) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+            
     });
 
         $('#user').select2({
@@ -398,7 +430,7 @@ function editClientData(clientId) {
                     $("#editClientForm input[name='city']").val(data.city);
                     $("#editClientForm select[name='status']").val(data.status);
                     $("#editClientForm input[name='zip']").val(data.zip);
-                    $("#editClientForm input[name='state']").val(data.state);
+                    $("#editClientForm input[name='country']").val(data.country);
                     $("#editClientForm select[name='projects']").val(data.projects);
                     $("#editClientForm input[name='company']").val(data.company);
 
@@ -410,11 +442,15 @@ function editClientData(clientId) {
                 }
             });
         }
+
+
+
 function openclientsModal() {
     // Clear any previous error messages and reset the form
     $('#addClientForm')[0].reset();
     $('#addClient').modal('show');
 }
+
     </script>
     <!-- <script src="{{ asset('assets/js/bootstrap-tags.js') }}"></script> -->
 @endsection

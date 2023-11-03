@@ -17,7 +17,7 @@ class Client extends Model
         'city',
         'status',
         'zip',
-        'state',
+        'country',
         'projects',
         'company'
         
@@ -27,11 +27,11 @@ class Client extends Model
     const STATE_INACTIVE = 1;
     const STATE_TALKED = 2;
 
+   public function projects()
+   {
+      return $this->hasMany(Project::class);
+   }
 
-    public function projects()
-    {
-        return $this->hasMany(Project::class);
-    }
 
     public static function getStatus($status) {
         switch($status) {

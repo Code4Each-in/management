@@ -1,3 +1,6 @@
+<?php
+use App\Models\Projects;?>
+
 @extends('layout')
 @section('title', 'Projects')
 @section('subtitle', 'Projects')
@@ -15,7 +18,7 @@
                     <table class="table table-borderless dashboard" id="projects">
                             <thead>
                                 <tr>
-                                    <th>Project Id</id>
+                                    <th>Project Id</th>
                                     <th>Project Name</th>
                                     <th>Description</th>
                                     <th>Assign</th>
@@ -32,7 +35,6 @@
                                 <tr>
                                     <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
-
                                     <td>
                                         @if(strlen($data->description) >= 100)
                                         <span class="description">
@@ -124,12 +126,26 @@
                                     <input type="text" class="form-control" name="project_name" id="project_name">
                                 </div>
                             </div>
+
+                            <div class="row mb-3">
+                                <label for="title" class="col-sm-3 col-form-label required">Client Name</label>
+                                <div class="col-sm-9">
+                                    
+                                    <select name="client_id" class="form-select form-control" id="client_id">
+                                        <option value="" disabled selected>Select Clients</option>
+                                        @foreach ($clients as $client)
+                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endforeach
+                                    </select>  
+                                </div>
+                            </div>
+
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
-                                         @foreach ($users as $data)
+                                         @foreach ($users ?? '' as $data)
                                         <option value="{{$data->id}}">
                                         {{$data->first_name}} - {{$data->role_name}}
                                         </option>
@@ -246,12 +262,7 @@
                     "order": []
 
                 });
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
+                
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
                     var formData = new FormData(this);
@@ -263,6 +274,13 @@
                     //             index]);
                     // }
                     // console.log(formData);
+
+                    $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
                     $.ajax({
                         type: 'POST',
                         url: "{{ url('/add/projects')}}",
