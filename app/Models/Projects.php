@@ -10,6 +10,7 @@ class Projects extends Model
     use HasFactory;
     protected $fillable = [
         'project_name',
+        'client_id',
         'live_url',
         'dev_url',
         'git_repo', 
@@ -28,5 +29,19 @@ class Projects extends Model
     public function projectOnTicket()
     {
         return $this->hasMany(Ticket::class, 'project_id', 'id');
+    }
+
+    public function client()
+    {
+      return $this->belongsTo(Client::class);
+    }
+    
+
+    public static function getClientName($id) {
+        $getName = Client::where('id',$id)->first();
+
+        if(!empty($getName)) {
+            return $getName->client_name;
+        }
     }
 }

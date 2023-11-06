@@ -71,7 +71,7 @@
                         <table class="table table-borderless dashboard" id="tickets">
                             <thead>
                                 <tr>
-                                    <th>Ticket Id</id>
+                                    <th>Ticket Id</th>
                                     <th>Title</th>
                                     <th>Description</th>
                                     <th>Assign</th>

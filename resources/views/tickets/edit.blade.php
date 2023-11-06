@@ -192,15 +192,11 @@
 
             </div>
             <h5 class="card-title">Comments</h5>
-
-        <td>
-
-        </td>
-
                 <div class="comments">
-                    <div class="row">Created by:
-                        {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}
-                    </div>
+                    @if(!empty($ticketsCreatedByUser->ticketby->first_name))
+                        <div class="row">Created by:
+                        {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</div>
+                        @endif
                     @if(count($CommentsData) !=0)
                     @foreach ($CommentsData as $data)
                     <div class="row">

@@ -274,7 +274,7 @@ function updateModule() {
     });
 }
 
-    function deleteModule(id) {
+function deleteModule(id) {
         if (confirm("Are you sure?") == true) {
             $.ajax({
                 type: "DELETE",
