@@ -1,3 +1,7 @@
+<?php
+use App\Models\Projects;?>
+use App\Models\Client;
+
 @extends('layout')
 @section('title', 'Projects')
 @section('subtitle', 'Edit')
@@ -17,6 +21,21 @@
                         @endif
                     </div>
                 </div>
+
+                <div class="row mb-5 mt-4">
+                    <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
+                    <div class="col-sm-9">
+                        <select name="edit_client_id" class="form-select form-control" id="client_id">
+                            <option value="" disabled>Select Clients</option>
+                            @foreach ($clients as $client)
+                                <option value="{{ $client->id }}" {{ $client->id == $projects->client_id ? 'selected' : '' }}>
+                                    {{ $client->name }}
+                                </option>
+                            @endforeach
+                        </select>  
+                    </div>
+                </div>
+
                 <div class="row mb-5">
                     <label for="edit_assign" class="col-sm-3 col-form-label required"> Project Assigned</label>
                     <div class="col-sm-9" id="Projectsdata">
@@ -66,7 +85,7 @@
                 <div class="row mb-5">
                     <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
                     <div class=" col-sm-9">
-                        <textarea name="description" class="form-control" id="tinymce_textarea" >{{$projects->description}}</textarea>
+                        <textarea name="description" class="form-control" id="tinymce_textarea">{{$projects->description}}</textarea>
                         @if ($errors->has('description'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif

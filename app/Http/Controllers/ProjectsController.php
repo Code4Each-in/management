@@ -42,6 +42,7 @@ class ProjectsController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'project_name' => 'required',
+            'client_id' => 'required',
             'assign_to'=>'required',
             'live_url'=>'nullable|url',
             'dev_url'=>'nullable|url',
@@ -70,7 +71,7 @@ class ProjectsController extends Controller
     		$validate = $validator->valid();
         $projects =Projects::create([
             'project_name' => $validate['project_name'],
-            'client_name' => $validate['client_id'],
+            'client_id' => $validate['client_id'],
             'live_url' => $validate['live_url'],
             'dev_url' => $validate['dev_url'], 
             'git_repo' => $validate['git_repo'], 
@@ -118,6 +119,8 @@ class ProjectsController extends Controller
 
     public function editProject($projectId)
     {
+        $projects = Projects::with('client')->get(); // Load clients' data for each project
+       $clients = Client::all(); // Load all clients for the dropdown
         // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
         ->where('roles.name','!=', 'Super Admin')->where('roles.name','!=','HR Manager')
@@ -128,14 +131,14 @@ class ProjectsController extends Controller
         $projectAssign = ProjectAssigns::with('user')->where('project_id',$projectId)->get();
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
 
-        return view('projects.edit',compact('projects','projectAssign','users','userCount','ProjectDocuments'));
+        return view('projects.edit',compact('projects','projectAssign','users','userCount','ProjectDocuments','clients'));
     }
     public function updateProject(Request $request ,$projectId)
     {
-
+        // dd($request);
         $validator = Validator::make($request->all(),[
             'edit_projectname' => 'required',
-            'client_name'=>'required',
+            'edit_client_id'=>'required',
             'edit_liveurl'=>'nullable|url',
             'edit_devurl'=>'nullable|url',
             'edit_gitrepo'=>'nullable|url',
@@ -175,7 +178,7 @@ class ProjectsController extends Controller
             $projects =Projects::where('id', $projectId)  
             ->update([
                 'project_name' => $validate['edit_projectname'],
-                'client_name' => $validate['edit_client_name'],
+                'client_id' => $validate['edit_client_id'],
                 'live_url' => $validate['edit_liveurl'],
                 'dev_url' => $validate['edit_devurl'], 
                 'git_repo' => $validate['edit_gitrepo'], 

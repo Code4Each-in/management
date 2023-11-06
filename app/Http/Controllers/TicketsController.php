@@ -75,7 +75,7 @@ class TicketsController extends Controller
     }
     public function store(Request $request) 
 	{ 
-        $validator = \Validator::make($request->all(),[
+        $validator = Validator::make($request->all(),[
             'title' => 'required',
             'description'=>'required',
             // 'assign'=>'required',
