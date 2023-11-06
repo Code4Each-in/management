@@ -69,7 +69,7 @@
                                          {{$data->name}}
                                         </option>
                                         @endforeach
-                                </select>
+                            </select>
                         </div>
                     </div>
 

@@ -10,7 +10,7 @@
 <div class="col-lg-6">
     <div class="card">
         <div class="card-body">
-           
+
             <form method="post" id="editTicketsForm" action="{{route('tickets.update',$tickets->id)}}" enctype="multipart/form-data">
                 <div class="row mb-5 mt-4">
                     <label for="edit_title" class="col-sm-3 col-form-label required">Title</label>
@@ -72,7 +72,7 @@
                 <div class="row mb-5">
                     <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                     <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="@if ($tickets->eta) {{ 
+                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="@if ($tickets->eta) {{
                             $tickets->eta}}@endif}}">
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="row mb-5">
                     <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
                     <div class="col-sm-9">
@@ -117,9 +117,9 @@
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
                     <div class="col-sm-9" id="Ticketsdata" style="margin:auto;">
-                        @if (count($TicketDocuments) < 1) 
-                        No Uploaded Document Found 
-                        @else 
+                        @if (count($TicketDocuments) < 1)
+                        No Uploaded Document Found
+                        @else
                         @foreach ($TicketDocuments as $data)
                          <button type="button" class="btn btn-outline-primary btn-sm mb-2">
                             @php
@@ -168,8 +168,8 @@
                     @if ($error == 'The document failed to upload.')
                         {{$error}} The document may not be greater than 5 mb.
                         @else
-                            {{$error}} 
-                    @endif 
+                            {{$error}}
+                    @endif
                     </span>
                     @endforeach
                     @endforeach
@@ -361,7 +361,7 @@
 
     $(function(){
   $('#editTicketsForm').submit(function() {
-    $('#loader').show(); 
+    $('#loader').show();
     return true;
   });
 });
