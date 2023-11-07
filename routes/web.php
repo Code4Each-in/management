@@ -142,6 +142,15 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/policy/{policyId}', [PoliciesController::class, 'showPolicy'])->name('policies.show');
 	Route::delete('/delete/policy', [PoliciesController::class, 'destroy'])->name('policies.delete');
 
+
+	//Client section routes
+	Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+	Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
+	Route::post('/clients/store', [ClientController::class, 'store'])->name('clients.store');
+	Route::get('/clients/show/{id}', [ClientController::class, 'show'])->name('clients.show');
+	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
+	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
+	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient']);
 	
 	});
 
@@ -183,14 +192,6 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
 
 
-	//Client section routes
-	Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
-	Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
-	Route::post('/clients/store', [ClientController::class, 'store'])->name('clients.store');
-	Route::get('/clients/show/{id}', [ClientController::class, 'show'])->name('clients.show');
-	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
-	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
-	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient']);
 
 	
     //For logout
