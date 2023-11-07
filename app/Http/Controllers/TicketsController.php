@@ -11,6 +11,9 @@ use App\Models\TicketComments;
 use App\Models\TicketFiles;
 use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+//use Dotenv\Validator;
+
 
 class TicketsController extends Controller
 {
@@ -206,7 +209,7 @@ class TicketsController extends Controller
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
-        $validator = \Validator::make($request->all(),[
+        $validator = Validator::make($request->all(),[
             'title' => 'required', 
             'description'=>'required', 
             'status'=>'required',
@@ -306,7 +309,7 @@ class TicketsController extends Controller
        
     public function addComments( request $request )
     {
-        $validator = \Validator::make($request->all(),[
+        $validator = Validator::make($request->all(),[
             'comment' => 'required', 
             ]);
             
