@@ -109,7 +109,7 @@ use App\Models\Client;?>
                                 
                             </div>
                             <div class="row mb-3">
-                                <label for="phone" class="col-sm-3 col-form-label required">Phone number</label>
+                                <label for="phone" class="col-sm-3 col-form-label">Phone number</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone number">
                                 </div>
@@ -223,7 +223,7 @@ use App\Models\Client;?>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="phone" class="col-sm-3 col-form-label required">Phone number</label>
+                        <label for="phone" class="col-sm-3 col-form-label">Phone number</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone number">
                         </div>

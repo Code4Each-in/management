@@ -38,9 +38,9 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'phone' => ['regex:/^\d{5,15}$/']
+            /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
-            'phone.regex' => 'The phone number must be between 5 and 15 digits.'
+            'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
         ]);
         
         if(Client::create($request->all())) {
@@ -64,9 +64,9 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'phone' => ['regex:/^\d{5,15}$/']
+            /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
-            'phone.regex' => 'The phone number must be between 5 and 15 digits.'
+            'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
         ]);
     
         $client = Client::find($request->id);
