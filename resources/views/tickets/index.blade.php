@@ -99,15 +99,14 @@
                                         </span>
                                         <span class="fullDescription" style="display: none;">
                                          @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
-                                            echo $plainTextDescription;
+                                            echo $data->description;
                                             @endphp
                                         </span>
                                         <a href="#" class="readMoreLink">Read More</a>
                                         <a href="#" class="readLessLink" style="display: none;">Read Less</a>
                                         @else
-                                        {{ strip_tags(htmlspecialchars_decode($data->description));}}
-                                        @endif
+                                        {!! $data->description !!}                                       
+                                         @endif
                                     </td>
 
                                     <td> @if (count($data->ticketassign)<= 5) @foreach ($data->ticketassign as $assign)
