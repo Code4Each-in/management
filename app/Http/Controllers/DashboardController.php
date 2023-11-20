@@ -22,6 +22,11 @@ class DashboardController extends Controller
     public function index()
     {
 
+        // Get the authenticated user
+        $user = auth()->user();
+        $joiningDate = $user->joining_date;
+        // Convert the joining_date attribute to a Carbon date instance
+        $probationEndDate = Carbon::parse($user->joining_date)->addMonths(3);
 
         $today = Carbon::now();
         $endDate = Carbon::today()->addDays(7);
@@ -92,16 +97,34 @@ class DashboardController extends Controller
 
         $approvedLeaves = UserLeaves::where('leave_status', 'approved')
                                     ->join('users', 'users.id', '=', 'user_leaves.user_id')
-                                    ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')->where('users.id', auth()->user()->id)
-                                    ->get();
+                                    ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')
+                                    ->where('users.id', auth()->user()->id)
+                                    ->where(function ($query) use ($joiningDate, $probationEndDate) {
+                                        $query->where('from', '<', $joiningDate)
+                                            ->orWhere('from', '>', $probationEndDate);
+                                    })->get();
+                                    
         $approvedLeave = 0;
         foreach ($approvedLeaves as $apLeave) {
             $approvedLeave += $apLeave->leave_day_count;
         }
         // $availedLeaves =  $availableLeave - $approvedLeave;
         $totalLeaves = $availableLeave ;
-        //end Count for total leave and approved leaves
 
+        //     // Calculate probation leaves separately
+        //      $probationLeaves = UserLeaves::where('leave_status', 'approved')
+        //     ->join('users', 'users.id', '=', 'user_leaves.user_id')
+        //     ->select('user_leaves.*', 'users.first_name', 'users.id', 'users.status')
+        //     ->where('users.id', $user->id)
+        //     ->whereBetween('from', [$joiningDate, $probationEndDate])
+        //     ->get();
+
+        // // dd($probationLeaves);
+
+        // $probationLeaveCount = 0;
+        // foreach ($probationLeaves as $probationLeave) {
+        //     $probationLeaveCount += $probationLeave->leave_day_count;
+        // }
         // Fetch the next four holidays where "from" date is greater than today
         $upcomingFourHolidays = Holidays::where('from', '>', $today)
                                 ->orderBy('from', 'asc')

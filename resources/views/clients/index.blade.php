@@ -35,8 +35,20 @@ use App\Models\Client;?>
                         <tr>
                             <td>{{ $client->id }}</td>
                             <td>{{ $client->name }}</td>
-                            <td>{{ $client->email }}</td>
-                            <td>{{ $client->phone }}</td>
+                            <td>
+                                @if (!empty($client->$client->email ))
+                                   {{  $client->email }}
+                                @else
+                                  ---
+                                @endif
+                            </td>
+                            <td>
+                                @if (!empty($client->phone ))
+                                   {{  $client->phone }}
+                                @else
+                                  ---
+                                @endif
+                            </td>
                             <td> 
                                 @if (!empty($client->birth_date ))
                                     {{  $client->birth_date }}
@@ -54,9 +66,9 @@ use App\Models\Client;?>
                             </td>
                             <td>
                                 @if (!empty($client->country))
-                                   {{$client->country}}
+                                    {{ Client::getCountry($client->country) }}
                                 @else
-                                   ---
+                                    ---
                                 @endif
                             </td>
                             @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
@@ -102,9 +114,23 @@ use App\Models\Client;?>
                                 
                             </div>
                             <div class="row mb-3">
-                                <label for="email" class="col-sm-3 col-form-label required">Email</label>
+                                <label for="email" class="col-sm-3 col-form-label">Email</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="email" id="email" placeholder="Enter email">
+                                </div>
+                                
+                            </div>
+                            <div class="row mb-3">
+                                <label for="email" class="col-sm-3 col-form-label">Secondary Email</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="secondary_email" id="secondary_email" placeholder="Enter secondary email">
+                                </div>
+                                
+                            </div>
+                            <div class="row mb-3">
+                                <label for="email" class="col-sm-3 col-form-label">Additional Email</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="additional_email" id="additional_email" placeholder="Enter Additional email">
                                 </div>
                                 
                             </div>
@@ -157,12 +183,17 @@ use App\Models\Client;?>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="address" class="col-sm-3 col-form-label">Country</label>
+                                <label for="country" class="col-sm-3 col-form-label">Country</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="country" id="country" placeholder="Enter country">
+                                    <select name="country" class="form-control" id="country">
+                                        <option value="" disabled selected>Select Country</option>
+                                        @foreach ($countries as $country)
+                                            <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                        @endforeach
+                                    </select>        
                                 </div>
                             </div>
-                        
+
                             <div class="row mb-3">
                             <label for="project" class="col-sm-3 col-form-label">Projects</label>
                                 <div class="col-sm-9">
@@ -181,6 +212,27 @@ use App\Models\Client;?>
                                 <label for="company" class="col-sm-3 col-form-label">Company</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="company" id="company" placeholder="Enter company name">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="company" class="col-sm-3 col-form-label">Source</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="company" class="col-sm-3 col-form-label">Skype</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="company" class="col-sm-3 col-form-label">Last Worked</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                                 </div>
                             </div>
                         </div>
@@ -216,12 +268,23 @@ use App\Models\Client;?>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="email" class="col-sm-3 col-form-label required">Email</label>
+                        <label for="email" class="col-sm-3 col-form-label">Email</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="email" id="email" placeholder="Enter email">
                         </div>    
                     </div>
-
+                    <div class="row mb-3">
+                        <label for="email" class="col-sm-3 col-form-label">Secondary Email</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="secondary_email" id="secondary_email" placeholder="Enter Secondary email">
+                        </div>    
+                    </div>
+                    <div class="row mb-3">
+                        <label for="email" class="col-sm-3 col-form-label">Additional Email</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="additional_email" id="additional_email" placeholder="Enter Additional email">
+                        </div>    
+                    </div>
                     <div class="row mb-3">
                         <label for="phone" class="col-sm-3 col-form-label">Phone number</label>
                         <div class="col-sm-9">
@@ -271,7 +334,12 @@ use App\Models\Client;?>
                     <div class="row mb-3">
                         <label for="state" class="col-sm-3 col-form-label">Country</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="country" id="country" placeholder="Enter country">
+                            <select name="country" class="form-control" id="country">
+                                <option value="" disabled selected>Select Country</option>
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                @endforeach
+                            </select>       
                         </div>  
                     </div>
 
@@ -294,6 +362,27 @@ use App\Models\Client;?>
                         <label for="company" class="col-sm-3 col-form-label">Company</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="company" id="company" placeholder="Enter company name">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="company" class="col-sm-3 col-form-label">Source</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="company" class="col-sm-3 col-form-label">Skype</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="company" class="col-sm-3 col-form-label">Last worked</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                         </div>
                     </div>
                 </div>
@@ -424,15 +513,20 @@ function editClientData(clientId) {
                     $("#editClientForm input[name='id']").val(data.id);
                     $("#editClientForm input[name='name']").val(data.name);
                     $("#editClientForm input[name='email']").val(data.email);
+                    $("#editClientForm input[name='secondary_email']").val(data.secondary_email);
+                    $("#editClientForm input[name='additional_email']").val(data.additional_email);
                     $("#editClientForm input[name='phone']").val(data.phone);
                     $("#editClientForm input[name='birth_date']").val(data.birth_date);
                     $("#editClientForm input[name='address']").val(data.address);
                     $("#editClientForm input[name='city']").val(data.city);
                     $("#editClientForm select[name='status']").val(data.status);
                     $("#editClientForm input[name='zip']").val(data.zip);
-                    $("#editClientForm input[name='country']").val(data.country);
+                    $("#editClientForm select[name='country']").val(data.country);
                     $("#editClientForm select[name='projects']").val(data.projects);
                     $("#editClientForm input[name='company']").val(data.company);
+                    $("#editClientForm input[name='source']").val(data.source);
+                    $("#editClientForm input[name='skype']").val(data.skype);
+                    $("#editClientForm input[name='last_worked']").val(data.last_worked);
 
                     // display the form
                     $('#editClient').modal('show');
