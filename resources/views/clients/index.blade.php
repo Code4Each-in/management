@@ -216,23 +216,23 @@ use App\Models\Client;?>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="company" class="col-sm-3 col-form-label">Source</label>
+                                <label for="source" class="col-sm-3 col-form-label">Source</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="company" class="col-sm-3 col-form-label">Skype</label>
+                                <label for="skype" class="col-sm-3 col-form-label">Skype</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="company" class="col-sm-3 col-form-label">Last Worked</label>
+                                <label for="last_worked" class="col-sm-3 col-form-label">Last Worked</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
+                                    <input type="date" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                                 </div>
                             </div>
                         </div>
@@ -332,7 +332,7 @@ use App\Models\Client;?>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="state" class="col-sm-3 col-form-label">Country</label>
+                        <label for="country" class="col-sm-3 col-form-label">Country</label>
                         <div class="col-sm-9">
                             <select name="country" class="form-control" id="country">
                                 <option value="" disabled selected>Select Country</option>
@@ -366,23 +366,23 @@ use App\Models\Client;?>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="company" class="col-sm-3 col-form-label">Source</label>
+                        <label for="source" class="col-sm-3 col-form-label">Source</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="company" class="col-sm-3 col-form-label">Skype</label>
+                        <label for="skype" class="col-sm-3 col-form-label">Skype</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="company" class="col-sm-3 col-form-label">Last worked</label>
+                        <label for="last_worked" class="col-sm-3 col-form-label">Last worked</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
+                            <input type="date" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                         </div>
                     </div>
                 </div>
