@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class UserAttendances extends Model
 {
     use HasFactory;
-	
+    protected $table = 'user_attendances';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,4 +23,8 @@ class UserAttendances extends Model
         ];
     
     use HasFactory;
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

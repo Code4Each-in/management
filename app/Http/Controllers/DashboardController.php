@@ -10,6 +10,7 @@ use App\Models\Managers;
 use App\Models\UserLeaves;
 use App\Models\UserAttendances;
 use App\Models\Users;
+use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
@@ -22,6 +23,13 @@ class DashboardController extends Controller
     public function index()
     {
 
+        // Get the authenticated user
+        $user = auth()->user();
+        $joiningDate = $user->joining_date;
+        $userId = $user->id;
+        $userAttendances  = $this->getMissingAttendance();
+        // Convert the joining_date attribute to a Carbon date instance
+        $probationEndDate = Carbon::parse($user->joining_date)->addMonths(3);
 
         $today = Carbon::now();
         $endDate = Carbon::today()->addDays(7);
@@ -44,7 +52,7 @@ class DashboardController extends Controller
             $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get();   
          
             //count of userleaves acc to current date
-             $userAttendanceData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
+             $userAttendancesData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
 
         }
         elseif (auth()->user()->role->name == 'HR Manager') {
@@ -55,7 +63,7 @@ class DashboardController extends Controller
             $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get();   
          
             //count of userleaves acc to current date
-             $userAttendanceData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
+             $userAttendancesData= UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_attendances.*','users.first_name'])->count();
         }
         else
         {
@@ -64,7 +72,7 @@ class DashboardController extends Controller
 
             $currentDate = date('Y-m-d'); //current date
             $users = UserLeaves::whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get()->count();
-            $userAttendanceData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->whereDate('user_attendances.created_at', '=',$currentDate)->get()->count(); //count of userAttendance acc to current date
+            $userAttendancesData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->whereDate('user_attendances.created_at', '=',$currentDate)->get()->count(); //count of userAttendance acc to current date
             $showLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=',$currentDate)->whereDate('to', '>=',$currentDate)->where('leave_status','=','approved')->get();
             
             
@@ -92,22 +100,83 @@ class DashboardController extends Controller
 
         $approvedLeaves = UserLeaves::where('leave_status', 'approved')
                                     ->join('users', 'users.id', '=', 'user_leaves.user_id')
-                                    ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')->where('users.id', auth()->user()->id)
-                                    ->get();
+                                    ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')
+                                    ->where('users.id', auth()->user()->id)
+                                    ->where(function ($query) use ($joiningDate, $probationEndDate) {
+                                        $query->where('from', '<', $joiningDate)
+                                            ->orWhere('from', '>', $probationEndDate);
+                                    })->get();
+                                    
         $approvedLeave = 0;
         foreach ($approvedLeaves as $apLeave) {
             $approvedLeave += $apLeave->leave_day_count;
         }
         // $availedLeaves =  $availableLeave - $approvedLeave;
         $totalLeaves = $availableLeave ;
-        //end Count for total leave and approved leaves
 
-        // Fetch the next four holidays where "from" date is greater than today
         $upcomingFourHolidays = Holidays::where('from', '>', $today)
                                 ->orderBy('from', 'asc')
                                 ->limit(4)
                                 ->get();
 
-        return view('dashboard.index',compact('userCount','users','userAttendanceData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays'));
+        return view('dashboard.index',compact('userCount','users','userAttendancesData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays','userAttendances'));
     }
+
+    Public function getMissingAttendance()
+    {
+       // get all the users who are active and have role id of employee
+       $userAttendances = [];
+       $activeUsers = Users::where('status', '1')
+       ->where('role_id', '3')
+       ->get();
+
+       // to get the currrent date and the date of 10 days before
+       $currentDate = Carbon::now();
+       $currentDateFormatted = $currentDate->format('Y-m-d');
+       $tenDaysBefore = $currentDate->subDays(10); 
+       $tenDaysBeforeFormatted = $tenDaysBefore->format('Y-m-d');
+       
+       // parse the dates
+       $dateSeries = collect();
+       $currentDate = Carbon::parse($tenDaysBeforeFormatted);
+       $endDateObject = Carbon::parse($currentDateFormatted);
+
+  // creating a series of the dates
+  while ($currentDate <= $endDateObject) {
+     if (
+         !Holidays::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->exists() &&
+         $currentDate->dayOfWeek !== 0 &&  // Exclude Sundays
+         $currentDate->dayOfWeek !== 6
+     ) {
+         $dateSeries->push($currentDate->copy());  // Add the current date to the collection
+     }
+     $currentDate->addDay();   // Move to the next day
+ }
+ 
+ $count = 0;
+ foreach ($activeUsers as $user) {
+     $userId = $user->id;
+     $missingDates = [];
+ 
+     foreach ($dateSeries as $date) {
+         $leave = !UserLeaves::where('user_id', $userId)->whereDate('from', '<=', $date)->whereDate('to', '>=', $date)->exists();
+         $attendance = UserAttendances::where('user_id', $userId)->whereDate('created_at', $date)->doesntExist();
+         if ($leave && $attendance) 
+         {
+             $missingDates[] = $date->toDateString();
+         }
+     }
+     if (!empty($missingDates)) {
+         $userAttendances[] = [
+             'id' => $user->id,
+             'name' => $user->first_name . " " . $user->last_name,
+             'dates' => $missingDates,
+         ];
+     }
+ }
+
+   return $userAttendances;
+
+    }
+    
 }

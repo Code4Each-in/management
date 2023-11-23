@@ -119,5 +119,9 @@ class Users extends Authenticatable
     {
         return $this->hasMany(AssignedDevices::class);
     }
-
+    
+    public function userAttendances()
+    {
+        return $this->hasMany(UserAttendance::class, 'user_id');
+    }
 }

@@ -22,13 +22,47 @@ use App\Models\Client;?>
             </div>
 
             <div class="row mb-1 mt-4">
-                   <label for="" class="col-sm-3">Email</label>
-                   <div class="col-sm-9">{{ $client->email}}</div>
+              <label for="" class="col-sm-3">Email</label>
+              <div class="col-sm-9">
+                @if (!empty($client->email))
+                  {{$client->email}}
+                @else
+                  ---
+                @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
-                <label for="" class="col-sm-3">Phone number</label>
-                <div class="col-sm-9">{{  $client->phone }}</div>
+              <label for="" class="col-sm-3">Secondary Email</label>
+              <div class="col-sm-9">
+                @if (!empty($client->secondary_email))
+                  {{$client->secondary_email}}
+                @else
+                  ---
+                @endif
+              </div>
+            </div>
+
+            <div class="row mb-1 mt-4">
+              <label for="" class="col-sm-3">Additional Email</label>
+              <div class="col-sm-9">
+                @if (!empty($client->additional_email))
+                  {{$client->additional_email}}
+                @else
+                  ---
+                @endif
+              </div>
+            </div>
+
+            <div class="row mb-1 mt-4">
+              <label for="" class="col-sm-3">Phone number</label>
+              <div class="col-sm-9">
+                @if (!empty($client->phone))
+                  {{$client->phone}}
+                @else
+                  ---
+                @endif
+              </div>
             </div>
 
             <div class="row mb-1 mt-4">
@@ -89,11 +123,11 @@ use App\Models\Client;?>
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Country</label>
                    <div class="col-sm-9">
-                     @if (!empty($client->country))
-                     {{$client->country}}
-                   @else
-                     ---
-                   @endif
+                    @if (!empty($client->country))
+                    {{ Client::getCountry($client->country) }}
+                @else
+                    ---
+                @endif
               </div>
             </div>
 
@@ -118,6 +152,40 @@ use App\Models\Client;?>
                    @endif
               </div>
            </div>
+
+           <div class="row mb-1 mt-4">
+            <label for="" class="col-sm-3">Source</label>
+            <div class="col-sm-9">
+                   @if(!empty($client->source))
+                   {{ $client->source}}
+                   @else
+                   ---
+                 @endif
+            </div>
+         </div>
+           
+         <div class="row mb-1 mt-4">
+          <label for="" class="col-sm-3">Skype</label>
+          <div class="col-sm-9">
+                 @if(!empty($client->skype))
+                 {{ $client->skype}}
+                 @else
+                 ---
+               @endif
+          </div>
+       </div>
+
+       <div class="row mb-1 mt-4">
+        <label for="" class="col-sm-3">last worked</label>
+        <div class="col-sm-9">
+               @if(!empty($client->last_worked))
+               {{ $client->last_worked}}
+               @else
+               ---
+             @endif
+        </div>
+     </div>
+        </div>
 
             <div class="row mb-1 mt-4">
                    <div class="text-center">

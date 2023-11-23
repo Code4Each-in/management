@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Country;
 use App\Models\Projects;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,8 @@ class ClientController extends Controller
     {
         $clients = Client::all();
         $projects = Projects::all();
-        return view('clients.index', compact('clients', 'projects'));
+        $countries = Country::all();
+        return view('clients.index', compact('clients', 'projects','countries'));
     }
 
     public function create()
@@ -36,8 +38,8 @@ class ClientController extends Controller
     {
         
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
+            'name' => 'required'
+            // 'email' => 'email',
             /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
@@ -62,8 +64,8 @@ class ClientController extends Controller
     
     public function update(Request $request) {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
+            'name' => 'required'
+            // 'email' => 'required|email',
             /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/

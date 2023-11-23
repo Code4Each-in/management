@@ -329,10 +329,50 @@
                 @endif
             </div>
           </div>
-   </div>
-</div>
+           {{-- For Missing attendance --}}
+         @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
+            <div class="col-md-12 dashboard">
+                <div class="card recent-sales overflow-auto">
+                    <!-- <div class="filter">
+                       <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                       <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                       <li class="dropdown-header text-start">
+                       <h6>Filter</h6>
+                       </li>
 
-
+                     <li><a class="dropdown-item" href="#">Today</a></li>
+                     <li><a class="dropdown-item" href="#">This Month</a></li>
+                     <li><a class="dropdown-item" href="#">This Year</a></li>
+                     </ul>
+                    </div> -->
+                   <div class="card-body">
+                     <h5 class="card-title">Missing Attendance</h5>
+                     <div style="max-height: 300px; overflow-y: auto;">
+                       <table class="table table-borderless datatable" id="leavesss">
+                         <thead>
+                            <tr>
+                                <th scope="col">Employee Name</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @foreach ($userAttendances as $attendance)
+                                <tr>
+                                    <td>{{ $attendance['name'] }}</td>
+                                    <td>{{ implode(', ', $attendance['dates']) }}</td>
+                                </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                        @if (empty($userAttendances))
+                          <div class="alert" role="alert">
+                                No results found.
+                          </div>
+                      @endif
+                     </div>
+                   </div>
+              </div>
+         @endif
 <div class="row">
     @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
     <div class="col-8 dashboard">

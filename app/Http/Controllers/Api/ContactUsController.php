@@ -20,20 +20,33 @@ class ContactUsController extends Controller
             'note' => 'required',       
             'phone' => 'required', 
             'captcha' => 'required',    
+        ], [
+            'name.required' => 'The Name field is required.',
+            'email.required' => 'The Email field is required.',
+            'email.email' => 'Please enter a valid Email address.',
+            'note.required' => 'The Message field is required.',
+            'phone.required' => 'The Phone field is required.',
+            'captcha.required' => 'The Captcha field is required.',
         ]);
  
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
+        $validator->after(function ($validator) use ($request) {
+            $captcha = $request->input('captcha');
+    
+            if (!empty($captcha)) {
+                $getcaptcha = Captchas::where('captcha_id', $request->input('captcha_id'))->first();
+    
+                if (!$getcaptcha || $getcaptcha->captcha_string != $captcha) {
+                    $validator->errors()->add('captcha', 'You entered an incorrect Captcha.');
+                }
+            }
+        });
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()]);
         }
-        $validate = $validator->valid();
 
-        $getcapctcha = Captchas::where('captcha_id', $validate['captcha_id'])->first();
-        if ($getcapctcha->captcha_string != $validate['captcha'])
-        {
-            return response()->json(['errors'=>"You entered an incorrect Captcha."]);
-        }
-  
+        $validate = $validator->valid();  
+
         $websiteContactUs =WebsiteContactUs::create([
             'name' => $validate['name'],
             'email' => $validate['email'],

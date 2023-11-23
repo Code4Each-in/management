@@ -11,6 +11,8 @@ class Client extends Model
     protected $fillable = [
         'name',
         'email',
+        'secondary_email',
+        'additional_email',
         'phone',
         'birth_date',
         'address',
@@ -19,7 +21,10 @@ class Client extends Model
         'zip',
         'country',
         'projects',
-        'company'
+        'company',
+        'source',
+        'skype',
+        'last_worked'
         
     ];
 
@@ -67,6 +72,14 @@ class Client extends Model
 
         if(!empty($getName)) {
             return $getName->project_name;
+        }
+    }
+
+    public static function getCountry($id) {
+        $getCountry = Country::where('id', $id)->first();
+    
+        if(!empty($getCountry)) {
+            return $getCountry->name;
         }
     }
 }
