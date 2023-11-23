@@ -15,7 +15,7 @@ class Countries extends Migration
     {
         Schema::create('countries', function (Blueprint $countries) {
             $countries->id();
-            $countries->name();
+            $countries->string('name');
             
         });
     }
