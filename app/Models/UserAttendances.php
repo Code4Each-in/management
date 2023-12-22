@@ -9,6 +9,8 @@ class UserAttendances extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_attendances';
+
     /**
      * The attributes that are mass assignable.
      *
