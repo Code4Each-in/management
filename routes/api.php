@@ -21,3 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/random', [WebsiteApiController::class, 'getrandomchar']);
 Route::post('/contactus', [ContactUsController::class, 'contactUs'])->name('contactUs.add');
 Route::get('/delete/captchas', [WebsiteApiController::class, 'deleteCaptcha']);
+
+
+
+Route::post('/authenticate-user',[InternalTimesheetExtension::class,'validateUser']);
+Route::post('/add-status-report',[InternalTimesheetExtension::class,'addStatusReport']);
