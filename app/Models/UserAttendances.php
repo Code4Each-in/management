@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserAttendances extends Model
 {
     use HasFactory;
-	
+
     /**
      * The attributes that are mass assignable.
      *
@@ -16,10 +16,11 @@ class UserAttendances extends Model
      */
     protected $fillable = [
             'user_id',
+            'date',
             'in_time',
             'out_time',
-            'notes',   
+            'notes',
         ];
-    
+
     use HasFactory;
 }
