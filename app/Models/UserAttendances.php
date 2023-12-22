@@ -22,5 +22,8 @@ class UserAttendances extends Model
             'notes',
         ];
 
-    use HasFactory;
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
