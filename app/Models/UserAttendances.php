@@ -16,13 +16,13 @@ class UserAttendances extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-            'user_id',
-            'in_time',
-            'out_time',
-            'notes',   
-        ];
-    
-    use HasFactory;
+        'user_id',
+        'date',
+        'in_time',
+        'out_time',
+        'notes',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
