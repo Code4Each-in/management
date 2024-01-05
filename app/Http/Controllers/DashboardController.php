@@ -99,6 +99,7 @@ class DashboardController extends Controller
         }
 
         $approvedLeaves = UserLeaves::where('leave_status', 'approved')
+                                    ->whereYear('from', date('Y'))
                                     ->join('users', 'users.id', '=', 'user_leaves.user_id')
                                     ->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.status')
                                     ->where('users.id', auth()->user()->id)
@@ -108,8 +109,9 @@ class DashboardController extends Controller
                                     })->get();
                                     
         $approvedLeave = 0;
+        
         foreach ($approvedLeaves as $apLeave) {
-            $approvedLeave += $apLeave->leave_day_count;
+                $approvedLeave += $apLeave->leave_day_count;
         }
         // $availedLeaves =  $availableLeave - $approvedLeave;
         $totalLeaves = $availableLeave ;
@@ -130,16 +132,23 @@ class DashboardController extends Controller
        ->where('role_id', '3')
        ->get();
 
-       // to get the currrent date and the date of 10 days before
+       //to get the currrent date and the date of 10 days before
        $currentDate = Carbon::now();
        $currentDateFormatted = $currentDate->format('Y-m-d');
+       $yesterday = $currentDate->subDays(1); 
+       $yesterdayFormatted = $yesterday->format('Y-m-d'); 
        $tenDaysBefore = $currentDate->subDays(10); 
        $tenDaysBeforeFormatted = $tenDaysBefore->format('Y-m-d');
        
+   
+
        // parse the dates
        $dateSeries = collect();
+    //    $currentDate = Carbon::parse($tenDaysBeforeFormatted);
+    //    $endDateObject = Carbon::parse($currentDateFormatted);
+
        $currentDate = Carbon::parse($tenDaysBeforeFormatted);
-       $endDateObject = Carbon::parse($currentDateFormatted);
+       $endDateObject = Carbon::parse($yesterdayFormatted);
 
   // creating a series of the dates
   while ($currentDate <= $endDateObject) {
