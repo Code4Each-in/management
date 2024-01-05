@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
+use App\Http\Controllers\Api\InternalTimesheetExtension;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
