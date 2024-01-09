@@ -198,7 +198,7 @@ class InternalTimesheetExtension extends Controller
                         'message' => "Start Time Get Successfully.",
                         'success' => true,
                         'status'  => 200,
-                        'data' => ['in-time'=> $inTime]
+                        'data' => ['inTime'=> $inTime]
                     ];
             }else{
                 $response = [
