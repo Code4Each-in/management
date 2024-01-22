@@ -361,7 +361,36 @@
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('leaves') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
+                    data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Jobs</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="job-cat-nav"
+                    class="nav-content collapse {{ request()->is('leaves') || request()->is('leaves/team') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class=" {{ request()->is('jobs') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('jobs.index') }}">
+                            <i class="bi bi-circle "></i><span>Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class=" {{ request()->is('job-categories') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('job_categories.index')}}">
+                            <i class="bi bi-circle"></i><span>Job Categories</span>
+                        </a>
+                    </li>
 
+                    <li>
+                        <a class=" {{ request()->is('applicants') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('applicants.index')}}">
+                            <i class="bi bi-circle"></i><span>Applicants</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
