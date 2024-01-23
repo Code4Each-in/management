@@ -204,7 +204,7 @@ function addleaves() {
   spinner.show();
 
 
-    function updateTotalDays() {
+  function updateTotalDays() {
     const fromDateStr = $('#from').val();
     const toDateStr = $('#to').val();
     const HalfDay = $('#halfday').val();
@@ -226,14 +226,23 @@ function addleaves() {
     let totalDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
 
     // Check if half day should be considered
-    if (HalfDay != ""  && totalDays === 0) {
+    if (HalfDay !== "" && totalDays === 0) {
         totalDays = 0.5;
-    }else{
-        totalDays += 1;
+    } else {
+        // Iterate through each day in the date range and skip weekends
+        for (let i = 0; i <= totalDays; i++) {
+            const currentDate = new Date(fromDate);
+            currentDate.setDate(currentDate.getDate() + i);
+            
+            // Check if the current day is Saturday or Sunday
+            if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
+                totalDays--;
+            }
+        }
     }
 
     return totalDays;
-    }
+}
 
     // Call the function to get the total days
     const totalDays = updateTotalDays();
