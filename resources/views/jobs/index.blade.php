@@ -66,7 +66,7 @@
                                 <td>{{$data->salary }}</td>
                                 <td>{{ $data->skills }}</td>
                                 <td>
-                                    <i style="color:#4154f1;" onClick="editDevice('{{ $data->id }}')"
+                                    <i style="color:#4154f1;" onClick="editJob('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
                                     <i style="color:#4154f1;" onClick="deleteJob('{{ $data->id }}')"
                                         href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
@@ -171,7 +171,97 @@
         </div>
     </div>
 </div>
+<!--end: Add Module Modal -->
+
+<!--start: Edit Module Modal -->
+<div class="modal fade" id="editJob" tabindex="-1" aria-labelledby="editJobLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editJobLabel">Edit Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editJobForm" action="">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-danger" style="display:none"></div>
+                    <div class="row mb-3">
+                        <label for="title" class="col-sm-3 col-form-label required">Title</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="title" id="title">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
+                        <div class="col-sm-9">
+                            <textarea name="desc" class="form-control" id="tinymce_textarea"></textarea>
+                        </div>
+                        <input name="description" type="hidden" value="" class="description"> 
+                    </div>
+                    <div class="row mb-3">
+                        <label for="experience" class="col-sm-3 col-form-label required">Experience</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="experience" id="experience">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="job_category_id" class="col-sm-3 col-form-label required ">Job Category</label>
+
+                        <div class="col-sm-9">
+                            <select name="job_category_id" class="form-select form-control" id="job_category_id">
+                                @foreach ($jobCategories as $data)
+                                    <option value="{{$data->id}}">
+                                        {{$data->title}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="location" class="col-sm-3 col-form-label required ">Location</label>
+                        <div class="col-sm-9">
+                            <select name="location" class="form-select form-control" id="location">
+                                <option value="Onsite">Onsite</option>
+                                <option value="remote">Remote</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                        <div class="col-sm-9">
+                            <select name="status" class="form-select" id="status">
+                                <option value="1">Active</option>
+                                <option value="0">Deactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="add_skills" class="col-md-4 col-lg-3 col-form-label required">Skills</label>
+                        <div class="col-md-8 col-lg-9">
+                            <input name="skills" type="text" class="form-control" id="skills"
+                                value='' data-role="taginput">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="salary" class="col-sm-3 col-form-label">Salary</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="salary" id="salary">
+                        </div>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onClick="updateDevice()"
+                        href="javascript:void(0)">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+<!--end: Edit Module Modal -->
 @endsection
 @section('js_scripts')
 <script>
@@ -260,6 +350,80 @@ function deleteJob(id) {
             }
         });
     }
+}
+
+function editJob(id) {
+    $('#hidden_job_id').val(id);
+
+    $.ajax({
+        type: "POST",
+        url: "{{ url('/edit/job') }}",
+        data: {
+            id: id
+        },
+        dataType: 'json',
+        success: function(res) {
+            if (res.device != null) {
+                $('#editDevice').modal('show');
+                $('#edit_device_name').val(res.device.name);
+                $('#edit_device_model').val(res.device.device_model);
+                $('#edit_brand').val(res.device.brand);
+                $('#edit_serial_number').val(res.device.serial_number);
+                $('#edit_buying_date').val(res.device.buying_date);
+
+            }
+        }
+    });
+}
+
+function updateJob() {
+    var id = $('#hidden_device_id').val();
+    var edit_device_name = $('#edit_device_name').val();
+    var edit_device_model = $('#edit_device_model').val();
+    var edit_brand = $('#edit_brand').val();
+    var edit_serial_number = $('#edit_serial_number').val();
+    var edit_buying_date = $('#edit_buying_date').val();
+    var edit_add_document = $('#edit_add_document')[0].files;
+
+    var formData = new FormData();
+    formData.append('id', id);
+    formData.append('edit_device_name', edit_device_name);
+    formData.append('edit_device_model', edit_device_model);
+    formData.append('edit_brand', edit_brand);
+    formData.append('edit_serial_number', edit_serial_number);
+    formData.append('edit_buying_date', edit_buying_date);
+
+    // Append each file to the FormData object
+    for (var i = 0; i < edit_add_document.length; i++) {
+        formData.append('edit_add_document[]', edit_add_document[i]);
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{{ url('/update/device') }}",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(res) {
+            if (res.errors) {
+                $('.alert-danger').html('');
+
+                $.each(res.errors, function(key, value) {
+                    $('.alert-danger').show();
+                    $('.alert-danger').append('<li>' + value + '</li>');
+                });
+            } else {
+                $('.alert-danger').html('');
+                $("#editDevice").modal('hide');
+                location.reload();
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    });
 }
 
 </script>
