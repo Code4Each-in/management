@@ -237,7 +237,7 @@ function addleaves() {
             // Check if the current day is Saturday or Sunday
             if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
                 totalDays--;
-            }
+            } 
         }
     }
 
