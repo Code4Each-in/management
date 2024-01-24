@@ -1,41 +1,27 @@
 @extends('layout')
-@section('title', 'Jobs')
-@section('subtitle', 'Jobs')
+@section('title', 'Applicants')
+@section('subtitle', 'Applicants')
 @section('content')
-<style>
-    .addjobs .modal-dialog, .editJob .modal-dialog{
-        max-width: 800px;
-    }
-</style>
-<div id="loader">
-    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
-</div>
 
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openAddJobModal()" href="javascript:void(0)">Add
-                Job</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
                     <table class="table table-borderless datatable" id="jobstable">
                         <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Experience</th>
-                                <th>Job Category</th>
-                                <th>Status</th>
-                                <th>Location</th>
-                                <th>Salary</th>
-                                <th>Skills</th>
-                                <th>Action</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Resume</th>
+                                <th>Links</th>
+                                <!-- <th>Action</th> -->
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($jobsData as $data)
+                            @forelse($Applicants as $data)
                             <tr>
                                 <td>{{$data->id }}</td>
                                 <td>{{$data->title }}</td>

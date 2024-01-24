@@ -362,13 +362,13 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('leaves') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
+                <a class="nav-link {{ request()->is('jobs') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
                     data-bs-toggle="collapse" href="#">
                     <i class="bi bi-layout-text-window-reverse"></i><span>Jobs</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="job-cat-nav"
-                    class="nav-content collapse {{ request()->is('leaves') || request()->is('leaves/team') ? 'show' : '' }}"
+                    class="nav-content collapse {{ request()->is('jobs') || request()->is('job-categories') ||  request()->is('applicants') ? 'show' : '' }}"
                     data-bs-parent="#sidebar-nav">
                     <li>
                         <a class=" {{ request()->is('jobs') ? 'active' : 'collapsed' }} "

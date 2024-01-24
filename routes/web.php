@@ -168,7 +168,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/job-category', [JobCategoriesController::class, 'destroy'])->name('job_categories.delete');
 
 	//Applicants CATEGORIES ROUTES
-	Route::get('/applicants', [JobCategoriesController::class, 'index'])->name('applicants.index');
+	Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');

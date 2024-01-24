@@ -43,7 +43,7 @@ class JobsController extends Controller
         $skills = $request->get('skills');
 
 
-        $AddJob = Jobs::create([
+        $addJob = Jobs::create([
             'title' => $title,
             'description' => $description,
             'experience' => $experience,
@@ -56,7 +56,7 @@ class JobsController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 		$request->session()->flash('message','Job added successfully.');
-        return Response()->json(['status'=>200, 'page'=>$AddJob]);
+        return Response()->json(['status'=>200, 'page'=>$addJob]);
     }
 
 
@@ -71,5 +71,44 @@ class JobsController extends Controller
         $deleteJobs->delete();
         $request->session()->flash('message','Job deleted successfully.');
         return response()->json(['message' => 'Job deleted successfully.']);
+    }
+
+    public function edit(Request $request)
+    {
+        $getJobData = Jobs::where(['id' => $request->id])->first();
+        return Response()->json(['jobs' =>$getJobData]);
+    }
+
+    public function update(Request $request)
+    {  
+        $validator = \Validator::make($request->all(), [
+            'edit_title' => 'required',    
+            'edit_description' => 'required',    
+            'edit_experience' => 'required',    
+            'edit_job_category_id' => 'required',    
+            'edit_location' => 'required',    
+            'edit_status' => 'required',    
+            'edit_salary' => 'nullable',   
+            'edit_skills' => 'required'
+        ]);
+ 
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }
+        $updateJobs = Jobs::where('id', $request->id)
+        ->update([
+            'title' => $request->edit_title,
+            'description' => $request->edit_description,
+            'experience' => $request->edit_experience,
+            'job_category_id' => $request->edit_job_category_id,
+            'status' => $request->edit_status,
+            'location' => $request->edit_location,
+            'salary' => $request->edit_salary,
+            'skills' => $request->edit_skills,
+        ]);
+
+		$request->session()->flash('message','Job updated successfully.');
+        return Response()->json(['status'=>200, 'device' => $updateJobs]);
     }
 }
