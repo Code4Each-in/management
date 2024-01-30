@@ -1596,3 +1596,7 @@ header .header-alert{
   font-size: 14px;
   font-weight: 400;
 }
+.resume_button{
+    background: transparent;
+    border: 0;
+}

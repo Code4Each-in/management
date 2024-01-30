@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\AssignedDevicesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -64,13 +65,13 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/leaves/team', [leavesController::class, 'showTeamData'])->name('leaves.team.index');
 	Route::post('/leaves/team/add', [leavesController::class, 'addTeamLeaves'])->name('leaves.team.add');
 
-	
+
 	Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
 	Route::post('/add/tickets', [TicketsController::class, 'store'])->name('tickets.add');
 	Route::get('/edit/ticket/{ticketId}', [TicketsController::class, 'editTicket'])->name('tickets.edit');
 	Route::post('/update/tickets/{ticketId}', [TicketsController::class, 'updateTicket'])->name('tickets.update');
 	Route::delete('/delete/tickets', [TicketsController::class, 'destroy'])->name('tickets.delete');
-	
+
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
@@ -108,7 +109,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/edit/holiday', [HolidaysController::class, 'edit'])->name('holidays.edit');
 	Route::post('/update/holiday', [HolidaysController::class, 'update'])->name('holidays.update');
 	Route::delete('/delete/holiday', [HolidaysController::class, 'destroy'])->name('holidays.delete');
-	
+
 	// Devices Routes
 	Route::get('/devices', [DevicesController::class, 'index'])->name('devices.index');
 	Route::post('/add/device', [DevicesController::class, 'store'])->name('devices.add');
@@ -151,7 +152,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
 	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
 	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient'])->name('clients.delete');
-	
+
 	});
 
 	//Commnents Route Without Role Permission Middleware
@@ -167,6 +168,9 @@ Route::middleware(['role_permission'])->group(function () {
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
+
+    //Applicants Section
+    Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
 
 	// Users Routes Without Role Permission Middleware
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
@@ -193,7 +197,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 
 
-	
+
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 

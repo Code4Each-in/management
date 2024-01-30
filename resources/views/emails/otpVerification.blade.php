@@ -126,7 +126,7 @@
           <tr>
             <td align="center" valign="top" style="padding: 36px 24px;">
               <a href="https://www.blogdesire.com" target="_blank" style="display: inline-block;">
-                <img src="{{ url('img/black-logo.png') }}" alt="Logo" border="0" width="48" style="width: 50%;">
+                <img src="{{ url('assets/img/black-logo.png') }}" alt="Logo" border="0" width="48" style="width: 50%;">
               </a>
             </td>
           </tr>
