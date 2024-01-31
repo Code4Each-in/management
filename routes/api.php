@@ -5,8 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
-use App\Models\Applicants;
-
+use App\Http\Controllers\Api\InternalTimesheetExtension;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,7 +27,8 @@ Route::post('/verify-otp', [ApplicantController::class, 'update']);
 Route::post('/resend-otp', [ApplicantController::class, 'resentOtp']);
 Route::get('/delete/captchas', [WebsiteApiController::class, 'deleteCaptcha']);
 
-
-
 Route::post('/authenticate-user',[InternalTimesheetExtension::class,'validateUser']);
 Route::post('/add-status-report',[InternalTimesheetExtension::class,'addStatusReport']);
+Route::post('/add-start-time',[InternalTimesheetExtension::class,'addStartTime']);
+Route::get('/get-start-time',[InternalTimesheetExtension::class,'getStartTime']);
+
