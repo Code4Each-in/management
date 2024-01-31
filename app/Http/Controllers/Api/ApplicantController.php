@@ -83,7 +83,7 @@ class ApplicantController extends Controller
             $email=$validate['email'];
             $subject = "OTP verification";
             $this->sendVerificationEmail($otp,$email,$subject);
-            $message='We have sent an OTP to your email: ' . $email . '. Please confirm the OTP. Note that it is valid for only five minutes.';
+            $message='We have sent an OTP to your email: <strong>' . $email . '</strong>. Please confirm the OTP. Note that it is valid for only five minutes.';
 
             return Response()->json(['status'=>200, 'message'=>$message,'email'=>$email]);
        }
@@ -145,7 +145,7 @@ class ApplicantController extends Controller
             $applicant->update(['expired_at' => $expired_at]);
             $subject = "OTP verification";
             $this->sendVerificationEmail($otp,$email,$subject);
-            $message='We have sent an OTP to your email : ' . $email . '. Please confirm the OTP. Note that it is valid for only 5 minutes.';
+            $message='We have sent an OTP to your email : <strong>' . $email . '</strong>. Please confirm the OTP. Note that it is valid for only 5 minutes.';
             return Response()->json(['status'=>200, 'message'=>$message,'email'=>$email]);
         }
 
