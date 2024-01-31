@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ApplicantsController;
+
 use App\Http\Controllers\AssignedDevicesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -168,9 +168,6 @@ Route::middleware(['role_permission'])->group(function () {
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
-
-    //Applicants Section
-    Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
 
 	// Users Routes Without Role Permission Middleware
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
