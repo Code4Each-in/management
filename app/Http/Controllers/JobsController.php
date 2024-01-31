@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Jobs;
 use App\Models\JobCategories;
@@ -12,19 +12,19 @@ class JobsController extends Controller
     {
         $jobsData = Jobs::with('jobcategory')->orderBy('id','desc')->get();
         $jobCategories = JobCategories::orderBy('id', 'asc')->where('status', 1)->get();
-        return view('jobs.index',compact('jobsData', 'jobCategories'));  
+        return view('jobs.index',compact('jobsData', 'jobCategories'));
 
-    }  
+    }
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'title' => 'required',    
-            'description' => 'required',    
-            'experience' => 'required',    
-            'job_category_id' => 'required',    
-            'location' => 'required',    
-            'status' => 'required',    
-            'salary' => 'nullable',   
+            'title' => 'required',
+            'description' => 'required',
+            'experience' => 'required',
+            'job_category_id' => 'required',
+            'location' => 'required',
+            'status' => 'required',
+            'salary' => 'nullable',
             'skills' => 'required'
         ]);
 
@@ -80,18 +80,18 @@ class JobsController extends Controller
     }
 
     public function update(Request $request)
-    {  
+    {
         $validator = \Validator::make($request->all(), [
-            'edit_title' => 'required',    
-            'edit_description' => 'required',    
-            'edit_experience' => 'required',    
-            'edit_job_category_id' => 'required',    
-            'edit_location' => 'required',    
-            'edit_status' => 'required',    
-            'edit_salary' => 'nullable',   
+            'edit_title' => 'required',
+            'edit_description' => 'required',
+            'edit_experience' => 'required',
+            'edit_job_category_id' => 'required',
+            'edit_location' => 'required',
+            'edit_status' => 'required',
+            'edit_salary' => 'nullable',
             'edit_skills' => 'required'
         ]);
- 
+
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -110,5 +110,21 @@ class JobsController extends Controller
 
 		$request->session()->flash('message','Job updated successfully.');
         return Response()->json(['status'=>200, 'device' => $updateJobs]);
+    }
+
+    public function fetch_all(){
+        $job_category = DB::select('
+        SELECT job_categories.title, COUNT(*) as count
+        FROM jobs
+        JOIN job_categories ON job_categories.id = jobs.job_category_id WHERE jobs.deleted_at is NULL
+        GROUP BY job_categories.title
+    ');
+        $jobs=Jobs::all();
+        return Response()->json(['status'=>200, 'jobs_category' => $job_category,'jobs'=>$jobs]);
+    }
+    public function fetch_jobs(){
+
+        $jobs=Jobs::all();
+        return Response()->json(['status'=>200, 'jobs'=>$jobs]);
     }
 }

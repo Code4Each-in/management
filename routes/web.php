@@ -20,6 +20,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\JobCategoriesController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\ApplicantsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -162,6 +163,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/delete/job', [JobsController::class, 'destroy'])->name('jobs.delete');
 	Route::post('/edit/job', [JobsController::class, 'edit'])->name('jobs.edit');
 	Route::post('/update/job', [JobsController::class, 'update'])->name('jobs.update');
+
 
 	//JOBS CATEGORIES ROUTES
 	Route::get('/job-categories', [JobCategoriesController::class, 'index'])->name('job_categories.index');
