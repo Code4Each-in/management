@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\ApplicantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\InternalTimesheetExtension;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,6 +22,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::get('/random', [WebsiteApiController::class, 'getrandomchar']);
 Route::post('/contactus', [ContactUsController::class, 'contactUs'])->name('contactUs.add');
+Route::post('/add-applicant', [ApplicantController::class, 'store']);
+Route::post('/verify-otp', [ApplicantController::class, 'update']);
+Route::post('/resend-otp', [ApplicantController::class, 'resentOtp']);
 Route::get('/delete/captchas', [WebsiteApiController::class, 'deleteCaptcha']);
 
 Route::post('/authenticate-user',[InternalTimesheetExtension::class,'validateUser']);
