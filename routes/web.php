@@ -17,7 +17,8 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\PoliciesController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
-
+use App\Http\Controllers\JobCategoriesController;
+use App\Http\Controllers\JobsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -153,6 +154,21 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient'])->name('clients.delete');
 	
 	});
+
+	//JOBS ROUTES
+	Route::get('/jobs', [JobsController::class, 'index'])->name('jobs.index');
+	Route::post('/add/job', [JobsController::class, 'store'])->name('jobs.add');
+	Route::delete('/delete/job', [JobsController::class, 'destroy'])->name('jobs.delete');
+	Route::post('/edit/job', [JobsController::class, 'edit'])->name('jobs.edit');
+	Route::post('/update/job', [JobsController::class, 'update'])->name('jobs.update');
+
+	//JOBS CATEGORIES ROUTES
+	Route::get('/job-categories', [JobCategoriesController::class, 'index'])->name('job_categories.index');
+	Route::post('/add/job-category', [JobCategoriesController::class, 'store'])->name('job_categories.add');
+	Route::delete('/delete/job-category', [JobCategoriesController::class, 'destroy'])->name('job_categories.delete');
+
+	//Applicants CATEGORIES ROUTES
+	Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
