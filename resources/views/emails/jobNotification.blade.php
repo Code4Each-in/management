@@ -47,7 +47,7 @@
   <div class="container">
     <h2>New Job Application</h2>
     <p>Hello HR Team,</p>
-    <p>We have received a new job application for the position of {{$data['subject']}}. Below are the details of the applicant:</p>
+    <p>We have received a new job application for the position of {{$data['title']}}. Below are the details of the applicant:</p>
 
     <div class="applicant-info">
       <p><strong>Name:</strong> {{$data['applicant']['name']}}</p>
@@ -56,7 +56,7 @@
     </div>
 
     <p>You can review the applicant's resume by clicking the link below:</p>
-    {{-- <a href="{{ url('assets/docs/$data['applicant']['resume']) }}" class="resume-link" target="_blank">View Resume</a> --}}
+    <a href="https://hr.code4each.com/assets/docs/{{$data['applicant']['resume']}}" class="resume-link" target="_blank">View Resume</a>
 
     <p>Please take the necessary steps to review and process the application. Thank you!</p>
   </div>

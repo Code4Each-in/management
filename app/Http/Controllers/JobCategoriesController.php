@@ -21,9 +21,8 @@ class JobCategoriesController extends Controller
         $validator = \Validator::make($request->all(), [
             'title' => 'required',
             'status' => 'nullable',
-            'category_img' => 'required|file|mimes:jpg,jpeg,png|max:5000',
+            'category_img' => 'file|mimes:jpg,jpeg,png|max:5000',
         ],[
-            'category_img.required' => 'Image is required.',
             'category_img.file' => 'The :attribute must be a file.',
             'category_img.mimes' => 'The :attribute must be a file of type: jpeg, png.',
             'category_img.max' => 'The :attribute may not be greater than :max kilobytes.',

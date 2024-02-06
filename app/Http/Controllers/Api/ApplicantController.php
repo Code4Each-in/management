@@ -123,7 +123,7 @@ class ApplicantController extends Controller
             if($otp==$applicant->otp){
                 $applicant->update(['status' => 1]);
                 $this->sendThankyouEmail($applicant,$jobName->title);
-                $this->sendJobNotificatonEmail($applicant);
+                $this->sendJobNotificatonEmail($applicant,$jobName->title);
                 return Response()->json(['status'=>200, 'message'=>'Thank you. Your application has been submitted successfully.We will contact you soon']);
             }
             else{
@@ -139,11 +139,11 @@ class ApplicantController extends Controller
         Mail::to($applicant_data->email)->send(new ThankyouMail($data));
     }
 
-    protected function sendJobNotificatonEmail($applicant_data)
+    protected function sendJobNotificatonEmail($applicant_data,$title)
     {
         $hr_email='kalyani@code4each.com';
         $subject ='New Job Application';
-        $data = ['applicant' => $applicant_data,'subject'=>$subject];
+        $data = ['applicant' => $applicant_data,'title' => $title,'subject'=>$subject];
         Mail::to($hr_email)->send(new JobNotification($data));
     }
 
