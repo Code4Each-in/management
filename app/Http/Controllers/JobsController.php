@@ -62,6 +62,7 @@ class JobsController extends Controller
 
     public function destroy(Request $request)
     {
+
         $deleteJobs = Jobs::find($request->id);
 
         if (!$deleteJobs) {
@@ -114,10 +115,11 @@ class JobsController extends Controller
 
     public function fetch_all(){
         $job_category = DB::select('
-        SELECT job_categories.title, COUNT(*) as count
+        SELECT job_categories.id, job_categories.title, job_categories.image,COUNT(*) as count
         FROM jobs
-        JOIN job_categories ON job_categories.id = jobs.job_category_id WHERE jobs.deleted_at is NULL
-        GROUP BY job_categories.title
+        JOIN job_categories ON job_categories.id = jobs.job_category_id
+        WHERE jobs.deleted_at IS NULL AND jobs.status=1
+        GROUP BY job_categories.id, job_categories.title, job_categories.image;
     ');
         $jobs=Jobs::all();
         return Response()->json(['status'=>200, 'jobs_category' => $job_category,'jobs'=>$jobs]);
@@ -126,5 +128,44 @@ class JobsController extends Controller
 
         $jobs=Jobs::all();
         return Response()->json(['status'=>200, 'jobs'=>$jobs]);
+    }
+
+    public function jobByCategory(Request $request){
+        if($request->categoryId==0){
+            $jobs = DB::select("
+            SELECT jobs.title,job_categories.title as category,jobs.experience,jobs.id as jobId
+            FROM jobs
+            JOIN job_categories ON job_categories.id = jobs.job_category_id
+            WHERE jobs.deleted_at IS NULL AND jobs.status=1 ORDER BY jobs.id DESC;
+        ");
+        }
+        else{
+            $jobs = DB::select("
+            SELECT jobs.title,job_categories.title as category,jobs.experience,jobs.id as jobId
+            FROM jobs
+            JOIN job_categories ON job_categories.id = jobs.job_category_id
+            WHERE jobs.deleted_at IS NULL AND jobs.status=1 AND jobs.job_category_id='+$request->categoryId+' ORDER BY jobs.id DESC;
+        ");
+        }
+
+    return Response()->json(['status'=>200, 'jobs'=>$jobs]);
+    }
+
+    public function jobDescription(Request $request){
+        // $jobs=Jobs::select('*')
+        // ->where('id',$request->jobId)
+        // ->first();
+        $jobs = Jobs::select('*','jobs.title as jobTitle','job_categories.title as category','jobs.id as job_id' ,'jobs.updated_at as jobdate')
+        ->join('job_categories', 'jobs.job_category_id', '=', 'job_categories.id')
+        ->where('jobs.id', $request->jobId)
+        ->first();
+        return Response()->json(['status'=>200, 'jobs'=>$jobs]);
+    }
+    public function show(Request $request){
+        $jobs = Jobs::select('*','jobs.title as jobTitle','job_categories.title as category','jobs.id as job_id')
+        ->join('job_categories', 'jobs.job_category_id', '=', 'job_categories.id')
+        ->where('jobs.id', $request->id)
+        ->first();
+        return view('jobs.details',compact('jobs'));
     }
 }

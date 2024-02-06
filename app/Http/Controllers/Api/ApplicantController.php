@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\JobNotification;
+use App\Mail\ThankyouMail;
 use Illuminate\Http\Request;
 use App\Models\Applicants;
 use App\Mail\VerificationMail;
+use App\Models\Jobs;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
@@ -16,7 +19,7 @@ class ApplicantController extends Controller
         $validator = \Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'phone' => 'required',
+            'phone' => 'required|digits_between:10,10',
             'job_id' => 'required',
             'resume' => 'required|file|mimes:doc,docx,pdf|max:5000'
         ], [
@@ -36,7 +39,7 @@ class ApplicantController extends Controller
         ]);
         if ($validator->fails())
         {
-            return response()->json(['errors'=>$validator->errors()->all()]);
+            return response()->json(['errors'=>$validator->errors()->toArray()]);
         }
         $validate = $validator->valid();
         // $ifApplicantExist = Applicants::where('email', $request->email)
@@ -50,6 +53,7 @@ class ApplicantController extends Controller
                 'job_id'=> $validate['job_id'],
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
+                'application_status'=>'pending'
             ]);
             if($request->hasfile('resume')){
 
@@ -112,15 +116,35 @@ class ApplicantController extends Controller
                     ->where('status', 0)
                     ->latest()
                     ->first();
+        $jobName=Jobs::select('title')
+        ->where('id',$applicant->job_id)
+        ->first();
          if($applicant && $applicant->count()>0){
             if($otp==$applicant->otp){
                 $applicant->update(['status' => 1]);
+                $this->sendThankyouEmail($applicant,$jobName->title);
+                $this->sendJobNotificatonEmail($applicant);
                 return Response()->json(['status'=>200, 'message'=>'Thank you. Your application has been submitted successfully.We will contact you soon']);
             }
             else{
+
                 return Response()->json(['errors'=>['Invalid OTP. Please try again.']]);
             }
          }
+    }
+    protected function sendThankyouEmail($applicant_data,$title)
+    {
+        $subject ='Job Application';
+        $data = ['applicant' => $applicant_data,'title' => $title,'subject'=>$subject];
+        Mail::to($applicant_data->email)->send(new ThankyouMail($data));
+    }
+
+    protected function sendJobNotificatonEmail($applicant_data)
+    {
+        $hr_email='kalyani@code4each.com';
+        $subject ='New Job Application';
+        $data = ['applicant' => $applicant_data,'subject'=>$subject];
+        Mail::to($hr_email)->send(new JobNotification($data));
     }
 
     protected function sendVerificationEmail($otp,$email,$subject)

@@ -38,5 +38,7 @@ Route::get('/get-start-time',[InternalTimesheetExtension::class,'getStartTime'])
 
 Route::get('/jobs-data', [JobsController::class, 'fetch_all']);
 Route::get('/all-jobs', [JobsController::class, 'fetch_jobs']);
+Route::post('/job-by-category', [JobsController::class, 'jobByCategory']);
+Route::post('/job-description', [JobsController::class, 'jobDescription']);
 
 // Ends Routes Without Auth

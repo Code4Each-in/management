@@ -37,7 +37,7 @@
                         <tbody>
                             @forelse($jobsData as $data)
                             <tr>
-                                <td>{{$data->id }}</td>
+                                <td><a href="/details/{{$data->id }}">{{$data->id }}</a></td>
                                 <td>{{$data->title }}</td>
                                 <td>
                                     @if(strlen($data->description) >= 100)
@@ -56,7 +56,7 @@
                                     <a href="#" class="readMoreLink">Read More</a>
                                     <a href="#" class="readLessLink" style="display: none;">Read Less</a>
                                     @else
-                                    {!! $data->description !!}                                       
+                                    {!! $data->description !!}
                                         @endif
                                 </td>
                                 <td>{{$data->experience }}</td>
@@ -105,7 +105,7 @@
                         <div class="col-sm-9">
                             <textarea name="desc" class="form-control" id="tinymce_textarea"></textarea>
                         </div>
-                        <input name="description" type="hidden" value="" class="description"> 
+                        <input name="description" type="hidden" value="" class="description">
                     </div>
                     <div class="row mb-3">
                         <label for="experience" class="col-sm-3 col-form-label required">Experience</label>
@@ -161,7 +161,7 @@
                             <input type="text" class="form-control" name="salary" id="salary">
                         </div>
                     </div>
-                    
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onClick="addJobs(this)" href="javascript:void(0)">Add Job</button>
@@ -196,7 +196,7 @@
                         <div class="col-sm-9">
                             <textarea name="edit_desc" class="form-control edit_desc" id="tinymce_textarea"></textarea>
                         </div>
-                        <input name="edit_description" type="hidden" value="" class="edit_description"> 
+                        <input name="edit_description" type="hidden" value="" class="edit_description">
                     </div>
                     <div class="row mb-3">
                         <label for="edit_experience" class="col-sm-3 col-form-label required">Experience</label>
@@ -306,7 +306,7 @@ function addJobs() {
     //THIS WILL ADD THE TINYMCE DATA INTO HIDDEN FIELD SO THAT WE CAN USE THE SERIALIZE DATA
     $(".description").val(tinyMCE.activeEditor.getContent());
 
-  $.ajax({  
+  $.ajax({
     url: "{{ url('/add/job')}}",
     data: $('#addjobsForm').serialize(), // Send the data object
     method: 'POST',
@@ -339,6 +339,7 @@ function addJobs() {
 
 function deleteJob(id) {
     if (confirm("Are you sure You Want To Delete This Job ?") == true) {
+
         $.ajax({
             type: "DELETE",
             url: "{{ url('/delete/job') }}",
@@ -347,6 +348,7 @@ function deleteJob(id) {
             },
             dataType: 'json',
             success: function(res) {
+                console.log(res);
                 location.reload();
             }
         });
@@ -383,7 +385,7 @@ function editJob(id) {
                 }
                 tinyMCE.activeEditor.setContent(res.jobs.description);
 
-            }   
+            }
         }
     });
 }
@@ -412,7 +414,7 @@ function updateJob() {
     spinner.show();
     $(".edit_description").val(tinyMCE.activeEditor.getContent());
 
-        $.ajax({  
+        $.ajax({
         url: "{{ url('/update/job')}}",
         data: $('#editJobForm').serialize(), // Send the data object
         method: 'POST',
