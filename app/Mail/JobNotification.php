@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 
-class VerificationMail extends Mailable
+class JobNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -17,7 +17,7 @@ class VerificationMail extends Mailable
      *
      * @return void
      */
-    public $data;
+    private $data;
     public function __construct($data)
     {
         $this->data = $data;
@@ -30,12 +30,10 @@ class VerificationMail extends Mailable
      */
     public function build()
     {
-        //dd($this->data);
-        // $address = 'info@code4each.com';
-        // $name='Code4Each';
         $address = Config::get('mail.from.address');
         $name = Config::get('services.from.name');
         $sub=$this->data['subject'];
-        return $this->view('emails.otpVerification',[ 'data' => $this->data])->subject($sub)->from($address,$name);
+        return $this->view('emails.jobNotification', ['data' => $this->data])
+        ->subject($sub)->from($address,$name);
     }
 }

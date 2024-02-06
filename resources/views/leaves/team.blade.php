@@ -59,7 +59,7 @@
                                         <span class="badge rounded-pill denied">Declined</span>
                                     @else
                                         <span class="badge rounded-pill requested">Requested</span>
-                                    @endif   
+                                    @endif
                                     @if (!empty($leaveStatusData))
                                     <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $leaveStatusData->first_name ?? '' }} </p>
                                     @endif
@@ -87,7 +87,7 @@
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
-                    
+
                     <div class="row mb-3">
                         <label for="member_id" class="col-sm-3 col-form-label required">Team Member</label>
                         <div class="col-sm-9">
@@ -212,7 +212,7 @@ $(document).ready(function() {
     $('#from, #to').on('change', function() {
         const fromDate = $('#from').val();
         const toDate = $('#to').val();
-        
+
         // Compare the dates and update the "Half Day" checkbox visibility
         const isHalfDay = $('#halfDayDiv');
         if (fromDate === toDate) {
@@ -234,7 +234,7 @@ function addleaves() {
     const fromDateStr = $('#from').val();
     const toDateStr = $('#to').val();
     const HalfDay = $('#halfday').val();
-    
+
     // Convert the date strings to Date objects
     const fromDate = new Date(fromDateStr);
     const toDate = new Date(toDateStr);
@@ -247,7 +247,7 @@ function addleaves() {
 
     // Calculate the difference in milliseconds
     const diffInMilliseconds = toDate - fromDate;
-    
+
     // Calculate the total days
     let totalDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
 
@@ -306,4 +306,5 @@ function addleaves() {
 }
 
 </script>
+
 @endsection

@@ -54,7 +54,7 @@
                 <h5 class="modal-title" id="role">Add Job Category</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" id="addjobcategoriesForm" action="">
+            <form method="post" id="addjobcategoriesForm" action="" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-danger" style="display:none"></div>
@@ -66,12 +66,18 @@
                         </div>
                     </div>
                     <div class="row mb-3">
+                        <label for="category_img" class="col-sm-3 col-form-label">Image</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" name="category_img" id="category_img" >
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label for="status" class="col-sm-3 col-form-label ">Status</label>
                         <div class="col-sm-9">
                             <select name="status" class="form-select" id="status">
                                 <!-- <option value="">-- Select type --</option> -->
                                 <option value="1">Active</option>
-                                <option value="0">Sick Leave</option>
+                                <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>
@@ -116,16 +122,19 @@ function addJobCategory() {
   spinner.show();
 
     // Prepare the data object manually
-    const data = {
-        title: $('#title').val(),
-        status : $('#status').val(),
-    };
+    // const data = {
+    //     title: $('#title').val(),
+    //     status : $('#status').val(),
+    // };
+    var data = new FormData($('#addjobcategoriesForm')[0]);
 
   $.ajax({
     url: "{{ url('/add/job-category')}}",
     data: data, // Send the data object
     method: 'POST',
-    dataType: 'JSON',
+    // dataType: 'JSON',
+    contentType: false,
+    processData: false,
     cache: false,
     success: function(data) {
       // Introduce a delay before hiding the spinner

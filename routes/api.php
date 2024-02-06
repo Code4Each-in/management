@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\InternalTimesheetExtension;
+use App\Http\Controllers\JobsController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,6 +22,8 @@ use App\Http\Controllers\Api\InternalTimesheetExtension;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Routes Without Auth
 Route::get('/random', [WebsiteApiController::class, 'getrandomchar']);
 Route::post('/contactus', [ContactUsController::class, 'contactUs'])->name('contactUs.add');
 Route::post('/add-applicant', [ApplicantController::class, 'store']);
@@ -32,3 +36,9 @@ Route::post('/add-status-report',[InternalTimesheetExtension::class,'addStatusRe
 Route::post('/add-start-time',[InternalTimesheetExtension::class,'addStartTime']);
 Route::get('/get-start-time',[InternalTimesheetExtension::class,'getStartTime']);
 
+Route::get('/jobs-data', [JobsController::class, 'fetch_all']);
+Route::get('/all-jobs', [JobsController::class, 'fetch_jobs']);
+Route::post('/job-by-category', [JobsController::class, 'jobByCategory']);
+Route::post('/job-description', [JobsController::class, 'jobDescription']);
+
+// Ends Routes Without Auth

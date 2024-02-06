@@ -20,6 +20,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\JobCategoriesController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\ApplicantsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -42,6 +43,7 @@ Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
 Route::group(['middleware' => ['auth']], function() {
 Route::resource('/dashboard', DashboardController::class);
+//Permission Routes Starts
 Route::middleware(['role_permission'])->group(function () {
 	// Routes that require 'admin' or 'superadmin' roles and corresponding permissions
 	Route::get('/users', [UsersController::class, 'index'])->name('users.index');
@@ -154,14 +156,17 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('clients/update', [ClientController::class, 'update'])->name('clients.update');
 	Route::DELETE('/delete/client', [ClientController::class, 'deleteClient'])->name('clients.delete');
 
-	});
-
-	//JOBS ROUTES
+    //JOBS ROUTES
 	Route::get('/jobs', [JobsController::class, 'index'])->name('jobs.index');
 	Route::post('/add/job', [JobsController::class, 'store'])->name('jobs.add');
 	Route::delete('/delete/job', [JobsController::class, 'destroy'])->name('jobs.delete');
 	Route::post('/edit/job', [JobsController::class, 'edit'])->name('jobs.edit');
 	Route::post('/update/job', [JobsController::class, 'update'])->name('jobs.update');
+    Route::get('/details/{id}', [JobsController::class, 'show'])->name('jobs.show');
+
+	});
+
+    //Permission Routes Ends
 
 	//JOBS CATEGORIES ROUTES
 	Route::get('/job-categories', [JobCategoriesController::class, 'index'])->name('job_categories.index');
@@ -170,6 +175,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Applicants CATEGORIES ROUTES
 	Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
+    Route::post('/applicants/status', [ApplicantsController::class, 'update_application_status'])->name('applicants.status');
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');

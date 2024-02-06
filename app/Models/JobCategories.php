@@ -17,7 +17,8 @@ class JobCategories extends Model
      */
     protected $fillable = [
         'title',
-        'status' 
+        'status',
+        'image'
     ];
 
 }

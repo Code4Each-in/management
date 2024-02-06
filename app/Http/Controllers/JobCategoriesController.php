@@ -11,15 +11,24 @@ class JobCategoriesController extends Controller
     public function index()
     {
         $jobCategoriesData = JobCategories::orderBy('id','asc')->get();
-        return view('jobCategories.index',compact('jobCategoriesData'));  
+        return view('jobCategories.index',compact('jobCategoriesData'));
 
-    }  
+    }
 
     public function store(Request $request)
     {
+
         $validator = \Validator::make($request->all(), [
-            'title' => 'required',    
-            'status' => 'nullable',   
+            'title' => 'required',
+            'status' => 'nullable',
+            'category_img' => 'required|file|mimes:jpg,jpeg,png|max:5000',
+        ],[
+            'category_img.required' => 'Image is required.',
+            'category_img.file' => 'The :attribute must be a file.',
+            'category_img.mimes' => 'The :attribute must be a file of type: jpeg, png.',
+            'category_img.max' => 'The :attribute may not be greater than :max kilobytes.',
+            'category_img.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+
         ]);
 
         if ($validator->fails())
@@ -36,6 +45,18 @@ class JobCategoriesController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+        if($request->hasfile('category_img')){
+
+            $file=$request->file('category_img');
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $dateString = date('YmdHis');
+            $name = $dateString . '_' . $fileName . '.' . $file->extension();
+            $file->move(public_path('assets/img/jobsAssets'), $name);
+            $path='jobsAssets/'.$name;
+            $jobCategories->update(['image' => $path]);
+
+
+       }
 		$request->session()->flash('message','Job Category added successfully.');
         return Response()->json(['status'=>200, 'page'=>$jobCategories]);
     }
