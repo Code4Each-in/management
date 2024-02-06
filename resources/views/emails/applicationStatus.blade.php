@@ -46,7 +46,7 @@
     @endif
 
     <p>Thank you for your interest in our organization. We wish you the very best in your career journey and look forward to the possibility of connecting with you in the future.</p>
-    <p>If you have any feedback or questions regarding the application process, please feel free to reach out to our HR department at <strong>hr@example.com</strong>.</p>
+    <p>If you have any feedback or questions regarding the application process, please feel free to reach out to our HR department at <strong>hr@code4each.com</strong>.</p>
 </div>
 </body>
 </html>

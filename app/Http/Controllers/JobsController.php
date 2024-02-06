@@ -121,7 +121,8 @@ class JobsController extends Controller
         WHERE jobs.deleted_at IS NULL AND jobs.status=1
         GROUP BY job_categories.id, job_categories.title, job_categories.image;
     ');
-        $jobs=Jobs::all();
+        $jobs=Jobs::where('status',1)
+        ->get();
         return Response()->json(['status'=>200, 'jobs_category' => $job_category,'jobs'=>$jobs]);
     }
     public function fetch_jobs(){
