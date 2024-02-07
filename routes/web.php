@@ -164,11 +164,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/update/job', [JobsController::class, 'update'])->name('jobs.update');
     Route::get('/details/{id}', [JobsController::class, 'show'])->name('jobs.show');
 
-	});
-
-    //Permission Routes Ends
-
-	//JOBS CATEGORIES ROUTES
+    //JOBS CATEGORIES ROUTES
 	Route::get('/job-categories', [JobCategoriesController::class, 'index'])->name('job_categories.index');
 	Route::post('/add/job-category', [JobCategoriesController::class, 'store'])->name('job_categories.add');
 	Route::delete('/delete/job-category', [JobCategoriesController::class, 'destroy'])->name('job_categories.delete');
@@ -176,6 +172,13 @@ Route::middleware(['role_permission'])->group(function () {
 	//Applicants CATEGORIES ROUTES
 	Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
     Route::post('/applicants/status', [ApplicantsController::class, 'update_application_status'])->name('applicants.status');
+
+
+	});
+
+    //Permission Routes Ends
+
+
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');

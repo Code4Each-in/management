@@ -143,7 +143,7 @@
                     <img src="{{asset('assets/img/blankImage.jpg')}}" id="profile_picture"
                         alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
                     @endif
-                   
+
                 </a>
                 <li class="nav-item dropdown pe-3">
 
@@ -279,7 +279,7 @@
                 </a>
             </li>
 
-           
+
           @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
@@ -354,44 +354,15 @@
                 </ul>
             </li>
             @endif
-    
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
                     href="{{ route('projects.index') }}">
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('jobs') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
-                    data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-layout-text-window-reverse"></i><span>Jobs</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="job-cat-nav"
-                    class="nav-content collapse {{ request()->is('jobs') || request()->is('job-categories') ||  request()->is('applicants') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class=" {{ request()->is('jobs') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('jobs.index') }}">
-                            <i class="bi bi-circle "></i><span>Jobs</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class=" {{ request()->is('job-categories') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('job_categories.index')}}">
-                            <i class="bi bi-circle"></i><span>Job Categories</span>
-                        </a>
-                    </li>
 
-                    <li>
-                        <a class=" {{ request()->is('applicants') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('applicants.index')}}">
-                            <i class="bi bi-circle"></i><span>Applicants</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
                     href="{{ route('tickets.index') }}">
@@ -437,6 +408,37 @@
                     href="{{ route('policies.index') }}">
                     <i class="bi bi-files"></i> <span>Policies</span>
                 </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('jobs') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
+                    data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Jobs</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="job-cat-nav"
+                    class="nav-content collapse {{ request()->is('jobs') || request()->is('job-categories') ||  request()->is('applicants') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class=" {{ request()->is('jobs') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('jobs.index') }}">
+                            <i class="bi bi-circle "></i><span>Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class=" {{ request()->is('job-categories') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('job_categories.index')}}">
+                            <i class="bi bi-circle"></i><span>Job Categories</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class=" {{ request()->is('applicants') ? 'active' : 'collapsed' }} "
+                            href=" {{ route('applicants.index')}}">
+                            <i class="bi bi-circle"></i><span>Applicants</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             @endif
