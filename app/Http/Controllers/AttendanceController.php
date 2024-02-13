@@ -48,43 +48,87 @@ class AttendanceController extends Controller
         return view('attendance.index',compact('attendanceData'));
     }
 
-    public function store(Request $request)
-	  {
-        $validator = \Validator::make($request->all(),[
-			'intime'=>'required',
-            'outtime'=>'required|after:intime',
-        ],
-        [
-            'outtime.after' => 'The outtime must be greater than from intime.',
-        ]
-      );
-    if ($validator->fails())
-     {
-         return Redirect::back()->withErrors($validator);
-      }
-         $validate = $validator->valid();
-         $attendanceCheck= UserAttendances::where('user_id',auth()->user()->id)->whereDate('created_at',date('Y-m-d'))->first();
+    // public function store(Request $request)
+	//   {
+    //     $validator = \Validator::make($request->all(),[
+	// 		'intime'=>'required',
+    //         'outtime'=>'required|after:intime',
+    //     ],
+    //     [
+    //         'outtime.after' => 'The outtime must be greater than from intime.',
+    //     ]
+    //   );
+    // if ($validator->fails())
+    //  {
+    //      return Redirect::back()->withErrors($validator);
+    //   }
+    //      $validate = $validator->valid();
+    //      $attendanceCheck= UserAttendances::where('user_id',auth()->user()->id)->whereDate('created_at',date('Y-m-d'))->first();
 
-      $attendenceData=[
-       'user_id'=> auth()->user()->id,
-       'in_time'=>$validate['intime'],
-        'out_time'=>$validate['outtime'],
-        'notes'=>$validate['notes']
-            ];
-     if (!empty($attendanceCheck))
+    //   $attendenceData=[
+    //    'user_id'=> auth()->user()->id,
+    //    'in_time'=>$validate['intime'],
+    //     'out_time'=>$validate['outtime'],
+    //     'notes'=>$validate['notes']
+    //         ];
+    //  if (!empty($attendanceCheck))
+    //    {
+    //      $attendenceData['updated_at']=date('Y-m-d H:i:s');
+    //        UserAttendances::where('id', $attendanceCheck->id)
+    //        ->update($attendenceData);
+    //     }
+    //     else
+    //      {
+    //        $attendenceData['created_at']=date('Y-m-d H:i:s');
+    //        $users =UserAttendances::create($attendenceData);
+    //      }
+    //     $request->session()->flash('message','Attendance added successfully.');
+    //           return redirect()->intended('attendance');
+    // }
+
+    public function storeTeamAttendance(Request $request)
+    {
+        // dd($request);
+      $validator = \Validator::make($request->all(),[
+          'member_id'=>'required',
+          'intime'=>'required',
+          'outtime'=>'required|after:intime',
+      ],
+      [
+
+          'outtime.after' => 'The outtime must be greater than from intime.',
+      ]
+    );
+  if ($validator->fails())
+   {
+    //    return Redirect::back()->withErrors($validator);
+    return response()->json(['errors'=>$validator->errors()->all()]);
+    }
+       $validate = $validator->valid();
+       $attendanceCheck= UserAttendances::where('user_id',$validate['member_id'])->whereDate('created_at',date('Y-m-d'))->first();
+
+    $attendenceData=[
+     'user_id'=> $validate['member_id'],
+     'in_time'=>$validate['intime'],
+      'out_time'=>$validate['outtime'],
+      'notes'=>$validate['notes']
+          ];
+   if (!empty($attendanceCheck))
+     {
+       $attendenceData['updated_at']=date('Y-m-d H:i:s');
+         UserAttendances::where('id', $attendanceCheck->id)
+         ->update($attendenceData);
+      }
+      else
        {
-         $attendenceData['updated_at']=date('Y-m-d H:i:s');
-           UserAttendances::where('id', $attendanceCheck->id)
-           ->update($attendenceData);
-        }
-        else
-         {
-           $attendenceData['created_at']=date('Y-m-d H:i:s');
-           $users =UserAttendances::create($attendenceData);
-         }
-        $request->session()->flash('message','Attendance added successfully.');
-              return redirect()->intended('attendance');
-          }
+         $attendenceData['created_at']=date('Y-m-d H:i:s');
+         $users =UserAttendances::create($attendenceData);
+       }
+      $request->session()->flash('message','Attendance added successfully.');
+            return redirect()->intended('attendance');
+  }
+
+
 
           public function showTeamsAttendance(Request $request)
           {

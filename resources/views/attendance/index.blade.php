@@ -5,8 +5,8 @@
 
 <div class="col-lg-12">
     <div class="card">
-        <div class="card-body">
-            <form method="post" action="{{ route('attendance.add')}}">
+        <div class="card-body mt-5">
+            {{-- <form method="post" action="{{ route('attendance.add')}}">
                 @csrf
                 <div class="row mb-3 mt-4">
                     <div class="col-sm-3 col-md-3">
@@ -40,7 +40,7 @@
                 </div>
                 <!-- <div class="row mb-3 mt-4">
                 <div class="col-sm-2">
-                        
+
                     </div>
                 </div> -->
             </form>
@@ -77,7 +77,7 @@
                         <input type="submit" class="btn btn-primary custom-search" value="Search" style="margin-top: 19px;">
                     </div>
                 </div>
-            </form>
+            </form> --}}
 
             <div class="box-body table-responsive" style="margin-bottom: 5%">
                 <table class="table table-borderless dashboard" id="attendance">

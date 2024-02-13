@@ -2,10 +2,14 @@
 @section('title', 'Team Attendance')
 @section('subtitle', 'Team Attendance')
 @section('content')
-
+<div id="loader">
+    <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
+        <button class="btn btn-primary mt-3" onClick="openAttendanceModal()" href="javascript:void(0)">Add Team's
+                Attendance</button>
             @if(session()->has('message'))
             <div class="alert alert-success message">
                 {{ session()->get('message') }}
@@ -65,7 +69,7 @@
                     </div>
                 </div>
             </form>
-                
+
                 <table class="table table-borderless dashboard" id="attendance">
                     <thead>
                         <tr>
@@ -159,8 +163,107 @@
         </div>
     </div>
 </div>
+
+<!--start: Add Team's Attendance Modal -->
+<div class="modal fade" id="addteamsattendance" tabindex="-1" aria-labelledby="role" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="role">Add Team's Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{{ route('attendance.team.add')}}" id="teamAttendanceForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-danger" style="display:none"></div>
+
+                    <div class="row mb-3">
+                        <label for="member_id" class="col-sm-3 col-form-label required">Team Member</label>
+                        <div class="col-sm-9">
+                        <select class="form-select form-control" id="member_id" name="member_id" data-placeholder="Select Member">
+                                <option value="" >Select Member</option>
+                                         @foreach ($users as $user)
+                                        <option value="{{$user->id}}">
+                                         {{$user->first_name ?? ''}} {{$user->last_name ?? ''}}
+                                        </option>
+                                        @endforeach
+                                </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                    <label for="intime" class="required col-sm-3 col-form-label">In Time</label>
+                    <div class="col-sm-9">
+                    <input type="time" id="intime" class="form-control" name="intime">
+                            @if ($errors->has('intime'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
+                            @endif
+                    </div>
+
+                    </div>
+                    <div class="row mb-3">
+                    <label for="outtime" class="required col-sm-3 col-form-label">Out Time</label>
+                    <div class="col-sm-9">
+                    <input type="time" id="outtime" class="form-control" name="outtime">
+                            @if ($errors->has('outtime'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
+                            @endif
+                    </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="notes" class="col-sm-3 col-form-label">Notes</label>
+                        <div class="col-sm-9">
+                            <textarea name="notes" class="form-control" id="notes"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Team's Attendance</button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!--end: Add Team's Attendance Modal -->
 @endsection
 @section('js_scripts')
+<script>
+$(document).ready(function() {
+  // Handle form submission
+  $("#teamAttendanceForm").submit(function(event) {
+
+    event.preventDefault();
+    var spinner = $('#loader');
+  spinner.show();
+
+    $.ajax({
+      url: $(this).attr("action"),
+      method: $(this).attr("method"),
+      data: $(this).serialize(),
+      success: function(response) {
+        spinner.hide();
+        if (response.errors) {
+          $('.alert-danger').html('');
+          $.each(response.errors, function(key, value) {
+            $('.alert-danger').show();
+            $('.alert-danger').append('<li>' + value + '</li>');
+          });
+        } else {
+          $('.alert-danger').html('');
+          $("#addteamsattendance").modal('hide');
+        location.reload();
+        }
+      },
+      error: function(xhr, status, error) {
+        spinner.hide();
+      }
+    });
+  });
+});
+</script>
 <script>
     $(document).ready(function() {
         setTimeout(function() {
@@ -278,6 +381,13 @@
         document.getElementById("dateTo").name = dateTo ? "date_to" : "";
     }
 
+
+    function openAttendanceModal() {
+
+    $('.alert-danger').html('');
+    $('.alert-danger').hide();
+    $('#addteamsattendance').modal('show');
+    }
 
 </script>
 @endsection

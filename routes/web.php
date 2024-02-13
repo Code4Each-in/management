@@ -55,7 +55,8 @@ Route::middleware(['role_permission'])->group(function () {
 
 
 	Route::get('/attendance', [AttendanceController::class,'index'])->name('attendance.index');
-	Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.add');
+	// Route::post('/add/attendance', [AttendanceController::class, 'store'])->name('attendance.add');
+    Route::post('/attendance/team/add', [AttendanceController::class, 'storeTeamAttendance'])->name('attendance.team.add');
 	Route::post('/edit/attendance', [AttendanceController::class, 'edit'])->name('attendance.edit');
 	Route::post('/update/attendance', [AttendanceController::class, 'update'])->name('attendance.update');
 	Route::delete('/delete/attendance', [AttendanceController::class, 'delete'])->name('attendance.delete');
