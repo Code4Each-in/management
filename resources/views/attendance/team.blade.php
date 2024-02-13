@@ -192,6 +192,16 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label for="to" class="col-sm-3 col-form-label required">Date</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="att_date" id="att-date">
+                        </div>
+                        @if ($errors->has('att_date'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('to') }}</span>
+                        @endif
+                    </div>
+
+                    <div class="row mb-3">
                     <label for="intime" class="required col-sm-3 col-form-label">In Time</label>
                     <div class="col-sm-9">
                     <input type="time" id="intime" class="form-control" name="intime">
