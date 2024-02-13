@@ -374,7 +374,7 @@ function editJob(id) {
                 $('.edit_location').val(res.jobs.location);
                 $('.edit_status').val(res.jobs.status);
                 $('.edit_salary').val(res.jobs.salary);
-                $('.edit_skills').tagsinput();
+                $('.edit_skills').tagsinput('removeAll');
 
                 var skillsString = res.jobs.skills;
                 if( skillsString != 'undefined'){
@@ -442,6 +442,32 @@ function updateJob() {
     });
 }
 
+</script>
+<script>
+    $(document).ready(function(){
+        $('.readMoreLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                description.text(fullDescription.text());
+                $(this).hide();
+                $(this).siblings('.readLessLink').show();
+            });
+
+            $('.readLessLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                var truncatedDescription = fullDescription.text().substring(0, 100) + '...';
+                description.text(truncatedDescription);
+                $(this).hide();
+                $(this).siblings('.readMoreLink').show();
+            });
+    });
 </script>
 
 @endsection

@@ -92,6 +92,7 @@ class AttendanceController extends Controller
       $validator = \Validator::make($request->all(),[
           'member_id'=>'required',
           'intime'=>'required',
+          'att_date'=>'required',
           'outtime'=>'required|after:intime',
       ],
       [
@@ -104,24 +105,29 @@ class AttendanceController extends Controller
     //    return Redirect::back()->withErrors($validator);
     return response()->json(['errors'=>$validator->errors()->all()]);
     }
+       $attendance_date=$request['att_date'].' ' .$request->intime . ':00';
        $validate = $validator->valid();
-       $attendanceCheck= UserAttendances::where('user_id',$validate['member_id'])->whereDate('created_at',date('Y-m-d'))->first();
+       $attendanceCheck= UserAttendances::where('user_id',$validate['member_id'])->whereDate('created_at',$request['att_date'])->first();
 
     $attendenceData=[
      'user_id'=> $validate['member_id'],
      'in_time'=>$validate['intime'],
       'out_time'=>$validate['outtime'],
-      'notes'=>$validate['notes']
+      'notes'=>$validate['notes'],
           ];
+          $attendanceCheck->in_time = $validate['intime'];
+          $attendanceCheck->save();
    if (!empty($attendanceCheck))
      {
-       $attendenceData['updated_at']=date('Y-m-d H:i:s');
+       $attendenceData['updated_at']=$attendance_date;
          UserAttendances::where('id', $attendanceCheck->id)
          ->update($attendenceData);
       }
       else
        {
-         $attendenceData['created_at']=date('Y-m-d H:i:s');
+
+         $attendenceData['created_at']=date('Y-m-d H:i:s', strtotime($attendance_date));
+
          $users =UserAttendances::create($attendenceData);
        }
       $request->session()->flash('message','Attendance added successfully.');
@@ -132,7 +138,7 @@ class AttendanceController extends Controller
 
           public function showTeamsAttendance(Request $request)
           {
-            $users = Users::with('role')->whereRelation('role', 'name', '!=',  'Super Admin')->get();
+            $users = Users::with('role')->whereRelation('role', 'name', '!=',  'Super Admin')->where('status',1)->get();
             if (auth()->user()->role->name == 'Super Admin')
               {
                 $teamAttendance = UserAttendances::
