@@ -115,8 +115,8 @@ class AttendanceController extends Controller
       'out_time'=>$validate['outtime'],
       'notes'=>$validate['notes'],
           ];
-          $attendanceCheck->in_time = $validate['intime'];
-          $attendanceCheck->save();
+        //   $attendanceCheck->in_time = $validate['intime'];
+        //   $attendanceCheck->save();
    if (!empty($attendanceCheck))
      {
        $attendenceData['updated_at']=$attendance_date;
@@ -127,11 +127,11 @@ class AttendanceController extends Controller
        {
 
          $attendenceData['created_at']=date('Y-m-d H:i:s', strtotime($attendance_date));
-
          $users =UserAttendances::create($attendenceData);
        }
       $request->session()->flash('message','Attendance added successfully.');
-            return redirect()->intended('attendance');
+            // return redirect()->intended('attendance');
+            return Response()->json(['status'=>200]);
   }
 
 

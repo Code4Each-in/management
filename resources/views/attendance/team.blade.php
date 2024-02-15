@@ -7,9 +7,11 @@
 </div>
 <div class="col-lg-12">
     <div class="card">
+    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')
         <div class="card-body">
         <button class="btn btn-primary mt-3" onClick="openAttendanceModal()" href="javascript:void(0)">Add Team's
                 Attendance</button>
+    @endif
             @if(session()->has('message'))
             <div class="alert alert-success message">
                 {{ session()->get('message') }}
@@ -194,7 +196,7 @@
                     <div class="row mb-3">
                         <label for="to" class="col-sm-3 col-form-label required">Date</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="att_date" id="att-date">
+                            <input type="date" class="form-control" max="<?php echo date("Y-m-d"); ?>" name="att_date" id="att-date">
                         </div>
                         @if ($errors->has('att_date'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('to') }}</span>
@@ -264,7 +266,7 @@ $(document).ready(function() {
         } else {
           $('.alert-danger').html('');
           $("#addteamsattendance").modal('hide');
-        location.reload();
+           location.reload();
         }
       },
       error: function(xhr, status, error) {
