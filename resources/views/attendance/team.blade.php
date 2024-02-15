@@ -7,8 +7,9 @@
 </div>
 <div class="col-lg-12">
     <div class="card">
-    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')
+
         <div class="card-body">
+        @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')
         <button class="btn btn-primary mt-3" onClick="openAttendanceModal()" href="javascript:void(0)">Add Team's
                 Attendance</button>
     @endif
