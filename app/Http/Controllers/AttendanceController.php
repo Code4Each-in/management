@@ -30,19 +30,19 @@ class AttendanceController extends Controller
         ->orderBy('created_at','desc')
         ->when($request->has('intervals_filter'), function ($query) use ($request) {
           if($request->input('intervals_filter') == 'last_week'){
-          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+          return $query->whereRaw('date >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
           }
           if($request->input('intervals_filter') == 'last_month'){
-          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+          return $query->whereRaw('date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
           }
           if($request->input('intervals_filter') == 'yesterday'){
-            return $query->whereRaw('DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
+            return $query->whereRaw('DATE(date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
             }
             if($request->input('intervals_filter') == 'custom_intervals'){
-             return $query->whereBetween('created_at', [$request->get('date_from'), $request->get('date_to')]);
+             return $query->whereBetween('date', [$request->get('date_from'), $request->get('date_to')]);
               }
          }, function ($query) {
-          return $query->whereRaw('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+          return $query->whereRaw('date >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
       })->get();
 
         return view('attendance.index',compact('attendanceData'));
@@ -107,26 +107,27 @@ class AttendanceController extends Controller
     }
        $attendance_date=$request['att_date'].' ' .$request->intime . ':00';
        $validate = $validator->valid();
-       $attendanceCheck= UserAttendances::where('user_id',$validate['member_id'])->whereDate('created_at',$request['att_date'])->first();
+       $attendanceCheck= UserAttendances::where('user_id',$validate['member_id'])->whereDate('date',$request['att_date'])->first();
 
     $attendenceData=[
      'user_id'=> $validate['member_id'],
      'in_time'=>$validate['intime'],
       'out_time'=>$validate['outtime'],
       'notes'=>$validate['notes'],
+      'date'=>$validate['att_date']
           ];
         //   $attendanceCheck->in_time = $validate['intime'];
         //   $attendanceCheck->save();
    if (!empty($attendanceCheck))
      {
-       $attendenceData['updated_at']=$attendance_date;
+    //    $attendenceData['updated_at']=$attendance_date;
          UserAttendances::where('id', $attendanceCheck->id)
          ->update($attendenceData);
       }
       else
        {
 
-         $attendenceData['created_at']=date('Y-m-d H:i:s', strtotime($attendance_date));
+        //  $attendenceData['created_at']=date('Y-m-d H:i:s', strtotime($attendance_date));
          $users =UserAttendances::create($attendenceData);
        }
       $request->session()->flash('message','Attendance added successfully.');
@@ -149,25 +150,25 @@ class AttendanceController extends Controller
                 })
                 ->when($request->has('intervals_filter'), function ($query) use ($request) {
                   if ($request->input('intervals_filter') == 'last_week') {
-                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+                      return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
                   }
                   if ($request->input('intervals_filter') == 'last_month') {
-                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+                      return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
                   }
                   if ($request->input('intervals_filter') == 'yesterday') {
-                      return $query->whereRaw('DATE(user_attendances.created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
+                      return $query->whereRaw('DATE(user_attendances.date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
                   }
                   if ($request->input('intervals_filter') == 'today') {
                     $currentDate = Carbon::now()->toDateString();
-                    return $query->whereDate('user_attendances.created_at', '=', $currentDate);
+                    return $query->whereDate('user_attendances.date', '=', $currentDate);
                 }
                   if ($request->input('intervals_filter') == 'custom_intervals') {
-                      return $query->whereBetween('user_attendances.created_at', [$request->get('date_from'), $request->get('date_to')]);
+                      return $query->whereBetween('user_attendances.date', [$request->get('date_from'), $request->get('date_to')]);
                   }
               }, function ($query) {
-                  return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)');
+                  return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 DAY)');
               })
-                ->orderByDesc('user_attendances.created_at')
+                ->orderByDesc('user_attendances.date')
                 ->get();
               }
               // If Role Is HR Manager Fetch Data Accordingly
@@ -181,25 +182,25 @@ class AttendanceController extends Controller
                 })
                 ->when($request->has('intervals_filter'), function ($query) use ($request) {
                   if ($request->input('intervals_filter') == 'last_week') {
-                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
+                      return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 WEEK)');
                   }
                   if ($request->input('intervals_filter') == 'last_month') {
-                      return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+                      return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
                   }
                   if ($request->input('intervals_filter') == 'yesterday') {
-                      return $query->whereRaw('DATE(user_attendances.created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
+                      return $query->whereRaw('DATE(user_attendances.date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)');
                   }
                   if ($request->input('intervals_filter') == 'today') {
                     $currentDate = Carbon::now()->toDateString();
-                    return $query->whereDate('user_attendances.created_at', '=', $currentDate);
+                    return $query->whereDate('user_attendances.date', '=', $currentDate);
                 }
                   if ($request->input('intervals_filter') == 'custom_intervals') {
-                      return $query->whereBetween('user_attendances.created_at', [$request->get('date_from'), $request->get('date_to')]);
+                      return $query->whereBetween('user_attendances.date', [$request->get('date_from'), $request->get('date_to')]);
                   }
               }, function ($query) {
-                  return $query->whereRaw('user_attendances.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)');
+                  return $query->whereRaw('user_attendances.date >= DATE_SUB(NOW(), INTERVAL 1 DAY)');
               })
-                ->orderByDesc('user_attendances.created_at')
+                ->orderByDesc('user_attendances.date')
                 ->get();
               }
             else
@@ -238,6 +239,7 @@ class AttendanceController extends Controller
 
 
         public function edit(request $request){
+
           $attendance = UserAttendances::where(['id' => $request->id])->first();
           return Response()->json(['attendance' =>$attendance]);
          }
@@ -266,5 +268,11 @@ class AttendanceController extends Controller
                $request->session()->flash('message','Attendances updated successfully.');
 
               return Response()->json(['UserAttendance' => $UserAttendance]);
+        }
+
+        public function delete(Request $request){
+            $Users = UserAttendances::where('id',$request->id)->delete();
+		    $request->session()->flash('message','Attendance deleted successfully.');
+		    return Response()->json(['status'=>200]);
         }
     }

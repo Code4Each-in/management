@@ -90,7 +90,10 @@
                         <tr>
                             <td>{{ $data->first_name}}</td>
                             <!-- <td>{{$data->created_at}}</td> -->
-                            <td>{{date("d-m-Y H:i a", strtotime($data->created_at));}} </td>
+                            @php
+                                $newdate=$data->date.''.$data->in_time;
+                            @endphp
+                            <td>{{date("d-m-Y H:i a", strtotime($newdate));}} </td>
                             <td>{{ date("h:i A", strtotime($data->in_time));}}</td>
                             <td>{{date("h:i A", strtotime( $data->out_time));}}</td>
                             <td>
@@ -107,8 +110,8 @@
                             <td>
                                 <i style="color:#4154f1;" onClick="editAttendance ('{{ $data->id }}')" data-user-id="{{ $data->id}}" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
-                                <!-- <i style="color:#4154f1;" onClick="deleteAttendance('{{ $data->id }}')"
-                                    href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
+                                <i style="color:#4154f1;" onClick="deleteAttendance('{{ $data->id }}')"
+                                    href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                             </td>
                         </tr>
                         @empty
@@ -125,7 +128,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Attendance</h5>
+                <h5 class="modal-title">Edit Attendance</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -181,8 +184,8 @@
                     <div class="alert alert-danger" style="display:none"></div>
 
                     <div class="row mb-3">
-                        <label for="member_id" class="col-sm-3 col-form-label required">Team Member</label>
-                        <div class="col-sm-9">
+                        <div class="col-sm-12">
+                        <label for="member_id" class="col-sm-4 col-form-label required">Team Member</label>
                         <select class="form-select form-control" id="member_id" name="member_id" data-placeholder="Select Member">
                                 <option value="" >Select Member</option>
                                          @foreach ($users as $user)
@@ -195,18 +198,20 @@
                     </div>
 
                     <div class="row mb-3">
+
+                        <div class="col-sm-12">
                         <label for="to" class="col-sm-3 col-form-label required">Date</label>
-                        <div class="col-sm-9">
                             <input type="date" class="form-control" max="<?php echo date("Y-m-d"); ?>" name="att_date" id="att-date">
                         </div>
                         @if ($errors->has('att_date'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('to') }}</span>
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('att_date') }}</span>
                         @endif
                     </div>
 
                     <div class="row mb-3">
+
+                    <div class="col-sm-12">
                     <label for="intime" class="required col-sm-3 col-form-label">In Time</label>
-                    <div class="col-sm-9">
                     <input type="time" id="intime" class="form-control" name="intime">
                             @if ($errors->has('intime'))
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('intime') }}</span>
@@ -215,8 +220,9 @@
 
                     </div>
                     <div class="row mb-3">
+
+                    <div class="col-sm-12">
                     <label for="outtime" class="required col-sm-3 col-form-label">Out Time</label>
-                    <div class="col-sm-9">
                     <input type="time" id="outtime" class="form-control" name="outtime">
                             @if ($errors->has('outtime'))
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('outtime') }}</span>
@@ -225,9 +231,12 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="notes" class="col-sm-3 col-form-label">Notes</label>
-                        <div class="col-sm-9">
-                            <textarea name="notes" class="form-control" id="notes"></textarea>
+
+                        <div class="col-sm-12">
+                            <!-- <div class="col-sm-4 mb-2"> -->
+                            <label for="tinymce_textarea">Notes:</label>
+                            <textarea name="notes" rows="4" col="3" class="form-control" id="tinymce_textarea"></textarea>
+                            <!-- / </div> -->
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -310,7 +319,7 @@ $(document).ready(function() {
                 $(tinymce.get('tinymce_textarea').getBody()).html(res.attendance.notes);
                 // $('#tinymce_textarea').val(res.attendance.notes);
                 // tinymce.get('tinymce_textarea').getBody().innerHTML = '<p>This is my new content!</p>';
-
+                $('#edit_att_date').val(res.attendance.date);
                 $('#edit_intime').val(res.attendance.in_time);
                 $('#edit_outtime').val(res.attendance.out_time);
             }
@@ -339,21 +348,21 @@ $(document).ready(function() {
         });
     }
 
-    // function deleteAttendance(id) {
-    //     if (confirm("Are you sure ?") == true) {
-    //         $.ajax({
-    //             type: "DELETE",
-    //             url: "{{ url('/delete/attendance') }}",
-    //             data: {
-    //                 id: id
-    //             },
-    //             dataType: 'json',
-    //             success: function(res) {
-    //                 location.reload();
-    //             }
-    //         });
-    //     }
-    // }
+    function deleteAttendance(id) {
+        if (confirm("Are you sure ?") == true) {
+            $.ajax({
+                type: "DELETE",
+                url: "{{ route('attendance.delete') }}",
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(res) {
+                    location.reload();
+                }
+            });
+        }
+    }
     var intervalsFilterselectBox = document.getElementById('intervalsFilterselectBox');
     var customIntervalsOption = document.querySelector('option[value="custom_intervals"]');
     var customIntervalsSection = document.querySelectorAll('.custom-intervals');

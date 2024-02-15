@@ -97,7 +97,10 @@
                         <tr>
                             <td>{{ auth()->user()->first_name ?? " " }}</td>
                             <!-- <td>{{$data->created_at}}</td> -->
-                            <td>{{date("d-m-Y H:s a", strtotime($data->created_at));}}</td>
+                            @php
+                                $newdate=$data->date.''.$data->in_time;
+                            @endphp
+                            <td>{{date("d-m-Y H:i a", strtotime($newdate));}} </td>
                             <td>{{ date("h:i A", strtotime($data->in_time));}}
                             </td>
                             <td>{{date("h:i A", strtotime($data->out_time));}}</td>
