@@ -19,8 +19,7 @@ class UserAttendances extends Model
         'date',
         'in_time',
         'out_time',
-        'notes',
-        'created_at'
+        'notes'
     ];
 
     public function user()
