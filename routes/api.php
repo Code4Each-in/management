@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
+use App\Http\Controllers\Api\HireUsController;
 use App\Http\Controllers\Api\InternalTimesheetExtension;
 use App\Http\Controllers\JobsController;
 
@@ -40,5 +41,8 @@ Route::get('/jobs-data', [JobsController::class, 'fetch_all']);
 Route::get('/all-jobs', [JobsController::class, 'fetch_jobs']);
 Route::post('/job-by-category', [JobsController::class, 'jobByCategory']);
 Route::post('/job-description', [JobsController::class, 'jobDescription']);
+
+//hiring us routes
+Route::post('/add-client', [HireUsController::class, 'store']);
 
 // Ends Routes Without Auth

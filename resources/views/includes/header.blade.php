@@ -409,6 +409,12 @@
                     <i class="bi bi-files"></i> <span>Policies</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('hireus') ? '' : 'collapsed' }}"
+                    href="{{ route('hireus.index') }}">
+                    <i class="bi bi-person-square"></i> <span>Hire Us</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('jobs') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
