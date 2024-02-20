@@ -21,6 +21,8 @@ use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\JobCategoriesController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\ApplicantsController;
+use App\Http\Controllers\HiringUsController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -174,6 +176,11 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/applicants', [ApplicantsController::class, 'index'])->name('applicants.index');
     Route::post('/applicants/status', [ApplicantsController::class, 'update_application_status'])->name('applicants.status');
 
+    //hire us
+    Route::get('/hireus', [HiringUsController::class, 'index'])->name('hireus.index');
+    Route::post('/edit/hireus', [HiringUsController::class, 'edit'])->name('hireus.edit');
+    Route::post('/update/hireus', [HiringUsController::class, 'update'])->name('hireus.update');
+    Route::delete('/delete/hireus', [HiringUsController::class, 'delete'])->name('hireus.delete');
 
 	});
 
