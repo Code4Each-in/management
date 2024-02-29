@@ -22,6 +22,7 @@
                                 <th>Apply for</th>
                                 <th>Resume</th>
                                 <th>Date</th>
+                                <th>Notes</th>
                                 <th>Status</th>
 
 
@@ -45,17 +46,42 @@
 
                                 <td><button onclick="window.open('/assets/docs/{{$data->resume}}', '_blank')" class="resume_button"><i class="fa fa-eye"></i></button></td>
                                 <!-- <td> {{$data->status}}</td> -->
-                                <td>{{date("d M Y", strtotime($data->created_at));}}</td>
-                                <td> <select style="width:150px;" applicant-id="{{$data->id}}" name="application_status"
+                                <td>{{date("d M Y", strtotime($data->created_at));}}</td>\
+                                <td>
+                                        @if(strlen($data->note) >= 100)
+                                        <span class="description">
+                                            @php
+                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->note));
+                                            $limitedDescription = substr($plainTextDescription, 0, 25) . '...';
+                                            echo $limitedDescription;
+                                            @endphp
+                                        </span>
+                                        <span class="fullDescription" style="display: none;">
+                                         @php
+                                            echo $data->note;
+                                            @endphp
+                                        </span>
+                                        <a href="#" class="readMoreLink">Read More</a>
+                                        <a href="#" class="readLessLink" style="display: none;">Read Less</a>
+                                        @else
+                                        {!! $data->note !!}
+                                         @endif
+                                </td>
+                                <td>
+                                    <select style="width:150px;" applicant-id="{{$data->id}}" applicant-name="{{$data->name}}" name="application_status"
                                         class="form-select application_status" id="application_status_{{$data->id}}">
                                         <option value="pending" {{$data->application_status == "pending" || $data->application_status == ""  ? 'selected' : ''}}>
                                             Pending</option>
+
                                         <option value="in_process" {{$data->application_status == "in_process"  ? 'selected' : ''}}>
                                         In Process</option>
+                                        <option value="selected" {{$data->application_status == "selected"  ? 'selected' : ''}}>
+                                            Selected</option>
                                         <option value="rejected" {{$data->application_status == "rejected"  ? 'selected' : ''}}>
                                             Rejected</option>
                                     </select>
                                 </td>
+
 
                             </tr>
                             @empty
@@ -66,6 +92,57 @@
             </div>
         </div>
     </div>
+</div>
+
+
+
+<!--start: Add Team's Attendance Modal -->
+<div class="modal fade" id="status_note_modal" tabindex="-1" aria-labelledby="role" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="role">Add Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="" id="status_change_note">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-danger" style="display:none"></div>
+                    <div class="row mb-3">
+                    <input type="hidden" class="form-control" name="applicant_id" id="applicant_id">
+                        <div class="col-sm-12">
+                            <!-- <div class="col-sm-4 mb-2"> -->
+                            <label for="tinymce_textarea">Name</label>
+                           <input type="text" class="form-control" name="name" id="name" readonly>
+                            <!-- / </div> -->
+                        </div>
+                    </div>
+                     <div class="row mb-3">
+
+                        <div class="col-sm-12">
+                            <!-- <div class="col-sm-4 mb-2"> -->
+                            <label for="tinymce_textarea">Status:</label>
+                           <input type="text" class="form-control" name="status" id="status" readonly>
+                            <!-- / </div> -->
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+
+                        <div class="col-sm-12">
+                            <!-- <div class="col-sm-4 mb-2"> -->
+                            <label for="tinymce_textarea">Notes:</label>
+                            <textarea name="notes" rows="4" col="3" class="form-control" id="tinymce_textarea"></textarea>
+                            <!-- / </div> -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_button">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                 </div>
+            </form>
+    </div>
+</div>
 </div>
 @endsection
 
@@ -89,7 +166,9 @@
     </script>
 
 <script>
-    $(document).ready(function () {
+ $(document).ready(function () {
+        var name="";
+        var id="";
         var prevValue = '';
         $('.application_status').mousedown(function () {
             prevValue = $(this).val();
@@ -98,21 +177,24 @@
 
         // Attach a change event listener to the dropdown
         $('.application_status').change(function () {
+            name=$(this).attr('applicant-name')
+            id=$(this).attr('applicant-id')
+            $('#status').val($(this).val());
+            $('#name').val(name);
+            $('#status_note_modal').modal('show');
+            $(this).val(prevValue);
+            $('#applicant_id').val(id);
+        });
 
-            var selectedValue = $(this).val();
-            if (selectedValue !== "") {
-                // Show a confirmation dialog
-                var isConfirmed = confirm('Are you sure you want to choose ' + selectedValue );
-                if (isConfirmed) {
-                        var applicantId = $(this).attr('applicant-id');
+
+        $("#status_change_note").submit(function(event){
+        event.preventDefault();
+        var formData = $(this).serialize();
                         $('#loader').show();
                     $.ajax({
                         type: 'POST',
                         url: '/applicants/status',
-                        data: {
-                            applicantId: applicantId,
-                            application_status: selectedValue
-                        },
+                        data: formData,
                         success: function (response) {
                             $('#loader').hide();
                           window.location.reload();
@@ -122,12 +204,32 @@
                         }
                     });
 
-
-                } else {
-                    $(this).val(prevValue);
-                }
-            }
-        });
     });
+
+    $('.readMoreLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                description.text(fullDescription.text());
+                $(this).hide();
+                $(this).siblings('.readLessLink').show();
+            });
+
+            $('.readLessLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                var truncatedDescription = fullDescription.text().substring(0, 80) + '...';
+                description.text(truncatedDescription);
+                $(this).hide();
+                $(this).siblings('.readMoreLink').show();
+            });
+});
+
+
 </script>
 @endsection

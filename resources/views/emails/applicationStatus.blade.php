@@ -43,9 +43,14 @@
     <p>Dear Applicant,</p>
     @if ($data['application_status'] === 'rejected')
       <p class="">We want to express our sincere gratitude for your application for the position of <strong>{{$data['title']}}</strong>. After careful consideration, we regret to inform you that you have not been selected for the current opening.</p>
+      <p>Thank you for your interest in our organization. We wish you the very best in your career journey and look forward to the possibility of connecting with you in the future.</p>
+    @endif
+    @if ($data['application_status'] === 'selected')
+      <p class="">Congratulations! You've been selected  for the position of
+        <strong>{{$data['title']}}</strong>. </p>
     @endif
 
-    <p>Thank you for your interest in our organization. We wish you the very best in your career journey and look forward to the possibility of connecting with you in the future.</p>
+
     <p>If you have any feedback or questions regarding the application process, please feel free to reach out to our HR department at <strong>hr@code4each.com</strong>.</p>
 </div>
 </body>
