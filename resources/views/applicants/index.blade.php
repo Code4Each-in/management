@@ -20,8 +20,8 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Apply for</th>
-                                <th>Resume</th>
                                 <th>Date</th>
+                                <th>Resume</th>
                                 <th>Notes</th>
                                 <th>Status</th>
 
@@ -43,30 +43,14 @@
                                 <td>
                                 {{$data->title}}
                                 </td>
-
+                                <td>{{date("d M Y", strtotime($data->created_at));}}</td>
                                 <td><button onclick="window.open('/assets/docs/{{$data->resume}}', '_blank')" class="resume_button"><i class="fa fa-eye"></i></button></td>
                                 <!-- <td> {{$data->status}}</td> -->
-                                <td>{{date("d M Y", strtotime($data->created_at));}}</td>\
+
                                 <td>
-                                        @if(strlen($data->note) >= 100)
-                                        <span class="description">
-                                            @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->note));
-                                            $limitedDescription = substr($plainTextDescription, 0, 25) . '...';
-                                            echo $limitedDescription;
-                                            @endphp
-                                        </span>
-                                        <span class="fullDescription" style="display: none;">
-                                         @php
-                                            echo $data->note;
-                                            @endphp
-                                        </span>
-                                        <a href="#" class="readMoreLink">Read More</a>
-                                        <a href="#" class="readLessLink" style="display: none;">Read Less</a>
-                                        @else
-                                        {!! $data->note !!}
-                                         @endif
+                                    <button data-bs-toggle="modal" data-bs-target="#view_note_modal" onclick="view_note('{{ htmlspecialchars($data->note) }}')" class="resume_button"><i class="fa fa-sticky-note-o"></i></button>
                                 </td>
+
                                 <td>
                                     <select style="width:150px;" applicant-id="{{$data->id}}" applicant-name="{{$data->name}}" name="application_status"
                                         class="form-select application_status" id="application_status_{{$data->id}}">
@@ -141,6 +125,29 @@
                     </div>
                  </div>
             </form>
+    </div>
+</div>
+</div>
+
+<!--View note---->
+<div class="modal fade" id="view_note_modal" tabindex="-1" aria-labelledby="role" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="role">Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <div class="note_section">
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_button">Close</button>
+
+                    </div>
+                 </div>
+
     </div>
 </div>
 </div>
@@ -228,7 +235,19 @@
                 $(this).hide();
                 $(this).siblings('.readMoreLink').show();
             });
+
 });
+ function view_note(data){
+    console.log(data);
+    if(data){
+        var textContent = $('<div>').html(data).text();
+        $('.note_section').html(textContent);
+    }
+    else{
+        $('.note_section').html('No Notes');
+    }
+
+ }
 
 
 </script>
