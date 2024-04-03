@@ -36,7 +36,7 @@
                             @forelse($devices as $index => $data)
                             <tr>
                                 <td>
-                                    <a href="{{ url('/device/'.$data->id)}}">#{{ $index + 1 }}</a>
+                                    <a href="{{ url('/device/'.$data->id)}}">#{{ $data->id }}</a>
                                 </td>
                                 <td>{{$data->name}}</td>
                                 <td>{{$data->device_model ?? ''}}</td>
