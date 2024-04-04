@@ -358,6 +358,37 @@
         </div>
     </div>
     <div class="col-md-4 dashboard">
+    <div class="card vote-section">
+        <div class="card-body">
+            <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+            <div class="vote" style="max-height: 300px; overflow-y: auto;">
+            @if ($uservote->isNotEmpty())
+                    <table class="table" id="voter">
+                        <thead>
+                            <tr>
+                                <th scope="col">Employee Name</th>
+                                <th scope="col">Vote</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($uservote as $user)
+                <!-- @if($user->status == 1 && $user->role_id != 1) -->
+                    <tr>
+                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;"onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                        </td>
+                    </tr>
+                <!-- @endif -->
+            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p>No users found for voting.</p>
+                @endif
+            </div>
+        </div>
+    </div>
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -503,6 +534,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+            <div class="alert alert-danger" style="display:none"></div>
                 @foreach ($showLeaves as $data)
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="col-md-2">
@@ -522,24 +554,105 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-labelledby="voteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voteModalLabel">Vote Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+            <p>Employee: <span class="toVoteUserName"> </span></p>
+                <div class="form-group">
+                    <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
+                    <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
+                    <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} "/>
+                    <input type="hidden" class="form-control" id="touser" />
 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    $('#leavesss').DataTable({
-        "order": []
-    });
+        $('#leavesss').DataTable({
+            "order": []
+        });
 
-    $('#devices').DataTable({
-        "order": []
-    });
+        $('#devices').DataTable({
+            "order": []
+        });
 
-    $("#viewAll").click(function() {
+        $("#viewAll").click(function() {
 
-    });
+        });
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 });
+
+    function vote(first_name, last_name,id) {
+        $(".toVoteUserName").text(first_name+ ' ' +last_name);
+        $('#voteModal').modal('show'); 
+        $('#touser').val(id);
+        console.log(id);
+        $('#voteModal').on('hidden.bs.modal', function () {
+        $('#reason').val('');
+       
+
+    });
+    }
+    function submitVote() {
+    var fromUserId = $("#fromuser").val(); 
+    var toUserId = $("#touser").val();
+    console.log(toUserId); 
+    var currentDate = new Date(); 
+    var month = currentDate.getMonth() + 1;
+    var year = currentDate.getFullYear(); 
+    var notes = $("#reason").val(); 
+
+    $.ajax({
+        type: 'POST',
+        url: "{{ url('/submit-vote')}}", 
+        data: {
+            from: fromUserId,
+            to: toUserId,
+            month: month,
+            year: year,
+            notes: notes
+        },
+        success: (data) => {
+            if (data.errors) {
+                $('.alert-danger').html('');
+
+                $.each(data.errors, function(key, value) {
+                    $('.alert-danger').show();
+                    $('.alert-danger').append('<li>' + value + '</li>');
+                })
+            } else {
+                $('.alert-danger').html('');
+                $("#voteModal").modal('hide');
+                location.reload();
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    });
+    $('#voteModal').modal('hide');
+}
 
 function ShowLeavesModal() {
 
