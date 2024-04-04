@@ -22,6 +22,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
 
         // Get the authenticated user
         $user = auth()->user();
@@ -121,7 +122,9 @@ class DashboardController extends Controller
                                 ->limit(4)
                                 ->get();
 
-        return view('dashboard.index',compact('userCount','users','userAttendancesData','userBirthdate','currentDate','userLeaves','showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays','userAttendances'));
+        return view('dashboard.index',compact('userCount','users','userAttendancesData','userBirthdate','currentDate','userLeaves',
+        'showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays',
+        'userAttendances','uservote'));
     }
 
     Public function getMissingAttendance()
