@@ -10,6 +10,7 @@ use App\Models\Managers;
 use App\Models\UserLeaves;
 use App\Models\UserAttendances;
 use App\Models\Users;
+use App\Models\Votes;
 use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
@@ -22,7 +23,18 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
+        $loggedInUserId = auth()->id(); 
+        $hasVoted = votes::where('from', $loggedInUserId)
+                        ->exists();
+        if ($hasVoted) {
+            $uservote = collect(); 
+        } else {
+            $uservote = Users::where('status', 1)
+                        ->where('role_id', '!=', 1)
+                        ->get();
+        }
+
+        // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
 
         // Get the authenticated user
         $user = auth()->user();
@@ -190,5 +202,6 @@ class DashboardController extends Controller
    return $userAttendances;
 
     }
+
     
 }

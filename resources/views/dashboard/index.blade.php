@@ -566,7 +566,7 @@
             <p>Employee: <span class="toVoteUserName"> </span></p>
                 <div class="form-group">
                     <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
-                    <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
+                    <textarea class="form-control" id="reason" placeholder="Enter reason" maxlength="350"></textarea>
                     <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} "/>
                     <input type="hidden" class="form-control" id="touser" />
 
@@ -644,7 +644,7 @@
             } else {
                 $('.alert-danger').html('');
                 $("#voteModal").modal('hide');
-                location.reload();
+                    location.reload();
             }
         },
         error: function(data) {
