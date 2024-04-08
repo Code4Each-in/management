@@ -1600,3 +1600,29 @@ header .header-alert{
     background: transparent;
     border: 0;
 }
+
+
+
+/* vote css start  */
+.emolyee-text {
+    font-size: 30px;
+    padding: 0px 0 5px 0;
+    font-weight: 500;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+.card.card-custom.bg-light-success {
+    background: #3e68ab;
+}
+.card-body {
+    padding: 0 20px 20px 20px;
+    padding: 2rem 2.25rem;
+    color: var(--bs-card-color);
+}
+span.para {
+    color: #78829d;
+    font-size: 20px;
+    line-height: 26px;
+}
+/* vote css start  */

@@ -31,7 +31,7 @@
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -82,8 +82,7 @@
                                 </div>
                             </div>
                             @if($users !=0)
-                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()"
-                                id="viewAll">View
+                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()" id="viewAll">View
                                 all</a>
                             @endif
                         </div>
@@ -104,7 +103,7 @@
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -131,15 +130,13 @@
                                 <h6>
                                     @if ($joiningDate >= $threeMonthsAgo)
                                     @if ($approvedLeave > 0 )
-                                    <span class="text-danger"
-                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
                                     @else
                                     @if ($approvedLeave > $totalLeaves )
-                                    <span class="text-danger"
-                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
@@ -180,6 +177,39 @@
 
                 </div>
             </div>
+<!-- ------voting profile---- -->
+        <div class="col-xxl-12 col-md-6">
+            <div class="card card-custom bg-light-success ">
+                <!--begin::Body-->
+                <div class="card-body d-flex">
+                    <!--begin::Wrapper-->
+                    <div class="vote-emylo flex-grow-1 ">
+                        <!--begin::Title-->
+                        <div class="emolyee-text">
+                            Employee Of The Month
+                        </div>
+                        <!--end::Title-->
+
+                        <!--begin::Text-->
+                        <span class="para">
+                            UserName
+                            <br>
+
+                        </span>
+                        <!--end::Text-->
+                    </div>
+                    <!--begin::Wrapper-->
+
+                    <!--begin::Illustration-->
+                    <img src="/#" class="h-175px me-15" alt="">
+                    <!--end::Illustration-->
+                </div>
+                <!--end::Body-->
+                </div>
+        </div>
+
+
+<!-- ------------voting profile end ---------- -->
         </div>
     </div>
     <div class="col-lg-4 dashboard" style="margin-top: 20px ">
@@ -205,8 +235,7 @@
                     @if(count($userBirthdate) !=0)
                     @foreach ($userBirthdate as $birthday)
                     <div class="col-md-3 mb-2">
-                        <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt=""
-                            class="rounded-circle">
+                        <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                     </div>
                     <div class="col-md-9 mt-2 ">
                         <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
@@ -289,7 +318,8 @@
                                 @endif
                                 @if (!empty($leaveStatusData))
                                 <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
-                                    {{ $leaveStatusData->first_name ?? '' }} </p>
+                                    {{ $leaveStatusData->first_name ?? '' }}
+                                </p>
                                 @endif
                             </td>
                         </tr>
@@ -358,11 +388,11 @@
         </div>
     </div>
     <div class="col-md-4 dashboard">
-    <div class="card vote-section">
-        <div class="card-body">
-            <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
-            <div class="vote" style="max-height: 300px; overflow-y: auto;">
-            @if ($uservote->isNotEmpty())
+        <div class="card vote-section">
+            <div class="card-body">
+                <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+                <div class="vote" style="max-height: 300px; overflow-y: auto;">
+                    @if ($uservote->isNotEmpty())
                     <table class="table" id="voter">
                         <thead>
                             <tr>
@@ -371,24 +401,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach ($uservote as $user)
-                <!-- @if($user->status == 1 && $user->role_id != 1) -->
-                    <tr>
-                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;"onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
-                        </td>
-                    </tr>
-                <!-- @endif -->
-            @endforeach
+                            @foreach ($uservote as $user)
+                            <!-- @if($user->status == 1 && $user->role_id != 1) -->
+                            <tr>
+                                <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                                </td>
+                            </tr>
+                            <!-- @endif -->
+                            @endforeach
                         </tbody>
                     </table>
-                @else
-                    <p>No users found for voting.</p>
-                @endif
+                    @else
+                    <p>Your vote has been recorded. Results will be announced shortly.</p>
+                    @endif
+                </div>
             </div>
         </div>
-    </div>
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -419,7 +449,8 @@
                         <p>Holiday @if ($holiday->from === $holiday->to) On
                             {{date("d-M-Y", strtotime($holiday->from));}} @else From
                             {{date("d-M-Y", strtotime($holiday->from));}} to {{date("d-M-Y", strtotime($holiday->to));}}
-                            @endif</p>
+                            @endif
+                        </p>
                     </div>
                     @endforeach
                 </div><!-- End sidebar recent posts-->
@@ -483,7 +514,7 @@
             <div class="col-md-8 dashboard">
                 <div class="card recent-sales overflow-auto">
                     <div class="filter">
-                     
+
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Assigned Devices</h5>
@@ -494,7 +525,7 @@
                                     <th scope="col">Model Name</th>
                                     <th scope="col">Serial Number</th>
                                     <th scope="col">From</th>
-                                  
+
                                     <th scope="col">Status</th>
                                 </tr>
                             </thead>
@@ -505,7 +536,7 @@
                                     <td>{{ $data->device->device_model ?? ''}}</td>
                                     <td>{{ $data->device->serial_number ?? '---'}}</td>
                                     <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                                  
+
                                     <td> @if ($data->status == 0)
                                         <span class="badge rounded-pill bg-success">Recovered</span>
                                         @else
@@ -534,12 +565,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <div class="alert alert-danger" style="display:none"></div>
+                <div class="alert alert-danger" style="display:none"></div>
                 @foreach ($showLeaves as $data)
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="col-md-2">
-                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt=""
-                            class="rounded-circle">
+                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                     </div>
                     <div class="col-md-10 ">
                         <p><b>{{$data->first_name}} <b></p>
@@ -563,17 +593,19 @@
                 </button>
             </div>
             <div class="modal-body">
-            <p>Employee: <span class="toVoteUserName"> </span></p>
+                <p>Employee: <span class="toVoteUserName"> </span></p>
                 <div class="form-group">
                     <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
-                    <textarea class="form-control" id="reason" placeholder="Enter reason" maxlength="350"></textarea>
-                    <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} "/>
+                    <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
+                    <div id="reasonError" class="text-danger"></div>
+                    <div id="successMessage" class="text-success"></div>
+                    <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} " />
                     <input type="hidden" class="form-control" id="touser" />
 
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearErrorMessage()">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
             </div>
         </div>
@@ -601,63 +633,81 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-});
+    });
 
-    function vote(first_name, last_name,id) {
-        $(".toVoteUserName").text(first_name+ ' ' +last_name);
-        $('#voteModal').modal('show'); 
+    function vote(first_name, last_name, id) {
+        $(".toVoteUserName").text(first_name + ' ' + last_name);
+        $('#voteModal').modal('show');
         $('#touser').val(id);
         console.log(id);
-        $('#voteModal').on('hidden.bs.modal', function () {
-        $('#reason').val('');
-       
+        $('#voteModal').on('hidden.bs.modal', function() {
+            $('#reason').val('');
 
-    });
+
+        });
     }
+
     function submitVote() {
-    var fromUserId = $("#fromuser").val(); 
-    var toUserId = $("#touser").val();
-    console.log(toUserId); 
-    var currentDate = new Date(); 
-    var month = currentDate.getMonth() + 1;
-    var year = currentDate.getFullYear(); 
-    var notes = $("#reason").val(); 
+        var reason = document.getElementById('reason').value.trim(); // Get the value of the textarea and remove leading/trailing spaces
+var wordCount = reason.split(/\s+/).length; // Count the number of words
 
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/submit-vote')}}", 
-        data: {
-            from: fromUserId,
-            to: toUserId,
-            month: month,
-            year: year,
-            notes: notes
-        },
-        success: (data) => {
-            if (data.errors) {
-                $('.alert-danger').html('');
+var reasonError = document.getElementById('reasonError'); // Get the error message container
 
-                $.each(data.errors, function(key, value) {
-                    $('.alert-danger').show();
-                    $('.alert-danger').append('<li>' + value + '</li>');
-                })
-            } else {
-                $('.alert-danger').html('');
-                $("#voteModal").modal('hide');
-                    location.reload();
+if (wordCount < 150) {
+    reasonError.textContent = "Reason must be at least 150 words.";
+    return;
+} else {
+    reasonError.textContent = ""; // Clear error message if reason meets minimum word count
+}
+
+    // Clear the error message if validation passes
+    reasonError.textContent = "";
+        var fromUserId = $("#fromuser").val();
+        var toUserId = $("#touser").val();
+        console.log(toUserId);
+        var currentDate = new Date();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        var notes = $("#reason").val();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/submit-vote')}} ",
+            data: {
+                from: fromUserId,
+                to: toUserId,
+                month: month,
+                year: year,
+                notes: notes
+            },
+            success: function(response) {
+            //     if (response.success) {
+            //     $('#successMessage').text("Vote submitted successfully!");
+            //     // You can also clear the textarea or perform any other actions as needed
+            // } else
+            if (response.success) {
+                $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
+                $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
             }
-        },
-        error: function(data) {
-            console.log(data);
-        }
-    });
-    $('#voteModal').modal('hide');
+            else {
+                    $('.alert-danger').html('');
+                    $("#voteModal").modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    }
+    function clearErrorMessage() {
+    document.getElementById('reasonError').textContent = ""; // Clear the error message
 }
 
-function ShowLeavesModal() {
+    function ShowLeavesModal() {
 
-    $('#ShowLeaves').modal('show');
-}
+        $('#ShowLeaves').modal('show');
+    }
 </script>
 
 @endsection
