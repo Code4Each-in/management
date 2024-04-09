@@ -31,7 +31,7 @@ class VotesController extends Controller
         $currentMonth = date('n');
         $currentYear = date('Y');
 
-        // Check if the user has already voted in the current month
+        // Check if the user has already voted in the current month and year
         $existingVote = Votes::where('from', $request->from)
             ->where('month', $currentMonth)
             ->where('year', $currentYear)
@@ -46,8 +46,8 @@ class VotesController extends Controller
         Votes::create([
             'from' => $validatedData['from'],
             'to' => $validatedData['to'],
-            'month' => $currentMonth, // Use current month instead of $request->month
-            'year' => $currentYear,   // Use current year instead of $request->year
+            'month' => $currentMonth,
+            'year' => $currentYear,
             'notes' => $validatedData['notes'],
         ]);
 

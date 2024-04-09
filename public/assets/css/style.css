@@ -1604,7 +1604,7 @@ header .header-alert{
 
 
 /* vote css start  */
-.emolyee-text {
+/* .emolyee-text {
     font-size: 30px;
     padding: 0px 0 5px 0;
     font-weight: 500;
@@ -1624,5 +1624,13 @@ span.para {
     color: #78829d;
     font-size: 20px;
     line-height: 26px;
+} */
+.img-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 0px auto;
 }
-/* vote css start  */
+.img-wrapper img {
+    width: 100%;
+}
+/* vote css end */

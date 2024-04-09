@@ -19,7 +19,7 @@
 
 <!-- class=""> -->
 <div class="row">
-    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
+    <div class="col-lg-9 dashboard" style="margin-top: 20px !important;">
         <div class="row">
 
             <!-- Sales Card -->
@@ -160,9 +160,9 @@
 
             <!-- Customers Card -->
 
-            <div class="col-12">
+            <!-- <div class="col-12">
                 <div class="card">
-                    <!-- <div class="filter">
+                    <div class="filter">
                 <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
@@ -173,52 +173,19 @@
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
                 </ul>
-                </div> -->
+                </div>
 
                 </div>
-            </div>
-<!-- ------voting profile---- -->
-        <div class="col-xxl-12 col-md-6">
-            <div class="card card-custom bg-light-success ">
-                <!--begin::Body-->
-                <div class="card-body d-flex">
-                    <!--begin::Wrapper-->
-                    <div class="vote-emylo flex-grow-1 ">
-                        <!--begin::Title-->
-                        <div class="emolyee-text">
-                            Employee Of The Month
-                        </div>
-                        <!--end::Title-->
-
-                        <!--begin::Text-->
-                        <span class="para">
-                            UserName
-                            <br>
-
-                        </span>
-                        <!--end::Text-->
-                    </div>
-                    <!--begin::Wrapper-->
-
-                    <!--begin::Illustration-->
-                    <img src="/#" class="h-175px me-15" alt="">
-                    <!--end::Illustration-->
-                </div>
-                <!--end::Body-->
-                </div>
-        </div>
-
-
-<!-- ------------voting profile end ---------- -->
+            </div> -->
         </div>
     </div>
     <div class="col-lg-4 dashboard" style="margin-top: 20px ">
         <!-- Recent Activity -->
 
-        <div class="card">
+        <!-- <div class="card">
             <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
                     <h6>Filter</h6>
                 </li>
@@ -226,8 +193,8 @@
                 <li><a class="dropdown-item" href="#">Today</a></li>
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
-            </div>
+            </ul>
+            </div> -->
             @if(count($userBirthdate)!=0)
             <div class="card-body pb-0">
                 <h5 class="card-title"> Birthday/Anniversary</h5>
@@ -269,6 +236,43 @@
         </div>
     </div>
 </div>
+   <!-- ------voting profile---- -->
+<div class="row mt-4">
+    <div class="col-lg-7 mb-lg-0 mb-4">
+        <div class="card">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="d-flex flex-column h-100">
+                            <h5 class="font-weight-bolder">Employee Of The Month</h5>
+                            @php
+                                $winner = App\Models\Winners::latest()->first();
+                                if ($winner) {
+                                    $user = App\Models\Users::find($winner->user_id);
+                                    if ($user) {
+                            @endphp
+                                        <p class="mb-5">{{ $user->first_name }} {{ $user->last_name }}</p>
+                            @php
+                                    }
+                                }
+                            @endphp
+                        </div>
+                    </div>
+                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card  p-4">
+                 <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                 <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5>
+                </div>
+        </div>
+    </div>
+</div>
+    <!-- ------------voting profile end ---------- -->
 <!-- Recent Sales -->
 
 <div class="row">
@@ -390,32 +394,37 @@
     <div class="col-md-4 dashboard">
         <div class="card vote-section">
             <div class="card-body">
-                <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
-                <div class="vote" style="max-height: 300px; overflow-y: auto;">
-                    @if ($uservote->isNotEmpty())
-                    <table class="table" id="voter">
-                        <thead>
-                            <tr>
-                                <th scope="col">Employee Name</th>
-                                <th scope="col">Vote</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($uservote as $user)
-                            <!-- @if($user->status == 1 && $user->role_id != 1) -->
-                            <tr>
-                                <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
-                                </td>
-                            </tr>
-                            <!-- @endif -->
-                            @endforeach
-                        </tbody>
-                    </table>
-                    @else
-                    <p>Your vote has been recorded. Results will be announced shortly.</p>
-                    @endif
+                <div class="main-div">
+                    <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+                    <div class="vote" style="max-height: 300px; overflow-y: auto;">
+                        @if ($uservote->isNotEmpty())
+                        <table class="table" id="voter">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Employee Name</th>
+                                    <th scope="col">Vote</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($uservote as $user)
+                                <!-- @if($user->status == 1 && $user->role_id != 1) -->
+                                <tr>
+                                    <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                                    </td>
+                                </tr>
+                                <!-- @endif -->
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @else
+                        <p>Your vote has been recorded. Results will be announced shortly.</p>
+                        <div class="img-wrapper ">
+                            <img src="/assets/img/votingresult.png">
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -648,20 +657,20 @@
     }
 
     function submitVote() {
-        var reason = document.getElementById('reason').value.trim(); // Get the value of the textarea and remove leading/trailing spaces
-var wordCount = reason.split(/\s+/).length; // Count the number of words
+        var reason = document.getElementById('reason').value.trim();
+        var charCount = reason.length; // Count the number of characters
 
-var reasonError = document.getElementById('reasonError'); // Get the error message container
+        var reasonError = document.getElementById('reasonError'); // Get the error message container
 
-if (wordCount < 150) {
-    reasonError.textContent = "Reason must be at least 150 words.";
-    return;
-} else {
-    reasonError.textContent = ""; // Clear error message if reason meets minimum word count
-}
+        if (charCount < 100) {
+            reasonError.textContent = "Reason must be at least 150 characters.";
+            return;
+        } else {
+            reasonError.textContent = "";
+        }
 
-    // Clear the error message if validation passes
-    reasonError.textContent = "";
+        // Clear the error message if validation passes
+        reasonError.textContent = "";
         var fromUserId = $("#fromuser").val();
         var toUserId = $("#touser").val();
         console.log(toUserId);
@@ -681,15 +690,14 @@ if (wordCount < 150) {
                 notes: notes
             },
             success: function(response) {
-            //     if (response.success) {
-            //     $('#successMessage').text("Vote submitted successfully!");
-            //     // You can also clear the textarea or perform any other actions as needed
-            // } else
-            if (response.success) {
-                $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
-                $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
-            }
-            else {
+                //     if (response.success) {
+                //     $('#successMessage').text("Vote submitted successfully!");
+                //     // You can also clear the textarea or perform any other actions as needed
+                // } else
+                if (response.success) {
+                    $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
+                    $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
+                } else {
                     $('.alert-danger').html('');
                     $("#voteModal").modal('hide');
                     location.reload();
@@ -700,9 +708,10 @@ if (wordCount < 150) {
             }
         });
     }
+
     function clearErrorMessage() {
-    document.getElementById('reasonError').textContent = ""; // Clear the error message
-}
+        document.getElementById('reasonError').textContent = ""; // Clear the error message
+    }
 
     function ShowLeavesModal() {
 
