@@ -70,30 +70,51 @@ class Winner extends Command
         return;
     }
 
-    // Fetch the highest voted user for the previous month and year
-    $highestVoteUser = votes::select('to')
+    // Fetch users and their vote counts for the previous month and year
+    $voteCounts = votes::select('to')
         ->selectRaw('COUNT(*) as total_votes')
         ->where('month', '=', $previousMonth)
         ->where('year', '=', $previousYear)
         ->groupBy('to')
         ->orderByDesc('total_votes')
-        ->first();
+        ->get();
 
-    // Log the details of the highest voted user
-    if ($highestVoteUser) {
-        $this->info("User: to = $highestVoteUser->to, total_votes = $highestVoteUser->total_votes");
-
-        // Insert the highest voted user into the winners table
-        winners::create([
-            'user_id' => $highestVoteUser->to,
-            'month' => $previousMonth,
-            'year' => $previousYear
-        ]);
-
-        $this->info('Winner for the previous month saved successfully!');
-    } else {
-        $this->info('No winner found for the previous month.');
+    if ($voteCounts->isEmpty()) {
+        $this->info('No votes found for the previous month.');
+        return;
     }
+
+    // Check if there is a tie between multiple users
+    $maxVotes = $voteCounts->max('total_votes');
+    $potentialWinners = $voteCounts->where('total_votes', $maxVotes);
+
+    if ($potentialWinners->count() == 1) {
+        // If there's only one potential winner, select them
+        $winner = $potentialWinners->first();
+    } elseif ($potentialWinners->count() == 2) {
+        // If there's a tie between two users, store both as winners
+        foreach ($potentialWinners as $potentialWinner) {
+            winners::create([
+                'user_id' => $potentialWinner->to,
+                'month' => $previousMonth,
+                'year' => $previousYear
+            ]);
+        }
+        $this->info('Tie between two users. Both stored as winners.');
+        return;
+    } else {
+        // If there's a tie between three or more users, randomly select one
+        $winner = $potentialWinners->random();
+    }
+
+    // Insert the winner into the winners table
+    winners::create([
+        'user_id' => $winner->to,
+        'month' => $previousMonth,
+        'year' => $previousYear
+    ]);
+
+    $this->info('Winner for the previous month saved successfully!');
 }
 
 }

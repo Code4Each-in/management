@@ -31,7 +31,7 @@
   }
 
   /**
-   * Easy on scroll event listener 
+   * Easy on scroll event listener
    */
   const onscroll = (el, listener) => {
     el.addEventListener('scroll', listener)
@@ -337,3 +337,32 @@ $(document).ready(function(){
         $(this).alert('close');
     });
 });
+$(document).ready(function() {
+    $('.quotes').slick({
+        autoplay: true,
+        autoplaySpeed: 1000,
+        speed:1000,
+        draggable: true,
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 3,
+        arrows: fa-arrow-circle-o-left,
+        dots: false,
+        responsive: [
+            {
+              breakpoint: 991,
+              settings: {
+                slidesToShow: 2,
+                slidesToScroll: 1,
+              }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+                }
+            }
+        ]
+    });
+  });
