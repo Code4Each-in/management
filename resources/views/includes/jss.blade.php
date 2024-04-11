@@ -9,7 +9,7 @@
 <!-- <script src="assets/vendor/quill/quill.min.js"></script>
   <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
   <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script> --> 
+  <script src="assets/vendor/php-email-form/validate.js"></script> -->
 
 <!-- Template Main JS File -->
 
@@ -21,3 +21,7 @@
 <script src='//bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js'></script>
 <script src="//cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('assets/js/main.js') }}"></script>
+<script src="{{ asset('assets/js/slick.min.js') }}"></script>
+
+
+

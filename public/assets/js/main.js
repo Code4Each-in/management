@@ -336,33 +336,35 @@ $(document).ready(function(){
       $(".header-alert").delay(3000).slideUp(200, function() {
         $(this).alert('close');
     });
-});
-$(document).ready(function() {
-    $('.quotes').slick({
-        autoplay: true,
-        autoplaySpeed: 1000,
-        speed:1000,
-        draggable: true,
-        infinite: true,
-        slidesToShow: 1,
-        slidesToScroll: 3,
-        arrows: fa-arrow-circle-o-left,
-        dots: false,
-        responsive: [
-            {
-              breakpoint: 991,
-              settings: {
-                slidesToShow: 2,
-                slidesToScroll: 1,
-              }
-            },
-            {
-                breakpoint: 575,
-                settings: {
-                  slidesToShow: 1,
-                  slidesToScroll: 1,
-                }
+  //slick
+
+  $('.quotes').slick({
+    autoplay: true,
+    autoplaySpeed: 1000,
+    speed:1000,
+    draggable: true,
+    infinite: true,
+    slidesToShow: 1,
+    slidesToScroll:1,
+    arrows: true,
+    dots: false,
+    responsive: [
+        {
+          breakpoint: 991,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 1,
+          }
+        },
+        {
+            breakpoint: 575,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1,
             }
-        ]
-    });
-  });
+        }
+    ]
+});
+});
+
+

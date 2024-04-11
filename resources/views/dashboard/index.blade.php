@@ -195,84 +195,115 @@
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul>
             </div> -->
-            @if(count($userBirthdate)!=0)
-            <div class="card-body pb-0">
-                <h5 class="card-title"> Birthday/Anniversary</h5>
-                <div class="row mb-2">
-                    @if(count($userBirthdate) !=0)
-                    @foreach ($userBirthdate as $birthday)
-                    <div class="col-md-3 mb-2">
-                        <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
-                    </div>
-                    <div class="col-md-9 mt-2 ">
-                        <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
-                        <div>
-                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
-                            strtotime($birthday->joining_date)))
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                Anniversary</span>
-
-                            @else
-                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday</span>
-                            @elseif ($currentDate == $birthday->joining_date)
-                            <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
-                            <span style="font-size:smaller;">Warm Welcome On Joining!</span>
-                            @else
-                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                            <span>Anniversary</span>
-                            @endif
-                            @endif
-                        </div>
-                    </div>
-                    <hr>
-                    @endforeach
-                    @endif
+        @if(count($userBirthdate)!=0)
+        <div class="card-body pb-0">
+            <h5 class="card-title"> Birthday/Anniversary</h5>
+            <div class="row mb-2">
+                @if(count($userBirthdate) !=0)
+                @foreach ($userBirthdate as $birthday)
+                <div class="col-md-3 mb-2">
+                    <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                 </div>
+                <div class="col-md-9 mt-2 ">
+                    <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
+                    <div>
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
+                        strtotime($birthday->joining_date)))
+                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                        <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            Anniversary</span>
+
+                        @else
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
+                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                        <span>Birthday</span>
+                        @elseif ($currentDate == $birthday->joining_date)
+                        <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
+                        <span style="font-size:smaller;">Warm Welcome On Joining!</span>
+                        @else
+                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                        <span>Anniversary</span>
+                        @endif
+                        @endif
+                    </div>
+                </div>
+                <hr>
+                @endforeach
+                @endif
             </div>
-            @endif
         </div>
+        @endif
     </div>
 </div>
-   <!-- ------voting profile---- -->
+</div>
+<!-- ------voting profile---- -->
 <div class="row mt-4">
     <div class="col-lg-7 mb-lg-0 mb-4">
+        <h4 class="font-weight-bolder">Employee Of The Month</h4>
         <div class="card">
             <div class="card-body p-3">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="d-flex flex-column h-100">
-                            <h5 class="font-weight-bolder">Employee Of The Month</h5>
+                <!-- <div class="row">
+                    <div class="col-lg-6"> -->
+                        <div class="display flex-column h-100">
                             @php
-                                $winner = App\Models\Winners::latest()->first();
-                                if ($winner) {
-                                    $user = App\Models\Users::find($winner->user_id);
-                                    if ($user) {
+                            $winners = App\Models\Winners::latest()->take(2)->get();
+                            $count = count($winners); // Count the number of winners
                             @endphp
-                                        <p class="mb-5">{{ $user->first_name }} {{ $user->last_name }}</p>
+
+                            @if ($count > 0)
+                            @foreach ($winners as $winner)
                             @php
-                                    }
-                                }
+                            $user = App\Models\Users::find($winner->user_id);
                             @endphp
+                            @if ($user)
+                            <div class="profile-info">
+                                <h5 class="mb-1">{{ $user->first_name }} {{ $user->last_name }}</h5>
+                                </div>
+                                <div class="winner-profile">
+                                    <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="Profile Picture" class="img-fluid mb-3">
+                                </div>
+                            @endif
+                            @endforeach
+                            @endif
+
                         </div>
-                    </div>
-                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-                    </div>
-                </div>
+                    <!-- </div>
+                </div> -->
             </div>
         </div>
     </div>
     <div class="col-lg-5">
+    <h4 class="font-weight-bolder">Notes</h4>
         <div class="card  p-4">
-                 <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                 <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5>
-                </div>
+            <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+
+                <section class="quotes">
+                    <div class="bubble">
+                        <blockquote>
+                            <p>It is a condition of mind brought ceful people.</p>
+                        </blockquote>
+                        <div></div>
+                    </div>
+                    <div class="bubble">
+                        <blockquote>
+                            <p>It is a condition of mind brought ceful people.</p>
+                        </blockquote>
+                        <div></div>
+                    </div>
+                    <div class="bubble">
+                        <blockquote>
+                            <p>forgive the one that inflicted </p>
+                        </blockquote>
+                        <div></div>
+                    </div>
+
+                </section>
+
+            </div>
         </div>
     </div>
 </div>
-    <!-- ------------voting profile end ---------- -->
+<!-- ------------voting profile end ---------- -->
 <!-- Recent Sales -->
 
 <div class="row">
@@ -301,6 +332,7 @@
                             <th scope="col">Type</th>
                             <th scope="col">Status</th>
                         </tr>
+                        <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5>
                     </thead>
                     <tbody>
                         @forelse($userLeaves as $data)
@@ -624,6 +656,7 @@
 @section('js_scripts')
 <script>
     $(document).ready(function() {
+
 
         $('#leavesss').DataTable({
             "order": []
