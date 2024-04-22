@@ -24,7 +24,7 @@ use App\Models\Votes;
 
 <!-- class=""> -->
 <div class="row">
-    <div class="col-lg-9 dashboard" style="margin-top: 20px !important;">
+    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
         <div class="row">
 
             <!-- Sales Card -->
@@ -36,7 +36,7 @@ use App\Models\Votes;
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!--
+                        <!-- 
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -87,7 +87,8 @@ use App\Models\Votes;
                                 </div>
                             </div>
                             @if($users !=0)
-                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()" id="viewAll">View
+                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()"
+                                id="viewAll">View
                                 all</a>
                             @endif
                         </div>
@@ -108,7 +109,7 @@ use App\Models\Votes;
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!--
+                        <!-- 
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -135,13 +136,15 @@ use App\Models\Votes;
                                 <h6>
                                     @if ($joiningDate >= $threeMonthsAgo)
                                     @if ($approvedLeave > 0 )
-                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger"
+                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
                                     @else
                                     @if ($approvedLeave > $totalLeaves )
-                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger"
+                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
@@ -165,9 +168,9 @@ use App\Models\Votes;
 
             <!-- Customers Card -->
 
-            <!-- <div class="col-12">
+            <div class="col-12">
                 <div class="card">
-                    <div class="filter">
+                    <!-- <div class="filter">
                 <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
@@ -178,19 +181,19 @@ use App\Models\Votes;
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
                 </ul>
-                </div>
+                </div> -->
 
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
-    <div class="col-lg-3 dashboard" style="margin-top: 20px ">
+    <div class="col-lg-4 dashboard" style="margin-top: 20px ">
         <!-- Recent Activity -->
 
-        <!-- <div class="card">
+        <div class="card">
             <div class="filter">
-                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
                     <h6>Filter</h6>
                 </li>
@@ -198,48 +201,49 @@ use App\Models\Votes;
                 <li><a class="dropdown-item" href="#">Today</a></li>
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
-            </div> -->
-        @if(count($userBirthdate)!=0)
-        <div class="card-body pb-0">
-            <h5 class="card-title"> Birthday/Anniversary</h5>
-            <div class="row mb-2">
-                @if(count($userBirthdate) !=0)
-                @foreach ($userBirthdate as $birthday)
-                <div class="col-md-3 mb-2">
-                    <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
-                </div>
-                <div class="col-md-9 mt-2 ">
-                    <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
-                    <div>
-                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
-                        strtotime($birthday->joining_date)))
-                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                        <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                            Anniversary</span>
-
-                        @else
-                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
-                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                        <span>Birthday</span>
-                        @elseif ($currentDate == $birthday->joining_date)
-                        <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
-                        <span style="font-size:smaller;">Warm Welcome On Joining!</span>
-                        @else
-                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                        <span>Anniversary</span>
-                        @endif
-                        @endif
-                    </div>
-                </div>
-                <hr>
-                @endforeach
-                @endif
+            </ul> -->
             </div>
+            @if(count($userBirthdate)!=0)
+            <div class="card-body pb-0">
+                <h5 class="card-title"> Birthday/Anniversary</h5>
+                <div class="row mb-2">
+                    @if(count($userBirthdate) !=0)
+                    @foreach ($userBirthdate as $birthday)
+                    <div class="col-md-3 mb-2">
+                        <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt=""
+                            class="rounded-circle">
+                    </div>
+                    <div class="col-md-9 mt-2 ">
+                        <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
+                        <div>
+                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
+                            strtotime($birthday->joining_date)))
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                                Anniversary</span>
+
+                            @else
+                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday</span>
+                            @elseif ($currentDate == $birthday->joining_date)
+                            <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
+                            <span style="font-size:smaller;">Warm Welcome On Joining!</span>
+                            @else
+                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            <span>Anniversary</span>
+                            @endif
+                            @endif
+                        </div>
+                    </div>
+                    <hr>
+                    @endforeach
+                    @endif
+                </div>
+            </div>
+            @endif
         </div>
-        @endif
     </div>
-</div>
 </div>
 
 <!-- Employee Of The Month Section -->
