@@ -1678,23 +1678,25 @@ span.para {
   /* Bubble Slider */
 
   .bubble blockquote {
-      margin: 10px 10px 0;
-      background: #e7e3e3;
-      padding: 60px;
-      position: relative;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.25em;
-      color: #1e528e;
-  }
-  .bubble blockquote:before, .bubble blockquote:after {
-      content: "\201C";
-      position: absolute;
-      font-size: 80px;
-      padding: 10px;
-      line-height: 1;
-      color: #1e528e;
-  }
+    margin: 0px 10px 0;
+    background: #e7e3e3;
+    padding: 40px;
+    position: relative;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.25em;
+    color: #1e528e;
+    display: flex;
+    justify-content: center;
+}
+.bubble blockquote:before, .bubble blockquote:after {
+  content: "\201C";
+  position: absolute;
+  font-size: 60px;
+  padding: 10px;
+  line-height: 1;
+  color: #1e528e;
+}
   .bubble blockquote:before {
       top: 0;
       left: 10px;
@@ -1794,41 +1796,106 @@ span.para {
   }
 
 /* CSS for the parent container */
-.display {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.display-user {
+  display: grid;
+  margin: 0px auto;
+  justify-content: center;
+  min-height: 400px; 
+  align-items: center;
+}
+.company-name{
+  color: #FFC252;
+  font-size: 22px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+}
+.winner-slogan h2{
+  color:#fff;
+  font-family: cursive;
+  font-size: 44px;
+  font-weight: 800;
+}
+.winner-profile img {
+  max-width: 150px;
+  width: 100%;
+  height: auto;
 }
 
-/* CSS for the profile picture */
-.winner-profile {
-    margin-right: 20px; /* Adjust the spacing between the profile picture and text */
+img.profile-pic {
+  border: 7px solid #b08639;
+  border-radius: 50%;
+  margin: 5px 5px;
+  animation: spin 10s linear infinite;
 }
 
-/* Style for the heading */
-.font-weight-bolder {
-    font-weight: bold;
-    margin-bottom: 10px; /* Adjust the spacing below the heading */
-    text-align: center; /* Align the text to the right */
+.profile-info p {
+  font-size: 20px;
+  text-align: end;
+  padding: 0px 15px 0px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+.profile-info h5.mb-1 {
+  font-size: 28px;
+  font-weight: 600;
+  padding: 5px 9px 0px;
+  color: #ffb552;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+.header-image-right {
+  position: absolute;
+  top: -35%;
+  right: -38%
+}
+
+.winner-card {
+  background: #CB1E52;
+  position: relative;
+  overflow: hidden;
+}
+.winner-card .card-body{
+  z-index: 9 !important;
+}
+.profile-info {
+  color: #fff;
+}
+.trophy {
+  position: absolute;
+  bottom: 9%;
+  right: 2%;
+  transform: rotate(19deg);
+}
+
+.trophy img {
+  height: 300px;
+}
+
+.footer-image-left {
+  position: absolute;
+  left: -30%;
+  transform: rotate(166deg);
+  bottom: -42%;
+}
+.share-image {
+  display: flex;
+  justify-content: end;
+  z-index: 9;
+  position: absolute;
+  bottom: -6px;
+  right: 0;
+}
+.share-image img {
+  /* width: 8%; */
+  width: 11%;
+  padding: 19px 10px;
+}
+h4.font-weight-bolder {
+  font-size: 28px;
+    font-weight: 500;
     color: #012970;
+    font-family: "Poppins", sans-serif;
 }
-
-/* Style for the winner name */
-.winner-name {
-    text-align: right; /* Align the winner name to the right */
-    /* Additional styles for the winner name if needed */
-}
-
-/* Style for the profile picture */
-.user-profile {
-    max-width: 250px;
-    height: auto;
-    width: 100%;
-}
-img.img-fluid.mb-3 {
-    width: 100%;
-    max-width: 200px;
-    height: auto;
-}
-
 /* vote css end */

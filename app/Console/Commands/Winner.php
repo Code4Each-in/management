@@ -95,7 +95,8 @@ class Winner extends Command
                 winners::create([
                     'user_id' => $tieWinner->to,
                     'month' => $previousMonth,
-                    'year' => $previousYear
+                    'year' => $previousYear,
+                    'totalvotes' => $tieWinner->total_votes
                 ]);
             }
             $this->info('Tie between multiple users. All tied users stored as winners.');
@@ -106,7 +107,8 @@ class Winner extends Command
     winners::create([
         'user_id' => $winner->to,
         'month' => $previousMonth,
-        'year' => $previousYear
+        'year' => $previousYear,
+        'totalvotes' => $winner->total_votes
     ]);
 
 }

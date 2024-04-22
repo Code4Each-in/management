@@ -11,6 +11,7 @@ use App\Models\UserLeaves;
 use App\Models\UserAttendances;
 use App\Models\Users;
 use App\Models\Votes;
+use App\Models\Winners;
 use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
@@ -132,10 +133,26 @@ class DashboardController extends Controller
                         ->get();
         }
 
+
+        //fetch recent winners
+
+        $winners = winners::latest()->take(2)->get();// where condition for previous month
+       // dd($winners);
+        // Fetch winners
+    $winners = Winners::all();
+
+    // Loop through winners to fetch associated user and votes
+    foreach ($winners as $winner) {
+        $user = Users::find($winner->user_id);
+        $uservotes = Votes::where('to', $user->id)->get();
+        $winner->user = $user;
+        $winner->uservotes = $uservotes;
+    }
+
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index',compact('userCount','users','userAttendancesData','userBirthdate','currentDate','userLeaves',
         'showLeaves', 'dayMonth','leaveStatus','upcomingHoliday','assignedDevices','approvedLeave','totalLeaves','upcomingFourHolidays',
-        'userAttendances','uservote'));
+        'userAttendances','uservote','winners'));
     }
 
     Public function getMissingAttendance()

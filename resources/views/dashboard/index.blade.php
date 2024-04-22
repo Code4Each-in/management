@@ -2,7 +2,12 @@
 @section('title', 'Dashboard')
 @section('subtitle', 'Dashboard')
 @section('content')
+@php
+use App\Models\Users;
+use App\Models\Votes;
+@endphp
 @if ($upcomingHoliday)
+
 <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
     <i class="bi bi-info-circle me-1"></i>
     @if ($upcomingHoliday->from === $upcomingHoliday->to)
@@ -236,74 +241,11 @@
     </div>
 </div>
 </div>
-<!-- ------voting profile---- -->
-<div class="row mt-4">
-    <div class="col-lg-7 mb-lg-0 mb-4">
-        <h4 class="font-weight-bolder">Employee Of The Month</h4>
-        <div class="card">
-            <div class="card-body p-3">
-                <!-- <div class="row">
-                    <div class="col-lg-6"> -->
-                        <div class="display flex-column h-100">
-                            @php
-                            $winners = App\Models\Winners::latest()->take(2)->get();
-                            $count = count($winners); // Count the number of winners
-                            @endphp
 
-                            @if ($count > 0)
-                            @foreach ($winners as $winner)
-                            @php
-                            $user = App\Models\Users::find($winner->user_id);
-                            @endphp
-                            @if ($user)
-                            <div class="profile-info">
-                                <h5 class="mb-1">{{ $user->first_name }} {{ $user->last_name }}</h5>
-                                </div>
-                                <div class="winner-profile">
-                                    <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="Profile Picture" class="img-fluid mb-3">
-                                </div>
-                            @endif
-                            @endforeach
-                            @endif
+<!-- Employee Of The Month Section -->
+@include('votes.index', ['winners' => $winners])
+<!-- End of Employee Of The Month Section -->
 
-                        </div>
-                    <!-- </div>
-                </div> -->
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-5">
-    <h4 class="font-weight-bolder">Notes</h4>
-        <div class="card  p-4">
-            <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-
-                <section class="quotes">
-                    <div class="bubble">
-                        <blockquote>
-                            <p>It is a condition of mind brought ceful people.</p>
-                        </blockquote>
-                        <div></div>
-                    </div>
-                    <div class="bubble">
-                        <blockquote>
-                            <p>It is a condition of mind brought ceful people.</p>
-                        </blockquote>
-                        <div></div>
-                    </div>
-                    <div class="bubble">
-                        <blockquote>
-                            <p>forgive the one that inflicted </p>
-                        </blockquote>
-                        <div></div>
-                    </div>
-
-                </section>
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- ------------voting profile end ---------- -->
 <!-- Recent Sales -->
 
 <div class="row">
@@ -460,6 +402,7 @@
                 </div>
             </div>
         </div>
+
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>

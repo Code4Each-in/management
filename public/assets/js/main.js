@@ -340,8 +340,8 @@ $(document).ready(function(){
 
   $('.quotes').slick({
     autoplay: true,
-    autoplaySpeed: 1000,
-    speed:1000,
+    autoplaySpeed: 2000,
+    speed:2000,
     draggable: true,
     infinite: true,
     slidesToShow: 1,
