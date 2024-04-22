@@ -36,7 +36,14 @@ class Kernel extends ConsoleKernel
         })->cron('0 0 1 */3 *');
         // $schedule->command('credit-leaves:quarterly')->cron('0 0 1 */3 *');
         // $schedule->command('credit-leaves:quarterly')->everyMinute();
-
+        $schedule->call(function () {
+            try {
+                Artisan::call('votes:winner');
+                info('Cron job for selecting the winner executed successfully!');
+            } catch (\Exception $e) {
+                \Log::error('Error executing cron job: ' . $e->getMessage());
+            }
+        })->everyMinute();
     }
 
     /**

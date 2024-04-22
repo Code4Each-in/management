@@ -22,6 +22,7 @@ use App\Http\Controllers\JobCategoriesController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\HiringUsController;
+use App\Http\Controllers\VotesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -230,5 +231,9 @@ Route::middleware(['role_permission'])->group(function () {
 
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
+	
+	//For Vote
+	Route::post('/submit-vote', [VotesController::class, 'SubmitVote'])->name('submit.vote');
+
 
  });

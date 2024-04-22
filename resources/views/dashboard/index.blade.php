@@ -2,7 +2,12 @@
 @section('title', 'Dashboard')
 @section('subtitle', 'Dashboard')
 @section('content')
+@php
+use App\Models\Users;
+use App\Models\Votes;
+@endphp
 @if ($upcomingHoliday)
+
 <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
     <i class="bi bi-info-circle me-1"></i>
     @if ($upcomingHoliday->from === $upcomingHoliday->to)
@@ -19,7 +24,7 @@
 
 <!-- class=""> -->
 <div class="row">
-    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
+    <div class="col-lg-9 dashboard" style="margin-top: 20px !important;">
         <div class="row">
 
             <!-- Sales Card -->
@@ -31,7 +36,7 @@
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -82,8 +87,7 @@
                                 </div>
                             </div>
                             @if($users !=0)
-                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()"
-                                id="viewAll">View
+                            <a class="text-primary small pt-1 pointer text-right" onClick="ShowLeavesModal()" id="viewAll">View
                                 all</a>
                             @endif
                         </div>
@@ -104,7 +108,7 @@
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -131,15 +135,13 @@
                                 <h6>
                                     @if ($joiningDate >= $threeMonthsAgo)
                                     @if ($approvedLeave > 0 )
-                                    <span class="text-danger"
-                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
                                     @else
                                     @if ($approvedLeave > $totalLeaves )
-                                    <span class="text-danger"
-                                        title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
+                                    <span class="text-danger" title="your leaves exceded from total available leaves">{{$approvedLeave}}</span>
                                     @else
                                     <span title="Your leaves">{{$approvedLeave}}</span>
                                     @endif
@@ -163,9 +165,9 @@
 
             <!-- Customers Card -->
 
-            <div class="col-12">
+            <!-- <div class="col-12">
                 <div class="card">
-                    <!-- <div class="filter">
+                    <div class="filter">
                 <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
@@ -176,19 +178,19 @@
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
                 </ul>
-                </div> -->
+                </div>
 
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="col-lg-4 dashboard" style="margin-top: 20px ">
         <!-- Recent Activity -->
 
-        <div class="card">
+        <!-- <div class="card">
             <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
                     <h6>Filter</h6>
                 </li>
@@ -196,50 +198,54 @@
                 <li><a class="dropdown-item" href="#">Today</a></li>
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
-            </div>
-            @if(count($userBirthdate)!=0)
-            <div class="card-body pb-0">
-                <h5 class="card-title"> Birthday/Anniversary</h5>
-                <div class="row mb-2">
-                    @if(count($userBirthdate) !=0)
-                    @foreach ($userBirthdate as $birthday)
-                    <div class="col-md-3 mb-2">
-                        <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt=""
-                            class="rounded-circle">
-                    </div>
-                    <div class="col-md-9 mt-2 ">
-                        <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
-                        <div>
-                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
-                            strtotime($birthday->joining_date)))
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                Anniversary</span>
-
-                            @else
-                            @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday</span>
-                            @elseif ($currentDate == $birthday->joining_date)
-                            <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
-                            <span style="font-size:smaller;">Warm Welcome On Joining!</span>
-                            @else
-                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                            <span>Anniversary</span>
-                            @endif
-                            @endif
-                        </div>
-                    </div>
-                    <hr>
-                    @endforeach
-                    @endif
+            </ul>
+            </div> -->
+        @if(count($userBirthdate)!=0)
+        <div class="card-body pb-0">
+            <h5 class="card-title"> Birthday/Anniversary</h5>
+            <div class="row mb-2">
+                @if(count($userBirthdate) !=0)
+                @foreach ($userBirthdate as $birthday)
+                <div class="col-md-3 mb-2">
+                    <img src="{{asset('assets/img/').'/'.$birthday->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                 </div>
+                <div class="col-md-9 mt-2 ">
+                    <b>{{$birthday->first_name." ".$birthday->last_name}}</b>
+                    <div>
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)) && $dayMonth == date('m-d',
+                        strtotime($birthday->joining_date)))
+                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                        <span>Birthday & <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            Anniversary</span>
+
+                        @else
+                        @if($dayMonth == date('m-d', strtotime($birthday->birth_date)))
+                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                        <span>Birthday</span>
+                        @elseif ($currentDate == $birthday->joining_date)
+                        <i class="fa fa-handshake-o" style="color:green" aria-hidden="true"></i>
+                        <span style="font-size:smaller;">Warm Welcome On Joining!</span>
+                        @else
+                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                        <span>Anniversary</span>
+                        @endif
+                        @endif
+                    </div>
+                </div>
+                <hr>
+                @endforeach
+                @endif
             </div>
-            @endif
         </div>
+        @endif
     </div>
 </div>
+</div>
+
+<!-- Employee Of The Month Section -->
+@include('votes.index', ['winners' => $winners])
+<!-- End of Employee Of The Month Section -->
+
 <!-- Recent Sales -->
 
 <div class="row">
@@ -268,6 +274,7 @@
                             <th scope="col">Type</th>
                             <th scope="col">Status</th>
                         </tr>
+                        <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5>
                     </thead>
                     <tbody>
                         @forelse($userLeaves as $data)
@@ -289,7 +296,8 @@
                                 @endif
                                 @if (!empty($leaveStatusData))
                                 <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
-                                    {{ $leaveStatusData->first_name ?? '' }} </p>
+                                    {{ $leaveStatusData->first_name ?? '' }}
+                                </p>
                                 @endif
                             </td>
                         </tr>
@@ -358,6 +366,43 @@
         </div>
     </div>
     <div class="col-md-4 dashboard">
+        <div class="card vote-section">
+            <div class="card-body">
+                <div class="main-div">
+                    <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+                    <div class="vote" style="max-height: 300px; overflow-y: auto;">
+                        @if ($uservote->isNotEmpty())
+                        <table class="table" id="voter">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Employee Name</th>
+                                    <th scope="col">Vote</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($uservote as $user)
+                                <!-- @if($user->status == 1 && $user->role_id != 1) -->
+                                <tr>
+                                    <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                                    </td>
+                                </tr>
+                                <!-- @endif -->
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @else
+                        <p>Your vote has been recorded. Results will be announced shortly.</p>
+                        <div class="img-wrapper ">
+                            <img src="/assets/img/votingresult.png">
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -388,7 +433,8 @@
                         <p>Holiday @if ($holiday->from === $holiday->to) On
                             {{date("d-M-Y", strtotime($holiday->from));}} @else From
                             {{date("d-M-Y", strtotime($holiday->from));}} to {{date("d-M-Y", strtotime($holiday->to));}}
-                            @endif</p>
+                            @endif
+                        </p>
                     </div>
                     @endforeach
                 </div><!-- End sidebar recent posts-->
@@ -452,7 +498,7 @@
             <div class="col-md-8 dashboard">
                 <div class="card recent-sales overflow-auto">
                     <div class="filter">
-                     
+
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Assigned Devices</h5>
@@ -463,7 +509,7 @@
                                     <th scope="col">Model Name</th>
                                     <th scope="col">Serial Number</th>
                                     <th scope="col">From</th>
-                                  
+
                                     <th scope="col">Status</th>
                                 </tr>
                             </thead>
@@ -474,7 +520,7 @@
                                     <td>{{ $data->device->device_model ?? ''}}</td>
                                     <td>{{ $data->device->serial_number ?? '---'}}</td>
                                     <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                                  
+
                                     <td> @if ($data->status == 0)
                                         <span class="badge rounded-pill bg-success">Recovered</span>
                                         @else
@@ -503,11 +549,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-danger" style="display:none"></div>
                 @foreach ($showLeaves as $data)
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="col-md-2">
-                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt=""
-                            class="rounded-circle">
+                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
                     </div>
                     <div class="col-md-10 ">
                         <p><b>{{$data->first_name}} <b></p>
@@ -522,29 +568,131 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-labelledby="voteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voteModalLabel">Vote Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Employee: <span class="toVoteUserName"> </span></p>
+                <div class="form-group">
+                    <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
+                    <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
+                    <div id="reasonError" class="text-danger"></div>
+                    <div id="successMessage" class="text-success"></div>
+                    <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} " />
+                    <input type="hidden" class="form-control" id="touser" />
 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearErrorMessage()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    $('#leavesss').DataTable({
-        "order": []
+
+        $('#leavesss').DataTable({
+            "order": []
+        });
+
+        $('#devices').DataTable({
+            "order": []
+        });
+
+        $("#viewAll").click(function() {
+
+        });
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     });
 
-    $('#devices').DataTable({
-        "order": []
-    });
+    function vote(first_name, last_name, id) {
+        $(".toVoteUserName").text(first_name + ' ' + last_name);
+        $('#voteModal').modal('show');
+        $('#touser').val(id);
+        console.log(id);
+        $('#voteModal').on('hidden.bs.modal', function() {
+            $('#reason').val('');
 
-    $("#viewAll").click(function() {
 
-    });
-});
+        });
+    }
 
-function ShowLeavesModal() {
+    function submitVote() {
+        var reason = document.getElementById('reason').value.trim();
+        var charCount = reason.length; // Count the number of characters
 
-    $('#ShowLeaves').modal('show');
-}
+        var reasonError = document.getElementById('reasonError'); // Get the error message container
+
+        if (charCount < 100) {
+            reasonError.textContent = "Reason must be at least 150 characters.";
+            return;
+        } else {
+            reasonError.textContent = "";
+        }
+
+        // Clear the error message if validation passes
+        reasonError.textContent = "";
+        var fromUserId = $("#fromuser").val();
+        var toUserId = $("#touser").val();
+        console.log(toUserId);
+        var currentDate = new Date();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        var notes = $("#reason").val();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/submit-vote')}} ",
+            data: {
+                from: fromUserId,
+                to: toUserId,
+                month: month,
+                year: year,
+                notes: notes
+            },
+            success: function(response) {
+                //     if (response.success) {
+                //     $('#successMessage').text("Vote submitted successfully!");
+                //     // You can also clear the textarea or perform any other actions as needed
+                // } else
+                if (response.success) {
+                    $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
+                    $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
+                } else {
+                    $('.alert-danger').html('');
+                    $("#voteModal").modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    }
+
+    function clearErrorMessage() {
+        document.getElementById('reasonError').textContent = ""; // Clear the error message
+    }
+
+    function ShowLeavesModal() {
+
+        $('#ShowLeaves').modal('show');
+    }
 </script>
 
 @endsection
