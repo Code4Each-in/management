@@ -184,7 +184,7 @@ use App\Models\Votes;
             </div> -->
         </div>
     </div>
-    <div class="col-lg-4 dashboard" style="margin-top: 20px ">
+    <div class="col-lg-3 dashboard" style="margin-top: 20px ">
         <!-- Recent Activity -->
 
         <!-- <div class="card">

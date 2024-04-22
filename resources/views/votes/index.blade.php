@@ -3,8 +3,8 @@
 $count=count($winners); 
 @endphp 
 <div class="row mt-4">
-<h4 class="font-weight-bolder">Employee Of The Month</h4>
     @foreach ($winners as $winner)
+    <h4 class="font-weight-bolder">Employee Of The Month</h4>
     <div class="col-lg-5 mb-lg-0 mb-4">
         <div class="card mb-3 winner-card">
         <div class="header-image-right"> 
