@@ -274,7 +274,7 @@ use App\Models\Votes;
                             <th scope="col">Type</th>
                             <th scope="col">Status</th>
                         </tr>
-                        <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5>
+                        <!-- <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5> -->
                     </thead>
                     <tbody>
                         @forelse($userLeaves as $data)
