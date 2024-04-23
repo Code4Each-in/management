@@ -43,8 +43,8 @@ class Kernel extends ConsoleKernel
             } catch (\Exception $e) {
                 \Log::error('Error executing cron job: ' . $e->getMessage());
             }
-        })->everyMinute();
-        //->monthlyOn(1, '00:01');
+        })->monthlyOn(1, '00:01');
+        //->everyMinute();
     }
 
     /**
