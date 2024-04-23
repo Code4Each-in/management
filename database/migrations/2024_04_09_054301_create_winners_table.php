@@ -18,6 +18,7 @@ class CreateWinnersTable extends Migration
             $table->integer('user_id');
             $table->integer('month');
             $table->integer('year');
+            $table->integer('totalvotes');
             $table->timestamps();
         });
     }
