@@ -6,6 +6,10 @@
  <div class="row mt-4">
      <h4 class="font-weight-bolder">Employee Of The Month</h4>
      @foreach ($winners as $winner)
+     @php
+        $previousMonth = (int)date('m', strtotime('-1 month'));
+    @endphp
+    @if ($winner->month === $previousMonth)
      <div class="col-lg-5 mb-lg-0 mb-4">
          <div class="card mb-3 winner-card">
              <div class="header-image-right">
@@ -51,19 +55,27 @@
          <div class="card p-4">
              <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
                  <section class="quotes">
-                     @foreach ($winner->uservotes as $vote)
-                     <div class="bubble">
-                         <blockquote>
-                             <p>{{ $vote->notes }}</p>
-                         </blockquote>
-                         <div></div>
-                     </div>
-                     @endforeach
+                 @foreach ($winner->uservotes as $vote)
+                @php
+                $notesDate = $vote->month; 
+                $previousMonth = (int)date('m', strtotime('-1 month')); 
+                @endphp
+
+                @if ($notesDate === $previousMonth)
+                    <div class="bubble">
+                        <blockquote>
+                            <p>{{ $vote->notes }}</p>
+                        </blockquote>
+                        <div></div>
+                    </div>
+                @endif
+            @endforeach
                  </section>
 
              </div>
          </div>
      </div>
+     @endif
      @endforeach
  </div>
  @endif
