@@ -41,7 +41,7 @@
                          </div>
                          <div class="profile-info">
                              <h5 class="mb-1">{{ $winner->user->first_name }} {{ $winner->user->last_name }}</h5>
-                             <p>Total Votes: {{ $winner->totalvotes }}</p>
+                             <p>Total Votes: {{ $winner->winner_votes }}/{{$winner->totalvotes}}</p>
                          </div>
 
                          @endif

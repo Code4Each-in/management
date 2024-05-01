@@ -64,22 +64,27 @@ class Winner extends Command
         $this->info('Winner already exists for the previous month and year.');
         return;
     }
+    $totalVotes = Votes::where('month', '=', $previousMonth)
+    ->where('year', '=', $previousYear)
+    ->distinct('from')
+    ->count('from');
 
     $voteCounts = Votes::select('to')
-        ->selectRaw('COUNT(*) as total_votes')
+        ->selectRaw('COUNT(*) as winner_votes')
         ->where('month', '=', $previousMonth)
         ->where('year', '=', $previousYear)
         ->groupBy('to')
-        ->orderByDesc('total_votes')
+        ->orderByDesc('winner_votes')
         ->get();
+
     if ($voteCounts->isEmpty()) {
         $this->info('No votes found for the previous month.');
         return;
     }
 
-    $maxVotes = $voteCounts->max('total_votes');
+    $maxVotes = $voteCounts->max('winner_votes');
     $this->info($maxVotes);
-    $tieWinners = $voteCounts->where('total_votes', $maxVotes);
+    $tieWinners = $voteCounts->where('winner_votes', $maxVotes);
     $this->info($tieWinners);
     // dump($tieWinners);
     // $this->info('asdsada');
@@ -96,7 +101,8 @@ class Winner extends Command
                     'user_id' => $tieWinner->to,
                     'month' => $previousMonth,
                     'year' => $previousYear,
-                    'totalvotes' => $tieWinner->total_votes
+                    'winner_votes' => $tieWinner->winner_votes,
+                    'totalvotes'=> $totalVotes
                 ]);
             }
             $this->info('Tie between multiple users. All tied users stored as winners.');
@@ -104,11 +110,12 @@ class Winner extends Command
         }
     }
 
-    winners::create([
+    Winners::create([
         'user_id' => $winner->to,
         'month' => $previousMonth,
         'year' => $previousYear,
-        'totalvotes' => $winner->total_votes
+        'winner_votes' => $winner->winner_votes,
+        'totalvotes' => $totalVotes
     ]);
 
 }
