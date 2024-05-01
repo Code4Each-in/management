@@ -114,8 +114,12 @@ class DashboardController extends Controller
             ->orderBy('from', 'asc')
             ->limit(4)
             ->get();
+
+        //Vote part work    
         $loggedInUserId = auth()->id();
         $hasVoted = votes::where('from', $loggedInUserId)
+        ->where('month',date('m'))
+        ->where('year',date('Y'))
             ->exists();
         if ($hasVoted) {
             $uservote = collect();
@@ -130,9 +134,9 @@ class DashboardController extends Controller
 
         $winners = winners::latest()->take(2)->get(); // where condition for previous month
         // dd($winners);
+        
         // Fetch winners
         $winners = Winners::all();
-
         // Loop through winners to fetch associated user and votes
         foreach ($winners as $winner) {
             $user = Users::find($winner->user_id);
