@@ -13,5 +13,6 @@ class Winners extends Model
         'month',
         'year',
         'totalvotes',
+        'winner_votes',
     ];
 }
