@@ -44,6 +44,7 @@
                     </div>
                 </div> -->
             </form>
+            --}}
 
             <!-- Form For Filter The Range Between Two Dates In Attendance -->
             <form action="" id="intervalsFilterForm" method="get">
@@ -77,7 +78,7 @@
                         <input type="submit" class="btn btn-primary custom-search" value="Search" style="margin-top: 19px;">
                     </div>
                 </div>
-            </form> --}}
+            </form> 
 
             <div class="box-body table-responsive" style="margin-bottom: 5%">
                 <table class="table table-borderless dashboard" id="attendance">
