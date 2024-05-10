@@ -23,6 +23,7 @@ use App\Http\Controllers\JobsController;
 use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\HiringUsController;
 use App\Http\Controllers\VotesController;
+use App\Http\Controllers\TodoListController;
 
 /*
 |--------------------------------------------------------------------------
@@ -206,7 +207,6 @@ Route::middleware(['role_permission'])->group(function () {
 	// Users Routes Without Role Permission Middleware
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
 
-
 	// Tickets Routes Without Permission Middleware
 	Route::post('/ticket/assign', [TicketsController::class, 'getTicketAssign']);
 	Route::delete('/delete/ticket/', [TicketsController::class, 'deleteTicketAssign']);
@@ -235,5 +235,13 @@ Route::middleware(['role_permission'])->group(function () {
 	//For Vote
 	Route::post('/submit-vote', [VotesController::class, 'SubmitVote'])->name('submit.vote');
 
-
- });
+	// ToDo Route
+	Route::get('/todo_list', [TodoListController::class, 'index'])->name('todo_list.index');
+	Route::post('/todo_list', [TodoListController::class, 'store'])->name('todo_list.store');
+	Route::get('/todo_list/{todoList}/edit', [TodoListController::class, 'edit'])->name('todo_list.edit');
+	Route::put('/todo_list/{todoList}', [TodoListController::class, 'update'])->name('todo_list.update');
+	Route::delete('/todo_list/{todoList}', [TodoListController::class, 'destroy'])->name('todo_list.destroy');
+	Route::put('/todo_list/{todoList}/status', [TodoListController::class, 'updateStatus'])->name('todo_list.updateStatus');
+	Route::put('/todo_list/{todoList}/hold', [TodoListController::class, 'holdTask'])->name('todo_list.hold');
+	
+});

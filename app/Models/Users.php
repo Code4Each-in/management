@@ -124,4 +124,8 @@ class Users extends Authenticatable
     {
         return $this->hasMany(UserAttendance::class, 'user_id');
     }
+    public function todoLists()
+    {
+        return $this->hasMany(TodoList::class, 'user_id');
+    }
 }

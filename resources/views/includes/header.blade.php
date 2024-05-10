@@ -362,6 +362,12 @@
                 </a>
             </li>
 
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}" 
+             href="{{ route('todo_list.index') }}">
+             <i class="bi bi-journal-code"></i> <span>ToDo</span>
+            </a>
+        </li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
@@ -449,7 +455,7 @@
 
             @endif
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+        <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -478,7 +484,7 @@
             <!-- End Forms Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+        <a class="" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -497,7 +503,7 @@
             <!-- End Tables Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+        <a class="" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -521,7 +527,7 @@
             <!-- End Charts Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
+        <a class="" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -547,7 +553,7 @@
             <!-- <li class="nav-heading">Pages</li> -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="users-profile.html">
+        <a class="" href="users-profile.html">
           <i class="bi bi-person"></i>
           <span>Profile</span>
         </a>
@@ -555,7 +561,7 @@
             <!-- End Profile Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-faq.html">
+        <a class="" href="pages-faq.html">
           <i class="bi bi-question-circle"></i>
           <span>F.A.Q</span>
         </a>
@@ -563,7 +569,7 @@
             <!-- End F.A.Q Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-contact.html">
+        <a class="" href="pages-contact.html">
           <i class="bi bi-envelope"></i>
           <span>Contact</span>
         </a>
@@ -571,7 +577,7 @@
             <!-- End Contact Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="" href="pages-register.html">
           <i class="bi bi-card-list"></i>
           <span>Register</span>
         </a>
@@ -579,7 +585,7 @@
             <!-- End Register Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-login.html">
+        <a class="" href="pages-login.html">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Login</span>
         </a>
@@ -587,7 +593,7 @@
             <!-- End Login Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-error-404.html">
+        <a class="" href="pages-error-404.html">
           <i class="bi bi-dash-circle"></i>
           <span>Error 404</span>
         </a>
@@ -595,7 +601,7 @@
             <!-- End Error 404 Page Nav -->
 
             <!-- <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-blank.html">
+        <a class="" href="pages-blank.html">
           <i class="bi bi-file-earmark"></i>
           <span>Blank</span>
         </a>
