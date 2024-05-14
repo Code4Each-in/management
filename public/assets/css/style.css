@@ -1899,3 +1899,60 @@ h4.font-weight-bolder {
     font-family: "Poppins", sans-serif;
 }
 /* vote css end */
+
+input.form-control-text {
+  min-width: 0px;
+  position: relative;
+  width: 89%;
+}
+/* .d-flex.justify-content-between.align-items-end {
+  width: 1236px;
+  font-size: 25px;
+} */
+ button.btn.bg-primary.text-white.px-3 {
+  font-size: 21px;
+  padding: 7px;
+  height: 45px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  margin-left: -6px;
+  width: 11%;
+}
+/*.btn-reopen-hold {
+  margin-left: 62%;
+  position: fixed; 
+  font-size: 109px;
+  padding: 3px;
+  font-size: 24px;
+}
+button.btn.btn-warning.btn-sm.btn-hold.me-1 {
+  width: 94px;
+  margin-right: 38%;
+  margin-left: -12%;
+  font-size: 16px;
+  padding: 4px;
+}
+button.btn.btn-primary.btn-sm {
+  width: 94px;
+  margin-right: 38%;
+  margin-left: -12%;
+  font-size: 16px;
+  padding: 4px;
+} */
+button.btn.btn-warning.btn-sm.btn-hold.me-1 {
+  width: 42%;
+}
+button.btn.btn-primary.btn-sm {
+  width: 42%;
+}
+.btn-reopen-hold {
+  display: flex;
+  justify-content: space-between;
+  width: 17%;
+}
+.completed {
+  background-color: lightgreen;
+}
+.hold {
+  background-color: #ff9c59; 
+}
