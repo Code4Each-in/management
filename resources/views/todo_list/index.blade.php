@@ -12,7 +12,7 @@
                     <div class="col-md-12">
                         <div class="input-text-group mb-3">
                             <input type="text" class="form-control-text py-2" placeholder="WHAT NEEDS TO BE DONE?" name="title" id="taskTitle">
-                            <button type="button" class="btn bg-primary text-white px-3" onClick="addRole()">ADD</button>
+                            <button type="button" class="btn bg-primary text-white px-3" onClick="addRole()">Add</button>
                         </div>
                     </div>
                 </form>
@@ -31,10 +31,10 @@
                                 <div class="btn-reopen-hold">
                                     <button type="button" class="btn btn-warning btn-sm btn-hold me-1" onclick="holdTask({{ $task->id }})">Hold</button>
                                     <button type="button" class="btn btn-primary btn-sm" onclick="reopenTask({{ $task->id }})" style="display: none;">Reopen</button>
-                                </div>
-                                <div class="icon-work">
-                                    <i class="fas fa-edit text-warning cursor-pointer me-1" aria-hidden="true" onclick="editTask({{ $task->id }})"></i>
-                                    <i class="fas fa-trash-alt text-danger cursor-pointer" aria-hidden="true" onClick="confirmDelete({{ $task->id }})"></i>
+                                    <div class="icon-work">
+                                        <i class="fas fa-edit text-dark cursor-pointer me-1" aria-hidden="true" onclick="editTask({{ $task->id }})"></i>
+                                        <i class="fas fa-trash-alt text-danger cursor-pointer" aria-hidden="true" onClick="confirmDelete({{ $task->id }})"></i>
+                                    </div>
                                 </div>
                             </div>
                         </li>
@@ -51,6 +51,7 @@
 <script>
     $(document).ready(function() {
         loadTasks();
+
         function initializeTaskUI(taskItem) {
             var checkbox = taskItem.find('input[type="checkbox"]');
             var holdButton = taskItem.find('.btn-hold');
@@ -152,16 +153,16 @@
 
     });
 
-        // Function to load tasks via AJAX
-        function loadTasks() {
-            $.ajax({
-                url: "{{ route('todo_list.index') }}",
-                method: 'GET',
-                success: function(response) {
-                    $('#taskList').html(response);
-                }
-            });
-        }
+    function loadTasks() {
+        $.ajax({
+            url: "{{ route('todo_list.index') }}",
+            method: 'GET',
+            success: function(response) {
+                $('#taskList').html(response);
+            }
+        });
+    }
+
     function addRole() {
         var taskId = $('input[name="task_id"]').val();
         if (taskId) {
@@ -173,10 +174,11 @@
                 data: $('#addTaskForm').serialize(),
                 cache: false,
                 success: function(response) {
-                    // console.log(response);
                     $('#taskTitle').val('');
-                    $('.list-group').append('<li class="list-group-item" id="task_' + response.id + '"><div class="d-flex justify-content-between align-items-end"><div class="check-task"><input class="form-check-input me-1 p-2 align-sub" type="checkbox" name="task_checkbox[]" value="' + response.id + '" onchange="toggleCompleted(this)"><span>' + response.title + '</span></div><div class="btn-reopen-hold"><button type="button" class="btn btn-warning btn-sm btn-hold me-1" onclick="holdTask(' + response.id + ')">Hold</button><button type="button" class="btn btn-primary btn-sm" onclick="reopenTask(' + response.id + ')" style="display: none;">Reopen</button></div><div class="icon-work"><i class="fas fa-edit text-warning cursor-pointer me-1" aria-hidden="true" onclick="editTask(' + response.id + ')"></i><i class="fas fa-trash-alt text-danger cursor-pointer" aria-hidden="true" onClick="confirmDelete(' + response.id + ')"></i></div></div></li>');
-                    loadTasks();
+                    var taskStatusClass = response.status == 'completed' ? 'completed' : (response.status == 'hold' ? 'hold' : '');
+                    var taskItem = $('<li class="list-group-item ' + taskStatusClass + '" id="task_' + response.id + '"><div class="d-flex justify-content-between align-items-end"><div class="check-task"><input class="form-check-input me-1 p-2 align-sub" type="checkbox" name="task_checkbox[]" value="' + response.id + '" onchange="toggleCompleted(this)"><span>' + response.title + '</span></div><div class="btn-reopen-hold"><button type="button" class="btn btn-warning btn-sm btn-hold me-1" onclick="holdTask(' + response.id + ')">Hold</button><button type="button" class="btn btn-primary btn-sm" onclick="reopenTask(' + response.id + ')" style="display: none;">Reopen</button></div><div class="icon-work"><i class="fas fa-edit text-warning cursor-pointer me-1" aria-hidden="true" onclick="editTask(' + response.id + ')"></i><i class="fas fa-trash-alt text-danger cursor-pointer" aria-hidden="true" onClick="confirmDelete(' + response.id + ')"></i></div></div></li>');
+                    $('.list-group').append(taskItem);
+                    location.reload();
                 },
                 error: function(data) {
                     console.log(data);
@@ -227,43 +229,41 @@
     }
 
     function toggleCompleted(checkbox) {
-    var taskId = $(checkbox).val();
-    var taskItem = $('#task_' + taskId);
-    var taskTitle = $('#task_' + taskId + ' span');
-    var holdButton = taskItem.find('.btn-reopen-hold .btn-hold');
-    var reopenButton = taskItem.find('.btn-reopen-hold .btn-primary');
-    if ($(checkbox).is(':checked')) {
-        taskTitle.css('text-decoration', 'line-through');
-        reopenButton.show();
-        holdButton.hide();
-    } else {
-        taskTitle.css('text-decoration', 'none');
-        reopenButton.hide();
-        holdButton.show();
-    }
-
-    $.ajax({
-        type: 'PUT',
-        url: "{{ url('/todo_list')}}/" + taskId + "/status",
-        data: {
-            status: $(checkbox).is(':checked') ? 'completed' : 'open',
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            // Update UI based on response
-            taskItem.removeClass('completed');
-            if ($(checkbox).is(':checked')) {
-                taskItem.addClass('completed');
-            }
-            location.reload();
-
-        },
-        error: function(xhr, status, error) {
-            console.log("Error updating task status:", error);
+        var taskId = $(checkbox).val();
+        var taskItem = $('#task_' + taskId);
+        var taskTitle = $('#task_' + taskId + ' span');
+        var holdButton = taskItem.find('.btn-reopen-hold .btn-hold');
+        var reopenButton = taskItem.find('.btn-reopen-hold .btn-primary');
+        if ($(checkbox).is(':checked')) {
+            taskTitle.css('text-decoration', 'line-through');
+            reopenButton.show();
+            holdButton.hide();
+        } else {
+            taskTitle.css('text-decoration', 'none');
+            reopenButton.hide();
+            holdButton.show();
         }
-    });
-}
 
+        $.ajax({
+            type: 'PUT',
+            url: "{{ url('/todo_list')}}/" + taskId + "/status",
+            data: {
+                status: $(checkbox).is(':checked') ? 'completed' : 'open',
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                taskItem.removeClass('completed');
+                if ($(checkbox).is(':checked')) {
+                    taskItem.addClass('completed');
+                }
+                location.reload();
+
+            },
+            error: function(xhr, status, error) {
+                console.log("Error updating task status:", error);
+            }
+        });
+    }
 
     function confirmDelete(id) {
         if (confirm("Are you sure you want to delete this task?")) {
