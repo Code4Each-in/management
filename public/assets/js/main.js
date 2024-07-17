@@ -366,5 +366,49 @@ $(document).ready(function(){
     ]
 });
 });
+$(document).ready(function() {
+  var $slider = $('.testimonial-slider');
 
+  $slider.slick({
+      autoplay: true,
+      autoplaySpeed: 2000,
+      speed: 500,
+      draggable: true,
+      infinite: true, // Set infinite to false
+      slidesToShow: 3,
+      slidesToScroll: 1,
+      arrows: true, // Enable arrows
+      prevArrow: '<button type="button" class="slick-prev"><i class="fas fa-chevron-left"></i></button>',
+      nextArrow: '<button type="button" class="slick-next"><i class="fas fa-chevron-right"></i></button>',
+      dots: false,
+      responsive: [
+          {
+              breakpoint: 991,
+              settings: {
+                  slidesToShow: 2,
+                  slidesToScroll: 1,
+              }
+          },
+          {
+              breakpoint: 767,
+              settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+              }
+          },
+          {
+              breakpoint: 600,
+              settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+              }
+          }
+      ]
+  });
 
+  $slider.on('afterChange', function(event, slick, currentSlide){
+      if (currentSlide === slick.slideCount - slick.options.slidesToShow) {
+          $slider.slick('slickPause');
+      }
+  });
+});

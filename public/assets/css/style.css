@@ -1761,7 +1761,12 @@ span.para {
       font-family: "Poppins", sans-serif;
       font-weight: 500;
       text-align: center;
+      width: 50%;
   }
+  .quotes {
+    display: flex;
+    width: 100%;
+}
   .slick-prev:before {
       content: '←';
   }
@@ -1840,7 +1845,7 @@ img.profile-pic {
   font-size: 28px;
   font-weight: 600;
   padding: 5px 9px 0px;
-  color: #ffb552;
+  color: #fdfcfc;
   font-family: "Poppins", sans-serif;
   text-align: center;
 }
@@ -1943,7 +1948,7 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1 {
   width: 42%;
 }
 button.btn.btn-primary.btn-sm {
-  width: 42%;
+  width: 70%;
 }
 .btn-reopen-hold {
   display: flex;
@@ -1955,4 +1960,190 @@ button.btn.btn-primary.btn-sm {
 }
 .hold {
   background-color: #ff9c59; 
+}
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  /* font-family: "Poppins", sans-serif; */
+}
+
+.testimonial {
+  /* width: 100%; */
+  /* height: 100vh; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: #ffffff; */
+  color: #3d5a80;
+  margin: 0px 0px 30px;
+}
+.testimonial-slide {
+  padding: 40px 20px;
+}
+.testimonial__inner {
+  background-color: #ffffff;
+}
+.testimonial_box-top {
+  background-color: #f3ffff38;
+  padding: 30px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  /* flex-direction: row-reverse; */
+  text-align: left;
+  box-shadow: 1px 1px 5px rgb(132 132 132 / 55%);
+}
+
+.testimonial_box-icon {
+  padding: 10px 0;
+}
+
+.testimonial_box-icon i {
+  font-size: 25px;
+  color: #14213d;
+}
+
+.testimonial_box-text {
+  /* padding: 10px 20px; */
+  display: flex;
+  text-align: justify;
+  font-size: 18px;
+  color: #1e528e;
+  font-weight: 500;
+}
+
+.testimonial_box-text p {
+  margin-bottom: 20px;
+  min-height: 130px;
+}
+
+.testimonial_box-img {
+  /* padding: 6px 0 10px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.testimonial_box-img img {
+  width: 75px;
+  max-height: 75px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  overflow: hidden;
+  border: 2px solid #1e528e;
+  padding: 2px;
+}
+
+.testimonial_box-name {
+  /* padding-top: 10px; */
+}
+.image-design {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.testimonial_box-name h4 {
+  font-size: 20px;
+  line-height: 25px;
+  color: #012970;
+  margin-bottom: 0;
+  font-weight: 700;
+  line-height: 30px;
+}
+
+.testimonial_box-job p {
+  color: #293241;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  line-height: 20px;
+  font-weight: 300;
+  margin-bottom: 0;
+}
+
+
+.testimonial_box-top {
+  display: flex;
+  flex-direction: row;
+  padding: 20px 25px;
+  justify-content: left;
+  align-items: center;
+  text-align: left;
+  /* column-gap: 35px; */
+}
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial_box-inner {
+  padding: 0px 3;
+}
+.slick-prev:before, .slick-next:before {
+  font-family: 'slick';
+  font-size: 25px;
+  line-height: 1;
+  opacity: .75;
+  color: #000000;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width:767px){
+
+  .testimonial_box-text {
+      /* padding: 10px 20px; */
+      display: flex;
+      text-align: justify;
+      font-size: 15px;
+      color: #1e528e;
+      font-weight: 500;
+  }
+  .testimonial_box-name h4 {
+      font-size: 20px;
+      line-height: 25px;
+      color: #012970;
+      margin-bottom: 0;
+      font-weight: 700;
+      line-height: 30px;
+  }
+}
+@media (max-width:600px){
+
+  .testimonial_box-top {
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      justify-content: left;
+      align-items: center;
+      text-align: left;
+      column-gap: 15px;
+      row-gap: 20px;
+  }
+  
+  .testimonial_box-text {
+      /* padding: 10px 20px; */
+      display: flex;
+      text-align: justify;
+      font-size: 15px;
+      color: #1e528e;
+      font-weight: 500;
+  }
+  .testimonial_box-name h4 {
+      font-size: 20px;
+      line-height: 25px;
+      color: #012970;
+      margin-bottom: 0;
+      font-weight: 700;
+      line-height: 30px;
+  }
+  .slick-prev, .slick-next {
+      display: none !important;
+  }
+}
+.slick-prev {
+  left: -32px;
 }
