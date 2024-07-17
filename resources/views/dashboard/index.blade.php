@@ -371,7 +371,12 @@ use App\Models\Votes;
     </div>
 
     <!------Vote Section-------->
+    
     <div class="col-md-4 dashboard">
+        @php
+            $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
+            @endphp
+        @if ($last7Days)
         <div class="card vote-section">
             <div class="card-body">
                 <div class="main-div">
@@ -408,6 +413,7 @@ use App\Models\Votes;
                 </div>
             </div>
         </div>
+        @endif
          <!------ End Vote Section-------->
 
          <div class="card upcoming-events">
