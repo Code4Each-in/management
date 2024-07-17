@@ -39,9 +39,15 @@ class DashboardController extends Controller
             ->orderBy('from')->first();
         // user count For dashboard
         $userCount = Users::orderBy('id', 'desc')->where('status', 1)->get()->count();
+        
         $dayMonth = date('m-d');
         $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
             ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
+            ->where('status', 1)->get();
+
+        $dayMonthEvent = date('m');
+        $userBirthdateEvent = Users::whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
+            ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent])
             ->where('status', 1)->get();
 
         if (auth()->user()->role->name == 'Super Admin') {
@@ -128,12 +134,9 @@ class DashboardController extends Controller
                 ->whereNotIn('role_id', [1, 2, 5])
                 ->get();
         }
-
-
-        //fetch recent winners
-
-        $winners = winners::latest()->take(2)->get(); // where condition for previous month
-        // dd($winners);
+        
+        // $winners = winners::latest()->take(2)->get(); // where condition for previous month
+    
         
         // Fetch winners
         $winners = Winners::all();
@@ -144,6 +147,33 @@ class DashboardController extends Controller
             $winner->user = $user;
             $winner->uservotes = $uservotes;
         }
+        
+       
+        $userIds = $winners->pluck('user_id');
+      
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        $previousMonth = $currentMonth - 1;
+        $previousYear = $currentYear;
+        //fetch recent winners
+        // $allVotes = Votes::where('month', $previousMonth)
+        // ->where('year', $previousYear)
+        // ->whereNotIn('to', $userIds)
+        // ->orderBy('to')    
+        // ->get();
+        // foreach ($allVotes as $allVote) {
+        //     $UserId = Users::find($allVote->to);
+        //     $User_vote = Votes::where('to', $UserId->id)->get();
+        //     $allVote->UserId = $UserId;
+        //     $allVote->User_vote = $User_vote;
+        // }
+        $allVotes = Votes::where('month', $previousMonth)
+        ->where('year', $previousYear)
+        ->whereNotIn('to', $userIds)
+        ->orderBy('to')
+        ->join('users', 'votes.to', '=', 'users.id')
+        ->select('votes.*', 'users.*')
+        ->get();
 
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(
@@ -151,10 +181,12 @@ class DashboardController extends Controller
             'users',
             'userAttendancesData',
             'userBirthdate',
+            'userBirthdateEvent',
             'currentDate',
             'userLeaves',
             'showLeaves',
             'dayMonth',
+            'dayMonthEvent',
             'leaveStatus',
             'upcomingHoliday',
             'assignedDevices',
@@ -163,7 +195,8 @@ class DashboardController extends Controller
             'upcomingFourHolidays',
             'userAttendances',
             'uservote',
-            'winners'
+            'winners',
+            'allVotes'
         ));
     }
 
