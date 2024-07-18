@@ -86,18 +86,22 @@
         <div class="container">
             <div class="testimonial__inner">
                 <div class="testimonial-slider">
-                @foreach($allVotes as $vote)
+                    @foreach($allVotes as $vote)
 
-                                        <div class="testimonial-slide" style="width: 100%;display: inline-block;">
-                                            <div class="testimonial_box">
-                                                <div class="testimonial_box-inner">
-                                                    <div class="testimonial_box-top">
-                                                    
-                                                        <div class="text-wrapper">
-                                                            <div class="testimonial_box-text">
-                                                                <p>{{ $vote->notes }}</p>
+                            <div class="testimonial-slide" style="width: 100%;display: inline-block;">
+                                <div class="testimonial_box">
+                                    <div class="testimonial_box-inner">
+                                        <div class="testimonial_box-top">
+                                    
+                                            <div class="text-wrapper">
+                                                <div class="testimonial_box-text ">
+                                                    <p>{{ $vote->notes }}</p>
+                                                </div>
+                                                        <div class="image-design">
+                                                            <div class="testimonial_box-name1">
+                                                                <h4>Appreciation for:</h4>
                                                             </div>
-                                                            <div class="image-design">
+                                                            <div class="text-img">
                                                                 <div class="testimonial_box-img">
                                                                     @if($vote->profile_picture)
                                                                         <img src="{{ asset('assets/img/' . $vote->profile_picture) }}" alt="profile">
@@ -109,12 +113,27 @@
                                                                     <h4>{{ $vote->first_name }} {{ $vote->last_name }}</h4>
                                                                 </div>
                                                             </div>
-                                                        
                                                         </div>
-                                                    </div>
-                                                </div>
+                                                    
+
+                                                            
+                                                                <!-- <div class="testimonial_box-img">
+                                                                    @if($vote->profile_picture)
+                                                                        <img src="{{ asset('assets/img/' . $vote->profile_picture) }}" alt="profile">
+                                                                    @else
+                                                                        <img src="{{asset('assets/img/blankImage.jpg')}}" alt="dummy profile">
+                                                                    @endif
+                                                                </div>
+                                                                <div class="testimonial_box-name">
+                                                                    <h4>{{ $vote->first_name }} {{ $vote->last_name }}</h4>
+                                                                </div> -->
+                                                    <!-- </div> -->
+                                                        
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
                                   
                     @endforeach
 
