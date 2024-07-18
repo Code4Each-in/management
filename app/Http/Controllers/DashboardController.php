@@ -137,10 +137,16 @@ class DashboardController extends Controller
         
         // $winners = winners::latest()->take(2)->get(); // where condition for previous month
     
-        
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        $previousMonth = $currentMonth - 1;
+        $previousYear = $currentYear;
         // Fetch winners
-        $winners = Winners::all();
+        // $winners = Winners::all();
         // Loop through winners to fetch associated user and votes
+        $winners = Winners::where('month', $previousMonth)
+        ->where('year', $previousYear)
+        ->get();
         foreach ($winners as $winner) {
             $user = Users::find($winner->user_id);
             $uservotes = Votes::where('to', $user->id)->get();
@@ -151,10 +157,10 @@ class DashboardController extends Controller
        
         $userIds = $winners->pluck('user_id');
       
-        $currentMonth = date('n');
-        $currentYear = date('Y');
-        $previousMonth = $currentMonth - 1;
-        $previousYear = $currentYear;
+        // $currentMonth = date('n');
+        // $currentYear = date('Y');
+        // $previousMonth = $currentMonth - 1;
+        // $previousYear = $currentYear;
         //fetch recent winners
         // $allVotes = Votes::where('month', $previousMonth)
         // ->where('year', $previousYear)
