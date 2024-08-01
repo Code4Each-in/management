@@ -15,6 +15,7 @@ use App\Models\Winners;
 use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Relationship;
 
 class DashboardController extends Controller
 {
@@ -39,7 +40,7 @@ class DashboardController extends Controller
             ->orderBy('from')->first();
         // user count For dashboard
         $userCount = Users::orderBy('id', 'desc')->where('status', 1)->get()->count();
-        
+
         $dayMonth = date('m-d');
         $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
             ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
@@ -55,8 +56,12 @@ class DashboardController extends Controller
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_leaves.*', 'users.first_name']);
             $currentDate = date('Y-m-d'); //current date
-            $users = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get()->count();
+            $usrleaves = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+            $users = $this->getLeavesCount($usrleaves, $currentDate);
+
             $showLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+
+            $validLeaves = $this->getValidLeaves($showLeaves, $currentDate);
 
             //count of userleaves acc to current date
             $userAttendancesData = UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_attendances.*', 'users.first_name'])->count();
@@ -64,8 +69,51 @@ class DashboardController extends Controller
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_leaves.*', 'users.first_name']);
             $currentDate = date('Y-m-d'); //current date
-            $users = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get()->count();
+            $usrleaves = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+
+            $users = 0;
+            foreach ($usrleaves as $usr) {
+                if ($usr->half_day == NULL) {
+                    $users++;
+                } else {
+                    $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
+                    if ($usr->half_day == 'First Half') {
+                        if ($usrAttendances->isEmpty()) {
+                            $users++;
+                        }
+                    } else if ($usr->half_day == 'Second Half') {
+                        if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                            $users++;
+                        }
+                    }
+                }
+            }
             $showLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+
+            $validLeaves = [];
+
+            foreach ($showLeaves as $value) {
+                if ($value->half_day === NULL) {
+                    // If half_day is NULL, include this leave in the validLeaves array`
+                    $validLeaves[] = $value;
+                } else {
+                    $usrAttendances = UserAttendances::where('user_id', $value->user_id)
+                        ->whereDate('date', '=', $currentDate)
+                        ->get();
+
+                    if ($value->half_day === 'First Half') {
+                        if ($usrAttendances->isEmpty()) {
+                            // If no attendance records are found, the leave is considered valid
+                            $validLeaves[] = $value;
+                        }
+                    } elseif ($value->half_day === 'Second Half') {
+                        if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                            // If attendance exists and 'out_time' is not NULL, the leave is considered valid
+                            $validLeaves[] = $value;
+                        }
+                    }
+                }
+            }
 
             //count of userleaves acc to current date
             $userAttendancesData = UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_attendances.*', 'users.first_name'])->count();
@@ -74,9 +122,51 @@ class DashboardController extends Controller
             $userLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id', auth()->user()->id)->get(['user_leaves.*', 'managers.user_id', 'users.first_name']);
 
             $currentDate = date('Y-m-d'); //current date
-            $users = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get()->count();
+            $usrleaves = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+
+            $users = 0;
+            foreach ($usrleaves as $usr) {
+                if ($usr->half_day == NULL) {
+                    $users++;
+                } else {
+                    $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
+                    if ($usr->half_day == 'First Half') {
+                        if ($usrAttendances->isEmpty()) {
+                            $users++;
+                        }
+                    } else if ($usr->half_day == 'Second Half') {
+                        if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                            $users++;
+                        }
+                    }
+                }
+            }
             $userAttendancesData = UserAttendances::join('managers', 'user_attendances.user_id', '=', 'managers.user_id')->where('managers.parent_user_id', auth()->user()->id)->whereDate('user_attendances.created_at', '=', $currentDate)->get()->count(); //count of userAttendance acc to current date
             $showLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
+            $validLeaves = [];
+
+            foreach ($showLeaves as $value) {
+                if ($value->half_day === NULL) {
+                    // If half_day is NULL, include this leave in the validLeaves array`
+                    $validLeaves[] = $value;
+                } else {
+                    $usrAttendances = UserAttendances::where('user_id', $value->user_id)
+                        ->whereDate('date', '=', $currentDate)
+                        ->get();
+
+                    if ($value->half_day === 'First Half') {
+                        if ($usrAttendances->isEmpty()) {
+                            // If no attendance records are found, the leave is considered valid
+                            $validLeaves[] = $value;
+                        }
+                    } elseif ($value->half_day === 'Second Half') {
+                        if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                            // If attendance exists and 'out_time' is not NULL, the leave is considered valid
+                            $validLeaves[] = $value;
+                        }
+                    }
+                }
+            }
         }
         if (!empty($showLeaves)) {
             $leaveStatus = UserLeaves::join('users', 'user_leaves.status_change_by', '=', 'users.id')
@@ -124,8 +214,8 @@ class DashboardController extends Controller
         //Vote part work    
         $loggedInUserId = auth()->id();
         $hasVoted = votes::where('from', $loggedInUserId)
-        ->where('month',date('m'))
-        ->where('year',date('Y'))
+            ->where('month', date('m'))
+            ->where('year', date('Y'))
             ->exists();
         if ($hasVoted) {
             $uservote = collect();
@@ -134,9 +224,9 @@ class DashboardController extends Controller
                 ->whereNotIn('role_id', [1, 2, 5])
                 ->get();
         }
-        
+
         // $winners = winners::latest()->take(2)->get(); // where condition for previous month
-    
+
         $currentMonth = date('n');
         $currentYear = date('Y');
         $previousMonth = $currentMonth - 1;
@@ -145,18 +235,18 @@ class DashboardController extends Controller
         // $winners = Winners::all();
         // Loop through winners to fetch associated user and votes
         $winners = Winners::where('month', $previousMonth)
-        ->where('year', $previousYear)
-        ->get();
+            ->where('year', $previousYear)
+            ->get();
         foreach ($winners as $winner) {
             $user = Users::find($winner->user_id);
             $uservotes = Votes::where('to', $user->id)->get();
             $winner->user = $user;
             $winner->uservotes = $uservotes;
         }
-        
-       
+
+
         $userIds = $winners->pluck('user_id');
-      
+
         // $currentMonth = date('n');
         // $currentYear = date('Y');
         // $previousMonth = $currentMonth - 1;
@@ -174,12 +264,12 @@ class DashboardController extends Controller
         //     $allVote->User_vote = $User_vote;
         // }
         $allVotes = Votes::where('month', $previousMonth)
-        ->where('year', $previousYear)
-        ->whereNotIn('to', $userIds)
-        ->orderBy('to')
-        ->join('users', 'votes.to', '=', 'users.id')
-        ->select('votes.*', 'users.*')
-        ->get();
+            ->where('year', $previousYear)
+            ->whereNotIn('to', $userIds)
+            ->orderBy('to')
+            ->join('users', 'votes.to', '=', 'users.id')
+            ->select('votes.*', 'users.*')
+            ->get();
 
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(
@@ -191,6 +281,7 @@ class DashboardController extends Controller
             'currentDate',
             'userLeaves',
             'showLeaves',
+            'validLeaves',
             'dayMonth',
             'dayMonthEvent',
             'leaveStatus',
@@ -205,6 +296,7 @@ class DashboardController extends Controller
             'allVotes'
         ));
     }
+
 
     public function getMissingAttendance()
     {
@@ -247,15 +339,19 @@ class DashboardController extends Controller
         $count = 0;
         foreach ($activeUsers as $user) {
             $userId = $user->id;
+            $joining_date = $user->joining_date;
             $missingDates = [];
 
             foreach ($dateSeries as $date) {
                 $leave = !UserLeaves::where('user_id', $userId)->whereDate('from', '<=', $date)->whereDate('to', '>=', $date)->exists();
                 $attendance = UserAttendances::where('user_id', $userId)->whereDate('created_at', $date)->doesntExist();
                 if ($leave && $attendance) {
-                    $missingDates[] = $date->toDateString();
+                    if ($date->toDateString() >= $joining_date) {
+                        $missingDates[] = $date->toDateString();
+                    }
                 }
             }
+
             if (!empty($missingDates)) {
                 $userAttendances[] = [
                     'id' => $user->id,
@@ -264,7 +360,56 @@ class DashboardController extends Controller
                 ];
             }
         }
-
         return $userAttendances;
+    }
+
+    public function getLeavesCount($usrleaves, $currentDate)
+    {
+        $users = 0;
+        foreach ($usrleaves as $usr) {
+            if ($usr->half_day == NULL) {
+                $users++;
+            } else {
+                $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
+                if ($usr->half_day == 'First Half') {
+                    if ($usrAttendances->isEmpty()) {
+                        $users++;
+                    }
+                } else if ($usr->half_day == 'Second Half') {
+                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                        $users++;
+                    }
+                }
+            }
+        }
+        return $users;
+    }
+
+    public function getValidLeaves($showLeaves, $currentDate)
+    {
+        $validLeaves = [];
+
+        foreach ($showLeaves as $value) {
+            if ($value->half_day === NULL) {
+                // If half_day is NULL, include this leave in the validLeaves array`
+                $validLeaves[] = $value;
+            } else {
+                $usrAttendances = UserAttendances::where('user_id', $value->user_id)
+                    ->whereDate('date', '=', $currentDate)
+                    ->get();
+
+                if ($value->half_day === 'First Half') {
+                    if ($usrAttendances->isEmpty()) {
+                        // If no attendance records are found, the leave is considered valid
+                        $validLeaves[] = $value;
+                    }
+                } elseif ($value->half_day === 'Second Half') {
+                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                        // If attendance exists and 'out_time' is not NULL, the leave is considered valid
+                        $validLeaves[] = $value;
+                    }
+                }
+            }
+        }
     }
 }
