@@ -371,11 +371,11 @@ use App\Models\Votes;
     </div>
 
     <!------Vote Section-------->
-    
+
     <div class="col-md-4 dashboard">
         @php
-            $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
-            @endphp
+        $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
+        @endphp
         @if ($last7Days)
         <div class="card vote-section">
             <div class="card-body">
@@ -414,49 +414,82 @@ use App\Models\Votes;
             </div>
         </div>
         @endif
-         <!------ End Vote Section-------->
+        <!------ End Vote Section-------->
 
-         <div class="card upcoming-events">
-        <div class="card-body pb-4">
-            <h5 class="card-title"> Upcoming Events</h5>
+        <div class="card upcoming-events">
+            <div class="card-body pb-4">
+                <h5 class="card-title"> Upcoming Events</h5>
 
-            <div class="news">
-            @if ($userBirthdateEvent->isNotEmpty())
-                @foreach ($userBirthdateEvent as $user)
+                <div class="news">
+                    @php
+                    $hasUpcomingEvents = false; // Flag to track if there are upcoming events
+                    @endphp
+                    @if ($userBirthdateEvent->isNotEmpty())
+                    @foreach ($userBirthdateEvent as $user)
                     <div class="post-item clearfix">
-                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+
                         <div>
                             @php
-                                $birthMonth = date('m', strtotime($user->birth_date));
-                                $joinMonth = date('m', strtotime($user->joining_date));
-                                $currentMonth = date('m');
+                            $birthMonth = date('m', strtotime($user->birth_date));
+                            $birthDay = date('d', strtotime($user->birth_date));
+                            $joinMonth = date('m', strtotime($user->joining_date));
+                            $joinDay = date('d', strtotime($user->joining_date));
+                            $currentMonth = date('m');
+                            $currentDay = date('d');
+
+                            //Check if person completed one year or not
+                            $joiningDate = new DateTime($user->joining_date);
+                            $currentDate = new DateTime(date('Y-m-d'));
+                            $interval = $joiningDate->diff($currentDate);
+
+                            // Check if events are in the current month and in the future
+                            $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                            $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+                            $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay>$currentDay);
+                            if($interval->y>1){
+                            $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay>$currentDay);
+                            }else{
+                            $isAnniversaryUpcoming= false;
+                            }
+
+                            if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                            $hasUpcomingEvents = true; // Update the flag if any upcoming event is found
+                            }
                             @endphp
 
-                            @if ($currentMonth == $birthMonth && $currentMonth == $joinMonth)
-                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span> <span> & </span>
-                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                <span>Anniversary on {{date("d F", strtotime($user->joining_date))}} </span>
-
-                            @elseif ($currentMonth == $birthMonth)
-                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span>
-                            @elseif ($currentMonth == $joinMonth)
-                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                <span>Anniversary on {{date("d F", strtotime($user->joining_date))}}</span>
+                            @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span> <span> & </span>
+                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            <span>Anniversary on {{date("d F", strtotime($user->joining_date))}} </span>
+                            @elseif ($isBirthdayUpcoming)
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span>
+                            @elseif ($isAnniversaryUpcoming)
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            <span>Anniversary on {{date("d F", strtotime($user->joining_date))}}</span>
                             @endif
                         </div>
                     </div>
-                @endforeach
-                @else
+                    @endforeach
+                    @else
                     <div class="alert" role="alert">
                         No upcoming events found.
                     </div>
-                @endif
-            </div><!-- End sidebar recent posts-->
-        </div>
-    </div>
-
+                    @endif
+                    @if (!$hasUpcomingEvents)
+                    <div class="alert" role="alert">
+                        No upcoming events found.
+                    </div>
+                    @endif
+                </div><!-- End sidebar recent posts-->
+            </div>
+        </div><!-- End sidebar recent posts-->
+ 
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -499,7 +532,7 @@ use App\Models\Votes;
                 @endif
             </div>
         </div>
-        
+
         {{-- For Missing attendance --}}
         @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
         <div class="col-md-12 dashboard">
@@ -548,7 +581,7 @@ use App\Models\Votes;
             </div>
         </div>
         @endif
-        
+
         <!-- <div class="row">
             @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
             <div class="col-md-8 dashboard">
@@ -606,7 +639,7 @@ use App\Models\Votes;
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger" style="display:none"></div>
-                @foreach ($showLeaves as $data)
+                @foreach ($validLeaves as $data)
                 <div class="row leaveUserContainer mt-2 ">
                     <div class="col-md-2">
                         <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
@@ -690,7 +723,7 @@ use App\Models\Votes;
 
     function submitVote() {
         var reason = document.getElementById('reason').value.trim();
-        var reasonWithoutSpaces = reason.replace(/\s/g, ''); 
+        var reasonWithoutSpaces = reason.replace(/\s/g, '');
         var charCount = reasonWithoutSpaces.length;
 
         var reasonError = document.getElementById('reasonError'); // Get the error message container
