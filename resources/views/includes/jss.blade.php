@@ -1,7 +1,7 @@
 <!-- Vendor JS Files -->
 <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-<script src="//cdn.tiny.cloud/1/bshawwe20jm5ajmuno8mc98vg549y1p9ty8nqon3yl8tqwgz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="//cdn.tiny.cloud/1/n9ywsgohyoafvwzyoio20b7udizoyznt1kklnr2cnisf95q1/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
 <!-- <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/chart.js/chart.umd.js"></script>--->
