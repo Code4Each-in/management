@@ -76,19 +76,20 @@ class InternalTimesheetExtension extends Controller
         $validate = $validator->validate();
 
         if (Users::where('id', $validate['user_id'])->exists()) {
-            $inTime = UserAttendancesTemporary::where('user_id',$validate['user_id'])
-            ->whereDate('date', now()->toDateString())
+            $attendance_data = UserAttendancesTemporary::where('user_id',$validate['user_id'])
+            // ->whereDate('date', now()->toDateString())
             ->latest()
-            ->value('in_time');
+            ->first(['in_time', 'date']);
             $currentDateTime = now();
             $currentTime = $currentDateTime->format('H:i:s');
             $attendance = UserAttendances::updateOrCreate(
                 [
                     'user_id' => $validate['user_id'],
-                    'date' => $currentDateTime->toDateString(),
+                    'date' => $attendance_data->date
+                    // 'date' => $currentDateTime->toDateString(),
                 ],
                 [
-                    'in_time' => $inTime,
+                    'in_time' => $attendance_data->in_time,
                     'out_time' => $currentTime,
                     'notes' => $validate['note'],
                 ]
@@ -190,7 +191,7 @@ class InternalTimesheetExtension extends Controller
         $validate = $validator->validate();
         if (Users::where('id', $validate['user_id'])->exists()) {
             $inTime = UserAttendancesTemporary::where('user_id',$validate['user_id'])
-            ->whereDate('date', now()->toDateString())
+            // ->whereDate('date', now()->toDateString())
             ->latest()
             ->value('in_time');
             if($inTime){
