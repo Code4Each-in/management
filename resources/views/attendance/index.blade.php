@@ -107,12 +107,25 @@
                             <td>{{date("h:i A", strtotime($data->out_time));}}</td>
                             <td>
                                 @php
+                               
                                 $inTime = new DateTime($data->in_time);
                                 $outTime = new DateTime($data->out_time);
 
-                                $duration = $inTime->diff($outTime)->format('%h:%i');
+                                if ($data->out_time_date) {
+                                    $inDate = new DateTime($data->date);
+                                    $combinedInDateTime = new DateTime($inDate->format('Y-m-d') . ' ' . $inTime->format('H:i:s'));
+                                    $outTimeDate = new DateTime($data->out_time_date);
 
-                                echo $duration;
+
+                                    $duration = $inTime->diff($outTime)->format('%h:%i');
+                                    $durationT = $combinedInDateTime->diff($outTimeDate);
+                                    $formattedDuration = $durationT->format('%d days %h hours %i minutes'); // Days, Hours, Minutes
+                                    echo $formattedDuration;
+                                } else {
+                                $duration = $inTime->diff($outTime)->format('%h:%i');
+                                    echo $duration;
+                                }
+                                
                                 @endphp
                             </td>
 

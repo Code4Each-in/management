@@ -77,21 +77,25 @@ class InternalTimesheetExtension extends Controller
 
         if (Users::where('id', $validate['user_id'])->exists()) {
             $attendance_data = UserAttendancesTemporary::where('user_id',$validate['user_id'])
-            // ->whereDate('date', now()->toDateString())
+            ->whereNull('out_time_date')
             ->latest()
-            ->first(['in_time', 'date']);
+            ->first(['id', 'in_time', 'date', 'out_time_date']);
+
             $currentDateTime = now();
+            $attendance_data->update([
+                'out_time_date' => $currentDateTime,
+            ]);
             $currentTime = $currentDateTime->format('H:i:s');
             $attendance = UserAttendances::updateOrCreate(
                 [
                     'user_id' => $validate['user_id'],
                     'date' => $attendance_data->date
-                    // 'date' => $currentDateTime->toDateString(),
                 ],
                 [
                     'in_time' => $attendance_data->in_time,
                     'out_time' => $currentTime,
                     'notes' => $validate['note'],
+                    'out_time_date' => now()
                 ]
             );
 
@@ -190,20 +194,21 @@ class InternalTimesheetExtension extends Controller
         }
         $validate = $validator->validate();
         if (Users::where('id', $validate['user_id'])->exists()) {
-            $inTime = UserAttendancesTemporary::where('user_id',$validate['user_id'])
+            $attendance_data = UserAttendancesTemporary::where('user_id',$validate['user_id'])
             // ->whereDate('date', now()->toDateString())
+            // ->whereNull('out_time_date')
             ->latest()
-            ->value('in_time');
-            if($inTime){
+            ->first(['in_time', 'out_time_date']);
+            if($attendance_data && is_null($attendance_data->out_time_date)){
                     $response = [
                         'message' => "Start Time Get Successfully.",
                         'success' => true,
                         'status'  => 200,
-                        'data' => ['inTime'=> $inTime]
+                        'data' => ['inTime'=> $attendance_data->in_time]
                     ];
             }else{
                 $response = [
-                    'message' => "Error In Adding Start Time",
+                    'message' => "Error In Getting Start Time",
                 ];
             }
 

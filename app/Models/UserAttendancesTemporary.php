@@ -18,7 +18,8 @@ class UserAttendancesTemporary extends Model
     protected $fillable = [
         'user_id',
         'date',
-        'in_time'
+        'in_time',
+        'out_time_date'
     ];
 
     public function user()
