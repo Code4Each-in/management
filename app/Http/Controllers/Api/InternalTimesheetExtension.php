@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserAttendancesTemporary;
+use Carbon\Carbon;
 
 class InternalTimesheetExtension extends Controller
 {
@@ -198,14 +199,27 @@ class InternalTimesheetExtension extends Controller
             // ->whereDate('date', now()->toDateString())
             // ->whereNull('out_time_date')
             ->latest()
-            ->first(['in_time', 'out_time_date']);
+            ->first(['in_time', 'out_time_date', 'date']);
             if($attendance_data && is_null($attendance_data->out_time_date)){
-                    $response = [
-                        'message' => "Start Time Get Successfully.",
-                        'success' => true,
-                        'status'  => 200,
-                        'data' => ['inTime'=> $attendance_data->in_time]
-                    ];
+                $current_time = Carbon::now();
+                // Combine date and time fields to create Carbon instances
+                $attendance_datetime = Carbon::createFromFormat('Y-m-d H:i:s', "$attendance_data->date $attendance_data->in_time");
+                
+                // Calculate the difference
+                $diffInSeconds = $attendance_datetime->diffInSeconds($current_time);
+                
+                // Convert seconds to hours, minutes, and seconds
+                $hours = floor($diffInSeconds / 3600);
+                $minutes = floor(($diffInSeconds % 3600) / 60);
+                $seconds = $diffInSeconds % 60;
+                // Format as HH:MM:SS
+                $timeDifference = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+                $response = [
+                    'message' => "Start Time Get Successfully.",
+                    'success' => true,
+                    'status'  => 200,
+                    'data' => ['inTime'=> $attendance_data->in_time, 'timeSpend'=> $timeDifference]
+                ];
             }else{
                 $response = [
                     'message' => "Error In Getting Start Time",
