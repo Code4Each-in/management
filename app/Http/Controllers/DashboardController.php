@@ -151,8 +151,13 @@ class DashboardController extends Controller
 
         $currentMonth = date('n');
         $currentYear = date('Y');
-        $previousMonth = $currentMonth - 1;
-        $previousYear = $currentYear;
+        if ($currentMonth == 1) {
+            $previousMonth = 12; // December of the previous year
+            $previousYear = $currentYear - 1;
+        } else {
+            $previousMonth = $currentMonth - 1;
+            $previousYear = $currentYear;
+        }
         // Fetch winners
         // $winners = Winners::all();
         // Loop through winners to fetch associated user and votes
