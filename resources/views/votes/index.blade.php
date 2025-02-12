@@ -1,5 +1,82 @@
+<!-- ------------voting profile start ---------- -->
+@if(isset($winners) && isset($allVotes))
+    @php
+        // Collect winner votes
+        $winnerVotes = collect($winners)->flatMap(function ($winner) {
+            return $winner->uservotes;
+        });
+
+        // Merge all votes into a single collection
+        $mergedVotes = $winnerVotes->merge($allVotes);
+    @endphp
+ <!-- ------------Notes started ---------- -->
+    <section class="testimonial">
+        <div class="container">
+            <div class="testimonial__inner">
+                <div class="testimonial-slider">
+                    @foreach($mergedVotes as $vote)
+                        <div class="testimonial-slide" style="width: 100%; display: inline-block;">
+                            <div class="testimonial_box">
+                                <div class="testimonial_box-inner">
+                                    <div class="testimonial_box-top">
+                                        <div class="text-wrapper">
+                                            <div class="testimonial_box-text">
+                                                <p>{{ $vote->notes }}</p>
+                                            </div>
+                                            <div class="image-design">
+                                                <div class="testimonial_box-name1">
+                                                    <h4>Appreciation for:</h4>
+                                                </div>
+                                                <div class="text-img">
+                                                    <div class="testimonial_box-img">
+                                                        @if(!empty($vote->profile_picture))
+                                                            <img src="{{ asset('assets/img/' . $vote->profile_picture) }}" alt="profile">
+                                                        @else
+                                                            <img src="{{ asset('assets/img/blankImage.jpg') }}" alt="dummy profile">
+                                                        @endif
+                                                    </div>
+                                                    <div class="testimonial_box-name">
+                                                        <h4>{{ $vote->first_name ?? 'Unknown' }} {{ $vote->last_name ?? '' }}</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- ------------Notes ended ---------- -->
+@endif
+
+ <!-- ------------voting profile end ---------- -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  <!-- ------------voting profile start ---------- -->
- @php
+ <!-- @php
  $count=count($winners);
  @endphp
  @if($count > 0)
@@ -49,16 +126,16 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Notes -->
-        <div class="col-lg-7">
+        <!-- <div class="col-lg-7">
             <div class="card p-4">
                 <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
                     <section class="quotes">
                     @foreach ($winner->uservotes as $vote)
                     @php
-                    $notesDate = $vote->month; 
-                    $previousMonth = (int)date('m', strtotime('-1 month')); 
+                    $notesDate = $vote->month;
+                    $previousMonth = (int)date('m', strtotime('-1 month'));
                     @endphp
 
                     @if ($notesDate === $previousMonth)
@@ -74,14 +151,14 @@
 
                 </div>
             </div>
-        </div>
+        </div> -->
         <!----------End of Notes---------------->
-        @endif
+        <!-- @endif
         @endforeach
  </div>
  @endif
  @if(isset($allVotes))
- 
+
     <section class="testimonial">
         <div class="container">
             <div class="testimonial__inner">
@@ -92,7 +169,7 @@
                                 <div class="testimonial_box">
                                     <div class="testimonial_box-inner">
                                         <div class="testimonial_box-top">
-                                    
+
                                             <div class="text-wrapper">
                                                 <div class="testimonial_box-text ">
                                                     <p>{{ $vote->notes }}</p>
@@ -114,9 +191,9 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    
 
-                                                            
+ -->
+
                                                                 <!-- <div class="testimonial_box-img">
                                                                     @if($vote->profile_picture)
                                                                         <img src="{{ asset('assets/img/' . $vote->profile_picture) }}" alt="profile">
@@ -127,20 +204,21 @@
                                                                 <div class="testimonial_box-name">
                                                                     <h4>{{ $vote->first_name }} {{ $vote->last_name }}</h4>
                                                                 </div> -->
-                                                    <!-- </div> -->
-                                                        
+                                                    <!-- </div>
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                                  
+
                     @endforeach
 
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
         <!----------End of Notes---------------->
-@endif
+<!-- @endif -->
  <!-- ------------voting profile end ---------- -->
+
