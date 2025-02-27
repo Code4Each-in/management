@@ -133,7 +133,7 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-        //Vote part work    
+        //Vote part work
         $loggedInUserId = auth()->id();
         $hasVoted = votes::where('from', $loggedInUserId)
             ->where('month', date('m'))
@@ -161,18 +161,42 @@ class DashboardController extends Controller
         // Fetch winners
         // $winners = Winners::all();
         // Loop through winners to fetch associated user and votes
+        // $winners = Winners::where('month', $previousMonth)
+        //     ->where('year', $previousYear)
+        //     ->get();
+        // foreach ($winners as $winner) {
+        //     $user = Users::find($winner->user_id);
+        //     $uservotes = Votes::where('to', $user->id)->get();
+        //     $winner->user = $user;
+        //     $winner->uservotes = $uservotes;
+        // }
+
+
+        // $userIds = $winners->pluck('user_id');
+
+
+
         $winners = Winners::where('month', $previousMonth)
-            ->where('year', $previousYear)
+        ->where('year', $previousYear)
+        ->get();
+
+    // Attach user details and votes to winners
+    foreach ($winners as $winner) {
+        $user = Users::find($winner->user_id);
+        $uservotes = Votes::where('to', $user->id)
+            ->join('users', 'votes.to', '=', 'users.id') // Join users table to get voter details
+            ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
             ->get();
-        foreach ($winners as $winner) {
-            $user = Users::find($winner->user_id);
-            $uservotes = Votes::where('to', $user->id)->get();
-            $winner->user = $user;
-            $winner->uservotes = $uservotes;
-        }
+
+        $winner->user = $user;
+        $winner->uservotes = $uservotes; // Now includes user details
+    }
+
+    $userIds = $winners->pluck('user_id');
 
 
-        $userIds = $winners->pluck('user_id');
+
+
 
         // $currentMonth = date('n');
         // $currentYear = date('Y');
@@ -182,7 +206,7 @@ class DashboardController extends Controller
         // $allVotes = Votes::where('month', $previousMonth)
         // ->where('year', $previousYear)
         // ->whereNotIn('to', $userIds)
-        // ->orderBy('to')    
+        // ->orderBy('to')
         // ->get();
         // foreach ($allVotes as $allVote) {
         //     $UserId = Users::find($allVote->to);
@@ -190,13 +214,23 @@ class DashboardController extends Controller
         //     $allVote->UserId = $UserId;
         //     $allVote->User_vote = $User_vote;
         // }
+        // $allVotes = Votes::where('month', $previousMonth)
+        //     ->where('year', $previousYear)
+        //     ->whereNotIn('to', $userIds)
+        //     ->orderBy('to')
+        //     ->join('users', 'votes.to', '=', 'users.id')
+        //     ->select('votes.*', 'users.*')
+        //     ->get();
+
+
         $allVotes = Votes::where('month', $previousMonth)
-            ->where('year', $previousYear)
-            ->whereNotIn('to', $userIds)
-            ->orderBy('to')
-            ->join('users', 'votes.to', '=', 'users.id')
-            ->select('votes.*', 'users.*')
-            ->get();
+    ->where('year', $previousYear)
+    ->whereNotIn('to', $userIds)
+    ->orderBy('to')
+    ->join('users', 'votes.to', '=', 'users.id') // Ensure user details are included
+    ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+    ->get();
+
 
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(
