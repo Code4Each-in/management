@@ -3,33 +3,75 @@
 namespace App\Http\Controllers;
 
 use App\Models\TodoList;
+use App\Models\Users;
 use Illuminate\Http\Request;
 use Auth;
 
 class TodoListController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
-        $tasks = $user->todoLists;
+        $user = Auth::user()->load('role');
+        $selectedUserId = $request->input('team_member_filter');
 
-        return view('todo_list.index', compact('tasks'));
+        // ✅ Fetch Super Admin's own personal tasks
+        $personalTasks = TodoList::where('user_id', $user->id)->get();
+
+        if ($user->role->name === 'Super Admin') {
+            // ✅ Super Admin sees all employee tasks (excluding their own)
+            $teamTasks = TodoList::where('user_id', '!=', $user->id)->get();
+
+            // ✅ Get all users for dropdown (except the Super Admin)
+            $users = Users::where('status', 1)->where('id', '!=', $user->id)->get(['id', 'first_name']);
+        } elseif ($user->role->name === 'Manager') {
+            // ✅ Manager sees only their team's tasks
+            $users = Users::join('managers', 'users.id', '=', 'managers.user_id')
+                ->where('managers.parent_user_id', $user->id)
+                ->where('users.status', 1)
+                ->get(['users.id', 'users.first_name']);
+
+            $teamTasksQuery = TodoList::whereIn('user_id', $users->pluck('id')->toArray());
+
+            if ($selectedUserId && $users->contains('id', $selectedUserId)) {
+                $teamTasksQuery->where('user_id', $selectedUserId);
+            }
+
+            $teamTasks = $teamTasksQuery->get();
+        } else {
+            // Default for other roles (they only see their own tasks)
+            $teamTasks = collect(); // Empty collection
+            $users = collect(); // Empty collection
+        }
+
+        return view('todo_list.index', compact('personalTasks', 'teamTasks', 'users', 'selectedUserId'));
     }
+
+
+
+
+
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'assigned_user_id' => 'nullable|exists:users,id' // Allow it to be null for personal tasks
         ]);
 
-        $task = TodoList::create([
-            'title' => $request->title,
-            'user_id' => auth()->id(),
-            'status' => 'open',
-        ]);
+        $task = new TodoList();
+        $task->title = $request->input('title');
 
-        return response()->json($task);
+        // ✅ If 'assigned_user_id' is provided, assign to team member; otherwise, assign to the manager
+        $task->user_id = $request->input('assigned_user_id') ?? Auth::id();
+
+        $task->status = 'open'; // Default status
+        $task->save();
+
+        return redirect()->back()->with('success', 'Task added successfully!');
     }
+
+
+
 
     public function update(Request $request, TodoList $todoList)
     {
@@ -49,22 +91,15 @@ class TodoListController extends Controller
         $request->validate([
             'status' => 'required|string|in:open,completed,hold',
         ]);
-    
-        $status = $request->status;
-        if ($status === 'completed') {
-            $todoList->update(['completed_at' => now()]);
-        } else {
-            $todoList->update(['completed_at' => null]); 
-        }
-    
+
+        // If marked completed, set completed_at timestamp
         $todoList->update([
-            'status' => $status,
+            'status' => $request->status,
+            'completed_at' => $request->status === 'completed' ? now() : null,
         ]);
-    
+
         return response()->json(['success' => 'Task status updated successfully']);
     }
-    
-
 
     public function destroy(TodoList $todoList)
     {
@@ -72,14 +107,17 @@ class TodoListController extends Controller
         return response()->json(['success' => 'Task deleted successfully']);
     }
 
-    public function holdTask(TodoList $todoList)
-{
-    $todoList->update([
-        'status' => 'hold',
-    ]);
+    public function holdTask($id)
+    {
+        $task = TodoList::findOrFail($id);
+        $task->status = 'hold';
+        $task->save();
 
-    return response()->json(['success' => 'Task put on hold successfully', 'status' => 'hold']);
+        return response()->json(['message' => 'Task put on hold successfully!', 'task' => $task]);
+    }
+
+
+
+
 }
 
-    
-}
