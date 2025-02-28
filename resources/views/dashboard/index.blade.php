@@ -2,10 +2,10 @@
 @section('title', 'Dashboard')
 @section('subtitle', 'Dashboard')
 @section('content')
-@php
+<!-- @php
 use App\Models\Users;
 use App\Models\Votes;
-@endphp
+@endphp -->
 @if ($upcomingHoliday)
 
 <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
@@ -36,7 +36,7 @@ use App\Models\Votes;
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -109,7 +109,7 @@ use App\Models\Votes;
                         <!-- <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li> -->
-                        <!-- 
+                        <!--
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li> -->
@@ -246,9 +246,86 @@ use App\Models\Votes;
     </div>
 </div>
 
+<!-- ---------- ToDo List Started ---------------- -->
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5 class="card-title">Your Tasks</h5>
+                    <a href="/todo_list" class="btn btn-primary" style="
+    font-weight: 600;
+    font-size: 15px;
+    background-color: #4154f1;
+">View All Tasks</a>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    @if($tasks->isEmpty())
+                    <p>No tasks found.</p>
+                    @else
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>All Tasks</th>
+                                <th>Created At</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($tasks as $task)
+                            <tr>
+                                <td>{{ $task->title }}</td>
+                                <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
+                                <td>
+                                    @php
+                                    $statusClass = match($task->status) {
+                                    'open' => 'primary', // Blue
+                                    'hold' => 'warning', // Yellow
+                                    'completed' => 'success', // Green
+                                    'canceled' => 'danger', // Red
+                                    default => 'secondary' // Gray for unknown statuses
+                                    };
+
+                                    // Apply custom color only if status is not "hold"
+                                    $customColor = $task->status === 'hold' ? '' : 'background-color: #4154f1 !important;';
+                                    @endphp
+                                    <span class="badge bg-{{ $statusClass }}"
+                                        style="{{ $customColor }} border-radius: 20px;">
+                                        {{ ucfirst($task->status) }}
+                                    </span>
+                                </td>
+
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- ---------- To Do List Ended ---------------- -->
+
+
+
 <!-- Employee Of The Month Section -->
 @include('votes.index', ['winners' => $winners])
 <!-- End of Employee Of The Month Section -->
+
+
+
 
 <!-- Recent Sales -->
 
@@ -489,7 +566,7 @@ use App\Models\Votes;
                 </div><!-- End sidebar recent posts-->
             </div>
         </div><!-- End sidebar recent posts-->
- 
+
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -783,6 +860,120 @@ use App\Models\Votes;
 
         $('#ShowLeaves').modal('show');
     }
+
+
+
+    $(document).ready(function() {
+        updateTaskUI();
+
+        $('.list-group').on('click', '.btn-hold', function() {
+            let taskId = getTaskId(this);
+            holdTask(taskId);
+        });
+
+        $('.list-group').on('click', '.btn-reopen', function() {
+            let taskId = getTaskId(this);
+            reopenTask(taskId);
+        });
+
+        $('.list-group').on('change', '.task-checkbox', function() {
+            toggleCompleted(this);
+        });
+
+        function updateTaskUI() {
+            $('.list-group-item').each(function() {
+                let taskItem = $(this);
+                let status = taskItem.attr('class').split(' ').pop();
+                let checkbox = taskItem.find('.task-checkbox');
+                let holdButton = taskItem.find('.btn-hold');
+                let reopenButton = taskItem.find('.btn-reopen');
+                let editIcon = taskItem.find('.edit-task');
+                let deleteIcon = taskItem.find('.delete-task');
+
+                // Reset button visibility
+                holdButton.hide();
+                reopenButton.hide();
+                editIcon.show();
+                deleteIcon.show();
+                checkbox.prop('disabled', false);
+
+                if (status === 'pending') {
+                    holdButton.show();
+                } else if (status === 'hold') {
+                    checkbox.prop('disabled', true);
+                    reopenButton.show();
+                    editIcon.hide();
+                    deleteIcon.hide();
+                } else if (status === 'completed') {
+                    checkbox.prop('disabled', false).prop('checked', true);
+                    reopenButton.show();
+                    editIcon.hide();
+                    deleteIcon.hide();
+                }
+            });
+        }
+
+        function toggleCompleted(checkbox) {
+            let taskId = $(checkbox).val();
+            let taskItem = $('#task_' + taskId);
+            let newStatus = $(checkbox).is(':checked') ? 'completed' : 'pending';
+
+            $.ajax({
+                type: 'PUT',
+                url: "/todo_list/" + taskId + "/status",
+                data: {
+                    status: newStatus,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    taskItem.removeClass('pending completed hold').addClass(newStatus);
+                    updateTaskUI();
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error updating task status:", error);
+                }
+            });
+        }
+
+        function holdTask(taskId) {
+            $.ajax({
+                type: 'PUT',
+                url: "/todo_list/" + taskId + "/hold",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    $('#task_' + taskId).removeClass('pending').addClass('hold');
+                    updateTaskUI();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error holding task:", error);
+                }
+            });
+        }
+
+        function reopenTask(taskId) {
+            $.ajax({
+                type: 'PUT',
+                url: "/todo_list/" + taskId + "/status",
+                data: {
+                    status: 'pending',
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    $('#task_' + taskId).removeClass('completed hold').addClass('pending');
+                    updateTaskUI();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error reopening task:", error);
+                }
+            });
+        }
+
+        function getTaskId(element) {
+            return $(element).closest('.list-group-item').attr('id').split('_')[1];
+        }
+    });
 </script>
 
 @endsection
