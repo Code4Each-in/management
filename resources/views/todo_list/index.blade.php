@@ -59,7 +59,7 @@
     <div class="card">
         <div class="card-body mt-5">
             <div class="row">
-                <form id="addTaskForm" method="POST" action="{{ route('todo_list.store') }}">
+                <form id="addTaskForm2" method="POST" action="{{ route('todo_list.store') }}">
                     @csrf
                     <div class="col-md-12">
                         <div class="input-text-group mb-3" style="display: flex; align-items: center;">
@@ -92,10 +92,11 @@
                         </thead>
                         <tbody>
                             @foreach($teamTasks as $task)
-                            <tr id="task_{{ $task->id }}">
+                            <tr id="taskk_{{ $task->id }}">
                                 <td>{{ $task->title }}</td>
                                 <td>{{ $task->created_at->format('d M Y') }}</td>
-                                <td>{{ $task->assignedTo->first_name ?? 'Not Assigned' }}</td>
+                                <td data-user-id="{{ $task->assignedTo->id ?? '' }}">{{ $task->assignedTo->first_name ?? 'Not Assigned' }}</td>
+
                                 <td>
                                     <!-- <span class="badge @if($task->status == 'completed') bg-success @elseif($task->status == 'hold') bg-warning @endif"
                                         @if($task->status == 'hold') style="background-color:#ffc720 !important; border-radius:20px;" @endif>
@@ -124,8 +125,8 @@
 
 
 
-                                    <i class="fas fa-edit text-dark cursor-pointer me-1" onclick="handleEditTask({{ $task->id }})"></i>
-                                    <i class="fas fa-trash-alt text-danger cursor-pointer" onclick="handleDeleteTask({{ $task->id }})"></i>
+                                    <i class="fas fa-edit text-dark cursor-pointer me-1" onclick="handleEditTaskth({{ $task->id }})"></i>
+                                    <i class="fas fa-trash-alt text-danger cursor-pointer" onclick="handleDeleteTaskth({{ $task->id }})"></i>
                                 </td>
                             </tr>
                             @endforeach
@@ -329,113 +330,113 @@
     //     });
     // }
 
-    $('#addTaskForm').submit(function (e) {
-        e.preventDefault(); // Prevent default form submission
+//     $('#addTaskForm').submit(function (e) {
+//         e.preventDefault(); // Prevent default form submission
 
-        var taskTitle = $('#taskTitle').val();
-        var taskId = $('input[name="task_id"]').val(); // Get task_id if exists
-        var formAction = taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
-        var method = taskId ? 'PUT' : 'POST';
+//         var taskTitle = $('#taskTitle').val();
+//         var taskId = $('input[name="task_id"]').val(); // Get task_id if exists
+//         var formAction = taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
+//         var method = taskId ? 'PUT' : 'POST';
 
-        $.ajax({
-            type: method,
-            url: formAction,
-            data: {
-                title: taskTitle,
-                _token: "{{ csrf_token() }}",
-                _method: method
-            },
-            success: function (response) {
-                if (taskId) {
-                    // Update task in UI without reloading
-                    $('#task_' + taskId + ' span').text(taskTitle);
-                } else {
-                    // Append new task to list
-                    location.reload(); // Or manually append the new task
-                }
-                cancelEdit();
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
-    });
-
-
-function editTask(id) {
-    cancelEdit();
-    var taskTitle = $('#task_' + id + ' span').text();
-    $('#taskTitle1').val(taskTitle);
-    $('#addTaskForm button[type="submit"]').text('Update');
-
-    if ($('#addTaskForm input[name="task_id"]').length === 0) {
-        $('#addTaskForm').append('<input type="hidden" name="task_id" value="' + id + '">');
-    }
-}
-
-function cancelEdit() {
-    $('#taskTitle').val('');
-    $('#addTaskForm button[type="submit"]').text('Add');
-    $('#addTaskForm input[name="task_id"]').remove();
-}
+//         $.ajax({
+//             type: method,
+//             url: formAction,
+//             data: {
+//                 title: taskTitle,
+//                 _token: "{{ csrf_token() }}",
+//                 _method: method
+//             },
+//             success: function (response) {
+//                 if (taskId) {
+//                     // Update task in UI without reloading
+//                     $('#task_' + taskId + ' span').text(taskTitle);
+//                 } else {
+//                     // Append new task to list
+//                     location.reload(); // Or manually append the new task
+//                 }
+//                 cancelEdit();
+//             },
+//             error: function (error) {
+//                 console.log(error);
+//             }
+//         });
+//     });
 
 
-    function toggleCompleted(checkbox) {
-        var taskId = $(checkbox).val();
-        var taskItem = $('#task_' + taskId);
-        var taskTitle = $('#task_' + taskId + ' span');
-        var holdButton = taskItem.find('.btn-reopen-hold .btn-hold');
-        var reopenButton = taskItem.find('.btn-reopen-hold .btn-primary');
-        if ($(checkbox).is(':checked')) {
-            taskTitle.css('text-decoration', 'line-through');
-            reopenButton.show();
-            holdButton.hide();
-        } else {
-            taskTitle.css('text-decoration', 'none');
-            reopenButton.hide();
-            holdButton.show();
-        }
+// function editTask(id) {
+//     cancelEdit();
+//     var taskTitle = $('#task_' + id + ' span').text();
+//     $('#taskTitle1').val(taskTitle);
+//     $('#addTaskForm button[type="submit"]').text('Update');
 
-        $.ajax({
-            type: 'PUT',
-            url: "{{ url('/todo_list')}}/" + taskId + "/status",
-            data: {
-                status: $(checkbox).is(':checked') ? 'completed' : 'open',
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(response) {
-                taskItem.removeClass('completed');
-                if ($(checkbox).is(':checked')) {
-                    taskItem.addClass('completed');
-                }
-                location.reload();
+//     if ($('#addTaskForm input[name="task_id"]').length === 0) {
+//         $('#addTaskForm').append('<input type="hidden" name="task_id" value="' + id + '">');
+//     }
+// }
 
-            },
-            error: function(xhr, status, error) {
-                console.log("Error updating task status:", error);
-            }
-        });
-    }
+// function cancelEdit() {
+//     $('#taskTitle').val('');
+//     $('#addTaskForm button[type="submit"]').text('Add');
+//     $('#addTaskForm input[name="task_id"]').remove();
+// }
 
-    function confirmDelete(id) {
-        if (confirm("Are you sure you want to delete this task?")) {
-            deleteTask(id);
-        }
-    }
 
-    function deleteTask(id) {
-        $.ajax({
-            type: 'DELETE',
-            url: "{{ url('/todo_list')}}/" + id,
-            success: function(response) {
-                // console.log("Task deleted successfully");
-                $('#task_' + id).remove();
-            },
-            error: function(data) {
-                console.log(data);
-            }
-        });
-    }
+//     function toggleCompleted(checkbox) {
+//         var taskId = $(checkbox).val();
+//         var taskItem = $('#task_' + taskId);
+//         var taskTitle = $('#task_' + taskId + ' span');
+//         var holdButton = taskItem.find('.btn-reopen-hold .btn-hold');
+//         var reopenButton = taskItem.find('.btn-reopen-hold .btn-primary');
+//         if ($(checkbox).is(':checked')) {
+//             taskTitle.css('text-decoration', 'line-through');
+//             reopenButton.show();
+//             holdButton.hide();
+//         } else {
+//             taskTitle.css('text-decoration', 'none');
+//             reopenButton.hide();
+//             holdButton.show();
+//         }
+
+//         $.ajax({
+//             type: 'PUT',
+//             url: "{{ url('/todo_list')}}/" + taskId + "/status",
+//             data: {
+//                 status: $(checkbox).is(':checked') ? 'completed' : 'open',
+//                 _token: "{{ csrf_token() }}"
+//             },
+//             success: function(response) {
+//                 taskItem.removeClass('completed');
+//                 if ($(checkbox).is(':checked')) {
+//                     taskItem.addClass('completed');
+//                 }
+//                 location.reload();
+
+//             },
+//             error: function(xhr, status, error) {
+//                 console.log("Error updating task status:", error);
+//             }
+//         });
+//     }
+
+//     function confirmDelete(id) {
+//         if (confirm("Are you sure you want to delete this task?")) {
+//             deleteTask(id);
+//         }
+//     }
+
+//     function deleteTask(id) {
+//         $.ajax({
+//             type: 'DELETE',
+//             url: "{{ url('/todo_list')}}/" + id,
+//             success: function(response) {
+//                 // console.log("Task deleted successfully");
+//                 $('#task_' + id).remove();
+//             },
+//             error: function(data) {
+//                 console.log(data);
+//             }
+//         });
+//     }
 
     function holdTaskNew(button) {
         let btnHold = $(button);
@@ -506,99 +507,399 @@ function cancelEdit() {
     }
 
 
-    $(document).ready(function () {
-            $('#addTaskForm').submit(handleTaskFormSubmission);
+//     $(document).ready(function () {
+//             $('#addTaskForm2').submit(handleTaskFormSubmission);
+//         });
+
+//         function handleTaskFormSubmission(e) {
+//             e.preventDefault();
+
+//             var taskTitle = $('#taskTitle').val();
+//             var taskId = getTaskId();
+//             var formAction = getFormAction(taskId);
+//             var method = taskId ? 'PUT' : 'POST';
+
+//             sendTaskRequestth(method, formAction, taskTitle, taskId);
+//         }
+
+//         function getTaskId() {
+//             return $('input[name="task_id"]').val() || null;
+//         }
+
+//         function getFormAction(taskId) {
+//             return taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
+//         }
+
+//         function sendTaskRequestth(method, url, title, taskId) {
+//             $.ajax({
+//                 type: method,
+//                 url: url,
+//                 data: {
+//                     title: title,
+//                     _token: "{{ csrf_token() }}",
+//                     _method: method
+//                 },
+//                 success: function () {
+//                     updateTaskUIth(taskTitle, taskId);
+//                     cancelEdit();
+//                     location.reload();
+//                 },
+//                 error: function (error) {
+//                     console.log(error);
+//                 }
+//             });
+//         }
+
+//         function updateTaskUIth(taskTitle, taskId) {
+//     if (taskId) {
+//         $('#task_' + taskId).find('span').text(taskTitle); // Correct selection
+//     } else {
+//         location.reload(); // Or manually append the new task
+//     }
+// }
+
+//         function handleEditTaskth(id) {
+//             editTaskth(id);
+//         }
+
+//         function handleDeleteTaskth(id) {
+//             if (confirm("Are you sure you want to delete this task?")) {
+//                 $.ajax({
+//                     type: "DELETE",
+//                     url: "{{ url('/todo_list') }}/" + id,
+//                     data: {
+//                         _token: "{{ csrf_token() }}",
+//                         _method: "DELETE"
+//                     },
+//                     success: function () {
+//                         $('#task_' + id).remove();
+
+//                     },
+//                     error: function (error) {
+//                         console.log(error);
+//                     }
+//                 });
+//             }
+//         }
+
+// function editTaskth(id) {
+//     cancelEditth();
+//     var taskTitle = $('#task_' + id).find('span').text(); // Correct selection
+//     $('#taskTitle').val(taskTitle);
+//     $('#addTaskForm2 button[type="submit"]').text('Update');
+
+//     if ($('#addTaskForm2 input[name="task_id"]').length === 0) {
+//         $('#addTaskForm2').append('<input type="hidden" name="task_id" value="' + id + '">');
+
+//     }
+
+// }
+
+
+//         function cancelEditth() {
+//             $('#taskTitle').val('');
+//             $('#addTaskForm2 button[type="submit"]').text('Add');
+//             $('#addTaskForm2 input[name="task_id"]').remove();
+//         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// $(document).ready(function () {
+//     $('#addTaskForm2').submit(function (e) {
+//         e.preventDefault();
+
+//         var taskTitle = $('#taskTitle1').val();
+//         var assignedUserId = $('select[name="assigned_user_id"]').val();
+//         var taskId = $('input[name="task_id"]').val();
+//         var formAction = taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
+//         var method = taskId ? 'PUT' : 'POST';
+
+//         $.ajax({
+//             type: method,
+//             url: formAction,
+//             data: {
+//                 title: taskTitle,
+//                 assigned_user_id: assignedUserId,
+//                 _token: "{{ csrf_token() }}",
+//                 _method: method
+//             },
+//             success: function (response) {
+//                 if (taskId) {
+//                     $('#taskk_' + taskId + ' td:first').text(taskTitle);
+//                 } else {
+//                     location.reload();
+//                 }
+//                 cancelEdit();
+//             },
+//             error: function (error) {
+//                 console.log(error);
+//             }
+//         });
+//     });
+// });
+
+// function handleEditTaskth(id) {
+//     cancelEditth();
+//     var taskTitle = $('#taskk_' + id + ' td:first').text();
+//     $('#taskTitle1').val(taskTitle);
+//     $('#addTaskForm2 button[type="submit"]').text('Update');
+
+//     if ($('#addTaskForm2 input[name="task_id"]').length === 0) {
+//         $('#addTaskForm2').append('<input type="hidden" name="task_id" value="' + id + '">');
+//     }
+// }
+
+// function cancelEditth() {
+//     $('#taskTitle1').val('');
+//     $('#addTaskForm2 button[type="submit"]').text('Add');
+//     $('#addTaskForm2 input[name="task_id"]').remove();
+// }
+
+// function handleDeleteTaskth(id) {
+//     if (confirm("Are you sure you want to delete this task?")) {
+//         $.ajax({
+//             type: 'DELETE',
+//             url: "{{ url('/todo_list')}}/" + id,
+//             data: {
+//                 _token: "{{ csrf_token() }}"
+//             },
+//             success: function (response) {
+//                 $('#taskk_' + id).remove();
+//             },
+//             error: function (data) {
+//                 console.log(data);
+//             }
+//         });
+//     }
+// }
+
+// function toggleCompleted(checkbox) {
+//     var taskId = $(checkbox).val();
+//     var taskItem = $('#taskk_' + taskId);
+//     var taskTitle = $('#taskk_' + taskId + ' td:first');
+//     var holdButton = taskItem.find('.btn-hold');
+//     var reopenButton = taskItem.find('.btn-reopen');
+
+//     if ($(checkbox).is(':checked')) {
+//         taskTitle.css('text-decoration', 'line-through');
+//         reopenButton.show();
+//         holdButton.hide();
+//     } else {
+//         taskTitle.css('text-decoration', 'none');
+//         reopenButton.hide();
+//         holdButton.show();
+//     }
+
+//     $.ajax({
+//         type: 'PUT',
+//         url: "{{ url('/todo_list')}}/" + taskId + "/status",
+//         data: {
+//             status: $(checkbox).is(':checked') ? 'completed' : 'open',
+//             _token: "{{ csrf_token() }}"
+//         },
+//         success: function(response) {
+//             taskItem.toggleClass('completed', $(checkbox).is(':checked'));
+//             location.reload();
+//         },
+//         error: function(xhr, status, error) {
+//             console.log("Error updating task status:", error);
+//         }
+//     });
+// }
+
+
+$(document).ready(function () {
+    // ✅ Handle Adding and Editing Tasks (Personal & Team)
+    $('#addTaskForm, #addTaskForm2').submit(function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        var formId = $(this).attr('id'); // Identify which form is being submitted
+        var taskTitle = formId === "addTaskForm" ? $('#taskTitle').val() : $('#taskTitle1').val();
+        var assignedUserId = formId === "addTaskForm2" ? $('select[name="assigned_user_id"]').val() : null;
+        var taskId = $('input[name="task_id"]').val(); // Get task_id if exists
+        var formAction = taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
+        var method = taskId ? 'PUT' : 'POST';
+
+        var requestData = {
+            title: taskTitle,
+            _token: "{{ csrf_token() }}",
+            _method: method
+        };
+
+        if (assignedUserId) {
+            requestData.assigned_user_id = assignedUserId; // Add assigned user ID for team tasks
+        }
+
+        $.ajax({
+            type: method,
+            url: formAction,
+            data: requestData,
+            success: function (response) {
+                if (taskId) {
+                    // ✅ Update Personal Task
+                    $('#task_' + taskId + ' span').text(taskTitle);
+                    // ✅ Update Team Task
+                    $('#taskk_' + taskId + ' td:first-child').text(taskTitle);
+                } else {
+                    location.reload(); // Or manually append the new task
+                }
+                cancelEdit();
+            },
+            error: function (error) {
+                console.log(error);
+            }
         });
+    });
 
-        function handleTaskFormSubmission(e) {
-            e.preventDefault();
+    // ✅ Edit Personal Task
+    window.editTask = function (id) {
+        cancelEdit();
+        var taskTitle = $('#task_' + id + ' span').text();
+        $('#taskTitle').val(taskTitle);
+        $('#addTaskForm button[type="submit"]').text('Update');
 
-            var taskTitle = $('#taskTitle').val();
-            var taskId = getTaskId();
-            var formAction = getFormAction(taskId);
-            var method = taskId ? 'PUT' : 'POST';
-
-            sendTaskRequest(method, formAction, taskTitle, taskId);
+        if ($('#addTaskForm input[name="task_id"]').length === 0) {
+            $('#addTaskForm').append('<input type="hidden" name="task_id" value="' + id + '">');
         }
+    };
 
-        function getTaskId() {
-            return $('input[name="task_id"]').val() || null;
-        }
+    // ✅ Edit Team Task
+    // window.handleEditTaskth = function (id) {
+    //     cancelEdit();
+    //     var taskTitle = $('#taskk_' + id + ' td:first-child').text();
+    //     $('#taskTitle1').val(taskTitle);
+    //     $('#addTaskForm2 button[type="submit"]').text('Update');
 
-        function getFormAction(taskId) {
-            return taskId ? "{{ url('/todo_list') }}/" + taskId : "{{ route('todo_list.store') }}";
-        }
+    //     if ($('#addTaskForm2 input[name="task_id"]').length === 0) {
+    //         $('#addTaskForm2').append('<input type="hidden" name="task_id" value="' + id + '">');
+    //     }
+    // };
 
-        function sendTaskRequest(method, url, title, taskId) {
+
+
+    window.handleEditTaskth = function (id) {
+    cancelEdit();
+
+    // Get task details
+    var taskRow = $('#taskk_' + id);
+    var taskTitle = taskRow.find('td:first-child').text().trim();
+    var assignedUserId = taskRow.find('td:nth-child(3)').attr('data-user-id'); // Get assigned user ID from the row
+
+    // Populate task title
+    $('#taskTitle1').val(taskTitle);
+    $('#addTaskForm2 button[type="submit"]').text('Update');
+
+    // ✅ Set the correct assigned user in the dropdown
+    $('#addTaskForm2 select[name="assigned_user_id"]').val(assignedUserId);
+
+    // Add hidden task ID field if not present
+    if ($('#addTaskForm2 input[name="task_id"]').length === 0) {
+        $('#addTaskForm2').append('<input type="hidden" name="task_id" value="' + id + '">');
+    }
+
+    $('#addTaskForm2').off('submit').on('submit', function (e) {
+        e.preventDefault();
+
+        var updatedTitle = $('#taskTitle1').val();
+        var updatedAssignedUser = $('#addTaskForm2 select[name="assigned_user_id"]').val();
+        var formAction = "{{ url('/todo_list') }}/" + id;
+        var method = 'PUT';
+
+        $.ajax({
+            type: method,
+            url: formAction,
+            data: {
+                title: updatedTitle,
+                assigned_user_id: updatedAssignedUser,
+                _token: "{{ csrf_token() }}",
+                _method: method
+            },
+            success: function (response) {
+                location.reload(); // ✅ Reload page after successful edit
+            },
+            error: function (error) {
+                console.log(error);
+                alert("Error updating task.");
+            }
+        });
+    });
+};
+
+
+
+    // ✅ Cancel Edit for Both Forms
+    function cancelEdit() {
+        $('#taskTitle, #taskTitle1').val('');
+        $('#addTaskForm button[type="submit"], #addTaskForm2 button[type="submit"]').text('Add');
+        $('#addTaskForm input[name="task_id"], #addTaskForm2 input[name="task_id"]').remove();
+    }
+
+    // ✅ Delete Personal Task
+    window.confirmDelete = function (id) {
+        if (confirm("Are you sure you want to delete this personal task?")) {
             $.ajax({
-                type: method,
-                url: url,
+                type: 'DELETE',
+                url: "{{ url('/todo_list') }}/" + id,
                 data: {
-                    title: title,
-                    _token: "{{ csrf_token() }}",
-                    _method: method
+                    _token: "{{ csrf_token() }}"
                 },
-                success: function () {
-                    updateTaskUI(taskTitle, taskId);
-                    cancelEdit();
-                    location.reload();
+                success: function(response) {
+                    $('#task_' + id).remove();
+                    alert("Personal task deleted successfully!");
                 },
-                error: function (error) {
+                error: function(error) {
                     console.log(error);
+                    alert("Error deleting personal task.");
                 }
             });
         }
+    };
 
-        function updateTaskUI(taskTitle, taskId) {
-    if (taskId) {
-        $('#task_' + taskId).find('span').text(taskTitle); // Correct selection
-    } else {
-        location.reload(); // Or manually append the new task
-    }
-}
-
-        function handleEditTask(id) {
-            editTask(id);
+    // ✅ Delete Team Task
+    window.handleDeleteTaskth = function (id) {
+        if (confirm("Are you sure you want to delete this team task?")) {
+            $.ajax({
+                type: 'DELETE',
+                url: "{{ url('/todo_list') }}/" + id,
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    $('#taskk_' + id).remove();
+                    alert("Team task deleted successfully!");
+                },
+                error: function(error) {
+                    console.log(error);
+                    alert("Error deleting team task.");
+                }
+            });
         }
-
-        function handleDeleteTask(id) {
-            if (confirm("Are you sure you want to delete this task?")) {
-                $.ajax({
-                    type: "DELETE",
-                    url: "{{ url('/todo_list') }}/" + id,
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        _method: "DELETE"
-                    },
-                    success: function () {
-                        $('#task_' + id).remove();
-
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            }
-        }
-
-function editTask(id) {
-    cancelEdit();
-    var taskTitle = $('#task_' + id).find('span').text(); // Correct selection
-    $('#taskTitle').val(taskTitle);
-    $('#addTaskForm button[type="submit"]').text('Update');
-
-    if ($('#addTaskForm input[name="task_id"]').length === 0) {
-        $('#addTaskForm').append('<input type="hidden" name="task_id" value="' + id + '">');
-
-    }
-
-}
+    };
+});
 
 
-        function cancelEdit() {
-            $('#taskTitle').val('');
-            $('#addTaskForm button[type="submit"]').text('Add');
-            $('#addTaskForm input[name="task_id"]').remove();
-        }
 </script>
 @endsection
