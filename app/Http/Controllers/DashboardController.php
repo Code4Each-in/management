@@ -12,7 +12,9 @@ use App\Models\UserAttendances;
 use App\Models\Users;
 use App\Models\Votes;
 use App\Models\Winners;
+use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
+use Auth;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Relationship;
@@ -25,9 +27,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
+        $user = Auth::user();
+        $tasks = TodoList::where('user_id', Auth::id())
+        ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
+        ->get();
+        //dd($tasks->toArray());
+        // Debug output
         // Get the authenticated user
-        $user = auth()->user();
+        // $user = auth()->user();
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
@@ -176,25 +183,52 @@ class DashboardController extends Controller
 
 
 
-        $winners = Winners::where('month', $previousMonth)
-        ->where('year', $previousYear)
-        ->get();
+    //     $winners = Winners::where('month', $previousMonth)
+    //     ->where('year', $previousYear)
+    //     ->get();
 
-    // Attach user details and votes to winners
-    foreach ($winners as $winner) {
-        $user = Users::find($winner->user_id);
-        $uservotes = Votes::where('to', $user->id)
-            ->join('users', 'votes.to', '=', 'users.id') // Join users table to get voter details
-            ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
-            ->get();
+    // // Attach user details and votes to winners
+    // foreach ($winners as $winner) {
+    //     $user = Users::find($winner->user_id);
+    //     $uservotes = Votes::where('to', $user->id)
+    //         ->join('users', 'votes.to', '=', 'users.id') // Join users table to get voter details
+    //         ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+    //         ->get();
 
-        $winner->user = $user;
-        $winner->uservotes = $uservotes; // Now includes user details
-    }
+    //     $winner->user = $user;
+    //     $winner->uservotes = $uservotes; // Now includes user details
+    // }
 
-    $userIds = $winners->pluck('user_id');
+    // $userIds = $winners->pluck('user_id');
 
+    // Fetch winners from the previous month
+    $latestVote = Votes::latest('created_at')->first();
+    $latestMonth = Carbon::parse($latestVote->created_at)->month;
+    $latestYear = Carbon::parse($latestVote->created_at)->year;
+// Get winners of the latest month
+$winners = Winners::where('month', $latestMonth)
+->where('year', $latestYear)
+->get();
 
+// Collect winner user IDs
+$userIds = $winners->pluck('user_id');
+
+// Fetch **all votes of winners**
+foreach ($winners as $winner) {
+$user = Users::find($winner->user_id);
+
+// Get **all votes of the winner in the latest month**
+$winnerVotes = Votes::where('to', $user->id)
+    ->join('users', 'votes.to', '=', 'users.id') // Get voter details
+    ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+    ->whereMonth('votes.created_at', $latestMonth)
+    ->whereYear('votes.created_at', $latestYear)
+    ->orderBy('votes.created_at', 'desc')
+    ->get(); // **All votes of the winner**
+
+$winner->user = $user;
+$winner->uservotes = $winnerVotes;
+}
 
 
 
@@ -232,6 +266,10 @@ class DashboardController extends Controller
     ->get();
 
 
+    $todolist = TodoList:: where('user_id', $userId)
+    ->select(['title', 'completed_at', 'user_id', 'status', 'created_at'])
+    ->get();
+
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(
             'userCount',
@@ -254,7 +292,9 @@ class DashboardController extends Controller
             'userAttendances',
             'uservote',
             'winners',
-            'allVotes'
+            'allVotes',
+            'todolist',
+            'tasks'
         ));
     }
 

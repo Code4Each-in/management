@@ -16,4 +16,9 @@ class TodoList extends Model
         'user_id',
         'status',
     ];
+    public function assignedTo()
+    {
+        return $this->belongsTo(Users::class, 'user_id', 'id');
+    }
 }
+

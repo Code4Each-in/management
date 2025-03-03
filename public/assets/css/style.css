@@ -1805,7 +1805,7 @@ span.para {
   display: grid;
   margin: 0px auto;
   justify-content: center;
-  min-height: 400px; 
+  min-height: 400px;
   align-items: center;
 }
 .company-name{
@@ -1914,18 +1914,18 @@ input.form-control-text {
   width: 1236px;
   font-size: 25px;
 } */
- button.btn.bg-primary.text-white.px-3 {
-  font-size: 21px;
-  padding: 7px;
-  height: 45px;
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-  margin-left: -6px;
-  width: 11%;
+button.btn.bg-primary.text-white.px-3 {
+    font-size: 21px;
+    padding: 7px;
+    height: 45px;
+    /* border-bottom-left-radius: 0; */
+    /* border-top-left-radius: 0; */
+    margin-left: -6px;
+    width: 11%;
 }
 /*.btn-reopen-hold {
   margin-left: 62%;
-  position: fixed; 
+  position: fixed;
   font-size: 109px;
   padding: 3px;
   font-size: 24px;
@@ -1959,7 +1959,7 @@ button.btn.btn-primary.btn-sm {
   background-color: lightgreen;
 }
 .hold {
-  background-color: #ff9c59; 
+  background-color: #ff9c59;
 }
 
 
@@ -2133,7 +2133,7 @@ button.btn.btn-primary.btn-sm {
       column-gap: 15px;
       row-gap: 20px;
   }
-  
+
   .testimonial_box-text {
       /* / padding: 10px 20px; / */
       display: flex;
@@ -2172,3 +2172,193 @@ button.btn.btn-primary.btn-sm {
   /* margin: 0px auto; */
 }
 /* end of new slider */
+
+/* Container Styling */
+.input-text-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between elements */
+    background: #f8f9fa; /* Light background */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Field */
+input.form-control-text {
+  min-width: 0px;
+  position: relative;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 28px;
+  width: 45%;
+  /* text-transform: lowercase; */
+}
+
+.form-control-text:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Dropdown */
+.form-control {
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+    /* width: 45%; */
+    color: #757986;
+    text-transform: lowercase;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn.bg-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn.bg-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .input-text-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+/* Table Styling */
+.table-container {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background: #4154f1;
+    color: white;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Badge Styling */
+.badge {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    padding: 10px 14px;
+    min-width: 100px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+/* Buttons */
+.btn-sm {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+/* Icons */
+.fa-edit, .fa-trash-alt {
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.fa-edit:hover {
+    color: #28a745;
+    transform: scale(1.1);
+}
+
+.fa-trash-alt:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    .table-container {
+        padding: 10px;
+    }
+
+    .table th, .table td {
+        font-size: 14px;
+    }
+
+    .btn-sm {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+
+    .fa-edit, .fa-trash-alt {
+        font-size: 14px;
+    }
+}
+
+
+/* Common Button Styling */
+.btn-sm {
+    font-size: 13px;
+    padding: 8px 14px;
+    min-width: 115px;
+    text-align: center;
+    border-radius: 5px;
+}
+/* Ensure Buttons Align Properly */
+.btn-hold, .btn-reopen {
+display: inline-block;
+width: 90px; /* Same width for all buttons */
+height: 35px; /* Fixed height */
+}
+.table thead th {
+    border: 0 !important;
+    width: 20%;
+}
+button.btn.btn-primary.btn-sm.btn-reopen {
+    width: auto;
+}
+button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
+    width: auto;
+
+}
+
+.table tbody  td {
+    font-size: 15px;
+}
+
+
+.input-text-group button.btn.bg-primary.text-white.px-3 {
+    font-size: 15px;
+    padding: 12px 15px;
+    height: auto;
+}

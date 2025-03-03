@@ -1,6 +1,6 @@
 @if(isset($winners) && isset($allVotes))
     @php
-        // Collect winner votes and ensure user details are included
+        // Collect **all votes of winners**
         $winnerVotes = collect($winners)->flatMap(function ($winner) {
             return $winner->uservotes->map(function ($vote) {
                 return (object) [
@@ -12,7 +12,7 @@
             });
         });
 
-        // Merge all votes into a single collection
+        // Merge **winner votes and other votes**
         $mergedVotes = $winnerVotes->merge($allVotes);
     @endphp
 
