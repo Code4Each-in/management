@@ -14,23 +14,31 @@ class TodoListController extends Controller
         $user = Auth::user()->load('role');
         $selectedUserId = $request->input('team_member_filter');
 
-        // ✅ Fetch Super Admin's own personal tasks
-        $personalTasks = TodoList::where('user_id', $user->id)->get();
+        // ✅ Fetch Super Admin's or Manager's own personal tasks (ordered by latest)
+        $personalTasks = TodoList::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         if ($user->role->name === 'Super Admin') {
-            // ✅ Super Admin sees all employee tasks (excluding their own)
-            $teamTasks = TodoList::where('user_id', '!=', $user->id)->get();
+            // ✅ Super Admin sees all employee tasks (excluding their own) ordered by latest
+            $teamTasks = TodoList::where('user_id', '!=', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             // ✅ Get all users for dropdown (except the Super Admin)
-            $users = Users::where('status', 1)->where('id', '!=', $user->id)->get(['id', 'first_name']);
+            $users = Users::where('status', 1)
+                ->where('id', '!=', $user->id)
+                ->get(['id', 'first_name']);
         } elseif ($user->role->name === 'Manager') {
-            // ✅ Manager sees only their team's tasks
+            // ✅ Get team members under the Manager
             $users = Users::join('managers', 'users.id', '=', 'managers.user_id')
                 ->where('managers.parent_user_id', $user->id)
                 ->where('users.status', 1)
                 ->get(['users.id', 'users.first_name']);
 
-            $teamTasksQuery = TodoList::whereIn('user_id', $users->pluck('id')->toArray());
+            // ✅ Fetch team tasks ordered by latest
+            $teamTasksQuery = TodoList::whereIn('user_id', $users->pluck('id')->toArray())
+                ->orderBy('created_at', 'desc');
 
             if ($selectedUserId && $users->contains('id', $selectedUserId)) {
                 $teamTasksQuery->where('user_id', $selectedUserId);
@@ -45,6 +53,7 @@ class TodoListController extends Controller
 
         return view('todo_list.index', compact('personalTasks', 'teamTasks', 'users', 'selectedUserId'));
     }
+
 
 
 
