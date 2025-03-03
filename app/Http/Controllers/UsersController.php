@@ -308,34 +308,53 @@ class UsersController extends Controller
 	}
 
 	// UPDATE LOGIN USER PROFILE
-	public function updateProfile(Request $request){
-		$validator = \Validator::make($request->all(), [
-			// 'first_name' =>'required',
-			// 'last_name' =>'required',
-			// 'email' =>'required',
-			// 'phone'=>'required',
-			// 'joining_date'=>'required',
-			// 'birth_date'=>'required',
-			// 'address'=>'required',
-			// 'city'=>'required',
-			// 'state'=>'required',
-			// 'zip'=>'required',
-			'tshirt_size' => 'nullable',
-			'skills' => 'nullable',
-		]);
-		// dd($request->tshirt_size);
-		if ($validator->fails())
-		{
-			return response()->json(['errors'=>$validator->errors()->all()]);
-		}
-		$validate = $validator->valid();
-		Users::where('id',$request->user_id)
-			->update([
-			'skills' => $validate['skills'],
-			'tshirt_size' => $validate['tshirt_size'],
-		]);
-		return Response()->json(['status'=>200, 'message' => 'Your Profile updated successfully.', 'user_profile_data'=>$validate]);
-	}
+    public function updateProfile(Request $request) {
+        $validator = \Validator::make($request->all(), [
+            'tshirt_size' => 'nullable|string|max:10',
+            'skills' => 'nullable|string',
+            'emergency_name' => 'required|nullable|string|max:255',
+            'emergency_relation' => 'required|nullable|string|max:255',
+            'emergency_phone' => 'required|nullable|string|max:20',
+            'emergency_name_secondary' => 'nullable|string|max:255',
+            'emergency_relation_secondary' => 'nullable|string|max:255',
+            'emergency_phone_secondary' => 'nullable|string|max:20',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()]);
+        }
+
+        $validatedData = $validator->validated();
+
+        // Debugging: Check incoming request data
+        \Log::info('Update Profile Data: ', $validatedData); // Logs the request
+
+        $user = Users::where('id', $request->user_id)->first();
+
+        if (!$user) {
+            return response()->json(['status' => 404, 'message' => 'User not found']);
+        }
+
+        $user->update([
+            'skills' => $validatedData['skills'] ?? null,
+            'tshirt_size' => $validatedData['tshirt_size'] ?? null,
+            'emergency_name' => $validatedData['emergency_name'] ?? null,
+            'emergency_relation' => $validatedData['emergency_relation'] ?? null,
+            'emergency_phone' => $validatedData['emergency_phone'] ?? null,
+            'emergency_name_secondary' => $validatedData['emergency_name_secondary'] ?? null,
+            'emergency_relation_secondary' => $validatedData['emergency_relation_secondary'] ?? null,
+            'emergency_phone_secondary' => $validatedData['emergency_phone_secondary'] ?? null,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Your profile updated successfully!',
+            'user_profile_data' => $validatedData
+        ]);
+    }
+
+
+
 	// UPDATE PROFILE PICTURE OF LOGIN USER
 	public function updateProfilePicture(Request $request){
 		$validator = \Validator::make($request->all(), [
@@ -506,4 +525,28 @@ class UsersController extends Controller
 
 		return Response()->json(['status'=>200 ,'documents' => $document]);
 	}
+public function updateEmergencyContact(Request $request)
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+    }
+
+    $request->validate([
+        'emergency_name' => 'nullable|string|max:255',
+        'emergency_relation' => 'nullable|string|max:255',
+        'emergency_phone' => 'nullable|string|max:20',
+    ]);
+
+    $user->update([
+        'emergency_name' => $request->emergency_name,
+        'emergency_relation' => $request->emergency_relation,
+        'emergency_phone' => $request->emergency_phone,
+    ]);
+
+    return response()->json(['success' => true, 'message' => 'Emergency contact updated successfully!']);
+}
+
+
 }

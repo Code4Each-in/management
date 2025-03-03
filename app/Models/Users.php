@@ -36,7 +36,13 @@ class Users extends Authenticatable
 		'zip',
 		'role_id',
 		'department_id',
-		'status'
+		'status',
+        'emergency_name',
+        'emergency_relation',
+        'emergency_phone',
+        'emergency_name_secondary',
+        'emergency_relation_secondary',
+        'emergency_phone_secondary',
     ];
 
     /**
@@ -56,7 +62,7 @@ class Users extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-		
+
 		/**
 	 * Always encrypt the password when it is updated.
 	 *
@@ -67,12 +73,12 @@ class Users extends Authenticatable
 	{
 	   $this->attributes['password'] = Hash::make($value);
 	}
-	
+
 	public function role()
     {
         return $this->belongsTo(Roles::class, 'role_id');
     }
-	
+
 	public function department()
     {
         return $this->belongsTo(Departments::class, 'department_id');
@@ -88,11 +94,11 @@ class Users extends Authenticatable
     //     // dd($this->permissions()->where('role_id', $permission->id)->exists());
     //     return $this->permissions()->where('role_id', $permission->id)->exists();
     // }
-   
+
     // public function hasRole($role)
     // {
     //     // Logic to check if the user has the specified role
-    //     return $this->role()->where('name', $role->name)->exists();   
+    //     return $this->role()->where('name', $role->name)->exists();
     // }
 
 
@@ -100,12 +106,12 @@ class Users extends Authenticatable
     public function isAdmin()
     {
         if($this->role_id === 1)
-        { 
-            return true; 
-        } 
-        else 
-        { 
-            return false; 
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -119,7 +125,7 @@ class Users extends Authenticatable
     {
         return $this->hasMany(AssignedDevices::class);
     }
-    
+
     public function userAttendances()
     {
         return $this->hasMany(UserAttendance::class, 'user_id');
