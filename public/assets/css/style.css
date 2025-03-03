@@ -2213,7 +2213,7 @@ input.form-control-text {
     transition: border-color 0.3s ease-in-out;
     /* width: 45%; */
     color: #757986;
-    text-transform: lowercase;
+    /* text-transform: lowercase; */
 }
 
 .form-control:focus {

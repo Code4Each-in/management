@@ -30,7 +30,9 @@ class DashboardController extends Controller
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
         ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
+        ->orderBy('created_at', 'desc') // Sorting in descending order
         ->get();
+
         //dd($tasks->toArray());
         // Debug output
         // Get the authenticated user
