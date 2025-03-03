@@ -2260,8 +2260,8 @@ input.form-control-text {
 }
 
 .table th {
-    background: #4154f1;
-    color: white;
+    background: #f6f6fe;
+    color: #000;
     text-align: left;
     vertical-align: middle;
 }
@@ -2361,4 +2361,10 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     font-size: 15px;
     padding: 12px 15px;
     height: auto;
+}
+.teamstasks th {
+    background: #4154f1;
+    color: white;
+    text-align: left;
+    vertical-align: middle;
 }

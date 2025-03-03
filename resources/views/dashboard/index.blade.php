@@ -266,7 +266,7 @@ use App\Models\Votes;
                     @if($tasks->isEmpty())
                     <p>No tasks found.</p>
                     @else
-                    <table class="table table-bordered">
+                    <table class="table table-bordered teamstasks">
                         <thead class="table-light">
                             <tr>
                                 <th>All Tasks</th>
@@ -558,11 +558,11 @@ use App\Models\Votes;
                         No upcoming events found.
                     </div>
                     @endif
-                    @if (!$hasUpcomingEvents)
+                    <!-- @if (!$hasUpcomingEvents)
                     <div class="alert" role="alert">
                         No upcoming events found.
                     </div>
-                    @endif
+                    @endif -->
                 </div><!-- End sidebar recent posts-->
             </div>
         </div><!-- End sidebar recent posts-->
