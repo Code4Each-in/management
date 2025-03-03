@@ -525,28 +525,6 @@ class UsersController extends Controller
 
 		return Response()->json(['status'=>200 ,'documents' => $document]);
 	}
-public function updateEmergencyContact(Request $request)
-{
-    $user = Auth::user();
-
-    if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-    }
-
-    $request->validate([
-        'emergency_name' => 'nullable|string|max:255',
-        'emergency_relation' => 'nullable|string|max:255',
-        'emergency_phone' => 'nullable|string|max:20',
-    ]);
-
-    $user->update([
-        'emergency_name' => $request->emergency_name,
-        'emergency_relation' => $request->emergency_relation,
-        'emergency_phone' => $request->emergency_phone,
-    ]);
-
-    return response()->json(['success' => true, 'message' => 'Emergency contact updated successfully!']);
-}
 
 
 }
