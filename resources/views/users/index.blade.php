@@ -12,12 +12,12 @@
                 <div class="row mt-3 mx-auto">
                     <div class="col-md-6 filtersContainer d-flex p-0">
                         <div style="margin-right:20px;">
-                            
+
                             <input type="checkbox" class="form-check-input" name="all_users" id="all_users"
-                                {{ $allUsersFilter == 'on' ? 'checked' : '' }}>  
-                                <label for="all_users">All Users</label>
+                                {{ $allUsersFilter == 'on' ? 'checked' : '' }}>
+                            <label for="all_users">All Users</label>
                         </div>
-                        
+
                     </div>
                 </div>
             </form>
@@ -39,8 +39,8 @@
                                 <th>Address</th>
                                 <th>Phone</th>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
-                                    <th>Documents</th>
-                                    <th>Leaves</th>
+                                <th>Documents</th>
+                                <th>Leaves</th>
                                 @endif
                                 <th>Tshirt Size</th>
                                 <th>Active</th>
@@ -60,69 +60,74 @@
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
-                                    <td>
-                                        @if (count($data->documents) > 0)
-                                        <a href="{{ route('users.documents.show',$data->id)}}" >Show Documents</a>
-                                        @else
-                                        <p>No Documents</p>
-                                        @endif
-                                    
-                                    </td>
-                                    <td>
+                                <td>
+                                    @if (count($data->documents) > 0)
+                                    <a href="{{ route('users.documents.show',$data->id)}}">Show Documents</a>
+                                    @else
+                                    <p>No Documents</p>
+                                    @endif
+
+                                </td>
+                                <td>
                                     @php
-                                        // Calculate the total leaves count for a specific user (data->id)
-                                        $totalLeavesCount = $totalLeaves->where('id', $data->id)->sum('leaves_count');
+                                    // Calculate the total leaves count for a specific user (data->id)
+                                    $totalLeavesCount = $totalLeaves->where('id', $data->id)->sum('leaves_count');
 
-                                        // Calculate the approved leaves count for the same user (data->id)
-                                        $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
+                                    // Calculate the approved leaves count for the same user (data->id)
+                                    $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
 
-                                        $joiningDate = $data->joining_date;
-                                        // Calculate the date 3 months ago from the current date
-                                         $threeMonthsAgo = now()->subMonths(3);
+                                    $joiningDate = $data->joining_date;
+                                    // Calculate the date 3 months ago from the current date
+                                    $threeMonthsAgo = now()->subMonths(3);
 
-                                    @endphp               
+                                    @endphp
                                     @if ($joiningDate >= $threeMonthsAgo)
                                     @if ($approvedLeavesCount > 0)
-                                            <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
-                                        @else
-                                            <span title="Your leaves">{{$approvedLeavesCount}}</span>
-                                        @endif
+                                    <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
                                     @else
-                                        @if ($approvedLeavesCount > $totalLeavesCount)
-                                            <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
-                                        @else
-                                            <span title="Your leaves">{{$approvedLeavesCount}}</span>
-                                        @endif
+                                    <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                    @endif
+                                    @else
+                                    @if ($approvedLeavesCount > $totalLeavesCount)
+                                    <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
+                                    @else
+                                    <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                    @endif
                                     @endif
                                     / @if ($joiningDate < $threeMonthsAgo)
                                         <span title="Total Leaves">{{$totalLeavesCount}}</span>
-                                    @else
+                                        @else
                                         <span title="Total Leaves">0</span>
-                                    @endif
+                                        @endif
                                 </td>
                                 @endif
                                 <td>{{ $data->tshirt_size ?? '---' }}</td>
                                 <td>
                                     <div class="form-group form-check active_user">
-                                    @if ($data->assignedDevices > 0)
-                                    <input type="checkbox" onClick="ShowDeviceRecoveryMessage(this)" data-user-id="{{ $data->id }}"
-                                        class="form-check-input" id="{{ 'active_user_'.$data->id }}"
-                                        {{ $data->status == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="{{ 'active_user_'.$data->id }}"></label>
+                                        @if ($data->assignedDevices > 0)
+                                        <input type="checkbox" onClick="ShowDeviceRecoveryMessage(this)" data-user-id="{{ $data->id }}"
+                                            class="form-check-input" id="{{ 'active_user_'.$data->id }}"
+                                            {{ $data->status == 1 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="{{ 'active_user_'.$data->id }}"></label>
                                         @else
                                         <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
                                             class="form-check-input" id="{{'active_user_'.$data->id}}"
                                             {{$data->status == 1 ? 'checked' : ''}}>
                                         <label class="form-check-label" for="active_user"></label>
-                                    @endif
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
-                                    <i style="color:#4154f1;" onClick="editUsers('{{ $data->id }}')"
-                                        href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
+                                    <div class="active_user_data">
+                                        <a href="{{ route('users.single', ['id' => $data->id]) }}" title="View User Details" style="padding-right: 11px; ">
+                                            <i class="fa-solid fa-eye" style="color:#4154f1; margin-left: 10px; cursor: pointer;"></i>
+                                        </a>
+                                        <i style="color:#4154f1;padding-right: 25px;" onClick="editUsers('{{ $data->id }}')"
+                                            href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
-                                    <i style="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')"
-                                        href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        <i style="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')"
+                                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
@@ -225,7 +230,7 @@
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="employee_id" id="employee_id">
                         </div>
-                    </div>    
+                    </div>
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
                         <div class="col-sm-9">
@@ -377,11 +382,11 @@
 
                     </div>
 
-                     <div class="row mb-3">
+                    <div class="row mb-3">
                         <label for="salaried" class="col-sm-3 col-form-label">If salaried</label>
                         <div class="col-sm-2 mt-1">
                             <input type="checkbox" class="form-check-input" name="edit_salaried" id="edit_salaried">
-                        </div> 
+                        </div>
                         <div class="col-sm-7">
                             <div style="display:none;" class="input-group edit_salary">
                                 <span class="input-group-text"></span>
@@ -389,14 +394,14 @@
                                 <span class="input-group-text">.00</span>
                             </div>
                         </div>
-                    </div> 
+                    </div>
 
                     <div class="row mb-3 mt-2">
                         <label for="edit_employee_id" class="col-sm-3 col-form-label required">Employee Id</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="edit_employee_id" id="edit_employee_id">
                         </div>
-                    </div>  
+                    </div>
 
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Role</label>
@@ -473,210 +478,210 @@
 @endsection
 @section('js_scripts')
 <script>
-$(document).ready(function() {
-    setTimeout(function() {
-        $('.message').fadeOut("slow");
-    }, 2000);
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.message').fadeOut("slow");
+        }, 2000);
 
 
-    $('#users_table').DataTable({
-        "order": []
+        $('#users_table').DataTable({
+            "order": []
 
+        });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $('#salaried').on('click', function(e) {
+            if (e.target.checked == true) {
+
+                $('.addsalary').show();
+            } else {
+                $('.addsalary').hide();
+                $('addsalary').val('');
+            }
+        });
+        $('#edit_salaried').on('click', function(e) {
+            if (e.target.checked == true) {
+
+                $('.edit_salary').show();
+            } else {
+                $('.edit_salary').hide();
+                $('.edit_salary').val('');
+            }
+        });
+
+        $('#addUsersForm').submit(function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('/add/users')}}",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: (data) => {
+                    if (data.errors) {
+                        $('.alert-danger').html('');
+                        $.each(data.errors, function(key, value) {
+                            $('.alert-danger').show();
+                            $('.alert-danger').append('<li>' + value + '</li>');
+                        })
+                    } else {
+                        $('.alert-danger').html('');
+                        $("#addUsers").modal('hide');
+                        location.reload();
+                    }
+                },
+                error: function(data) {}
+            });
+
+        });
+
+        $('#editUsersForm').submit(function(event) {
+
+            event.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ url('/update/users') }}",
+                data: formData,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    if (res.errors) {
+                        $('.alert-danger').html('');
+                        $.each(res.errors, function(key, value) {
+                            $('.alert-danger').show();
+                            $('.alert-danger').append('<li>' + value + '</li>');
+                        })
+                    } else {
+                        $('.alert-danger').html('');
+                        $("#editUsers").modal('hide');
+                        location.reload();
+                    }
+                }
+            });
+        });
     });
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+
+    function Showdata(ele) {
+        var dataId = $(ele).attr("data-user-id");
+
+        var status = 0;
+        if ($("#active_user_" + dataId).prop('checked') == true) {
+            status = 1;
         }
-    });
-
-    $('#salaried').on('click', function(e) {
-        if (e.target.checked == true) {
-
-            $('.addsalary').show();
-        } else {
-            $('.addsalary').hide();
-            $('addsalary').val('');
-        }
-    });
-    $('#edit_salaried').on('click', function(e) {
-        if (e.target.checked == true) {
-
-            $('.edit_salary').show();
-        } else {
-            $('.edit_salary').hide();
-            $('.edit_salary').val('');
-        }
-    });
-
-    $('#addUsersForm').submit(function(event) {
-        event.preventDefault();
-        var formData = new FormData(this);
         $.ajax({
             type: 'POST',
-            url: "{{ url('/add/users')}}",
-            data: formData,
+            url: "{{ url('/update/users/status')}}",
+            data: {
+                dataId: dataId,
+                status: status,
+            },
             cache: false,
-            processData: false,
-            contentType: false,
             success: (data) => {
-                if (data.errors) {
-                    $('.alert-danger').html('');
-                    $.each(data.errors, function(key, value) {
-                        $('.alert-danger').show();
-                        $('.alert-danger').append('<li>' + value + '</li>');
-                    })
-                } else {
-                    $('.alert-danger').html('');
-                    $("#addUsers").modal('hide');
+                if (data.status == 200) {
                     location.reload();
                 }
             },
             error: function(data) {}
         });
 
-    });
+    }
 
-    $('#editUsersForm').submit(function(event) {
+    function openusersModal() {
+        $('.alert-danger').html('');
+        $('#first_name').val('');
+        $('#addUsers').modal('show');
+    }
 
-        event.preventDefault();
-        var formData = new FormData(this);
+    function editUsers(id) {
+        $('.alert-danger').html('');
+        $('#users_id').val(id);
         $.ajax({
             type: "POST",
-            url: "{{ url('/update/users') }}",
-            data: formData,
+            url: "{{ url('/edit/users') }}",
+            data: {
+                id: id
+            },
             dataType: 'json',
-            processData: false,
-            contentType: false,
-            success: function(res) {
-                if (res.errors) {
-                    $('.alert-danger').html('');
-                    $.each(res.errors, function(key, value) {
-                        $('.alert-danger').show();
-                        $('.alert-danger').append('<li>' + value + '</li>');
+            success: (res) => {
+                if (res.users != null) {
+                    $('#editUsers').modal('show');
+                    $('#edit_username').val(res.users.first_name);
+                    $('#edit_lastname').val(res.users.last_name);
+                    $('#edit_email').val(res.users.email);
+                    // $('#edit_password').val(res.users.edit_password);
+                    $('#edit_phone').val(res.users.phone);
+                    $('#edit_joining_date').val(res.users.joining_date);
+                    var Profile = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
+                    $("#profile").html(
+                        '<img src="{{asset("assets/img")}}/' + res.users.profile_picture +
+                        '" width = "100" class = "img-fluid img-thumbnail" > '
+                    );
+                    $('#edit_birthdate').val(res.users.birth_date);
+                    if (res.users.salary != null) {
+                        $("#edit_salaried").prop('checked', true);
+                        $('.edit_salary').show();
+                        $('#edit_salary').val(res.users.salary);
+                    }
+                    $('#edit_employee_id').val(res.users.employee_id);
+                    $('#edit_address').val(res.users.address);
+                    $('#edit_city').val(res.users.city);
+                    $('#edit_state').val(res.users.state);
+                    $('#edit_zip').val(res.users.zip);
+
+                    $('#edit_password').val('');
+                    $('#role_select option[value="' + res.users.role_id + '"]').attr('selected', 'selected');
+                    $('#department_select option[value="' + res.users.department_id + '"]').attr('selected',
+                        'selected');
+                }
+                $('#edit_manager_select').find('option').remove();
+                if (res.managerSelectOptions != null) {
+                    $.each(res.managerSelectOptions, function(key, value) {
+                        $('#edit_manager_select').append('<option value="' + value.id + '">' + value
+                            .first_name + " " + value.last_name + '</option>');
+                    });
+                }
+                if (res.Managers != null) {
+                    $.each(res.Managers, function(key, value) {
+                        $('#edit_manager_select option[value="' + value.parent_user_id + '"]').attr(
+                            'selected', 'selected');
                     })
-                } else {
-                    $('.alert-danger').html('');
-                    $("#editUsers").modal('hide');
-                    location.reload();
                 }
             }
         });
-    });
-});
-
-function Showdata(ele) {
-    var dataId = $(ele).attr("data-user-id");
-
-    var status = 0;
-    if ($("#active_user_" + dataId).prop('checked') == true) {
-        status = 1;
     }
-    $.ajax({
-        type: 'POST',
-        url: "{{ url('/update/users/status')}}",
-        data: {
-            dataId: dataId,
-            status: status,
-        },
-        cache: false,
-        success: (data) => {
-            if (data.status == 200) {
-                location.reload();
-            }
-        },
-        error: function(data) {}
-    });
 
-}
-
-function openusersModal() {
-    $('.alert-danger').html('');
-    $('#first_name').val('');
-    $('#addUsers').modal('show');
-}
-
-function editUsers(id) {
-    $('.alert-danger').html('');
-    $('#users_id').val(id);
-    $.ajax({
-        type: "POST",
-        url: "{{ url('/edit/users') }}",
-        data: {
-            id: id
-        },
-        dataType: 'json',
-        success: (res) => {
-            if (res.users != null) {
-                $('#editUsers').modal('show');
-                $('#edit_username').val(res.users.first_name);
-                $('#edit_lastname').val(res.users.last_name);
-                $('#edit_email').val(res.users.email);
-                // $('#edit_password').val(res.users.edit_password);
-                $('#edit_phone').val(res.users.phone);
-                $('#edit_joining_date').val(res.users.joining_date);
-                var Profile = "http://127.0.0.1:8000/public/assets/img/" + res.users.profile_picture;
-                $("#profile").html(
-                    '<img src="{{asset("assets/img")}}/' + res.users.profile_picture +
-                    '" width = "100" class = "img-fluid img-thumbnail" > '
-                );
-                $('#edit_birthdate').val(res.users.birth_date);
-                if (res.users.salary != null) {
-                    $("#edit_salaried").prop('checked', true);
-                    $('.edit_salary').show();
-                    $('#edit_salary').val(res.users.salary);
+    function deleteUsers(id) {
+        if (confirm("Are you sure ?") == true) {
+            $.ajax({
+                type: "DELETE",
+                url: "{{ url('/delete/users') }}",
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(res) {
+                    location.reload();
                 }
-                $('#edit_employee_id').val(res.users.employee_id);
-                $('#edit_address').val(res.users.address);
-                $('#edit_city').val(res.users.city);
-                $('#edit_state').val(res.users.state);
-                $('#edit_zip').val(res.users.zip);
-                
-                $('#edit_password').val('');
-                $('#role_select option[value="' + res.users.role_id + '"]').attr('selected', 'selected');
-                $('#department_select option[value="' + res.users.department_id + '"]').attr('selected',
-                    'selected');
-            }
-            $('#edit_manager_select').find('option').remove();
-            if (res.managerSelectOptions != null) {
-                $.each(res.managerSelectOptions, function(key, value) {
-                    $('#edit_manager_select').append('<option value="' + value.id + '">' + value
-                        .first_name + " " + value.last_name + '</option>');
-                });
-            }
-            if (res.Managers != null) {
-                $.each(res.Managers, function(key, value) {
-                    $('#edit_manager_select option[value="' + value.parent_user_id + '"]').attr(
-                        'selected', 'selected');
-                })
-            }
-        }
-    });
-}
-
-        function deleteUsers(id) {
-            if (confirm("Are you sure ?") == true) {
-                $.ajax({
-                    type: "DELETE",
-                    url: "{{ url('/delete/users') }}",
-                    data: {
-                        id: id
-                    },
-                    dataType: 'json',
-                    success: function(res) {
-                        location.reload();
-                    }
-                });
-            }
-        }
-
-        // Event listener for checkbox changes
-        $("#filter-data input:checkbox").change(function() {
-                // Submit the form
-                $("#filter-data").submit();
             });
+        }
+    }
+
+    // Event listener for checkbox changes
+    $("#filter-data input:checkbox").change(function() {
+        // Submit the form
+        $("#filter-data").submit();
+    });
 
 
-            function ShowDeviceRecoveryMessage(checkbox) {
+    function ShowDeviceRecoveryMessage(checkbox) {
         if (!checkbox.checked) {
             alert("Please recover assigned devices before Deactivating this User.");
             // Provide link to assigned device section with ID
