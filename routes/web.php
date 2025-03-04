@@ -203,7 +203,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
-
+    Route::get('/users/view/{id}', [UsersController::class, 'singleUserData'])->name('users.view');
 	// Users Routes Without Role Permission Middleware
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
 
@@ -231,7 +231,7 @@ Route::middleware(['role_permission'])->group(function () {
 
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
-	
+
 	//For Vote
 	Route::post('/submit-vote', [VotesController::class, 'SubmitVote'])->name('submit.vote');
 
@@ -243,5 +243,5 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/todo_list/{todoList}', [TodoListController::class, 'destroy'])->name('todo_list.destroy');
 	Route::put('/todo_list/{todoList}/status', [TodoListController::class, 'updateStatus'])->name('todo_list.updateStatus');
 	Route::put('/todo_list/{todoList}/hold', [TodoListController::class, 'holdTask'])->name('todo_list.hold');
-	
+
 });

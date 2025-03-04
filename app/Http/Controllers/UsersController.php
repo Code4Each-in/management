@@ -525,6 +525,14 @@ class UsersController extends Controller
 
 		return Response()->json(['status'=>200 ,'documents' => $document]);
 	}
+    public function singleUserData($id)
+{
+    $usersProfiled = User::find($id); // Fetch user by ID
 
+    if (!$usersProfiled) {
+        return abort(404); // Handle case where user is not found
+    }
 
+    return view('users.singleuserdata', compact('usersProfiled'));
+}
 }
