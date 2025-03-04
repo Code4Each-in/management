@@ -203,7 +203,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	Route::post('/delete/profile/picture', [UsersController::class, 'deleteProfilePicture'])->name('delete.profile_picture');
 	Route::post('/update/profile/croped-picture', [UsersController::class, 'saveCropedProfilePicture'])->name('update.profile_picture');
-    Route::get('/users/single/{id}', [UsersController::class, 'singleUserData'])->name('users.single');
+    Route::get('/users/view/{id}', [UsersController::class, 'singleUserData'])->name('users.view');
 	// Users Routes Without Role Permission Middleware
 	Route::post('/update/users/status', [UsersController::class, 'updateUserStatus'])->name('users.status.update');
 

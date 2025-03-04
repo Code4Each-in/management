@@ -119,7 +119,7 @@
                                 </td>
                                 <td>
                                     <div class="active_user_data">
-                                        <a href="{{ route('users.single', ['id' => $data->id]) }}" title="View User Details" style="padding-right: 11px; ">
+                                        <a href="{{ route('users.view', ['id' => $data->id]) }}" title="View User Details" style="padding-right: 11px; ">
                                             <i class="fa-solid fa-eye" style="color:#4154f1; margin-left: 10px; cursor: pointer;"></i>
                                         </a>
                                         <i style="color:#4154f1;padding-right: 25px;" onClick="editUsers('{{ $data->id }}')"
