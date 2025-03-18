@@ -492,21 +492,52 @@ use App\Models\Votes;
         </div>
         @endif
         <!------ End Vote Section-------->
+        
+        
+        @if ($userBirthdateEvent->isNotEmpty())
+    @php
+        $hasUpcomingEvents = false; // Flag to track if there are upcoming events
+    @endphp
 
+    @foreach ($userBirthdateEvent as $user)
+        @php
+            $birthMonth = date('m', strtotime($user->birth_date));
+            $birthDay = date('d', strtotime($user->birth_date));
+            $joinMonth = date('m', strtotime($user->joining_date));
+            $joinDay = date('d', strtotime($user->joining_date));
+            $currentMonth = date('m');
+            $currentDay = date('d');
+
+            // Check if person completed one year or not
+            $joiningDate = new DateTime($user->joining_date);
+            $currentDate = new DateTime(date('Y-m-d'));
+            $interval = $joiningDate->diff($currentDate);
+
+            // Check if events are in the current month and in the future
+            $isBirthdayThisMonth = $currentMonth == $birthMonth;
+            $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+            $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+            if ($interval->y > 1) {
+                $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+            } else {
+                $isAnniversaryUpcoming = false;
+            }
+
+            if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                $hasUpcomingEvents = true; // Update the flag if any upcoming event is found
+            }
+        @endphp
+    @endforeach
+
+    @if ($hasUpcomingEvents)
         <div class="card upcoming-events">
             <div class="card-body pb-4">
-                <h5 class="card-title"> Upcoming Events</h5>
+                <h5 class="card-title">Upcoming Events</h5>
 
                 <div class="news">
-                    @php
-                    $hasUpcomingEvents = false; // Flag to track if there are upcoming events
-                    @endphp
-                    @if ($userBirthdateEvent->isNotEmpty())
                     @foreach ($userBirthdateEvent as $user)
-                    <div class="post-item clearfix">
-
-                        <div>
-                            @php
+                        @php
                             $birthMonth = date('m', strtotime($user->birth_date));
                             $birthDay = date('d', strtotime($user->birth_date));
                             $joinMonth = date('m', strtotime($user->joining_date));
@@ -514,7 +545,7 @@ use App\Models\Votes;
                             $currentMonth = date('m');
                             $currentDay = date('d');
 
-                            //Check if person completed one year or not
+                            // Check if person completed one year or not
                             $joiningDate = new DateTime($user->joining_date);
                             $currentDate = new DateTime(date('Y-m-d'));
                             $interval = $joiningDate->diff($currentDate);
@@ -523,50 +554,42 @@ use App\Models\Votes;
                             $isBirthdayThisMonth = $currentMonth == $birthMonth;
                             $isAnniversaryThisMonth = $currentMonth == $joinMonth;
 
-                            $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay>$currentDay);
-                            if($interval->y>1){
-                            $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay>$currentDay);
-                            }else{
-                            $isAnniversaryUpcoming= false;
+                            $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                            if ($interval->y > 1) {
+                                $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                            } else {
+                                $isAnniversaryUpcoming = false;
                             }
+                        @endphp
 
-                            if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
-                            $hasUpcomingEvents = true; // Update the flag if any upcoming event is found
-                            }
-                            @endphp
-
-                            @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
-                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span> <span> & </span>
-                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                            <span>Anniversary on {{date("d F", strtotime($user->joining_date))}} </span>
-                            @elseif ($isBirthdayUpcoming)
-                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                            <span>Birthday on {{date("d F", strtotime($user->birth_date))}}</span>
-                            @elseif ($isAnniversaryUpcoming)
-                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                            <span>Anniversary on {{date("d F", strtotime($user->joining_date))}}</span>
-                            @endif
-                        </div>
-                    </div>
+                        @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
+                            <div class="post-item clearfix">
+                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                                <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span> <span> & </span>
+                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                                <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                            </div>
+                        @elseif ($isBirthdayUpcoming)
+                            <div class="post-item clearfix">
+                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                                <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
+                            </div>
+                        @elseif ($isAnniversaryUpcoming)
+                            <div class="post-item clearfix">
+                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                                <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                            </div>
+                        @endif
                     @endforeach
-                    @else
-                    <div class="alert" role="alert">
-                        No upcoming events found.
-                    </div>
-                    @endif
-                    <!-- @if (!$hasUpcomingEvents)
-                    <div class="alert" role="alert">
-                        No upcoming events found.
-                    </div>
-                    @endif -->
-                </div><!-- End sidebar recent posts-->
+                </div>
             </div>
-        </div><!-- End sidebar recent posts-->
-
+        </div>
+    @endif
+@endif
+        
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>

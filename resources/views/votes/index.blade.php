@@ -18,6 +18,7 @@
 
     <section class="testimonial">
         <div class="container">
+            <h5 class="card-title">Appreciations</h5>
             <div class="testimonial__inner">
                 <div class="testimonial-slider">
                     @foreach($mergedVotes as $vote)

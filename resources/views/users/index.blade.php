@@ -36,6 +36,7 @@
                                 <!-- <th>Salary</th> -->
                                 <th>Role</th>
                                 <th>Department</th>
+                                <th>Designation</th>
                                 <th>Address</th>
                                 <th>Phone</th>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
@@ -57,6 +58,7 @@
                                 <!-- <td>{{ $data->salary }}</td> -->
                                 <td>{{$data->role->name ?? ''}}</td>
                                 <td>{{$data->department->name ?? ''}}</td>
+                                <td>{{ $data->designation }}</td>
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
@@ -245,6 +247,12 @@
                         </div>
                     </div>
                     <div class="row mb-3">
+                        <label for="designation" class="col-sm-3 col-form-label required">Designation</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="designation" id="designation">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Department</label>
                         <div class="col-sm-9">
                             <select name="department_select" class="form-select" id="department_select">
@@ -283,6 +291,7 @@
                             <input type="text" class="form-control" name="city" id="city">
                         </div>
                     </div>
+                    
                     <div class="row mb-3">
                         <label for="state" class="col-sm-3 col-form-label required">State</label>
                         <div class="col-sm-6">
@@ -416,6 +425,12 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <label for="designation" class="col-sm-3 col-form-label required">Designation</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="designation" id="designation">
+                        </div>
+                    </div>
 
                     <div class="row mb-3">
                         <label for="" class="col-sm-3 col-form-label required">Department</label>
@@ -447,6 +462,7 @@
                             <textarea name="address" class="form-control" id="edit_address"></textarea>
                         </div>
                     </div>
+                   
                     <div class="row mb-3">
                         <label for="edit_city" class="col-sm-3 col-form-label required">City</label>
                         <div class="col-sm-6">
