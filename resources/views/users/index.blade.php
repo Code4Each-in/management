@@ -16,7 +16,7 @@
                             <input type="checkbox" class="form-check-input" name="all_users" id="all_users"
                                 {{ $allUsersFilter == 'on' ? 'checked' : '' }}>
                             <label for="all_users">All Users</label>
-                        </div>
+                        </div>  
 
                     </div>
                 </div>
