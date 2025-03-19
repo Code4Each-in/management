@@ -94,7 +94,7 @@ class UsersController extends Controller
 											->join('users', 'users.id', '=', 'user_leaves.user_id')
 											->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.joining_date' , 'users.status')
 											->get();
-
+           
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter','totalLeaves','approvedLeaves'));
 	}
 	/**
@@ -323,7 +323,7 @@ class UsersController extends Controller
             'emergency_relation_secondary' => 'nullable|string|max:255',
             'emergency_phone_secondary' => 'nullable|string|max:20',
         ]);
-
+        
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()->all()]);
         }
@@ -349,7 +349,7 @@ class UsersController extends Controller
             'emergency_relation_secondary' => $validatedData['emergency_relation_secondary'] ?? null,
             'emergency_phone_secondary' => $validatedData['emergency_phone_secondary'] ?? null,
         ]);
-
+         
         return response()->json([
             'status' => 200,
             'message' => 'Your profile updated successfully!',

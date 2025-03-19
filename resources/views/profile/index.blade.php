@@ -144,6 +144,21 @@
                         <div class="col-lg-9 col-md-8">{{$usersProfile->role->name}}</div>
                     </div>
 
+                    @if(isset($usersProfile->designation))
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Designation</div>
+                        <div class="col-lg-9 col-md-8">{{$usersProfile->designation}}</div>
+                    </div>
+                    @endif
+
+                    @if(isset($usersProfile->department->name))
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Department</div>
+                        <div class="col-lg-9 col-md-8">{{$usersProfile->department->name}}</div>
+                    </div>
+                    @endif
+
+
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Skills</div>
                         <div class="col-lg-9 col-md-8 detail_skills">
@@ -168,12 +183,7 @@
                     </div>
 
 
-                    @if(isset($usersProfile->department->name))
-                    <div class="row">
-                        <div class="col-lg-3 col-md-4 label">Departement</div>
-                        <div class="col-lg-9 col-md-8">{{$usersProfile->department->name}}</div>
-                    </div>
-                    @endif
+                    
                 </div>
                 <!-- Profile Edit Form -->
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">

@@ -36,7 +36,7 @@ use App\Models\Client;?>
                             <td>{{ $client->id }}</td>
                             <td>{{ $client->name }}</td>
                             <td>
-                                @if (!empty($client->$client->email ))
+                                @if (!empty($client->email ))
                                    {{  $client->email }}
                                 @else
                                   ---

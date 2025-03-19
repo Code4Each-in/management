@@ -129,7 +129,8 @@
                                 @endphp
                             </td>
 
-                            <td>{!! $data->notes !!}</td>
+                            <td style="width:200px;"> {{ substr($data->notes, 0, 20).'...' }}
+                                <a href="javascript:void(0);"  onclick="openUsersModal('{{ addslashes($data->notes) }}')"><u>Show More</u></a></td>
                         </tr>
                         @empty
                         @endforelse
@@ -139,6 +140,19 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="morenotes" tabindex="-1" aria-labelledby="role" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:505px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="role">Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-notes-content">
+                    <!-- The full notes will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>    
 </div>
 
 @endsection
@@ -178,6 +192,16 @@
 
     });
 
+    function openUsersModal(notes) {
+    // Set the notes into the modal
+    document.getElementById('modal-notes-content').innerHTML = notes;
+    
+    // Show the modal
+    var myModal = new bootstrap.Modal(document.getElementById('morenotes'), {
+        keyboard: false
+    });
+    myModal.show();
+}
 
 </script>
 @endsection

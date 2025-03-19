@@ -33,6 +33,7 @@ class Users extends Authenticatable
 		'address',
 		'city',
         'designation',
+        'tshirt_size',
 		'state',
 		'zip',
 		'role_id',
