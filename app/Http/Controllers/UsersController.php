@@ -117,6 +117,7 @@ class UsersController extends Controller
 		'role_select'=>'required',
 		'department_select'=>'required',
 		'address'=>'required',
+		'designation'=>'required'
 
 		]);
 
@@ -144,6 +145,7 @@ class UsersController extends Controller
 			'employee_id' => $validate['employee_id'],
 			'address'=>$validate['address'],
 			'city' => $validate['city'],
+			'designation' => $validate['designation'],
 			'state' => $validate['state'],
 			'zip' => $validate['zip'],
 			'phone'=>$validate['phone'],
@@ -206,6 +208,7 @@ class UsersController extends Controller
 			'role_select'=>'required',
 			'department_select'=>'required',
 			'address'=>'required',
+			'designation'=>'required',
 			'edit_password' => 'confirmed',
 		]);
 
@@ -242,6 +245,7 @@ class UsersController extends Controller
 			'department_id'=>$validate['department_select'],
 			'address'=>$validate['address'],
 			'city' => $validate['edit_city'],
+			'designation' => $validate['designation'],
 			'state' => $validate['edit_state'],
 			'zip' => $validate['edit_zip'],
 			];
