@@ -94,7 +94,7 @@ class UsersController extends Controller
 											->join('users', 'users.id', '=', 'user_leaves.user_id')
 											->select('user_leaves.*', 'users.first_name' , 'users.id' , 'users.joining_date' , 'users.status')
 											->get();
-
+           
 		return view('users.index',compact('usersData','roleData','departmentData','users_Data','allUsersFilter','totalLeaves','approvedLeaves'));
 	}
 	/**

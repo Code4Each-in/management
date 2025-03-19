@@ -35,8 +35,8 @@
                                 <th>Email</th>
                                 <!-- <th>Salary</th> -->
                                 <th>Role</th>
-                                <th>Department</th>
                                 <th>Designation</th>
+                                <th>Department</th>                                
                                 <th>Address</th>
                                 <th>Phone</th>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
@@ -57,8 +57,8 @@
                                 <td>{{ $data->email }}</td>
                                 <!-- <td>{{ $data->salary }}</td> -->
                                 <td>{{$data->role->name ?? ''}}</td>
-                                <td>{{$data->department->name ?? ''}}</td>
-                                <td>{{ $data->designation }}</td>
+                                <td>{{ $data->designation ?: '---' }}</td>
+                                <td>{{$data->department->name ?? ''}}</td>                              
                                 <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
                                 <td>{{ $data->phone }}</td>
                                 @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
@@ -428,7 +428,7 @@
                     <div class="row mb-3">
                         <label for="designation" class="col-sm-3 col-form-label required">Designation</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="designation" id="designation">
+                            <input type="text" class="form-control" name="designation" id="edit_designation">
                         </div>
                     </div>
 
@@ -647,6 +647,7 @@
                         $('#edit_salary').val(res.users.salary);
                     }
                     $('#edit_employee_id').val(res.users.employee_id);
+                    $('#edit_designation').val(res.users.designation);
                     $('#edit_address').val(res.users.address);
                     $('#edit_city').val(res.users.city);
                     $('#edit_state').val(res.users.state);
