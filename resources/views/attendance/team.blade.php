@@ -117,7 +117,28 @@
                                 }
                                 @endphp
                             </td>
-                            <td>{!! $data->notes !!}</td>
+                            <td style="width:200px;">
+                                @if(strlen($data->notes) >= 100)
+                                <span class="description">
+                                    @php
+                                        $plainTextDescription = strip_tags(htmlspecialchars_decode($data->notes));
+                                        $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
+                                        echo $limitedDescription;
+                                    @endphp
+                                </span>
+                                <span class="fullDescription" style="display: none;">
+                                    @php
+                                        echo $data->notes;
+                                    @endphp
+                                </span>
+                                <a href="#" class="readMoreLink">Read More</a>
+                                <a href="#" class="readLessLink" style="display: none;">Read Less</a>
+                                @else
+                                    {!! $data->notes !!}
+                                @endif
+                            </td>
+                            
+                                                    
                             <td>
                                 <i style="color:#4154f1;" onClick="editAttendance ('{{ $data->id }}')" data-user-id="{{ $data->id}}" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
@@ -132,6 +153,19 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="teamnotes" aria-labelledby="role">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:505px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="role">Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-notes-content">
+                    <!-- The full notes will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>  
 </div>
 
 
@@ -421,6 +455,33 @@ $(document).ready(function() {
     $('.alert-danger').hide();
     $('#addteamsattendance').modal('show');
     }
+
+    $('.readMoreLink').click(function(event) {
+    event.preventDefault();
+
+    var description = $(this).siblings('.description');
+    var fullDescription = $(this).siblings('.fullDescription');
+
+    // Show full description when "Read More" is clicked
+    description.text(fullDescription.text());  // Use .text() to get plain text
+    $(this).hide();  // Hide the "Read More" link
+    $(this).siblings('.readLessLink').show();  // Show the "Read Less" link
+});
+
+$('.readLessLink').click(function(event) {
+    event.preventDefault();
+
+    var description = $(this).siblings('.description');
+    var fullDescription = $(this).siblings('.fullDescription');
+
+    // Truncate to the first 100 characters and add "..."
+    var truncatedDescription = fullDescription.text().substring(0, 100) + '...';
+    description.text(truncatedDescription);  // Update description with truncated text
+    $(this).hide();  // Hide the "Read Less" link
+    $(this).siblings('.readMoreLink').show();  // Show the "Read More" link
+});
+
+
 
 </script>
 @endsection
