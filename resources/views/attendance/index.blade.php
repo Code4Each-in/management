@@ -129,8 +129,26 @@
                                 @endphp
                             </td>
 
-                            <td style="width:200px;"> {{ substr($data->notes, 0, 20).'...' }}
-                                <a href="javascript:void(0);"  onclick="openUsersModal('{{ addslashes($data->notes) }}')"><u>Show More</u></a></td>
+                            <td style="width:200px;">
+                                @if(strlen($data->notes) >= 100)
+                                <span class="description">
+                                    @php
+                                    $plainTextDescription = strip_tags(htmlspecialchars_decode($data->notes));
+                                    $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
+                                    echo $limitedDescription;
+                                    @endphp
+                                </span>
+                                <span class="fullDescription" style="display: none;">
+                                 @php
+                                    echo $data->notes;
+                                    @endphp
+                                </span>
+                                <a href="#" class="readMoreLink">Read More</a>
+                                <a href="#" class="readLessLink" style="display: none;">Read Less</a>
+                                @else
+                                {!! $data->notes !!}                                       
+                                 @endif
+                            </td> 
                         </tr>
                         @empty
                         @endforelse
@@ -152,7 +170,7 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>       
 </div>
 
 @endsection
@@ -192,16 +210,29 @@
 
     });
 
-    function openUsersModal(notes) {
-    // Set the notes into the modal
-    document.getElementById('modal-notes-content').innerHTML = notes;
-    
-    // Show the modal
-    var myModal = new bootstrap.Modal(document.getElementById('morenotes'), {
-        keyboard: false
-    });
-    myModal.show();
-}
+    $('.readMoreLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                description.text(fullDescription.text());
+                $(this).hide();
+                $(this).siblings('.readLessLink').show();
+            });
+
+            $('.readLessLink').click(function(event) {
+                event.preventDefault();
+
+                var description = $(this).siblings('.description');
+                var fullDescription = $(this).siblings('.fullDescription');
+
+                var truncatedDescription = fullDescription.text().substring(0, 100) + '...';
+                description.text(truncatedDescription);
+                $(this).hide();
+                $(this).siblings('.readMoreLink').show();
+            });
+
 
 </script>
 @endsection
