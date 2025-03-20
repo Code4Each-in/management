@@ -24,7 +24,7 @@ use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\HiringUsController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\TodoListController;
-
+use App\Http\Controllers\ScrumdashController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -244,4 +244,6 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::put('/todo_list/{todoList}/status', [TodoListController::class, 'updateStatus'])->name('todo_list.updateStatus');
 	Route::put('/todo_list/{todoList}/hold', [TodoListController::class, 'holdTask'])->name('todo_list.hold');
 
+	//Scrum Dashboard
+	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
 });
