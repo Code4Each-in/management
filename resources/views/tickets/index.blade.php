@@ -159,7 +159,11 @@
                                     @else
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
-                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                    <td> 
+                                        {{-- <a href="{{ url('/view/ticket/'.$data->id)}}">
+                                            <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
+                                        </a> --}}
+                                        <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
@@ -214,7 +218,6 @@
 
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required ">Assign</label>
-
                                 <div class="col-sm-9">
                                     <select name="assign[]" class="form-select" id="assign" multiple>
                                         <option value="" disabled>Select User</option>
@@ -248,6 +251,15 @@
                                         <option value="ready">Ready</option>
                                         <option value="complete">
                                             Complete </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket Priority</label>
+                                <div class="col-sm-9">
+                                    <select name="ticket_priority" class="form-select" id="ticket_priority">
+                                        <option value="1">Active</option>
+                                        <option value="0">In Active</option>
                                     </select>
                                 </div>
                             </div>

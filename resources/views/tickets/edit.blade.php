@@ -114,6 +114,15 @@
                         @endif
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket Priority</label>
+                    <div class="col-sm-9">
+                        <select name="ticket_priority" class="form-select" id="edit_ticket_priority">
+                            <option value="1">Active</option>
+                            <option value="0">In Active</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
                     <div class="col-sm-9" id="Ticketsdata" style="margin:auto;">

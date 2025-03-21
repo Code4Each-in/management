@@ -384,6 +384,14 @@
                     <span>Holidays</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('scrumdash') ? '' : 'collapsed' }}"
+                    href="{{ route('scrumdash.index') }}">
+                    <!-- <i class="bi bi-buildings"></i> -->
+                    <i class="bi bi-list toggle-sidebar-btn"></i>
+                    <span>Scrum Dashboard</span>
+                </a>
+            </li>
             @if (auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('devices') ? '' : 'collapsed' }}"
