@@ -39,18 +39,21 @@
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>
                     <th scope="col">ETA</th>  
-                    {{-- <th scope="col">Action</th>                --}}
                 </tr>
             </thead>
             <tbody>
                 @foreach($activetasks as $tasks)
-                                <tr>
-                                    <td>{{ $tasks->title }}</td>
-                                    <td>{{ $tasks->assigned_user_name }}</td>      
-                                    <td>{{ $tasks->eta }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
+                    @php
+                        $eta = \Carbon\Carbon::parse($tasks->eta);
+                        $isCloseToDeadline = $eta->diffInDays(\Carbon\Carbon::now()) <= 2 && $eta > \Carbon\Carbon::now();
+                    @endphp
+                    <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
+                        <td>{{ $tasks->title }}</td>
+                        <td>{{ $tasks->assigned_user_name }}</td>
+                        <td>{{ $tasks->eta }}</td>
+                    </tr>
+                @endforeach
+            </tbody>            
         </table>
      </div>
    </div>
@@ -64,14 +67,17 @@
         <table class="table table-borderless datatable" id="assignedjobs">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Assigned To</th>
-                    <th scope="col">ETA</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Priority</th>                  
+                    <th scope="col">Title</th>
+                    <th scope="col">Assigned To</th>                 
                 </tr>
             </thead>
-            <tbody>               
+            <tbody>
+                @foreach($taskss as $tasks)
+                                <tr>
+                                    <td>{{ $tasks->title }}</td>
+                                    <td>{{ $tasks->assigned_user_name }}</td>      
+                                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -80,7 +86,7 @@
     <div class="col-md-6">
         <div class="card recent-sales overflow-auto">
             <div class="card-body">
-        <h5 class="card-title">No Task</h5>
+        <h5 class="card-title">No Jobs</h5>
         <table class="table table-borderless datatable" id="notask">
             <thead>
                 <tr>
@@ -88,7 +94,11 @@
                 </tr>
             </thead>
             <tbody>
-                
+                @foreach($notasks as $notask)
+                                <tr>
+                                    <td>{{ $notask->assigned_user_name }}</td>      
+                                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

@@ -159,7 +159,11 @@
                                     @else
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
-                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                    <td> 
+                                        {{-- <a href="{{ url('/view/ticket/'.$data->id)}}">
+                                            <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
+                                        </a> --}}
+                                        <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>

@@ -29,7 +29,7 @@ class ScrumdashController extends Controller
         ->orderBy('tickets.created_at', 'desc')
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();
-
+         
         $activetasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
         ->whereRaw("LOWER(tickets.status) = ?", ['in_progress'])  
@@ -38,18 +38,28 @@ class ScrumdashController extends Controller
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();
 
-        $notasks = Tickets::leftJoin('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
+        $notasks = Users::leftJoin('ticket_assigns', 'users.id', '=', 'ticket_assigns.user_id')
+        ->leftJoin('tickets', 'ticket_assigns.ticket_id', '=', 'tickets.id')
+        ->where('users.status', 1)  // Only active users
+        ->whereNull('ticket_assigns.ticket_id')  // Only users with no tickets assigned
+        ->orderBy('users.first_name', 'asc')
+        ->select('users.*', 'users.first_name as assigned_user_name')
+        ->get();
+    
+
+        $taskss = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
-        ->where('users.status', 1)
-        ->whereNull('ticket_assigns.ticket_id') 
         ->whereRaw("LOWER(tickets.status) != ?", ['complete']) 
+        ->where('users.status', 1) 
         ->orderBy('tickets.created_at', 'desc')
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();
-
+         
     return view('scrumdash.index', compact('tasks',
     'activetasks',
-    'notasks'
+    'notasks',
+    'taskss'
+
 
 ));
     }
