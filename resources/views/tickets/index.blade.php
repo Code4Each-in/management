@@ -2,7 +2,18 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Your custom styles -->
+    <style>
+        .select2-container {
+            visibility: visible !important;
+            display: block !important;
+        }
+    </style>
 <div id="loader">
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
@@ -160,9 +171,9 @@
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
                                     <td> 
-                                        {{-- <a href="{{ url('/view/ticket/'.$data->id)}}">
+                                        <a href="{{ url('/view/ticket/'.$data->id)}}">
                                             <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
-                                        </a> --}}
+                                        </a>
                                         <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
@@ -316,19 +327,20 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="edit_assign" class="col-sm-3 col-form-label  ">Assign</label>
+                                <label for="edit_assign1" class="col-sm-3 col-form-label">Assign</label>
                                 <div class="col-sm-9">
-                                    <select name="assign" class="form-select" id="edit_assign" multiple>
+                                    <select name="assign[]" class="form-select" id="edit_assign1" multiple>
                                         <option value="">Select User</option>
                                         @foreach ($user as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->first_name}}
-                                        </option>
+                                            <option value="{{$data->id}}">
+                                                {{$data->first_name}}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-
+                            
+                            
                             @csrf
                             <div class="row mb-3">
                                 <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
@@ -539,7 +551,7 @@
                         }
                         if (res.ticketAssign != null) {
                             $.each(res.ticketAssign, function(key, value) {
-                                $('#edit_assign option[value="' + value.user_id + '"]')
+                                $('#edit_assign1 option[value="' + value.user_id + '"]')
                                     .attr(
                                         'selected', 'selected');
                             })
@@ -624,8 +636,25 @@
                     });
                 });
 
+            
+                $(document).ready(function() {
+    // Check if element exists before initializing Select2
+    if ($('#edit_assign1').length) {
+        console.log("Found #edit_assign1, initializing Select2");
+        
+        $('#edit_assign1').select2({
+            placeholder: "Select User",
+            allowClear: true,
+            width: '100%'
+        });
+    } else {
+        console.log("Could not find #edit_assign1");
+    }
 
+    // Check if Select2 is applied
+    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2'));
+});
         </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
         @endsection
