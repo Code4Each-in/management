@@ -7,7 +7,7 @@
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
 </div>
 
-<div class="col-lg-6">
+<div class="col-lg-12">
     <div class="card">
         <div class="card-body">
 
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_assign" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
+                    <label for="edit_assign1" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
                         <button type="button" class="btn btn-outline-primary btn-sm mb-2">
@@ -53,9 +53,9 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_assign" class="col-sm-3 col-form-label required ">Add More Assign</label>
+                    <label for="edit_assign1" class="col-sm-3 col-form-label required ">Add More Assign</label>
                     <div class="col-sm-9">
-                        <select name="assign[]" class="form-select" id="edit_assign" multiple>
+                        <select name="assign[]" class="form-select" id="edit_assign1" multiple>
                             <option value="">Select User</option>
                             @foreach ($userCount as $data)
                             <option value="{{$data['id']}}">
@@ -112,6 +112,15 @@
                         @if ($errors->has('priority'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('priority') }}</span>
                         @endif
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket Priority</label>
+                    <div class="col-sm-9">
+                        <select name="ticket_priority" class="form-select" id="edit_ticket_priority">
+                            <option value="1">Active</option>
+                            <option value="0">In Active</option>
+                        </select>
                     </div>
                 </div>
                 <div class="row mb-5">
@@ -183,59 +192,7 @@
         </div>
     </div>
 </div>
-<div class="col-lg-6 dashboard ">
-    <div class="card" style="height:730px;">
-        <div class="card-body ">
 
-
-            <div class="alert alert-success Commentmessage mt-4" style="display:none">
-
-            </div>
-            <h5 class="card-title">Comments</h5>
-                <div class="comments">
-                    @if(!empty($ticketsCreatedByUser->ticketby->first_name))
-                        <div class="row">Created by:
-                        {{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</div>
-                        @endif
-                    @if(count($CommentsData) !=0)
-                    @foreach ($CommentsData as $data)
-                    <div class="row">
-                        @if(!empty($data->user->profile_picture))
-                        <div class="col-md-2 comment-user-profile">
-                            <img src="{{asset('assets/img/').'/'.$data->user->profile_picture}}" class="rounded-circle " alt="">
-                        </div>
-                        @else
-                        <img src="{{asset('assets/img/blankImage.jpg')}}" alt="Profile" class="rounded-circle">
-                        @endif
-                        <div class="col-md-3">
-                            <p>{{$data->user->first_name}}</p>
-                            <p>{{date("M d h:s A", strtotime($data->created_at));}}</p>
-
-                        </div>
-                        <div class="col-md-7 ">
-                            {{$data->comments}}
-                        </div>
-                    </div>
-                    @endforeach
-                    @else
-                    <div class="center text-center mt-2 ">
-                        <span class="center" id="NoComments"> No Comments </span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            <form method="post" id="commentsData" action="{{route('comments.add')}}">
-                <div class=" post-item clearfix mb-3 mt-3">
-                    <textarea class="form-control comment nt-3" name="comment" id="comment" placeholder="Enter your comment" rows="3"></textarea>
-                </div>
-                <div class="alert alert-danger" style="display:none"></div>
-                <input type="hidden" class="form-control" id="hidden_id" value="{{$tickets->id}}">
-                <button type="submit" style="float: right;" class="btn btn-primary"><i class="bi bi-send-fill"></i>
-                    Comment</button>
-            </form>
-        </div>
-    </div>
-</div>
 @endsection
 @section('js_scripts')
 <script>
@@ -365,7 +322,37 @@
     return true;
   });
 });
+$(document).ready(function() {
+    // Check if element exists before initializing Select2
+    if ($('#edit_assign1').length) {
+        console.log("Found #edit_assign1, initializing Select2");
 
+        // Initialize Select2 only if it's not already initialized
+        if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    } else {
+        console.log("Could not find #edit_assign1");
+    }
+
+    // Check if Select2 is applied when page loads
+    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2-hidden-accessible'));
+
+    // If the modal is being used and you're opening it dynamically
+    $('#addTickets').on('shown.bs.modal', function () {
+        // Reapply Select2 after modal is shown
+        if ($('#edit_assign1').length) {
+            console.log("Modal shown, reinitializing Select2 on #edit_assign1");
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+});
 </script>
 
 @endsection

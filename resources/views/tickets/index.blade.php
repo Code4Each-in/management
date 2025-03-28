@@ -2,7 +2,18 @@
 @section('title', 'Tickets')
 @section('subtitle', 'Tickets')
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Your custom styles -->
+    <style>
+        .select2-container {
+            visibility: visible !important;
+            display: block !important;
+        }
+    </style>
 <div id="loader">
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
@@ -159,7 +170,11 @@
                                     @else
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
-                                    <td> <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                    <td> 
+                                        <a href="{{ url('/view/ticket/'.$data->id)}}">
+                                            <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
+                                        </a>
+                                        <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
 
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
@@ -213,17 +228,16 @@
                             </div>
 
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">Assign</label>
-
+                                <label for="edit_assign1" class="col-sm-3 col-form-label">Assign</label>
                                 <div class="col-sm-9">
-                                    <select name="assign[]" class="form-select" id="assign" multiple>
-                                        <option value="" disabled>Select User</option>
+                                    <select name="assign[]" class="form-select" id="edit_assign1" multiple>
+                                        <option value="">Select User</option>
                                         @foreach ($user as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->first_name}}
-                                        </option>
+                                            <option value="{{ $data->id }}">
+                                                {{ $data->first_name }}
+                                            </option>
                                         @endforeach
-                                    </select>
+                                    </select>                                    
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -248,6 +262,15 @@
                                         <option value="ready">Ready</option>
                                         <option value="complete">
                                             Complete </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket State</label>
+                                <div class="col-sm-9">
+                                    <select name="ticket_priority" class="form-select" id="ticket_priority">
+                                        <option value="1">Active</option>
+                                        <option value="0">In Active</option>
                                     </select>
                                 </div>
                             </div>
@@ -304,19 +327,20 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="edit_assign" class="col-sm-3 col-form-label  ">Assign</label>
+                                <label for="edit_assign1" class="col-sm-3 col-form-label">Assign</label>
                                 <div class="col-sm-9">
-                                    <select name="assign" class="form-select" id="edit_assign" multiple>
+                                    <select name="assign[]" class="form-select" id="edit_assign1" multiple>
                                         <option value="">Select User</option>
                                         @foreach ($user as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->first_name}}
-                                        </option>
+                                            <option value="{{ $data->id }}">
+                                                {{ $data->first_name }}
+                                            </option>
                                         @endforeach
-                                    </select>
+                                    </select>                                    
                                 </div>
                             </div>
-
+                            
+                            
                             @csrf
                             <div class="row mb-3">
                                 <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
@@ -527,7 +551,7 @@
                         }
                         if (res.ticketAssign != null) {
                             $.each(res.ticketAssign, function(key, value) {
-                                $('#edit_assign option[value="' + value.user_id + '"]')
+                                $('#edit_assign1 option[value="' + value.user_id + '"]')
                                     .attr(
                                         'selected', 'selected');
                             })
@@ -612,8 +636,39 @@
                     });
                 });
 
+            
+                $(document).ready(function() {
+    // Check if element exists before initializing Select2
+    if ($('#edit_assign1').length) {
+        console.log("Found #edit_assign1, initializing Select2");
+
+        // Initialize Select2 only if it's not already initialized
+        if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    } else {
+        console.log("Could not find #edit_assign1");
+    }
+
+    // Check if Select2 is applied when page loads
+    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2-hidden-accessible'));
+
+    // If the modal is being used and you're opening it dynamically
+    $('#addTickets').on('shown.bs.modal', function () {
+        // Reapply Select2 after modal is shown
+        if ($('#edit_assign1').length) {
+            console.log("Modal shown, reinitializing Select2 on #edit_assign1");
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+});
 
         </script>
-
-
+    
         @endsection

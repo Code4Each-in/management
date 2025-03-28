@@ -373,4 +373,29 @@ class TicketsController extends Controller
 
     }
 
+        public function viewTicket($ticketId)
+    {
+        $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
+
+        $user = Users::whereHas('role', function($q){
+           $q->where('name', '!=', 'Super Admin');
+       })->orderBy('id','desc')->get()->toArray();	
+        $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
+       foreach($user as $key1=> $data1)
+       {
+           foreach($ticketsAssign as $key2=> $data2){
+               if($data1['id']==$data2['user_id']){
+                   unset($user[$key1]);
+               }
+           }
+       }
+       $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
+       $tickets = Tickets::where(['id' => $ticketId])->first();
+       $projects = Projects::all();
+       $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
+       $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
+       $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
+        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));
+    }
+
 }
