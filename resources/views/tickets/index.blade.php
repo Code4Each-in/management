@@ -640,7 +640,6 @@
                 $(document).ready(function() {
     // Check if element exists before initializing Select2
     if ($('#edit_assign1').length) {
-        console.log("Found #edit_assign1, initializing Select2");
 
         // Initialize Select2 only if it's not already initialized
         if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
@@ -649,18 +648,14 @@
                 width: '100%'
             });
         }
-    } else {
-        console.log("Could not find #edit_assign1");
-    }
+    } 
 
-    // Check if Select2 is applied when page loads
-    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2-hidden-accessible'));
+    
 
     // If the modal is being used and you're opening it dynamically
     $('#addTickets').on('shown.bs.modal', function () {
         // Reapply Select2 after modal is shown
         if ($('#edit_assign1').length) {
-            console.log("Modal shown, reinitializing Select2 on #edit_assign1");
             $('#edit_assign1').select2({
                 allowClear: true,
                 width: '100%'
