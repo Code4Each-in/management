@@ -129,5 +129,22 @@
             "order": []
         });
     });
+
+    $(document).ready(function () {
+    // Initialize your DataTable(s)
+    var table1 = $('#totaljobs').DataTable();
+    var table2 = $('#runningjobs').DataTable();
+    var table2 = $('#assignedjobs').DataTable();
+    var table2 = $('#notask').DataTable();
+    // Get the maximum height of both tables
+    var table1Height = $('#totaljobs').height();
+    var table2Height = $('#runningjobs').height();
+    var table3Height = $('#assignedjobs').height();
+    var table4Height = $('#notask').height();
+    var maxHeight = Math.max(table1Height, table2Height, table3Height, table4Height);
+
+    // Set the height of both tables to the maximum height
+    $('#totaljobs, #runningjobs, #assignedjobs, #notask').height(maxHeight);
+});
 </script>
 @endsection

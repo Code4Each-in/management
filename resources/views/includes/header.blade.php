@@ -388,7 +388,7 @@
                 <a class="nav-link {{ request()->is('scrumdash') ? '' : 'collapsed' }}"
                     href="{{ route('scrumdash.index') }}">
                     <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-list toggle-sidebar-btn"></i>
+                    <i class="bi bi-grid"></i>
                     <span>Scrum Dashboard</span>
                 </a>
             </li>

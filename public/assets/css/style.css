@@ -1467,7 +1467,9 @@ input:checked + .slider:before {
 .select2{
 width: 100% !important;
 }
-
+.select2-container {
+  z-index: 9999 !important;  /* Ensure the dropdown is on top */
+}
 
 header .header-alert{
   position: absolute;

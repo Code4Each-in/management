@@ -228,16 +228,16 @@
                             </div>
 
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">Assign</label>
+                                <label for="edit_assign1" class="col-sm-3 col-form-label">Assign</label>
                                 <div class="col-sm-9">
-                                    <select name="assign[]" class="form-select" id="assign" multiple>
-                                        <option value="" disabled>Select User</option>
+                                    <select name="assign[]" class="form-select" id="edit_assign1" multiple>
+                                        <option value="">Select User</option>
                                         @foreach ($user as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->first_name}}
-                                        </option>
+                                            <option value="{{ $data->id }}">
+                                                {{ $data->first_name }}
+                                            </option>
                                         @endforeach
-                                    </select>
+                                    </select>                                    
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -266,7 +266,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket Priority</label>
+                                <label for="ticket_priority" class="col-sm-3 col-form-label  ">Ticket State</label>
                                 <div class="col-sm-9">
                                     <select name="ticket_priority" class="form-select" id="ticket_priority">
                                         <option value="1">Active</option>
@@ -332,11 +332,11 @@
                                     <select name="assign[]" class="form-select" id="edit_assign1" multiple>
                                         <option value="">Select User</option>
                                         @foreach ($user as $data)
-                                            <option value="{{$data->id}}">
-                                                {{$data->first_name}}
+                                            <option value="{{ $data->id }}">
+                                                {{ $data->first_name }}
                                             </option>
                                         @endforeach
-                                    </select>
+                                    </select>                                    
                                 </div>
                             </div>
                             
@@ -641,20 +641,34 @@
     // Check if element exists before initializing Select2
     if ($('#edit_assign1').length) {
         console.log("Found #edit_assign1, initializing Select2");
-        
-        $('#edit_assign1').select2({
-            placeholder: "Select User",
-            allowClear: true,
-            width: '100%'
-        });
+
+        // Initialize Select2 only if it's not already initialized
+        if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
     } else {
         console.log("Could not find #edit_assign1");
     }
 
-    // Check if Select2 is applied
-    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2'));
-});
-        </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    // Check if Select2 is applied when page loads
+    console.log("Select2 applied to #edit_assign1:", $('#edit_assign1').hasClass('select2-hidden-accessible'));
 
+    // If the modal is being used and you're opening it dynamically
+    $('#addTickets').on('shown.bs.modal', function () {
+        // Reapply Select2 after modal is shown
+        if ($('#edit_assign1').length) {
+            console.log("Modal shown, reinitializing Select2 on #edit_assign1");
+            $('#edit_assign1').select2({
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+});
+
+        </script>
+    
         @endsection

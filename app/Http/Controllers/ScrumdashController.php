@@ -25,7 +25,8 @@ class ScrumdashController extends Controller
         $tasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
         ->whereRaw("LOWER(tickets.status) != ?", ['complete']) 
-        ->where('users.status', 1) 
+        ->where('users.status', 1)
+        ->where('tickets.ticket_priority', 1) 
         ->orderBy('tickets.created_at', 'desc')
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();
@@ -34,6 +35,7 @@ class ScrumdashController extends Controller
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
         ->whereRaw("LOWER(tickets.status) = ?", ['in_progress'])  
         ->where('users.status', 1) 
+        ->where('tickets.ticket_priority', 1)
         ->orderBy('tickets.created_at', 'desc')
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();
@@ -51,6 +53,7 @@ class ScrumdashController extends Controller
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
         ->whereRaw("LOWER(tickets.status) != ?", ['complete']) 
         ->where('users.status', 1) 
+        ->where('tickets.ticket_priority', 1)
         ->orderBy('tickets.created_at', 'desc')
         ->select('tickets.*', 'users.first_name as assigned_user_name')
         ->get();

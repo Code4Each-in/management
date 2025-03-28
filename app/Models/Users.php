@@ -32,6 +32,7 @@ class Users extends Authenticatable
         'profile_picture',
 		'address',
 		'city',
+        'skills',
         'designation',
         'tshirt_size',
 		'state',
