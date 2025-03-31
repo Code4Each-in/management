@@ -46,7 +46,7 @@
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">ETA</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? $tickets->eta : '---' }}</p>
+                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("m/d/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
                                     </div>
                                 </div>
                                 <div class="row mb-1" style="margin-bottom: 8px;">
@@ -106,7 +106,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;">Ticket Chat</h3>
+        <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
         <div class="comments" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
             @if(!empty($ticketsCreatedByUser->ticketby->first_name))
             <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
@@ -118,7 +118,7 @@
         @if(Auth::user()->id == $data->comment_by)
             <div class="col-md-10 offset-md-2 comment-bubble" style="background-color: #e7ecf1; border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d h:i A", strtotime($data->created_at)) }}</p>
+                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
             </div>
         @else
@@ -133,7 +133,7 @@
             @endif
             <div class="col-md-10 comment-bubble" style="background-color: #ffb3b3; border-radius: 25px; padding: 8px 16px; position: relative;">
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d h:i A", strtotime($data->created_at)) }}</p>
+                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
             </div>
         @endif
