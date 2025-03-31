@@ -18,14 +18,14 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach($tasks as $task)
-                            <tr>
-                                <td>{{ $task->title }}</td>
-                                <td>{{ $task->assigned_user_name }}</td>      
-                                <td>{{ $task->eta }}</td>
-                                <td>{{ $task->status }}</td>
-                            </tr>
-            @endforeach
+                @foreach ($tasks as $task)
+                <tr>
+                    <td>{{ $task->title }}</td>
+                    <td>{{ $task->assigned_user_names }}</td>
+                    <td>{{ $task->eta }}</td>
+                    <td>{{ $task->status }}</td>
+                </tr>
+            @endforeach            
             </tbody>
         </table>
     </div>
@@ -51,7 +51,7 @@
                     @endphp
                     <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
                         <td>{{ $tasks->title }}</td>
-                        <td>{{ $tasks->assigned_user_name }}</td>
+                        <td>{{ $tasks->assigned_user_names }}</td>
                         <td>{{ $tasks->eta }}</td>
                     </tr>
                 @endforeach

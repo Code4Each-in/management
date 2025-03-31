@@ -640,7 +640,6 @@
                 $(document).ready(function() {
     // Check if element exists before initializing Select2
     if ($('#edit_assign1').length) {
-
         // Initialize Select2 only if it's not already initialized
         if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
             $('#edit_assign1').select2({
