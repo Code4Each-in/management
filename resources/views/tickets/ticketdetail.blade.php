@@ -11,10 +11,10 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTitle">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="true" aria-controls="collapseTitle">
-                                <strong>Title:</strong> {{ $tickets->title }}
+                                <strong>Title:&nbsp;</strong> {{ $tickets->title }}
                             </button>
                         </h2>
-                        <div id="collapseTitle" class="accordion-collapse collapse show" aria-labelledby="headingTitle" data-bs-parent="#ticketAccordion">
+                        <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#ticketAccordion">
                             <div class="accordion-body">
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="tinymce_textarea" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Description</label>
@@ -46,20 +46,52 @@
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">ETA</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? $tickets->eta : 'Not Set' }}</p>
+                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? $tickets->eta : '---' }}</p>
                                     </div>
                                 </div>
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Status</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->status ? $tickets->status : 'Not Set' }}</p>
+                                        <p style="font-size: 1rem; color: #333;">
+                                            @if($tickets->status == 'to_do')
+                                                <span class="badge rounded-pill bg-primary">To do</span>
+                                            @elseif($tickets->status == 'in_progress')
+                                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
+                                            @elseif($tickets->status == 'ready')
+                                                <span class="badge bg-info text-dark">Ready</span>
+                                            @elseif($tickets->status == 'complete')
+                                                <span class="badge rounded-pill bg-success">Complete</span>
+                                            @else
+                                                {{ $tickets->status ? $tickets->status : '---' }}
+                                            @endif
+                                        </p>                                        
                                     </div>
                                 </div>
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Ticket Priority</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->priority ? $tickets->priority : 'Not Set' }}</p>
+                                        <p style="font-size: 1rem; color: #333;">
+                                            @if($tickets->priority == 'normal')
+                                                <span class="badge rounded-pill bg-success">Normal</span>
+                                            @elseif($tickets->priority == 'low')
+                                                <span class="badge rounded-pill bg-warning text-dark">Low</span>
+                                            @elseif($tickets->priority == 'high')
+                                                <span class="badge rounded-pill bg-primary">High</span>
+                                            @elseif($tickets->priority == 'priority')
+                                                <span class="badge bg-info text-dark">Priority</span>
+                                            @else
+                                                <span class="badge rounded-pill bg-danger">Urgent</span>
+                                            @endif
+                                        </p>                                        
                                     </div>
+                                </div>
+                                <div class="row mb-1" style="margin-bottom: 8px;">
+                                    <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Ticket Status</label>
+                                    <div class="col-sm-9">
+                                        <p style="font-size: 1rem; color: #333;">
+                                            {{ $tickets->ticket_priority == 1 ? 'Active' : ($tickets->ticket_priority == 0 ? 'Inactive' : '---') }}
+                                        </p>
+                                    </div>                                    
                                 </div>
                             </div>
                         </div>
@@ -113,7 +145,8 @@
                 </div>
             @endif
         </div>
-        <form method="post" id="commentsData" action="{{ route('comments.add') }}">
+        <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
+            @csrf
             <div class="post-item clearfix mb-3 mt-3">
                 <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
             </div>
@@ -125,4 +158,31 @@
         </form>
     </div>
 </div>
+<script>
+$(document).ready(function() {
+    $('#commentsData').on('submit', function(e) {
+        e.preventDefault(); 
+        $('#error-message').hide().html('');
+        var formData = {
+            comment: $('#comment').val(),
+            id: $('#hidden_id').val(),
+            _token: $('input[name="_token"]').val()
+        };
+        $.ajax({
+            url: '{{ route('comments.add') }}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status == 200) {
+                    $('#comment').val('');
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                $('#error-message').show().html('An error occurred while submitting the comment.');
+            }
+        });
+    });
+});
+</script>
 @endsection
