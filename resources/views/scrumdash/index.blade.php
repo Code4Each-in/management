@@ -14,16 +14,18 @@
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>                   
                     <th scope="col">ETA</th> 
+                    <th scope="col">Status</th> 
                 </tr>
             </thead>
             <tbody>
-            @foreach($tasks as $task)
-                            <tr>
-                                <td>{{ $task->title }}</td>
-                                <td>{{ $task->assigned_user_name }}</td>      
-                                <td>{{ $task->eta }}</td>
-                            </tr>
-            @endforeach
+                @foreach ($tasks as $task)
+                <tr>
+                    <td>{{ $task->title }}</td>
+                    <td>{{ $task->assigned_user_names }}</td>
+                    <td>{{ $task->eta }}</td>
+                    <td>{{ $task->status }}</td>
+                </tr>
+            @endforeach            
             </tbody>
         </table>
     </div>
@@ -49,7 +51,7 @@
                     @endphp
                     <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
                         <td>{{ $tasks->title }}</td>
-                        <td>{{ $tasks->assigned_user_name }}</td>
+                        <td>{{ $tasks->assigned_user_names }}</td>
                         <td>{{ $tasks->eta }}</td>
                     </tr>
                 @endforeach
@@ -63,7 +65,7 @@
     <div class="col-md-6">
         <div class="card recent-sales overflow-auto">
          <div class="card-body">
-          <h5 class="card-title">Jobs Detail</h5>
+          <h5 class="card-title">Assigned Jobs</h5>
         <table class="table table-borderless datatable" id="assignedjobs">
             <thead>
                 <tr>
@@ -86,7 +88,7 @@
     <div class="col-md-6">
         <div class="card recent-sales overflow-auto">
             <div class="card-body">
-        <h5 class="card-title">No Jobs</h5>
+        <h5 class="card-title">No Job Assigned</h5>
         <table class="table table-borderless datatable" id="notask">
             <thead>
                 <tr>

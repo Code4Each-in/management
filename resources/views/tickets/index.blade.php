@@ -422,16 +422,9 @@
 
 
                 $("#addTicketsForm").submit(function(event) {
-                    event.preventDefault();
+                    event.preventDefault();                   
                     var formData = new FormData(this);
-                    // var totalfiles = document.getElementById('add_document').files.length;
-
-                    // for (var index = 0; index < totalfiles; index++) {
-                    //     formData.append("add_document[]" + index, document.getElementById('add_document')
-                    //         .files[
-                    //             index]);
-                    // }
-                    // console.log(formData);
+                    $('#loader').show();
                     $.ajax({
                         type: 'POST',
                         url: "{{ url('/add/tickets')}}",
@@ -445,19 +438,22 @@
                                     $('.alert-danger').show();
                                     $('.alert-danger').append('<li>' + value + '</li>');
                                 })
-
                             } else {
                                 $("#addTickets").modal('hide');
                                 location.reload();
                             }
+                            $('#loader').hide();
                         },
-                        error: function(data) {}
+                        error: function(data) {
+                            $('#loader').hide();
+                        }
                     });
                 });
 
                 $('#editTicketsForm').submit(function(event) {
                     event.preventDefault();
                     var formData = new FormData(this);
+                    $('#loader').show();
 
                     $.ajax({
                         type: "POST",
@@ -478,10 +474,14 @@
                                 $("#editTickets").modal('hide');
                                 location.reload();
                             }
+                            $('#loader').hide();
+                        },
+                        error: function(data) {
+                            $('#loader').hide();
                         }
                     });
                 });
-            });
+                });
 
             function ShowAssignModal(id) {
                 $('.ticketAsssign').html('');
@@ -640,7 +640,6 @@
                 $(document).ready(function() {
     // Check if element exists before initializing Select2
     if ($('#edit_assign1').length) {
-
         // Initialize Select2 only if it's not already initialized
         if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
             $('#edit_assign1').select2({

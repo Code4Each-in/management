@@ -23,9 +23,12 @@ class TicketsController extends Controller
             $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
             $projectFilter =  $ticketsFilter['project_filter'] ?? '';
             $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
-            $user = Users::whereHas('role', function($q){
+            $user = Users::whereHas('role', function($q) {
                 $q->where('name', '!=', 'Super Admin');
-            })->where('status','!=',0)->orderBy('id','desc')->get();	
+            })
+            ->where('status', '!=', 0)
+            ->orderBy('first_name', 'asc') 
+            ->get();
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
             $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
@@ -190,7 +193,10 @@ class TicketsController extends Controller
          $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->orderBy('id','desc')->get()->toArray();	
-         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
+        $userCount = Users::orderBy('first_name', 'asc')  
+        ->orderBy('id', 'desc')          
+        ->where('status', '!=', 0)        
+        ->get();
         foreach($user as $key1=> $data1)
         {
             foreach($ticketsAssign as $key2=> $data2){
@@ -393,7 +399,8 @@ class TicketsController extends Controller
        }
        $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
        $tickets = Tickets::where(['id' => $ticketId])->first();
-       $projects = Projects::all();
+       $projectId = $tickets->project_id;
+       $projects = Projects::where('id', $projectId)->get();
        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
        $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
