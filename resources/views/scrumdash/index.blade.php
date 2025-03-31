@@ -66,7 +66,7 @@
             <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
                 <td>{{ $tasks->title }}</td>
                 <td>{{ $tasks->assigned_user_names }}</td>
-                <td>{{ $tasks->eta ? $eta->format('m/d/Y') : '---' }}</td>
+                <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('m/d/Y') : '---' }}</td>
             </tr>            
                 @endforeach
             </tbody>            
