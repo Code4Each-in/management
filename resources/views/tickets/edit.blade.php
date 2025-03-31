@@ -115,7 +115,7 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="ticket_priority" class="col-sm-3 col-form-label">Ticket Priority</label>
+                    <label for="ticket_priority" class="col-sm-3 col-form-label">Ticket State</label>
                     <div class="col-sm-9">
                         <select name="ticket_priority" class="form-select" id="edit_ticket_priority">
                             <option value="1" {{ $tickets->ticket_priority == 1 ? 'selected' : '' }}>Active</option>
