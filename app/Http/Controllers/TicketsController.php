@@ -331,20 +331,20 @@ class TicketsController extends Controller
             'ticket_id'=>$validate['id'],
             'comment_by'=> auth()->user()->id,     
         ]);
-        if($ticket){
-            $id = auth()->user()->id;
-            $user = Users::find($id);
-            $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-            $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.Where You are assigned to this ticket.";
-            $messages["body-text"] = "Please review the comment and provide a response if necessary.";
-            $messages["url-title"] = "View Ticket";
-            $messages["url"] = "/edit/ticket/" .$validate['id'];
-            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$validate['id'])->get(['ticket_assigns.*','users.first_name','users.email']);
-            foreach ($assignedUsers as $assignedUser) {
-                $assignedUser->notify(new EmailNotification($messages));    
-            }
+        // if($ticket){
+        //     $id = auth()->user()->id;
+        //     $user = Users::find($id);
+        //     $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+        //     $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.Where You are assigned to this ticket.";
+        //     $messages["body-text"] = "Please review the comment and provide a response if necessary.";
+        //     $messages["url-title"] = "View Ticket";
+        //     $messages["url"] = "/edit/ticket/" .$validate['id'];
+        //     $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$validate['id'])->get(['ticket_assigns.*','users.first_name','users.email']);
+        //     foreach ($assignedUsers as $assignedUser) {
+        //         $assignedUser->notify(new EmailNotification($messages));    
+        //     }
             
-        }
+        // }
 
 
         $CommentsData = TicketComments::with('user')->where('id',$ticket->id)->get();
