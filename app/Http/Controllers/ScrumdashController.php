@@ -69,6 +69,7 @@ class ScrumdashController extends Controller
         $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
         
         $notasks = Users::where('users.status', 1)
+        ->where('users.role_id', '<>', 1)
         ->whereNotIn('users.first_name', $assignedUserNames) 
         ->orderBy('users.first_name', 'asc')
         ->select('users.*', 'users.first_name as assigned_user_name')
