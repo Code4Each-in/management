@@ -22,8 +22,22 @@
                 <tr>
                     <td>{{ $task->title }}</td>
                     <td>{{ $task->assigned_user_names }}</td>
-                    <td>{{ $task->eta }}</td>
-                    <td>{{ $task->status }}</td>
+                    <td>{{ $task->eta ? date("m/d/Y", strtotime($task->eta)) : '---' }}</td>
+                    <td>
+                        <p style="font-size: 1rem; color: #333;">
+                            @if($task->status == 'to_do')
+                                <span class="badge rounded-pill bg-primary">To do</span>
+                            @elseif($task->status == 'in_progress')
+                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
+                            @elseif($task->status == 'ready')
+                                <span class="badge bg-info text-dark">Ready</span>
+                            @elseif($task->status == 'complete')
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            @else
+                                {{ $task->status ? $task->status : '---' }}
+                            @endif
+                        </p>
+                    </td>
                 </tr>
             @endforeach            
             </tbody>
@@ -52,7 +66,7 @@
                     <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
                         <td>{{ $tasks->title }}</td>
                         <td>{{ $tasks->assigned_user_names }}</td>
-                        <td>{{ $tasks->eta }}</td>
+                        <td>{{ $tasks->eta ? date("m/d/Y", strtotime($tasks->eta)) : '---' }}</td>
                     </tr>
                 @endforeach
             </tbody>            
@@ -66,22 +80,22 @@
         <div class="card recent-sales overflow-auto">
          <div class="card-body">
           <h5 class="card-title">Assigned Jobs</h5>
-        <table class="table table-borderless datatable" id="assignedjobs">
+          <table class="table table-borderless datatable" id="assignedjobs">
             <thead>
                 <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Assigned To</th>                 
+                    <th scope="col">Name</th>
+                    <th scope="col">Assigned Jobs</th>                 
                 </tr>
             </thead>
             <tbody>
                 @foreach($taskss as $tasks)
-                                <tr>
-                                    <td>{{ $tasks->title }}</td>
-                                    <td>{{ $tasks->assigned_user_name }}</td>      
-                                </tr>
+                    <tr>
+                        <td>{{ $tasks->assigned_user_name }}</td>
+                        <td>{{ $tasks->assigned_titles }}</td>
+                    </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table>        
     </div>
   </div>
 </div>
