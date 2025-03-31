@@ -59,6 +59,7 @@ class ScrumdashController extends Controller
         $notasks = Users::leftJoin('ticket_assigns', 'users.id', '=', 'ticket_assigns.user_id')
         ->leftJoin('tickets', 'ticket_assigns.ticket_id', '=', 'tickets.id')
         ->where('users.status', 1)  
+        ->where('tickets.ticket_priority', 1)
         ->whereNull('ticket_assigns.ticket_id')  
         ->orderBy('users.first_name', 'asc')
         ->select('users.*', 'users.first_name as assigned_user_name')
