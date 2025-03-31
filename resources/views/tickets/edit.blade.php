@@ -72,8 +72,8 @@
                 <div class="row mb-5">
                     <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                     <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" value="@if ($tickets->eta) {{
-                            $tickets->eta}}@endif}}">
+                        <input type="datetime-local" class="form-control" id="edit_eta" name="eta" 
+                                value="{{ $tickets->eta ? \Carbon\Carbon::parse($tickets->eta)->format('Y-m-d\TH:i') : '' }}">
                     </div>
                 </div>
                 <div class="row mb-5">

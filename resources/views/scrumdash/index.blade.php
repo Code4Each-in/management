@@ -59,15 +59,15 @@
             </thead>
             <tbody>
                 @foreach($activetasks as $tasks)
-                    @php
-                        $eta = \Carbon\Carbon::parse($tasks->eta);
-                        $isCloseToDeadline = $eta->diffInDays(\Carbon\Carbon::now()) <= 2 && $eta > \Carbon\Carbon::now();
-                    @endphp
-                    <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
-                        <td>{{ $tasks->title }}</td>
-                        <td>{{ $tasks->assigned_user_names }}</td>
-                        <td>{{ $tasks->eta ? date("m/d/Y", strtotime($tasks->eta)) : '---' }}</td>
-                    </tr>
+                @php
+                $eta = \Carbon\Carbon::parse($tasks->eta);
+                $isCloseToDeadline = $eta->diffInDays(\Carbon\Carbon::now()) <= 2 && $eta->isFuture();
+            @endphp
+            <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
+                <td>{{ $tasks->title }}</td>
+                <td>{{ $tasks->assigned_user_names }}</td>
+                <td>{{ $tasks->eta ? $eta->format('m/d/Y') : '---' }}</td>
+            </tr>            
                 @endforeach
             </tbody>            
         </table>
