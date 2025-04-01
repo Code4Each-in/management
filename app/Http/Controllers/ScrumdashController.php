@@ -30,6 +30,7 @@ class ScrumdashController extends Controller
     ->where('tickets.ticket_priority', 1)
     ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at') 
     ->select(
+        DB::raw('MAX(tickets.id) as ticket_id'), 
         'tickets.title',
         'tickets.eta',
         'tickets.status',
@@ -37,9 +38,7 @@ class ScrumdashController extends Controller
     )
     ->orderBy('tickets.created_at', 'desc')
     ->get();
-
-
-         
+      
     $activetasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
     ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
     ->whereRaw("LOWER(tickets.status) = ?", ['in_progress'])  
@@ -47,6 +46,7 @@ class ScrumdashController extends Controller
     ->where('tickets.ticket_priority', 1)
     ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at')
     ->select(
+        DB::raw('MAX(tickets.id) as ticket_id'), 
         'tickets.title',
         'tickets.eta',
         'tickets.status',

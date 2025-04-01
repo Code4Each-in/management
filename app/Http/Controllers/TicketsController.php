@@ -308,6 +308,7 @@ class TicketsController extends Controller
             $request->session()->flash('message','Ticket updated successfully.');
     		return redirect()->back()->with('tickets', $tickets);
      }
+     
      public function destroy(Request $request)
      {
          $tickets = Tickets::where('id',$request->id)->delete(); 
