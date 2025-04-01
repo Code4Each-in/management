@@ -107,7 +107,7 @@
 <div class="row">
     <div class="col-md-12">
         <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
-        <div class="comments" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+        <div class="comments comment-design" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
             @if(!empty($ticketsCreatedByUser->ticketby->first_name))
             <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
             @endif
@@ -148,13 +148,14 @@
         <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
             @csrf
             <div class="post-item clearfix mb-3 mt-3">
-                <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+                <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
             </div>
             <div class="alert alert-danger" style="display:none;"></div>
             <input type="hidden" class="form-control" id="hidden_id" value="{{ $tickets->id }}">
-            <button type="submit" class="btn btn-primary float-right" style="padding: 8px 15px; font-size: 1rem; background-color: #007bff; border: none; border-radius: 5px;">
-                <i class="bi bi-send-fill"></i> Comment
-            </button>
+            <div class="button-design">
+                <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
+                                <i class="bi bi-send-fill"></i> Comment
+                </button></div>
         </form>
     </div>
 </div>

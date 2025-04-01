@@ -2377,3 +2377,129 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     display: flex;
     align-items: center;
 }
+.comment-design {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e5f3ff;
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    width: 60%;
+    margin: 0px auto;
+}
+
+.comment-design p strong {
+    font-size: 1rem;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.comment-design.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+
+.comment-design .comment-user-profile img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.comment-design .comment-bubble {
+    flex: 1; 
+    padding: 15px 20px;
+    font-size: 0.95rem;
+    
+    overflow-wrap: break-word;
+    display: inline-block;
+}
+
+
+.comment-design .comment-bubble:nth-child(1) {
+    border-radius: 20px 20px 20px 5px;
+    color: #012970;
+    text-align: right;
+    background: #f1f1f1; 
+    / border-radius: 20px 20px 5px 20px; 
+    font-family: "Poppins", sans-serif;
+ 
+}
+.comment-design
+    h1 {
+    font-size: 23px;
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #012970;
+    font-family: "Poppins", sans-serif;
+}
+
+
+
+.comment-design .comment-bubble:nth-child(2) {
+    color: #012970;
+    border-radius: 20px 20px 5px 20px;
+}
+
+
+.comment-design .comment-bubble p {
+    margin: 0;
+}
+
+
+.comment-design .comment-bubble p:first-child {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 3px;
+}
+
+
+.comment-design .comment-bubble p:nth-child(2) {
+    font-size: 15px;
+    color: #012970;
+    font-family: "Poppins", sans-serif;
+    margin-bottom: 6px;
+}
+
+
+.comment-design .comment-bubble p:last-child {
+    font-size: 20px;
+    line-height: 25px;
+    word-break: break-word;
+    white-space: normal;
+    font-family: "Poppins", sans-serif;
+}
+
+
+.comment-design .col-md-2.comment-user-profile {
+    width: 10%;
+}
+
+.button-design {
+    display: flex;
+    justify-content: center;
+    width: 51%;
+}
+
+.button-design button.btncomment  {
+    background-color: #4154f1;
+}
+
+.button-design button.btncomment:hover {
+    background-color: #000;
+}
+textarea#comment
+{
+  width:60%;
+  display: flex;
+  justify-content: center;
+  margin: 0px auto;
+}
+
+
