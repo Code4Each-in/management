@@ -30,7 +30,7 @@ class ScrumdashController extends Controller
     ->where('tickets.ticket_priority', 1)
     ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at') 
     ->select(
-        DB::raw('MAX(tickets.id) as ticket_ids'), 
+        DB::raw('MAX(tickets.id) as ticket_id'), 
         'tickets.title',
         'tickets.eta',
         'tickets.status',

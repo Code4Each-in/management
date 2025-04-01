@@ -56,7 +56,7 @@
                 <tr>
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>
-                    <th scope="col">ETA(d/m/y)</th>  
+                    <th scope="col">ETA(d/m/y)</th> 
                 </tr>
             </thead>
             <tbody>
