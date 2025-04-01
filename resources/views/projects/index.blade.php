@@ -22,6 +22,7 @@ use App\Models\Projects;?>
                                     <th>Project Name</th>
                                     <th>Description</th>
                                     <th>Assign</th>
+                                    <th>Client Name</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
@@ -72,6 +73,7 @@ use App\Models\Projects;?>
                                             <span>NA</span>
                                             @endif
                                     </td>
+                                    <td>{{ $data->client_name}}</td>
                                     <td>{{ $data->start_date}}</td>
                                     <td>{{ $data->end_date ?? '---'}}</td>
                                     <td>

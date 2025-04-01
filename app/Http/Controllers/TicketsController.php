@@ -165,17 +165,21 @@ class TicketsController extends Controller
                 foreach ($assignee_ids as $id) {
                     $assignedUsers = Users::where('id',$id)->get();
                 }
-                if($tickets){
+                if ($tickets) {
                     foreach ($assignedUsers as $assignedUser) {
-                        $messages["subject"] = "New Ticket #{$tickets->id} Has Been Created - {$authorName}";
-                        $messages["title"] = "The New Ticket #{$tickets->id} has been created for project '{$projectDetail->project_name}' subject  '{$tickets->title}' and priority level '{$tickets->priority}' end time is '{$ticket_eta}'.";
-                        $messages["body-text"] = "We kindly request you to review the ticket details and take necessary actions or provide a response if needed. ";
-                        $messages["action-message"] = "To Preview The Change, Click on the link provided below.";
-                        $messages["url-title"] = "View Ticket";
-                        $messages["url"] = "/edit/ticket/" . $tickets->id;
-                        $assignedUser->notify(new EmailNotification($messages));
+                        try {
+                            $messages["subject"] = "New Ticket #{$tickets->id} Has Been Created - {$authorName}";
+                            $messages["title"] = "The New Ticket #{$tickets->id} has been created for project '{$projectDetail->project_name}' subject '{$tickets->title}' and priority level '{$tickets->priority}' end time is '{$ticket_eta}'.";
+                            $messages["body-text"] = "We kindly request you to review the ticket details and take necessary actions or provide a response if needed.";
+                            $messages["action-message"] = "To Preview The Change, Click on the link provided below.";
+                            $messages["url-title"] = "View Ticket";
+                            $messages["url"] = "/edit/ticket/" . $tickets->id;
+                            $assignedUser->notify(new EmailNotification($messages));
+                        } catch (\Exception $e) {
+                            \Log::error("Error sending notification for ticket #{$tickets->id} to user {$assignedUser->id}: " . $e->getMessage());
+                        }
                     }
-                }
+                }                               
             }
             $request->session()->flash('message','Tickets added successfully.');
     		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
@@ -256,39 +260,44 @@ class TicketsController extends Controller
             'priority' => $validate['priority'],
             'eta'=>$request['eta'],
             ]);
-            
-
-            if($tickets && $ticketData->status != $validate['status']){
+        
+            if ($tickets && $ticketData->status != $validate['status']) {
                 foreach ($assignedUsers as $assignedUser) {
-                    $messages["subject"] = "Status Of #{$assignedUser->ticket_id} Changed By - {$changed_by}";
-                    $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
-                    $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
-                    $messages["url-title"] = "View Ticket";
-                    $messages["url"] = "/edit/ticket/" . $assignedUser->ticket_id;
-                    $assignedUser->notify(new EmailNotification($messages));
-                }
-            }
-
-            if (isset($request->assign))
-            {				
-                foreach($request->assign as $data)
-                {				
-                    $newTicketAssign =TicketAssigns::create([					
-                        'ticket_id' => $ticketId,
-                        'user_id' => $data,
-                    ]);
-                    if($newTicketAssign){
-                        $messages["subject"] = "New Ticket #{$ticketId} Assigned By - {$changed_by}";
-                        $messages["title"] = "You have been assigned a new ticket #{$ticketId} by {$changed_by}.";
-                        $messages["body-text"] = " Please review and take necessary action.";
+                    try {
+                        $messages["subject"] = "Status Of #{$assignedUser->ticket_id} Changed By - {$changed_by}";
+                        $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
+                        $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
                         $messages["url-title"] = "View Ticket";
-                        $messages["url"] = "/edit/ticket/" . $ticketId;
-                        $user = Users::find($data);
-                        $user->notify(new EmailNotification($messages));
-                    }	
+                        $messages["url"] = "/edit/ticket/" . $assignedUser->ticket_id;
+                        $assignedUser->notify(new EmailNotification($messages));
+                    } catch (\Exception $e) {
+                        \Log::error("Error sending notification for ticket #{$assignedUser->ticket_id} to user {$assignedUser->id}: " . $e->getMessage());
+                    }
                 }
-               	
-            }
+            }            
+
+            if (isset($request->assign)) {				
+                foreach ($request->assign as $data) {				
+                    try {
+                        $newTicketAssign = TicketAssigns::create([					
+                            'ticket_id' => $ticketId,
+                            'user_id' => $data,
+                        ]);
+            
+                        if ($newTicketAssign) {
+                            $messages["subject"] = "New Ticket #{$ticketId} Assigned By - {$changed_by}";
+                            $messages["title"] = "You have been assigned a new ticket #{$ticketId} by {$changed_by}.";
+                            $messages["body-text"] = " Please review and take necessary action.";
+                            $messages["url-title"] = "View Ticket";
+                            $messages["url"] = "/edit/ticket/" . $ticketId;
+                            $user = Users::find($data);
+                            $user->notify(new EmailNotification($messages));
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error("Error assigning ticket #{$ticketId} to user {$data}: " . $e->getMessage());
+                    }
+                }
+            }            
             if($request->hasfile('edit_document')){
                 foreach($request->file('edit_document') as $file)
                 {
@@ -332,22 +341,27 @@ class TicketsController extends Controller
             'ticket_id'=>$validate['id'],
             'comment_by'=> auth()->user()->id,     
         ]);
-        // if($ticket){
-        //     $id = auth()->user()->id;
-        //     $user = Users::find($id);
-        //     $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-        //     $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.Where You are assigned to this ticket.";
-        //     $messages["body-text"] = "Please review the comment and provide a response if necessary.";
-        //     $messages["url-title"] = "View Ticket";
-        //     $messages["url"] = "/edit/ticket/" .$validate['id'];
-        //     $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$validate['id'])->get(['ticket_assigns.*','users.first_name','users.email']);
-        //     foreach ($assignedUsers as $assignedUser) {
-        //         $assignedUser->notify(new EmailNotification($messages));    
-        //     }
-            
-        // }
-
-
+        if ($ticket) {
+            $id = auth()->user()->id;
+            $user = Users::find($id);
+            try {
+                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. Where You are assigned to this ticket.";
+                $messages["body-text"] = "Please review the comment and provide a response if necessary.";
+                $messages["url-title"] = "View Ticket";
+                $messages["url"] = "/edit/ticket/" . $validate['id'];
+        
+                $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                    ->where('ticket_id', $validate['id'])
+                    ->get(['ticket_assigns.*', 'users.first_name', 'users.email']);
+                
+                foreach ($assignedUsers as $assignedUser) {
+                    $assignedUser->notify(new EmailNotification($messages));
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error sending notification for comment on ticket #{$validate['id']} to assigned users: " . $e->getMessage());
+            }
+        }        
         $CommentsData = TicketComments::with('user')->where('id',$ticket->id)->get();
         return Response()->json(['status'=>200,'CommentsData' => $CommentsData,'Commentmessage' => 'Comments added successfully.']); 
     }

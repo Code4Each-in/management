@@ -18,17 +18,22 @@ class ProjectsController extends Controller
     {
        
        $projects = Projects::with('client')->get(); // Load clients' data for each project
-       $clients = Client::all(); // Load all clients for the dropdown
+       $clients = Client::orderBy('name', 'asc')  
+                 ->get();
    
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
         ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'HR Manager')
-        ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
+        ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('first_name','asc')
         ->get();
-        $projects = Projects::orderBy('id','desc')->get(); 
-        foreach ($projects as $key=>$data) 
-        {
-            $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$data->id)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
-            $projects[$key]->projectassign = !empty($projectAssigns)? $projectAssigns:null;
+        $projects = Projects::orderBy('id', 'desc')->get();
+        foreach ($projects as $key => $data) {
+            $projectAssigns = ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')
+                ->where('project_id', $data->id)
+                ->orderBy('id', 'desc')
+                ->get(['project_assigns.*', 'users.first_name', 'users.profile_picture']);
+            $clientName = Client::where('id', $data->client_id)->pluck('name')->first();
+            $projects[$key]->projectassign = !empty($projectAssigns) ? $projectAssigns : null;
+            $projects[$key]->client_name = $clientName; 
         }
         return view('projects.index',compact('users','projects','clients'));   
     }
