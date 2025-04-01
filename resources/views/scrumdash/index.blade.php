@@ -2,7 +2,7 @@
 @section('title', 'Scrum Dashboard')
 @section('subtitle', 'Scrum')
 @section('content')
-
+<h3>{{ \Carbon\Carbon::today()->format('l, F j, Y') }}</h3>
 <div class="row">
 <div class="col-md-6">
     <div class="card recent-sales overflow-auto">
@@ -20,7 +20,9 @@
             <tbody>
                 @foreach ($tasks as $task)
                 <tr>
-                    <td>{{ $task->title }}</td>
+                    <td><a href="{{ url('/view/ticket/'.$task->ticket_id)}}">
+                        <i style="color:#4154f1;" class="pointer"></i>
+                    {{ $task->title }}</a></td>
                     <td>{{ $task->assigned_user_names }}</td>
                     <td>{{ $task->eta ? date("m/d/Y", strtotime($task->eta)) : '---' }}</td>
                     <td>
@@ -62,15 +64,22 @@
                 @php
                 $eta = \Carbon\Carbon::parse($tasks->eta);
                 $isCloseToDeadline = $eta->diffInDays(\Carbon\Carbon::now()) <= 2 && $eta->isFuture();
-            @endphp
-            <tr style="{{ $isCloseToDeadline ? 'background-color: red;' : '' }}">
-                <td>{{ $tasks->title }}</td>
-                <td>{{ $tasks->assigned_user_names }}</td>
-                <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('m/d/Y') : '---' }}</td>
-            </tr>            
+                @endphp
+                <tr>
+                    <td>
+                        @if($isCloseToDeadline)
+                            <i class="fas fa-exclamation-circle" style="color: red;" title="Close to deadline"></i>
+                        @endif
+                        <a href="{{ url('/view/ticket/'.$tasks->ticket_id)}}">
+                            <i style="color:#4154f1;" class="pointer"></i>
+                        {{ $tasks->title }}</a>
+                    </td>
+                    <td>{{ $tasks->assigned_user_names }}</td>
+                    <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('m/d/Y') : '---' }}</td>
+                </tr>            
                 @endforeach
             </tbody>            
-        </table>
+        </table>        
      </div>
    </div>
 </div>
