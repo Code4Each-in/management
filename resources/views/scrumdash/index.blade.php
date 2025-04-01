@@ -13,7 +13,7 @@
                 <tr>
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>                   
-                    <th scope="col">ETA</th> 
+                    <th scope="col">ETA(d/m/y)</th> 
                     <th scope="col">Status</th> 
                 </tr>
             </thead>
@@ -24,7 +24,7 @@
                         <i style="color:#4154f1;" class="pointer"></i>
                     {{ $task->title }}</a></td>
                     <td>{{ $task->assigned_user_names }}</td>
-                    <td>{{ $task->eta ? date("m/d/Y", strtotime($task->eta)) : '---' }}</td>
+                    <td>{{ $task->eta ? date("d/m/Y", strtotime($task->eta)) : '---' }}</td>
                     <td>
                         <p style="font-size: 1rem; color: #333;">
                             @if($task->status == 'to_do')
@@ -56,7 +56,7 @@
                 <tr>
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>
-                    <th scope="col">ETA</th>  
+                    <th scope="col">ETA(d/m/y)</th>  
                 </tr>
             </thead>
             <tbody>
@@ -75,7 +75,7 @@
                         {{ $tasks->title }}</a>
                     </td>
                     <td>{{ $tasks->assigned_user_names }}</td>
-                    <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('m/d/Y') : '---' }}</td>
+                    <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('d/m/Y') : '---' }}</td>
                 </tr>            
                 @endforeach
             </tbody>            
@@ -99,7 +99,7 @@
             <tbody>
                 @foreach($taskss as $tasks)
                     <tr>
-                        <td>{{ $tasks->assigned_user_name }}</td>
+                        <td>{{ $tasks->assigned_user_name }}&nbsp;-&nbsp;{{ $tasks->designation }}</td>
                         <td>{{ $tasks->assigned_titles }}</td>
                     </tr>
                 @endforeach
@@ -121,7 +121,7 @@
             <tbody>
                 @foreach($notasks as $notask)
                                 <tr>
-                                    <td>{{ $notask->assigned_user_name }}</td>      
+                                    <td>{{ $notask->assigned_user_name }}&nbsp;-&nbsp;{{ $notask->designation }}</td>      
                                 </tr>
                 @endforeach
             </tbody>

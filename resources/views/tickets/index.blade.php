@@ -234,7 +234,7 @@
                                         <option value="">Select User</option>
                                         @foreach ($user as $data)
                                             <option value="{{ $data->id }}">
-                                                {{ $data->first_name }}
+                                                {{ $data->first_name }}&nbsp;-&nbsp;{{ $data->designation }}
                                             </option>
                                         @endforeach
                                     </select>                                    

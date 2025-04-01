@@ -30,7 +30,7 @@ class ScrumdashController extends Controller
     ->where('tickets.ticket_priority', 1)
     ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at') 
     ->select(
-        DB::raw('MAX(tickets.id) as ticket_id'), 
+        DB::raw('MAX(tickets.id) as ticket_ids'), 
         'tickets.title',
         'tickets.eta',
         'tickets.status',
@@ -57,15 +57,19 @@ class ScrumdashController extends Controller
 
     $taskss = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
     ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
-    ->whereRaw("LOWER(tickets.status) != ?", ['complete']) 
-    ->where('users.status', 1) 
+    ->whereRaw("LOWER(tickets.status) != ?", ['complete'])
+    ->where('users.status', 1)
     ->where('tickets.ticket_priority', 1)
-    ->groupBy('users.first_name') 
+    ->groupBy('users.first_name', 'users.designation') 
     ->select(
         'users.first_name as assigned_user_name',
+        'users.designation',  
         DB::raw('GROUP_CONCAT(tickets.title ORDER BY tickets.title ASC) as assigned_titles')
     )
     ->get();
+
+$assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
+
         $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
         
         $notasks = Users::where('users.status', 1)
