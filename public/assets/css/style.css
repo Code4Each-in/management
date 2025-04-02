@@ -2378,7 +2378,6 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     align-items: center;
 }
 .comment-design {
-    max-height: 400px;
     overflow-y: auto;
     border: 1px solid #e5f3ff;
     padding: 15px;

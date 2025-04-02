@@ -50,7 +50,7 @@
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">ETA</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("m/d/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
+                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
                                     </div>
                                 </div>
                                 <div class="row mb-1" style="margin-bottom: 8px;">
@@ -111,7 +111,7 @@
 <div class="row">
     <div class="col-md-12">
         <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
-        <div class="comments comment-design" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+        <div class="comments comment-design" style="overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
             @if(!empty($ticketsCreatedByUser->ticketby->first_name))
             <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
             @endif

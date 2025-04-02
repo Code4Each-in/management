@@ -25,6 +25,7 @@ use App\Http\Controllers\HiringUsController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\ScrumdashController;
+use App\Http\Controllers\SprintController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -246,5 +247,8 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Scrum Dashboard
 	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
+
+	//sprint dashboard
+	Route::get('/sprint', [SprintController::class, 'index'])->name('sprint.index');
 
 });
