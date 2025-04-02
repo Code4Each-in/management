@@ -2377,3 +2377,304 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     display: flex;
     align-items: center;
 }
+.comment-design {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e5f3ff;
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    width: 60%;
+    margin: 0px auto;
+}
+
+.comment-design p strong {
+    font-size: 1rem;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.comment-design.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+
+.comment-design .comment-user-profile img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.comment-design .comment-bubble {
+    flex: 1; 
+    padding: 15px 20px;
+    font-size: 0.95rem;
+    
+    overflow-wrap: break-word;
+    display: inline-block;
+}
+
+
+.comment-design .comment-bubble:nth-child(1) {
+    border-radius: 20px 20px 20px 5px;
+    color: #012970;
+    text-align: right;
+    background: #e1e0e0;
+    border-radius: 20px 20px 5px 20px; 
+    font-family: "Poppins", sans-serif;
+ 
+}
+.comment-design
+    h1 {
+    font-size: 23px;
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #012970;
+    font-family: "Poppins", sans-serif;
+}
+
+
+
+.comment-design .comment-bubble:nth-child(2) {
+    color: #012970;
+    border-radius: 20px 20px 5px 20px;
+    background-color: #d4e4f3;
+}
+
+
+.comment-design .comment-bubble p {
+    margin: 0;
+}
+
+
+.comment-design .comment-bubble p:first-child {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 3px;
+}
+
+
+.comment-design .comment-bubble p:nth-child(2) {
+    font-size: 15px;
+    color: #012970;
+    font-family: "Poppins", sans-serif;
+    margin-bottom: 6px;
+}
+
+
+.comment-design .comment-bubble p:last-child {
+    font-size: 20px;
+    line-height: 25px;
+    word-break: break-word;
+    white-space: normal;
+    font-family: "Poppins", sans-serif;
+}
+
+
+.comment-design .col-md-2.comment-user-profile {
+    width: 10%;
+}
+
+.button-design {
+    display: flex;
+    justify-content: center;
+    width: 51%;
+}
+
+.button-design button.btncomment  {
+    background-color: #4154f1;
+}
+
+.button-design button.btncomment:hover {
+    background-color: #000;
+}
+textarea#comment
+{
+  width:60%;
+  display: flex;
+  justify-content: center;
+  margin: 0px auto;
+}
+
+.pagetitle.scrumquotes {
+  width: 100%;
+  padding: 15px;
+  display: flex;
+  column-gap: 50px;
+  justify-content: flex-start;
+  margin-bottom: 35px;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: flex-start;
+}
+
+.pagetitle.scrumquotes .col {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: left;
+}
+
+
+
+ center the blockquote in the page /
+.blockquote-wrapper {
+   display: flex;
+   height: 100vh;
+   padding: 0 20px;
+}
+
+
+.blockquote {
+    position: relative;
+    font-family: 'Barlow Condensed', sans-serif;
+    margin: 0px auto;
+    align-self: center;
+    width: 98%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.blockquote h1 {
+    font-family: 'Abril Fatface', cursive;
+    position: relative;
+    font-size: 2.8rem;
+    font-weight: normal;
+    line-height: 1;
+    margin: 0;
+    border: 2px solid #fff;
+    border: solid 2px;
+    border-radius:20px;
+    padding: 17px;
+}
+
+
+.blockquote h1:after {
+  content: "";
+  position: absolute;
+  border: 2px solid #e74848;
+  border-radius: 0 100% 0 0;
+  width: 55px;
+  height: 60px;
+  bottom: -60px;
+  left: 50px;
+  border-bottom: none;
+  border-left: none;
+  z-index: 3;
+}
+
+.blockquote h1:before {
+    content:"";
+    position: absolute;
+    width: 80px;
+    border: 1px solid #f6f9ff;
+    bottom: -2px;
+    left: 50px;
+    z-index: 2;
+}
+
+
+@media (min-width: 600px) {
+  .blockquote h1 {
+      font-size: 20px;
+      line-height: 30px;
+      text-transform: capitalize;
+      text-align: center;
+  }
+}
+
+
+.blockquote h4 {
+    position: relative;
+    color: #23262b;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 0;
+    padding-top: 10px;
+    z-index: 1;
+    margin-left:150px;
+    padding-left:12px;
+}
+
+ 
+.blockquote h4:first-letter {
+  margin-left:-12px;
+}
+
+.blockquote-wrapper {
+    width: 100%;
+}
+
+
+@media (max-width: 768px) {
+    .blockquote-wrapper {
+        padding: 0px;
+    }
+
+    .blockquote {
+        width: 100%;
+    }
+.pagetitle .scrumquotes {
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    column-gap: 40px;
+    / justify-content: space-between; /
+    flex-direction: column;
+}
+    .blockquote h1 {
+        font-size: 2rem;
+        padding: 20px;
+        word-break: break-word;
+    }
+
+    .blockquote h4 {
+        word-break: break-word;
+        font-size: 17px;
+        text-align: center;
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    .blockquote h1 {
+        font-size: 17px;
+        padding: 14px;
+        line-height: 25px;
+        word-break: break-word;
+    }
+
+    .blockquote h4 {
+        font-size: 15px;
+        text-align: right;
+    }
+}
+
+
+.pagetitle .quotes .col h3 {
+    font-size: 18px;
+}
+.pagetitle.scrumquotes h3 {
+  font-size: 20px;
+  padding-top: 5px;
+}
+
+.editticket
+{
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+

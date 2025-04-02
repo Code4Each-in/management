@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Users;
+use App\Models\Quote;
 use App\Models\Tickets;
 use App\Models\TodoList;
 use Auth;
@@ -78,11 +79,19 @@ $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
         ->orderBy('users.first_name', 'asc')
         ->select('users.*', 'users.first_name as assigned_user_name')
         ->get();
-                 
+
+                $today = Carbon::now(); 
+                $dateOnly = $today->toDateString(); 
+                $quotes = Quote::whereDate('start_date', $dateOnly)
+               ->whereDate('end_date', $dateOnly)
+               ->get();
+        
+
     return view('scrumdash.index', compact('tasks',
     'activetasks',
     'notasks',
-    'taskss'
+    'taskss',
+    'quotes'
 
 
 ));

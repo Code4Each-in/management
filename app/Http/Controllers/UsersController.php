@@ -15,7 +15,7 @@ use App\Notifications\EmailNotification;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
-
+use App\Models\Quote;
 class UsersController extends Controller
 {
 

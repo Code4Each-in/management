@@ -1,8 +1,30 @@
 @extends('layout')
-@section('title', 'Scrum Dashboard')
 @section('subtitle', 'Scrum')
 @section('content')
-<h3>{{ \Carbon\Carbon::today()->format('l, F j, Y') }}</h3>
+
+<div class="pagetitle scrumquotes">
+            <div class="row">
+                <div class="col">
+                    <h1>Scrum Dashboard</h1>
+                </div>
+                <h3>Wednesday, April 2, 2025</h3>
+            </div>
+    
+    
+            <div class="blockquote-wrapper">
+                <div class="blockquote">
+                    @if($quotes->isNotEmpty())
+                        <h1>
+                            {{ $quotes->first()->quote_text }}  <!-- Display the quote text from the first matching quote -->
+                        </h1>
+                        <h4>—One Thought, One Change</h4>
+                    @else
+                        <h1>No quote available for today.</h1>
+                    @endif
+                </div>
+            </div>            
+</div>
+
 <div class="row">
 <div class="col-md-6">
     <div class="card recent-sales overflow-auto">

@@ -246,4 +246,5 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Scrum Dashboard
 	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
+
 });
