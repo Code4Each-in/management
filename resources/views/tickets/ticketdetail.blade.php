@@ -2,7 +2,11 @@
 @section('title', 'Ticket Details')
 @section('subtitle', 'Ticket')
 @section('content')
-
+<div class="editticket">
+<a href="{{ url('/edit/ticket/'.$tickets->id)}}" class="btn btn-primary">Edit Ticket
+    <i style="color:#4154f1;"></i>
+</a>
+</div>
 <div class="row mb-1" style="margin-bottom: 10px;">
     <div class="col-md-12">
         <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">

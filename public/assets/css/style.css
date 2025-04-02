@@ -2669,4 +2669,12 @@ textarea#comment
   padding-top: 5px;
 }
 
+.editticket
+{
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
 
