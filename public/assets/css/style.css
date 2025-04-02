@@ -2502,4 +2502,170 @@ textarea#comment
   margin: 0px auto;
 }
 
+.pagetitle.scrumquotes {
+  width: 100%;
+  padding: 15px;
+  display: flex;
+  column-gap: 50px;
+  justify-content: flex-start;
+  margin-bottom: 35px;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: flex-start;
+}
+
+.pagetitle.scrumquotes .col {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: left;
+}
+
+
+
+ center the blockquote in the page /
+.blockquote-wrapper {
+   display: flex;
+   height: 100vh;
+   padding: 0 20px;
+}
+
+
+.blockquote {
+    position: relative;
+    font-family: 'Barlow Condensed', sans-serif;
+    margin: 0px auto;
+    align-self: center;
+    width: 98%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.blockquote h1 {
+    font-family: 'Abril Fatface', cursive;
+    position: relative;
+    font-size: 2.8rem;
+    font-weight: normal;
+    line-height: 1;
+    margin: 0;
+    border: 2px solid #fff;
+    border: solid 2px;
+    border-radius:20px;
+    padding: 17px;
+}
+
+
+.blockquote h1:after {
+  content: "";
+  position: absolute;
+  border: 2px solid #e74848;
+  border-radius: 0 100% 0 0;
+  width: 55px;
+  height: 60px;
+  bottom: -60px;
+  left: 50px;
+  border-bottom: none;
+  border-left: none;
+  z-index: 3;
+}
+
+.blockquote h1:before {
+    content:"";
+    position: absolute;
+    width: 80px;
+    border: 1px solid #f6f9ff;
+    bottom: -2px;
+    left: 50px;
+    z-index: 2;
+}
+
+
+@media (min-width: 600px) {
+  .blockquote h1 {
+      font-size: 20px;
+      line-height: 30px;
+      text-transform: capitalize;
+      text-align: center;
+  }
+}
+
+
+.blockquote h4 {
+    position: relative;
+    color: #23262b;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 0;
+    padding-top: 10px;
+    z-index: 1;
+    margin-left:150px;
+    padding-left:12px;
+}
+
+ 
+.blockquote h4:first-letter {
+  margin-left:-12px;
+}
+
+.blockquote-wrapper {
+    width: 100%;
+}
+
+
+@media (max-width: 768px) {
+    .blockquote-wrapper {
+        padding: 0px;
+    }
+
+    .blockquote {
+        width: 100%;
+    }
+.pagetitle .scrumquotes {
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    column-gap: 40px;
+    / justify-content: space-between; /
+    flex-direction: column;
+}
+    .blockquote h1 {
+        font-size: 2rem;
+        padding: 20px;
+        word-break: break-word;
+    }
+
+    .blockquote h4 {
+        word-break: break-word;
+        font-size: 17px;
+        text-align: center;
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    .blockquote h1 {
+        font-size: 17px;
+        padding: 14px;
+        line-height: 25px;
+        word-break: break-word;
+    }
+
+    .blockquote h4 {
+        font-size: 15px;
+        text-align: right;
+    }
+}
+
+
+.pagetitle .quotes .col h3 {
+    font-size: 18px;
+}
+.pagetitle.scrumquotes h3 {
+  font-size: 20px;
+  padding-top: 5px;
+}
+
 

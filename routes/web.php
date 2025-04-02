@@ -25,6 +25,7 @@ use App\Http\Controllers\HiringUsController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\ScrumdashController;
+use App\Http\Controllers\QuoteController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -246,4 +247,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Scrum Dashboard
 	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
+
+	//quotes
+	Route::get('/quote', [QuoteController::class, 'getQuote']);
 });
