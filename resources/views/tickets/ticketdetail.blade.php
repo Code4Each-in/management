@@ -116,7 +116,7 @@
             @foreach ($CommentsData as $data)
     <div class="row mb-3" style="margin-bottom: 15px;">       
         @if(Auth::user()->id == $data->comment_by)
-            <div class="col-md-10 offset-md-2 comment-bubble" style="background-color: #e7ecf1; border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
+            <div class="col-md-10 offset-md-2 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
@@ -131,7 +131,7 @@
                     <img src="{{ asset('assets/img/blankImage.jpg') }}" alt="Profile" class="rounded-circle" width="35" height="35">
                 </div>
             @endif
-            <div class="col-md-10 comment-bubble" style="background-color: #ffb3b3; border-radius: 25px; padding: 8px 16px; position: relative;">
+            <div class="col-md-10 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative;">
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>

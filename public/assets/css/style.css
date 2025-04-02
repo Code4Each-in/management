@@ -2426,8 +2426,8 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     border-radius: 20px 20px 20px 5px;
     color: #012970;
     text-align: right;
-    background: #f1f1f1; 
-    / border-radius: 20px 20px 5px 20px; 
+    background: #e1e0e0;
+    border-radius: 20px 20px 5px 20px; 
     font-family: "Poppins", sans-serif;
  
 }
@@ -2445,6 +2445,7 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
 .comment-design .comment-bubble:nth-child(2) {
     color: #012970;
     border-radius: 20px 20px 5px 20px;
+    background-color: #d4e4f3;
 }
 
 

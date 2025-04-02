@@ -1,23 +1,6 @@
 @extends('layout')
 @section('subtitle', 'Scrum')
 @section('content')
-{{-- <div class="pagetitle  quotes">
-    <div class="row">
-        <div class="col">
-            <h1>Scrum Dashboard</h1>
-        <h3>Wednesday, April 2, 2025</h3></div>
-    </div>
-    
-    
-    <div class="blockquote-wrapper">
-<div class="blockquote">
-<h1>
-Intuitive design happens when <span style="color: #000000;">current knowledge</span> is the same as the <span style="color: #000000;">target knowledge.</span>
-</h1>
-<h4>—Jared Spool<br><em>Web Site Usability: A Designer's Guide</em></h4>
-</div>
-</div>
-</div> --}}
 
 <div class="pagetitle scrumquotes">
             <div class="row">
