@@ -111,7 +111,7 @@
 <div class="row">
     <div class="col-md-12">
         <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
-        <div class="comments comment-design" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+        <div class="comments comment-design" style="overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
             @if(!empty($ticketsCreatedByUser->ticketby->first_name))
             <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
             @endif
