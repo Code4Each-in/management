@@ -50,7 +50,7 @@
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">ETA</label>
                                     <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("m/d/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
+                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
                                     </div>
                                 </div>
                                 <div class="row mb-1" style="margin-bottom: 8px;">
