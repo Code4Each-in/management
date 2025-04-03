@@ -2676,4 +2676,14 @@ textarea#comment
   align-items: center;
 }
 
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    position: relative  !important;
+}
 
+span.select2-search.select2-search--inline {
+    display: none;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  padding-left: 0  !important;
+}

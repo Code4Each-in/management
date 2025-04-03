@@ -7,7 +7,7 @@
                 <div class="col">
                     <h1>Scrum Dashboard</h1>
                 </div>
-                <h3>Wednesday, April 2, 2025</h3>
+                <h3>{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</h3>
             </div>
     
     
