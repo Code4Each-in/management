@@ -92,7 +92,7 @@
                         </a>
                     </td>
                     <td>{{ $tasks->assigned_user_names }}</td>
-                    <td>{{ $tasks->sprint_name }}</td>
+                    <td>{{ $tasks->sprint_name ?? '---' }}</td>
                     <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('d/m/Y') : '---' }}</td>
                 </tr>
                 @endforeach

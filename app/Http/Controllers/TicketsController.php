@@ -229,7 +229,6 @@ class TicketsController extends Controller
             'description'=>'required', 
             'status'=>'required',
             'edit_project_id' => 'required',
-            'edit_sprint_id' => 'required',
             'priority'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
