@@ -3,11 +3,7 @@
 @section('subtitle', 'Tickets')
 @section('content')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Include Select2 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
-    <!-- Your custom styles -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <style>
         .select2-container {
             visibility: visible !important;
@@ -171,11 +167,11 @@
                                     <td><span class="badge rounded-pill  bg-danger">Urgent</span></td>
                                     @endif
                                     <td> 
-                                        <a href="{{ url('/view/ticket/'.$data->id)}}">
+                                        <a href="{{ url('/view/ticket/'.$data->id)}}"  target="_blank">
                                             <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                         </a>
                                         <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
-
+                                        </a>
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>
                                 </tr>
@@ -204,9 +200,10 @@
                             <div class="row mb-3">
                                 <label for="title" class="col-sm-3 col-form-label required">Title</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="title" id="title">
+                                    <input type="text" class="form-control" name="title" id="title" oninput="checkWordCount()">
+                                    <small id="wordCountError" class="text-danger" style="display:none;">Please enter at least 3 words.</small>
                                 </div>
-                            </div>
+                            </div>                            
                             <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                                 <div class="col-sm-9">
@@ -214,15 +211,22 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">Project</label>
-
+                                <label class="col-sm-3 col-form-label required">Project</label>
                                 <div class="col-sm-9">
                                     <select name="project_id" class="form-select form-control" id="project_id">
+                                        <option value="">Select Project</option>
                                         @foreach ($projects as $data)
-                                        <option value="{{$data->id}}">
-                                            {{$data->project_name}}
-                                        </option>
+                                            <option value="{{ $data->id }}">{{ $data->project_name }}</option>
                                         @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label required">Sprint</label>
+                                <div class="col-sm-9">
+                                    <select name="sprint_id" class="form-select form-control" id="sprint_id">
+                                        <option value="">Select Sprint</option>
                                     </select>
                                 </div>
                             </div>
@@ -663,6 +667,59 @@
     });
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    const currentDate = new Date();
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek === 5) { 
+        currentDate.setHours(currentDate.getHours() + 72);
+    } else if (dayOfWeek === 6 || dayOfWeek === 0) { 
+        currentDate.setHours(currentDate.getHours() + (48 - currentDate.getHours() % 24));
+    } else {
+        currentDate.setHours(currentDate.getHours() + 24);
+    }
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const maxEta = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById("eta").setAttribute("max", maxEta);
+});
+
+        function checkWordCount() {
+            const titleInput = document.getElementById('title');
+            const wordCountError = document.getElementById('wordCountError');
+            const wordCount = titleInput.value.trim().split(/\s+/).filter(Boolean).length;
+            if (wordCount < 5) {
+                wordCountError.style.display = 'block';  
+            } else {
+                wordCountError.style.display = 'none';   
+            }
+        }
+        document.getElementById('title').addEventListener('input', checkWordCount);
+
+        $('#project_id').on('change', function () {
+        var projectId = $(this).val();
+        $('#sprint_id').empty().append('<option value="">Loading...</option>');
+
+        if (projectId) {
+            $.ajax({
+                url: '/get-sprints-by-project/' + projectId,
+                type: 'GET',
+                success: function (response) {
+                    $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+                    $.each(response, function (key, sprint) {
+                        $('#sprint_id').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+                    });
+                },
+                error: function () {
+                    $('#sprint_id').empty().append('<option value="">Error loading sprints</option>');
+                }
+            });
+        } else {
+            $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+        }
+    });
         </script>
     
         @endsection

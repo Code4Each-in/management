@@ -26,7 +26,8 @@ class Tickets extends Model
         'status_changed_by', 
         'created_by', 
         'priority',
-        'comment',   
+        'comment', 
+        'sprint_id'  
     ];
     public function ticketAssigns()
     {

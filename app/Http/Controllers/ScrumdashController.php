@@ -11,8 +11,9 @@ use App\Models\Quote;
 use App\Models\Tickets;
 use App\Models\TodoList;
 use Auth;
-
-
+use App\Models\Projects;
+use App\Models\Sprint;
+use App\Models\Client;
 
 class ScrumdashController extends Controller
 {
@@ -42,15 +43,18 @@ class ScrumdashController extends Controller
       
     $activetasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
     ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
+    ->join('sprints', 'tickets.sprint_id', '=', 'sprints.id')
     ->whereRaw("LOWER(tickets.status) = ?", ['in_progress'])  
     ->where('users.status', 1) 
     ->where('tickets.ticket_priority', 1)
-    ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at')
+    ->groupBy('tickets.title', 'tickets.eta', 'tickets.status', 'tickets.created_at','tickets.sprint_id')
     ->select(
         DB::raw('MAX(tickets.id) as ticket_id'), 
         'tickets.title',
         'tickets.eta',
         'tickets.status',
+        'tickets.sprint_id',
+        'sprints.name as sprint_name',
         DB::raw('GROUP_CONCAT(users.first_name ORDER BY users.first_name ASC) as assigned_user_names')
     )
     ->orderBy('tickets.created_at', 'desc') 
@@ -85,13 +89,23 @@ $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
                 $quotes = Quote::whereDate('start_date', $dateOnly)
                ->whereDate('end_date', $dateOnly)
                ->get();
+               $projects = Projects::all();
+        $clients = Client::orderBy('name', 'asc')  
+        ->get();
+        $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
+        ->join('projects', 'sprints.project', '=', 'projects.id')
+        ->where('sprints.status', 1)
+        ->get();
         
 
     return view('scrumdash.index', compact('tasks',
     'activetasks',
     'notasks',
     'taskss',
-    'quotes'
+    'quotes',
+    'projects',
+    'clients',
+    'sprints'
 
 
 ));

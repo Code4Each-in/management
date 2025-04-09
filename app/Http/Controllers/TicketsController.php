@@ -12,6 +12,7 @@ use App\Models\TicketFiles;
 use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Sprint;
 //use Dotenv\Validator;
 
 
@@ -29,6 +30,7 @@ class TicketsController extends Controller
             ->where('status', '!=', 0)
             ->orderBy('first_name', 'asc') 
             ->get();
+            $sprints = Sprint::where('status', 1)->get();
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
             $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
@@ -77,7 +79,7 @@ class TicketsController extends Controller
             }
         }
         
-            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter'));   
+            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));   
     }
     public function store(Request $request) 
 	{ 
@@ -113,6 +115,7 @@ class TicketsController extends Controller
                 'title' => $validate['title'],
                 'description' => $validate['description'],
                 'project_id' => $validate['project_id'], 
+                'sprint_id' => $validate['sprint_id'],
                 'status'=> $validate ['status'],
                 'priority'=> $validate ['priority'],
                 'ticket_priority'=> $validate ['ticket_priority'],
@@ -209,6 +212,7 @@ class TicketsController extends Controller
                 }
             }
         }
+        $sprints = Sprint::where('status', 1)->get(['id', 'name']);
         $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
         $tickets = Tickets::where(['id' => $ticketId])->first();
         $projects = Projects::all();
@@ -216,7 +220,7 @@ class TicketsController extends Controller
         $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
         // dd($ticketsCreatedByUser);
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));   	
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser', 'sprints'));   	
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
@@ -225,6 +229,7 @@ class TicketsController extends Controller
             'description'=>'required', 
             'status'=>'required',
             'edit_project_id' => 'required',
+            'edit_sprint_id' => 'required',
             'priority'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
@@ -254,6 +259,7 @@ class TicketsController extends Controller
             'title' => $validate['title'],        
             'description' => $validate['description'],
             'project_id' => $validate['edit_project_id'],
+            'sprint_id' => $validate['edit_sprint_id'],
             'ticket_priority'=> $validate ['ticket_priority'],
             'status' => $validate['status'],
             'status_changed_by'=> auth()->user()->id,

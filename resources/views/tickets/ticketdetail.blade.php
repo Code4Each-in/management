@@ -159,7 +159,8 @@
             <div class="button-design">
                 <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
                                 <i class="bi bi-send-fill"></i> Comment
-                </button></div>
+                </button>
+            </div>
         </form>
     </div>
 </div>

@@ -250,5 +250,11 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//sprint dashboard
 	Route::get('/sprint', [SprintController::class, 'index'])->name('sprint.index');
+	Route::post('/add/sprint', [SprintController::class, 'store'])->name('sprint.add');
+	Route::delete('/delete/sprint', [SprintController::class, 'destroy'])->name('sprint.delete');
+	Route::get('/edit/sprint/{sprintId}', [SprintController::class, 'editSprint'])->name('sprint.edit');
+    Route::get('/view/sprint/{sprintId}', [SprintController::class, 'viewSprint'])->name('sprint.view');
+	Route::post('/update/sprint/{sprintId}', [SprintController::class, 'updateSprint'])->name('sprint.update');
+	Route::get('/get-sprints-by-project/{project_id}', [SprintController::class, 'getSprints']);
 
 });
