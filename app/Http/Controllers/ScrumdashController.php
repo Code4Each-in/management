@@ -24,31 +24,35 @@ class ScrumdashController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
         $tasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
-    ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
-    ->join('sprints', 'tickets.sprint_id', '=', 'sprints.id') 
-    ->whereRaw("LOWER(tickets.status) != ?", ['complete'])
-    ->where('users.status', 1)
-    ->where('tickets.ticket_priority', 1)
-    ->groupBy(
-        'tickets.title',
-        'tickets.eta',
-        'tickets.status',
-        'tickets.created_at',
-        'tickets.sprint_id',
-        'sprints.name' 
-    )
-    ->select(
-        DB::raw('MAX(tickets.id) as ticket_id'), 
-        'tickets.title',
-        'tickets.eta',
-        'tickets.status',
-        'tickets.sprint_id',
-        'sprints.name as sprint_name',
-        DB::raw('GROUP_CONCAT(users.first_name ORDER BY users.first_name ASC) as assigned_user_names')
-    )
-    ->orderBy('tickets.created_at', 'desc')
-    ->get();
+        ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
+        ->join('sprints', 'tickets.sprint_id', '=', 'sprints.id')
+        ->whereRaw("LOWER(tickets.status) = ?", ['in_progress'])
+        ->where('users.status', 1)
+        ->where('tickets.ticket_priority', 1)
+        ->whereNull('tickets.deleted_at')
+        ->groupBy(
+            'tickets.title',
+            'tickets.eta',
+            'tickets.status',
+            'tickets.created_at',
+            'tickets.sprint_id',
+            'sprints.name' 
+        )
+        ->select(
+            DB::raw('MAX(tickets.id) as ticket_id'),
+            'tickets.title',
+            'tickets.eta',
+            'tickets.status',
+            'tickets.sprint_id',
+            'sprints.name as sprint_name',
+            DB::raw('GROUP_CONCAT(users.first_name ORDER BY users.first_name ASC) as assigned_user_names')
+        )
+        ->orderBy('tickets.created_at', 'desc')
+        ->get();
+    
+
       
     $activetasks = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
     ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
