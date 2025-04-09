@@ -673,9 +673,9 @@ document.addEventListener("DOMContentLoaded", function() {
     if (dayOfWeek === 5) { 
         currentDate.setHours(currentDate.getHours() + 72);
     } else if (dayOfWeek === 6 || dayOfWeek === 0) { 
-        currentDate.setHours(currentDate.getHours() + (48 - currentDate.getHours() % 24));
+        currentDate.setHours(currentDate.getHours() + (72 - currentDate.getHours() % 24));
     } else {
-        currentDate.setHours(currentDate.getHours() + 24);
+        currentDate.setHours(currentDate.getHours() + 48);
     }
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
