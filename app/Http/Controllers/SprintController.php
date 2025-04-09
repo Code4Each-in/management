@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Projects;
 use App\Models\Holidays;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -12,7 +12,8 @@ use App\Models\Tickets;
 use App\Models\TodoList;
 use App\Models\Sprint;
 use Auth;
-
+use Illuminate\Support\Facades\Validator;
+use App\Models\Client;
 
 
 class SprintController extends Controller
@@ -24,8 +25,118 @@ class SprintController extends Controller
      */
     public function index()
     {
-       return view('sprintdash.index');
+        $projects = Projects::all();
+        $clients = Client::orderBy('name', 'asc')  
+        ->get();
+        $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
+        ->join('projects', 'sprints.project', '=', 'projects.id')
+        ->where('sprints.status', 1)
+        ->get();
+        return view('sprintdash.index', compact('projects','clients', 'sprints'));
 
     }
 
+    public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'eta' => 'required|date',
+        'client' => 'required|string|max:255',  
+        'project' => 'required|string|max:255',
+        'status' => 'required',
+        'description' => 'required'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error', 
+            'message' => $validator->errors()->first()
+        ]);
+    }
+
+    $validated = $validator->validated();
+
+    $sprint = Sprint::create([
+        'name' => $validated['name'],
+        'eta' => date("Y-m-d H:i:s", strtotime($validated['eta'])),
+        'client' => $validated['client'],
+        'project' => $validated['project'],
+        'description' => $validated['description'],
+        'status' => $validated['status']
+    ]);
+    $request->session()->flash('message', 'Sprint added successfully.');
+
+    return response()->json([
+        'status' => 'success', 
+        'message' => 'Sprint added successfully.'
+    ]);
 }
+    
+    public function destroy(Request $request)
+     {
+         $sprints = Sprint::where('id',$request->id)->delete(); 
+         $request->session()->flash('message','Sprint deleted successfully.');
+         return Response()->json($sprints);
+     }
+     public function editSprint($sprintId)
+    {
+        $sprint = Sprint::findOrFail($sprintId);
+        $projects = Projects::all();
+        $clients = Client::orderBy('name', 'asc')  
+        ->get();
+        return view('sprintdash.edit', compact('sprint','clients','projects'));
+
+    }
+    public function viewSprint($sprintId)
+    {
+        $sprint = Sprint::findOrFail($sprintId);
+        $tickets = Tickets::where('sprint_id', $sprintId)->get();
+        $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
+        return view('sprintdash.view', compact('sprint','tickets'));
+
+    }
+    
+    public function updateSprint(Request $request, $sprintId)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'eta' => 'required|date',
+            'client' => 'required|int|max:255',
+            'project' => 'required|int|max:255',
+            'description' => 'required',
+            'status' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first() 
+            ]);
+        }
+        $validated = $validator->validated();
+        $sprint = Sprint::findOrFail($sprintId);
+        $sprint->name = $validated['name'];
+        $sprint->eta = $validated['eta'];
+        $sprint->client = $validated['client'];
+        $sprint->project = $validated['project'];
+        $sprint->status = $validated['status'];
+        $sprint->description = $validated['description'];
+        $sprint->save();
+        $request->session()->flash('message', 'Sprint updated successfully.');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Sprint updated successfully.'
+        ]);
+    }
+    
+            public function getSprints($project_id)
+        {
+            $sprints = Sprint::where('project', $project_id)
+                 ->where('status', 1)
+                 ->get(['id', 'name']);
+            return response()->json($sprints);
+        }
+    
+
+    
+    }

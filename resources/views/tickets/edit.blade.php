@@ -42,6 +42,22 @@
                         </select>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label required">Sprint</label>
+                    <div class="col-sm-9">
+                        <select name="edit_sprint_id" class="form-select form-control" id="edit_sprint_id">
+                            <option value="">Select Sprint</option>
+                            @foreach ($sprints as $sprint)
+                                <option value="{{ $sprint->id }}" {{ $tickets->sprint_id == $sprint->id ? 'selected' : '' }}>
+                                    {{ $sprint->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('edit_sprint_id'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_sprint_id') }}</span>
+                        @endif
+                    </div>
+                </div>                               
                 <div class="row mb-5">
                     <label for="edit_assign1" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
                     <div class="col-sm-9" id="Ticketsdata">
@@ -153,7 +169,6 @@
                             case 'png':
                             $iconClass = 'bi-file-earmark-image';
                             break;
-                            // Add more cases for other file extensions as needed
                             default:
                             $iconClass = 'bi-file-earmark';
                             break;
@@ -223,7 +238,6 @@
                     id: id,
                 },
                 success: (data) => {
-                      // Introduce a delay before hiding the spinner
                 setTimeout(function() {
                     spinner.hide();
                     if (data.errors) {
@@ -262,7 +276,7 @@
                             $('.Commentmessage').fadeOut("slow");
                         }, 2000);
                     }
-                }, 3000); // Adjust the duration (in milliseconds) as needed
+                }, 3000); 
                 }
             });
         });
@@ -280,18 +294,6 @@
                 },
                 success: (data) => {
                     location.reload();
-
-                    // if (data.user != null) {
-                    //     $('#edit_assign').find('option').remove().end();
-                    //     $.each(data.user, function(key, value) {
-                    //         $('#edit_assign').append('<option value="' + value.id + '">' + value
-                    //             .first_name + '</option>');
-                    //     });
-                    // }
-                    // if (data.AssignData.length == 0) {
-
-                    //     $('#Ticketsdata').hide();
-                    // }
                 }
 
             });
@@ -324,10 +326,7 @@
   });
 });
 $(document).ready(function() {
-    // Check if element exists before initializing Select2
     if ($('#edit_assign1').length) {
-
-        // Initialize Select2 only if it's not already initialized
         if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
             $('#edit_assign1').select2({
                 allowClear: true,
@@ -336,10 +335,7 @@ $(document).ready(function() {
         }
     }
 
-
-    // If the modal is being used and you're opening it dynamically
     $('#addTickets').on('shown.bs.modal', function () {
-        // Reapply Select2 after modal is shown
         if ($('#edit_assign1').length) {
             $('#edit_assign1').select2({
                 allowClear: true,
@@ -348,6 +344,29 @@ $(document).ready(function() {
         }
     });
 });
+
+$('#edit_project_id').on('change', function () {
+        var projectId = $(this).val();
+        $('#edit_sprint_id').empty().append('<option value="">Loading...</option>');
+
+        if (projectId) {
+            $.ajax({
+                url: '/get-sprints-by-project/' + projectId,
+                type: 'GET',
+                success: function (response) {
+                    $('#edit_sprint_id').empty().append('<option value="">Select Sprint</option>');
+                    $.each(response, function (key, sprint) {
+                        $('#edit_sprint_id').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+                    });
+                },
+                error: function () {
+                    $('#edit_sprint_id').empty().append('<option value="">Error loading sprints</option>');
+                }
+            });
+        } else {
+            $('#edit_sprint_id').empty().append('<option value="">Select Sprint</option>');
+        }
+    });
 </script>
 
 @endsection

@@ -2,7 +2,7 @@
 @section('subtitle', 'Scrum')
 @section('content')
 
-<div class="pagetitle scrumquotes">
+    <div class="pagetitle scrumquotes">
             <div class="row">
                 <div class="col">
                     <h1>Scrum Dashboard</h1>
@@ -10,12 +10,11 @@
                 <h3>{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</h3>
             </div>
     
-    
             <div class="blockquote-wrapper">
                 <div class="blockquote">
                     @if($quotes->isNotEmpty())
                         <h1>
-                            {{ $quotes->first()->quote_text }}  <!-- Display the quote text from the first matching quote -->
+                            {{ $quotes->first()->quote_text }} 
                         </h1>
                         <h4>—One Thought, One Change</h4>
                     @else
@@ -23,61 +22,55 @@
                     @endif
                 </div>
             </div>            
-</div>
+    </div>
 
 <div class="row">
-<div class="col-md-6">
-    <div class="card recent-sales overflow-auto">
-    <div class="card-body">
-        <h5 class="card-title">Total Active Jobs</h5>
-        <table class="table table-borderless datatable" id="totaljobs">
+   <div class="col-md-6">
+        <div class="card recent-sales overflow-auto">
+            <div class="card-body">
+            <h5 class="card-title">Total Active Sprints</h5>
+            <table class="table table-borderless datatable" id="totaljobs">
             <thead>
                 <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Assigned To</th>                   
-                    <th scope="col">ETA(d/m/y)</th> 
-                    <th scope="col">Status</th> 
+                    <th scope="col">Name</th> 
+                    <th scope="col">Project</th>                  
+                    <th scope="col">ETA (d/m/y)</th> 
+                    <th scope="col">Time Left</th> 
                 </tr>
             </thead>
             <tbody>
-                @foreach ($tasks as $task)
-                <tr>
-                    <td><a href="{{ url('/view/ticket/'.$task->ticket_id)}}">
-                        <i style="color:#4154f1;" class="pointer"></i>
-                    {{ $task->title }}</a></td>
-                    <td>{{ $task->assigned_user_names }}</td>
-                    <td>{{ $task->eta ? date("d/m/Y", strtotime($task->eta)) : '---' }}</td>
-                    <td>
-                        <p style="font-size: 1rem; color: #333;">
-                            @if($task->status == 'to_do')
-                                <span class="badge rounded-pill bg-primary">To do</span>
-                            @elseif($task->status == 'in_progress')
-                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
-                            @elseif($task->status == 'ready')
-                                <span class="badge bg-info text-dark">Ready</span>
-                            @elseif($task->status == 'complete')
-                                <span class="badge rounded-pill bg-success">Complete</span>
-                            @else
-                                {{ $task->status ? $task->status : '---' }}
-                            @endif
-                        </p>
-                    </td>
-                </tr>
-            @endforeach            
+                @foreach ($sprints as $sprint)
+                    <tr>
+                        <td><a href="{{ url('/view/sprint/'.$sprint->id) }}" target="_blank">
+                            {{ $sprint->name }}</a></td>
+                        <td>{{ $sprint->project_name ?? '---' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($sprint->eta)->format('d/m/Y') }}</td>
+                        <td>
+                            @php
+                                $eta = \Carbon\Carbon::parse($sprint->eta);
+                                $now = \Carbon\Carbon::now('Asia/Kolkata');
+                                $timeLeft = $eta->diff($now);
+                                $daysLeft = $eta->diffInDays($now);
+                            @endphp
+                            <p>{!! ($daysLeft <= 2 && $daysLeft >= 0) ? '<i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>' : '' !!} Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}</p>
+                        </td>                                                      
+                    </tr>    
+                @endforeach
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
-</div>
 </div>
 <div class="col-md-6">
     <div class="card recent-sales overflow-auto">
      <div class="card-body">
-        <h5 class="card-title">Jobs Inprogress</h5>
+        <h5 class="card-title">Jobs In Progress</h5>
         <table class="table table-borderless datatable" id="runningjobs">
             <thead>
                 <tr>
                     <th scope="col">Title</th>
                     <th scope="col">Assigned To</th>
+                    <th scope="col">Sprint</th>
                     <th scope="col">ETA (d/m/y)</th>
                 </tr>
             </thead>
@@ -93,12 +86,13 @@
                         @if($isOverdue)
                             <i class="fas fa-exclamation-circle" style="color: red;" title="Task is overdue!"></i>
                         @endif
-                        <a href="{{ url('/view/ticket/'.$tasks->ticket_id) }}">
+                        <a href="{{ url('/view/ticket/'.$tasks->ticket_id) }}" target="_blank">
                             <i style="color:#4154f1;" class="pointer"></i>
                             {{ $tasks->title }}
                         </a>
                     </td>
                     <td>{{ $tasks->assigned_user_names }}</td>
+                    <td>{{ $tasks->sprint_name }}</td>
                     <td>{{ $tasks->eta ? \Carbon\Carbon::parse($tasks->eta)->format('d/m/Y') : '---' }}</td>
                 </tr>
                 @endforeach
@@ -180,19 +174,15 @@
     });
 
     $(document).ready(function () {
-    // Initialize your DataTable(s)
     var table1 = $('#totaljobs').DataTable();
     var table2 = $('#runningjobs').DataTable();
     var table2 = $('#assignedjobs').DataTable();
     var table2 = $('#notask').DataTable();
-    // Get the maximum height of both tables
     var table1Height = $('#totaljobs').height();
     var table2Height = $('#runningjobs').height();
     var table3Height = $('#assignedjobs').height();
     var table4Height = $('#notask').height();
     var maxHeight = Math.max(table1Height, table2Height, table3Height, table4Height);
-
-    // Set the height of both tables to the maximum height
     $('#totaljobs, #runningjobs, #assignedjobs, #notask').height(maxHeight);
 });
 </script>

@@ -5,15 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sprint extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable,SoftDeletes;
     protected $fillable = [
-        'ticket_id',
-        'user_id',
-  
+        'name',
+        'eta',
+        'client',
+        'project',
+        'description',
+        'status'
     ];
     public function user()
     {
