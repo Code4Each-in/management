@@ -17,7 +17,7 @@ class CreateSprintsTable extends Migration
             $table->id();  
             $table->string('name', 255);  
             $table->dateTime('eta');  
-            $table->integer('client', 255);  
+            $table->integer('client');  
             $table->text('description');  
             $table->integer('project');  
             $table->timestamps();  
