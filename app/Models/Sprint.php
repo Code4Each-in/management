@@ -13,6 +13,7 @@ class Sprint extends Model
     protected $fillable = [
         'name',
         'eta',
+        'start_date',
         'client',
         'project',
         'description',

@@ -29,6 +29,13 @@
                 @enderror
             </div>
             <div class="form-group mb-3">
+                <label for="start_date">Start Date</label>
+                <input type="datetime-local" class="form-control" name="start_date" id="start_date" value="{{ old('start_date', \Carbon\Carbon::parse($sprint->start_date)->format('Y-m-d\TH:i')) }}" required>
+                @error('start_date')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group mb-3">
                 <label for="status" class="col-sm-3 col-form-label required">Status</label>
                 
                     <select name="status" class="form-select form-control" id="status">

@@ -81,6 +81,8 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/update/tickets/{ticketId}', [TicketsController::class, 'updateTicket'])->name('tickets.update');
 	Route::delete('/delete/tickets', [TicketsController::class, 'destroy'])->name('tickets.delete');
 	Route::get('/view/ticket/{ticketId}', [TicketsController::class, 'viewTicket'])->name('tickets.ticketdetail');
+	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
+	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
@@ -256,5 +258,6 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/view/sprint/{sprintId}', [SprintController::class, 'viewSprint'])->name('sprint.view');
 	Route::post('/update/sprint/{sprintId}', [SprintController::class, 'updateSprint'])->name('sprint.update');
 	Route::get('/get-sprints-by-project/{project_id}', [SprintController::class, 'getSprints']);
+	
 
 });

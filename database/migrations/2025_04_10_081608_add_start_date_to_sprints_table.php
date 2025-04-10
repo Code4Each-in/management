@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDocumentToTicketCommentsTable extends Migration
+class AddStartDateToSprintsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddDocumentToTicketCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('ticket_comments', function (Blueprint $table) {
-            $table->text('document')->change();
+        Schema::table('sprints', function (Blueprint $table) {
+            $table->dateTime('start_date')->nullable()->after('id'); 
         });
     }
 
@@ -23,11 +23,10 @@ class AddDocumentToTicketCommentsTable extends Migration
      *
      * @return void
      */
-        public function down()
+    public function down()
     {
-        Schema::table('ticket_comments', function (Blueprint $table) {
-            
+        Schema::table('sprints', function (Blueprint $table) {
+            $table->dropColumn('start_date');
         });
     }
-
 }

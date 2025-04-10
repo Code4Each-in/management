@@ -15,8 +15,9 @@
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Description</th> 
-                        <th scope="col">Project</th>                  
-                        <th scope="col">ETA (d/m/y)</th> 
+                        <th scope="col">Project</th>  
+                        <th scope="col">Started At</th>                
+                        <th scope="col">End Date(d/m/y)</th> 
                         <th scope="col">Time Left</th> 
                         <th scope="col">Actions</th>
                     </tr>
@@ -27,6 +28,9 @@
                             <td>{{ $sprint->name }}</td>
                             <td>{{ strip_tags(htmlspecialchars_decode($sprint->description ?? '---'));}}</td>
                             <td>{{ $sprint->project_name ?? '---' }}</td>
+                            <td>
+                                {{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y') : '---' }}
+                            </td>                            
                             <td>{{ \Carbon\Carbon::parse($sprint->eta)->format('d/m/Y') }}</td>
                             <td>
                                 @php
@@ -85,6 +89,13 @@
                                 <div class="col-sm-9">
                                     <input type="datetime-local" class="form-control" id="eta" name="eta">
                                     <input type="hidden" class="form-control" name="sprint_id" id="sprint_id" value="{{ $sprint->id ?? '' }}">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="startDateTime" class="col-sm-3 col-form-label required">Start Date</label>
+                                <div class="col-sm-9">
+                                    <input type="datetime-local" class="form-control" id="start_date" name="start_date">
                                 </div>
                             </div>
                             
