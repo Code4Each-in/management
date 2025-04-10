@@ -124,6 +124,11 @@
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
+                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                    <a href="{{ asset('assets/img/' . $data->document) }}" target="_blank">
+                        {{ basename($data->document) }}
+                    </a>
+                </p>                
             </div>
         @else
             @if(!empty($data->user->profile_picture))
@@ -139,6 +144,11 @@
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
+                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                    <a href="{{ asset('assets/img/' . $data->document) }}" target="_blank">
+                        {{ basename($data->document) }}
+                    </a>
+                </p>                
             </div>
         @endif
     </div>
@@ -154,8 +164,12 @@
             <div class="post-item clearfix mb-3 mt-3">
                 <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
             </div>
+            <div class="mb-3 post-item clearfix">
+                <label for="comment_file" class="form-label">Attach File</label>
+                <input type="file" name="comment_file" id="comment_file" class="form-control comment-input">
+            </div>
             <div class="alert alert-danger" style="display:none;"></div>
-            <input type="hidden" class="form-control" id="hidden_id" value="{{ $tickets->id }}">
+            <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">
             <div class="button-design">
                 <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
                                 <i class="bi bi-send-fill"></i> Comment
@@ -163,32 +177,34 @@
             </div>
         </form>
     </div>
+
 </div>
 <script>
-$(document).ready(function() {
-    $('#commentsData').on('submit', function(e) {
-        e.preventDefault(); 
-        $('#error-message').hide().html('');
-        var formData = {
-            comment: $('#comment').val(),
-            id: $('#hidden_id').val(),
-            _token: $('input[name="_token"]').val()
-        };
-        $.ajax({
-            url: '{{ route('comments.add') }}',
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.status == 200) {
-                    $('#comment').val('');
-                    location.reload();
+    $(document).ready(function() {
+        $('#commentsData').on('submit', function(e) {
+            e.preventDefault();
+            $('.alert-danger').hide().html('');
+            var formData = new FormData(this);
+            $.ajax({
+                url: '{{ route('comments.add') }}',
+                type: 'POST',
+                data: formData,
+                contentType: false, 
+                processData: false, 
+                success: function(response) {
+                    if (response.status === 200) {
+                        $('#comment').val('');
+                        $('#comment_file').val('');
+                        location.reload();
+                    } else {
+                        $('.alert-danger').show().html(response.message || 'Something went wrong.');
+                    }
+                },
+                error: function(xhr) {
+                    $('.alert-danger').show().html('An error occurred while submitting the comment.');
                 }
-            },
-            error: function(xhr) {
-                $('#error-message').show().html('An error occurred while submitting the comment.');
-            }
+            });
         });
     });
-});
-</script>
+    </script>    
 @endsection

@@ -333,7 +333,16 @@ class TicketsController extends Controller
     public function addComments( request $request )
     {
         $validator = Validator::make($request->all(),[
-            'comment' => 'required', 
+            'comment_file.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            ],[
+                'comment_file.*.file' => 'The :attribute must be a file.', 
+                'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+                'comment_file.*.max' => 'The :attribute may not be greater than :max kilobytes.',
+                'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+
+            ]);
+            $validator->setAttributeNames([
+                'comment_file.*' => 'document',
             ]);
             
             if ($validator->fails())
@@ -341,11 +350,35 @@ class TicketsController extends Controller
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }
            $validate = $validator->valid();
-            $ticket =TicketComments::create([
-            'comments' => $validate['comment'],
-            'ticket_id'=>$validate['id'],
-            'comment_by'=> auth()->user()->id,     
-        ]);
+           $documentPath = null;
+
+           if ($request->hasFile('comment_file')) {
+               $file = $request->file('comment_file');
+               $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+               $dateString = date('YmdHis');
+               $name = $dateString . '_' . $fileName . '.' . $file->extension();
+               $file->move(public_path('assets/img/ticketAssets'), $name);  
+               $path = 'ticketAssets/' . $name;
+           
+               // Save to ticket_files table
+               TicketFiles::create([
+                   'document' => $path,
+                   'ticket_id' => $validate['id'],
+               ]);
+           
+               // Save this path for comment
+               $documentPath = $path;
+           }
+           
+           // Now create the comment
+           $ticket = TicketComments::create([
+               'comments'    => $validate['comment'],
+               'ticket_id'   => $validate['id'],
+               'document'    => $documentPath, // only one file
+               'comment_by'  => auth()->user()->id,
+           ]);
+           
+
         if ($ticket) {
             $id = auth()->user()->id;
             $user = Users::find($id);
@@ -426,5 +459,21 @@ class TicketsController extends Controller
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
         return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));
     }
+    public function viewDocument($filename)
+{
+    $filePath = public_path('assets/img/ticketAssets/' . $filename);
+
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($filePath);
+
+    return response()->file($filePath, [
+        'Content-Type' => $mime,
+        'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+    ]);
+}
+
 
 }
