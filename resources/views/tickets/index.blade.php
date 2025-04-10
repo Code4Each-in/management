@@ -201,7 +201,7 @@
                                 <label for="title" class="col-sm-3 col-form-label required">Title</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="title" id="title" oninput="checkWordCount()">
-                                    <small id="wordCountError" class="text-danger" style="display:none;">Please enter at least 3 words.</small>
+                                    <small id="wordCountError" class="text-danger" style="display:none;">Please enter at least 15 characters.</small>
                                 </div>
                             </div>                            
                             <div class="row mb-3">
@@ -686,17 +686,20 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("eta").setAttribute("max", maxEta);
 });
 
-        function checkWordCount() {
-            const titleInput = document.getElementById('title');
-            const wordCountError = document.getElementById('wordCountError');
-            const wordCount = titleInput.value.trim().split(/\s+/).filter(Boolean).length;
-            if (wordCount < 5) {
-                wordCountError.style.display = 'block';  
-            } else {
-                wordCountError.style.display = 'none';   
-            }
-        }
-        document.getElementById('title').addEventListener('input', checkWordCount);
+function checkCharLength() {
+    const titleInput = document.getElementById('title');
+    const charCountError = document.getElementById('wordCountError');
+    const charLength = titleInput.value.trim().length;
+
+    if (charLength < 15) { 
+        charCountError.style.display = 'block';  
+    } else {
+        charCountError.style.display = 'none';   
+    }
+}
+
+document.getElementById('title').addEventListener('input', checkCharLength);
+
 
         $('#project_id').on('change', function () {
         var projectId = $(this).val();

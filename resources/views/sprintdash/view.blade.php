@@ -13,6 +13,8 @@
                         <th scope="col">Name</th>
                         <th scope="col">Description</th>                   
                         <th scope="col">ETA (d/m/y)</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Assigned To</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -41,6 +43,20 @@
                                  @endif
                             </td>
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
+                            <td>@if($ticket->status == 'to_do')
+                                <span class="badge rounded-pill bg-primary">To do</span>
+                                @elseif($ticket->status == 'in_progress')
+                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
+                                @elseif($ticket->status == 'ready')
+                                <span class="badge bg-info text-dark">Ready</span>
+                                @else
+                                <span class="badge rounded-pill  bg-success">Complete</span>
+                                @endif</td>
+                                <td>
+                                    @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
+                                    <strong>{{ $user->assigned_user_name }} ({{ $user->designation }})</strong><br>
+                                    @endforeach
+                                </td>
                             <td>
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
