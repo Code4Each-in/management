@@ -11,10 +11,10 @@ class AddDocumentToTicketCommentsTable extends Migration
      *
      * @return void
      */
-        public function up()
+    public function up()
     {
         Schema::table('ticket_comments', function (Blueprint $table) {
-            $table->string('document')->nullable()->after('comments');
+            $table->text('document')->change();
         });
     }
 
@@ -26,7 +26,7 @@ class AddDocumentToTicketCommentsTable extends Migration
         public function down()
     {
         Schema::table('ticket_comments', function (Blueprint $table) {
-            $table->dropColumn('document');
+            
         });
     }
 
