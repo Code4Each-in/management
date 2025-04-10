@@ -14,7 +14,7 @@ class AddDocumentToTicketCommentsTable extends Migration
     public function up()
     {
         Schema::table('ticket_comments', function (Blueprint $table) {
-            $table->text('document')->change();
+            $table->text('document')->nullable()->after('comments');
         });
     }
 
