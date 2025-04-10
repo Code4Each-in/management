@@ -94,7 +94,6 @@ class SprintController extends Controller
         $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
         $assignedUsers = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
-        ->whereRaw("LOWER(tickets.status) NOT IN (?, ?)", ['complete', 'ready'])
         ->where('users.status', 1)
         ->where('tickets.ticket_priority', 1)
         ->select(
