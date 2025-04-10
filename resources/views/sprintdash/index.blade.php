@@ -15,8 +15,9 @@
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Description</th> 
-                        <th scope="col">Project</th>                  
-                        <th scope="col">ETA (d/m/y)</th> 
+                        <th scope="col">Project</th>  
+                        <th scope="col">Started At</th>                
+                        <th scope="col">End Date(d/m/y)</th> 
                         <th scope="col">Time Left</th> 
                         <th scope="col">Actions</th>
                     </tr>
@@ -27,6 +28,7 @@
                             <td>{{ $sprint->name }}</td>
                             <td>{{ strip_tags(htmlspecialchars_decode($sprint->description ?? '---'));}}</td>
                             <td>{{ $sprint->project_name ?? '---' }}</td>
+                            <td>{{ $sprint->created_at ?? '---' }}</td>
                             <td>{{ \Carbon\Carbon::parse($sprint->eta)->format('d/m/Y') }}</td>
                             <td>
                                 @php
