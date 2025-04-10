@@ -19,6 +19,12 @@
         Remaining ({{ $totalTicketsCount - $doneTicketsCount }})
     </div>
 </div>
+<div class="row mb-2">
+    <div class="col-md-2">
+        <a class="btn btn-primary mt-3"  href="{{ route('tickets.create') }}">Add
+    Ticket</a>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
         <div class="card recent-sales overflow-auto">

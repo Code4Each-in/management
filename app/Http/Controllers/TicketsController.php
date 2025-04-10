@@ -81,6 +81,27 @@ class TicketsController extends Controller
         
             return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));   
     }
+
+        public function create()
+        {
+            $user = Users::whereHas('role', function($q) {
+                    $q->where('name', '!=', 'Super Admin');
+                })
+                ->where('status', '!=', 0)
+                ->orderBy('first_name', 'asc')
+                ->get();
+            $sprints = Sprint::where('status', 1)->get();
+            $projects = Projects::all();
+            $auth_user = auth()->user();
+            $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
+                ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')
+                ->get();
+        
+            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus'));
+        }
+        
+
+
     public function store(Request $request) 
 	{ 
         $validator = Validator::make($request->all(),[

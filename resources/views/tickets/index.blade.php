@@ -19,8 +19,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-2">
-                    <button class="btn btn-primary mt-3" onClick="openticketModal()" href="javascript:void(0)">Add
-                Ticket</button>
+                    <a class="btn btn-primary mt-3"  href="{{ route('tickets.create') }}">Add
+                Ticket</a>
                 </div>
             </div>
             <form id="filter-data" method="GET" action="{{ route('tickets.index') }}">
@@ -698,7 +698,7 @@ function checkCharLength() {
     }
 }
 
-document.getElementById('title').addEventListener('input', checkCharLength);
+document.getElementById('f').addEventListener('input', checkCharLength);
 
 
         $('#project_id').on('change', function () {
