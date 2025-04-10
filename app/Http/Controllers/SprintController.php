@@ -43,6 +43,7 @@ class SprintController extends Controller
         'eta' => 'required|date',
         'client' => 'required|string|max:255',  
         'project' => 'required|string|max:255',
+        'start_date' => 'required|date', 
         'status' => 'required',
         'description' => 'required'
     ]);
@@ -59,6 +60,7 @@ class SprintController extends Controller
     $sprint = Sprint::create([
         'name' => $validated['name'],
         'eta' => date("Y-m-d H:i:s", strtotime($validated['eta'])),
+        'start_date' => date("Y-m-d H:i:s", strtotime($validated['start_date'])),
         'client' => $validated['client'],
         'project' => $validated['project'],
         'description' => $validated['description'],
@@ -91,6 +93,16 @@ class SprintController extends Controller
     {
         $sprint = Sprint::findOrFail($sprintId);
         $tickets = Tickets::where('sprint_id', $sprintId)->get();
+        $doneTicketsCount = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['complete'])
+        ->count();
+        
+        $progressTicketsCount = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) IN (?, ?)', ['in_progress', 'to_do'])
+        ->count();
+
+        $totalTicketsCount = Tickets::where('sprint_id', $sprintId)->count();
+
         $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
         $assignedUsers = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
         ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
@@ -103,7 +115,7 @@ class SprintController extends Controller
         )
         ->get();
 
-        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers'));
+        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount'));
 
     }
     
@@ -113,6 +125,7 @@ class SprintController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
+            'start_date' => 'required|date',
             'client' => 'required|int|max:255',
             'project' => 'required|int|max:255',
             'description' => 'required',
@@ -128,6 +141,7 @@ class SprintController extends Controller
         $sprint = Sprint::findOrFail($sprintId);
         $sprint->name = $validated['name'];
         $sprint->eta = $validated['eta'];
+        $sprint->start_date = $validated['start_date'];
         $sprint->client = $validated['client'];
         $sprint->project = $validated['project'];
         $sprint->status = $validated['status'];

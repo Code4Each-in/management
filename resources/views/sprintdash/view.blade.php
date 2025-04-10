@@ -2,11 +2,28 @@
 @section('title', 'Detail Sprint')
 @section('subtitle', 'Edit Sprint')
 @section('content')
+@php
+    $donePercent = $totalTicketsCount > 0 ? round(($doneTicketsCount / $totalTicketsCount) * 100) : 0;
+    $remainingPercent = 100 - $donePercent;
+@endphp
+
+<div class="progress" style="height: 25px; font-size: 0.9rem;">
+    <div class="progress-bar bg-success" role="progressbar"
+         style="width: {{ $donePercent }}%"
+         aria-valuenow="{{ $donePercent }}" aria-valuemin="0" aria-valuemax="100">
+        Done ({{ $doneTicketsCount }})
+    </div>
+    <div class="progress-bar bg-danger" role="progressbar"
+         style="width: {{ $remainingPercent }}%"
+         aria-valuenow="{{ $remainingPercent }}" aria-valuemin="0" aria-valuemax="100">
+        Remaining ({{ $totalTicketsCount - $doneTicketsCount }})
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
         <div class="card recent-sales overflow-auto">
         <div class="card-body">
-            <h5 class="card-title">All Tickets related to {{ $sprint->name  ?? '---' }}</h5>
+            <h5 class="card-title">All Tickets related to <u>{{ $sprint->name  ?? '---' }}</u> sprint</h5>
             <table class="table table-borderless datatable" id="allsprint">
                 <thead>
                     <tr>
