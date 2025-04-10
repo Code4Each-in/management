@@ -54,7 +54,7 @@
                                 @endif</td>
                                 <td>
                                     @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
-                                    <strong>{{ $user->assigned_user_name }} ({{ $user->designation }})</strong><br>
+                                    {{ $user->assigned_user_name }} ({{ $user->designation }})
                                     @endforeach
                                 </td>
                             <td>
