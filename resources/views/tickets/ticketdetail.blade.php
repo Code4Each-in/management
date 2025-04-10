@@ -124,11 +124,20 @@
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                    <a href="{{ asset('assets/img/' . $data->document) }}" target="_blank">
-                        {{ basename($data->document) }}
-                    </a>
-                </p>                
+                @php
+                $documents = explode(',', $data->document);
+            @endphp
+
+            @foreach ($documents as $doc)
+                @if (!empty($doc))
+                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
+                            {{ basename($doc) }}
+                        </a>
+                    </p>
+                @endif
+@endforeach
+                
             </div>
         @else
             @if(!empty($data->user->profile_picture))
@@ -144,11 +153,19 @@
                 <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
                 <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                    <a href="{{ asset('assets/img/' . $data->document) }}" target="_blank">
-                        {{ basename($data->document) }}
-                    </a>
-                </p>                
+                @php
+                $documents = explode(',', $data->document);
+            @endphp
+            
+            @foreach ($documents as $doc)
+                @if (!empty($doc))
+                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
+                            {{ basename($doc) }}
+                        </a>
+                    </p>
+                @endif
+            @endforeach                            
             </div>
         @endif
     </div>
@@ -166,7 +183,7 @@
             </div>
             <div class="mb-3 post-item clearfix">
                 <label for="comment_file" class="form-label">Attach File</label>
-                <input type="file" name="comment_file" id="comment_file" class="form-control comment-input">
+                <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
             </div>
             <div class="alert alert-danger" style="display:none;"></div>
             <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">

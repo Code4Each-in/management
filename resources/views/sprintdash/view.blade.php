@@ -6,7 +6,7 @@
     <div class="col-md-12">
         <div class="card recent-sales overflow-auto">
         <div class="card-body">
-            <h5 class="card-title">All Tickets related to Sprint</h5>
+            <h5 class="card-title">All Tickets related to {{ $sprint->name  ?? '---' }}</h5>
             <table class="table table-borderless datatable" id="allsprint">
                 <thead>
                     <tr>

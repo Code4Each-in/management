@@ -330,79 +330,91 @@ class TicketsController extends Controller
          return Response()->json($tickets);
      }
        
-    public function addComments( request $request )
-    {
-        $validator = Validator::make($request->all(),[
-            'comment_file.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
-            ],[
-                'comment_file.*.file' => 'The :attribute must be a file.', 
-                'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-                'comment_file.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-                'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+     public function addComments(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'comment_file.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+         ], [
+             'comment_file.*.file' => 'The :attribute must be a file.',
+             'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+             'comment_file.*.max' => 'The :attribute may not be greater than :max kilobytes.',
+             'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+         ]);
+     
+         $validator->setAttributeNames([
+             'comment_file.*' => 'document',
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()->all()]);
+         }
+     
+         $validate = $validator->valid();
+         $documentPaths = [];
+            $maxTotalSize = 5 * 1024 * 1024;
+            $totalSize = 0;
 
-            ]);
-            $validator->setAttributeNames([
-                'comment_file.*' => 'document',
-            ]);
-            
-            if ($validator->fails())
-            {
-                return response()->json(['errors'=>$validator->errors()->all()]);
-            }
-           $validate = $validator->valid();
-           $documentPath = null;
-
-           if ($request->hasFile('comment_file')) {
-               $file = $request->file('comment_file');
-               $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-               $dateString = date('YmdHis');
-               $name = $dateString . '_' . $fileName . '.' . $file->extension();
-               $file->move(public_path('assets/img/ticketAssets'), $name);  
-               $path = 'ticketAssets/' . $name;
-           
-               // Save to ticket_files table
-               TicketFiles::create([
-                   'document' => $path,
-                   'ticket_id' => $validate['id'],
-               ]);
-           
-               // Save this path for comment
-               $documentPath = $path;
-           }
-           
-           // Now create the comment
-           $ticket = TicketComments::create([
-               'comments'    => $validate['comment'],
-               'ticket_id'   => $validate['id'],
-               'document'    => $documentPath, // only one file
-               'comment_by'  => auth()->user()->id,
-           ]);
-           
-
-        if ($ticket) {
-            $id = auth()->user()->id;
-            $user = Users::find($id);
-            try {
-                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. Where You are assigned to this ticket.";
-                $messages["body-text"] = "Please review the comment and provide a response if necessary.";
-                $messages["url-title"] = "View Ticket";
-                $messages["url"] = "/edit/ticket/" . $validate['id'];
-        
-                $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-                    ->where('ticket_id', $validate['id'])
-                    ->get(['ticket_assigns.*', 'users.first_name', 'users.email']);
-                
-                foreach ($assignedUsers as $assignedUser) {
-                    $assignedUser->notify(new EmailNotification($messages));
+            if ($request->hasFile('comment_file')) {
+                foreach ($request->file('comment_file') as $file) {
+                    $totalSize += $file->getSize();
                 }
-            } catch (\Exception $e) {
-                \Log::error("Error sending notification for comment on ticket #{$validate['id']} to assigned users: " . $e->getMessage());
+
+                if ($totalSize > $maxTotalSize) {
+                    return response()->json(['errors' => ['Total upload size should not exceed 5MB.']]);
+                }
+
+                foreach ($request->file('comment_file') as $file) {
+                    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $dateString = date('YmdHis');
+                    $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                    $file->move(public_path('assets/img/ticketAssets'), $name);
+                    $path = 'ticketAssets/' . $name;
+
+                    TicketFiles::create([
+                        'document' => $path,
+                        'ticket_id' => $validate['id'],
+                    ]);
+
+                    $documentPaths[] = $path;
+                }
             }
-        }        
-        $CommentsData = TicketComments::with('user')->where('id',$ticket->id)->get();
-        return Response()->json(['status'=>200,'CommentsData' => $CommentsData,'Commentmessage' => 'Comments added successfully.']); 
-    }
+
+            $ticket = TicketComments::create([
+                'comments'   => $validate['comment'],
+                'ticket_id'  => $validate['id'],
+                'document'   => implode(',', $documentPaths),
+                'comment_by' => auth()->user()->id,
+            ]);
+
+         if ($ticket) {
+             $id = auth()->user()->id;
+             $user = Users::find($id);
+             try {
+                 $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                 $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. Where you are assigned to this ticket.";
+                 $messages["body-text"] = "Please review the comment and provide a response if necessary.";
+                 $messages["url-title"] = "View Ticket";
+                 $messages["url"] = "/edit/ticket/" . $validate['id'];
+     
+                 $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                     ->where('ticket_id', $validate['id'])
+                     ->get(['ticket_assigns.*', 'users.first_name', 'users.email']);
+     
+                 foreach ($assignedUsers as $assignedUser) {
+                     $assignedUser->notify(new EmailNotification($messages));
+                 }
+             } catch (\Exception $e) {
+                 \Log::error("Error sending notification for comment on ticket #{$validate['id']} to assigned users: " . $e->getMessage());
+             }
+         }
+     
+         $CommentsData = TicketComments::with('user')->where('id', $ticket->id)->get();
+         return response()->json([
+             'status' => 200,
+             'CommentsData' => $CommentsData,
+             'Commentmessage' => 'Comments added successfully.'
+         ]);
+     }     
     public function DeleteTicketAssign(request $request)
     {
         $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
