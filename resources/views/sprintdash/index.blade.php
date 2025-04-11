@@ -85,17 +85,17 @@
                             </div> 
                             
                             <div class="row mb-3">
-                                <label for="etaDateTime" class="col-sm-3 col-form-label required">Eta</label>
-                                <div class="col-sm-9">
-                                    <input type="datetime-local" class="form-control" id="eta" name="eta">
-                                    <input type="hidden" class="form-control" name="sprint_id" id="sprint_id" value="{{ $sprint->id ?? '' }}">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
                                 <label for="startDateTime" class="col-sm-3 col-form-label required">Start Date</label>
                                 <div class="col-sm-9">
                                     <input type="datetime-local" class="form-control" id="start_date" name="start_date">
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <label for="etaDateTime" class="col-sm-3 col-form-label required">End Date</label>
+                                <div class="col-sm-9">
+                                    <input type="datetime-local" class="form-control" id="eta" name="eta">
+                                    <input type="hidden" class="form-control" name="sprint_id" id="sprint_id" value="{{ $sprint->id ?? '' }}">
                                 </div>
                             </div>
                             

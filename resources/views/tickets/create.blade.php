@@ -11,12 +11,16 @@
         <div class="card-body">
             <form method="POST" id="addTicketsForm"  enctype="multipart/form-data">
                 @csrf
+                <div class="alert alert-danger mt-1" style="display: none;"></div>
 
                 <div class="row mb-5 mt-4">
                     <label class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="title" name="title" value="{{ old('title') }}" oninput="checkWordCount()">
                         <small id="wordCountError" class="text-danger" style="display:none;">Please enter at least 15 characters.</small>
+                        @error('title')
+                        <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
@@ -76,7 +80,7 @@
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label">ETA</label>
                     <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" name="eta" value="{{ old('eta') }}">
+                        <input type="datetime-local" class="form-control" id="eta" name="eta" value="{{ old('eta') }}">
                     </div>
                 </div>
 
@@ -230,5 +234,23 @@
             }
         });
     });
+    document.addEventListener("DOMContentLoaded", function() {
+    const currentDate = new Date();
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek === 5) { 
+        currentDate.setHours(currentDate.getHours() + 72);
+    } else if (dayOfWeek === 6 || dayOfWeek === 0) { 
+        currentDate.setHours(currentDate.getHours() + (72 - currentDate.getHours() % 24));
+    } else {
+        currentDate.setHours(currentDate.getHours() + 48);
+    }
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const maxEta = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById("eta").setAttribute("max", maxEta);
+});
 </script>
 @endsection

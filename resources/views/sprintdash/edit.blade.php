@@ -14,47 +14,7 @@
                 @error('name')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
-                <div class="col-sm-9">
-                    <textarea name="description" class="form-control" id="tinymce_textarea">{{ old('description', $sprint->description ?? '') }}</textarea>
-                </div>
-            </div>            
-            <div class="form-group mb-3">
-                <label for="eta">ETA</label>
-                <input type="datetime-local" class="form-control" name="eta" id="eta" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
-                @error('eta')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="start_date">Start Date</label>
-                <input type="datetime-local" class="form-control" name="start_date" id="start_date" value="{{ old('start_date', \Carbon\Carbon::parse($sprint->start_date)->format('Y-m-d\TH:i')) }}" required>
-                @error('start_date')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="status" class="col-sm-3 col-form-label required">Status</label>
-                
-                    <select name="status" class="form-select form-control" id="status">
-                        <option value="1" {{ old('status', $sprint->status) == 1 ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ old('status', $sprint->status) == 0 ? 'selected' : '' }}>Inactive</option>
-                    </select>                
-            </div>            
-            <div class="form-group mb-3">
-                <label for="client">Client</label>
-                <select name="client" class="form-select form-control" id="client" required>
-                    <option value="" disabled selected>Select Clients</option>
-                    @foreach ($clients as $client)
-                        <option value="{{ $client->id }}" {{ $sprint->client == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
-                    @endforeach
-                </select>
-                @error('client')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
+            </div> 
             <div class="form-group mb-3">
                 <label for="project">Project</label>
                 <select name="project" class="form-select form-control" id="project" required>
@@ -66,7 +26,47 @@
                 @error('project')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
+            </div> 
+            <div class="form-group mb-3">
+                <label for="client">Client</label>
+                <select name="client" class="form-select form-control" id="client" required>
+                    <option value="" disabled selected>Select Clients</option>
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->id }}" {{ $sprint->client == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                    @endforeach
+                </select>
+                @error('client')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>        
+            <div class="form-group mb-3">
+                <label for="start_date">Start Date</label>
+                <input type="datetime-local" class="form-control" name="start_date" id="start_date" value="{{ old('start_date', \Carbon\Carbon::parse($sprint->start_date)->format('Y-m-d\TH:i')) }}" required>
+                @error('start_date')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
+            <div class="form-group mb-3">
+                <label for="eta">End Date</label>
+                <input type="datetime-local" class="form-control" name="eta" id="eta" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
+                @error('eta')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group mb-3">
+                <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                
+                    <select name="status" class="form-select form-control" id="status">
+                        <option value="1" {{ old('status', $sprint->status) == 1 ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ old('status', $sprint->status) == 0 ? 'selected' : '' }}>Inactive</option>
+                    </select>                
+            </div> 
+            <div class="form-group mb-3">
+                <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
+                <div class="col-sm-9">
+                    <textarea name="description" class="form-control" id="tinymce_textarea">{{ old('description', $sprint->description ?? '') }}</textarea>
+                </div>
+            </div>             
             <button type="submit" class="btn btn-primary mt-3">Update Sprint</button>
         </form>
     </div>

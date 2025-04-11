@@ -96,7 +96,17 @@ class SprintController extends Controller
         $doneTicketsCount = Tickets::where('sprint_id', $sprintId)
         ->whereRaw('LOWER(status) = ?', ['complete'])
         ->count();
-        
+        $clients = Sprint::select('sprints.*', 'projects.project_name as project_name', 'clients.name as client_name')
+        ->join('projects', 'sprints.project', '=', 'projects.id')
+        ->join('clients', 'sprints.client', '=', 'clients.id')
+        ->where('sprints.id', $sprintId) 
+        ->first();
+
+        $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
+        ->join('projects', 'sprints.project', '=', 'projects.id')
+        ->where('sprints.id', $sprintId) 
+        ->first();
+
         $progressTicketsCount = Tickets::where('sprint_id', $sprintId)
         ->whereRaw('LOWER(status) IN (?, ?)', ['in_progress', 'to_do'])
         ->count();
@@ -115,7 +125,7 @@ class SprintController extends Controller
         )
         ->get();
 
-        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount'));
+        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints'));
 
     }
     
