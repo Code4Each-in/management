@@ -146,7 +146,7 @@
                                     @elseif($data->status == 'in_progress')
                                     <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
                                     @elseif($data->status == 'ready')
-                                    <span class="badge bg-info text-dark">Ready</span>
+                                    <span class="badge rounded-pill bg-info text-dark">Ready</span>
                                     @else
                                     <span class="badge rounded-pill  bg-success">Complete</span>
                                     @endif
