@@ -27,7 +27,7 @@
                     @foreach ($sprints as $sprint)
                         <tr>
                             <td>{{ $sprint->name }}</td>
-                            <td>{{ strip_tags(htmlspecialchars_decode($sprint->description ?? '---'));}}</td>
+                            <td>{{ str_replace('&nbsp;', ' ', strip_tags(htmlspecialchars_decode($sprint->description ?? '---'))) }}</td>
                             <td>{{ $sprint->project_name ?? '---' }}</td>
                             <td>
                                 {{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y') : '---' }}
