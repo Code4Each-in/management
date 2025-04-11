@@ -18,7 +18,7 @@
                                 <strong>Title:&nbsp;</strong> {{ $tickets->title }}
                             </button>
                         </h2>
-                        <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#ticketAccordion">
+                        <div id="collapseTitle" class="accordion-collapse collapse show" aria-labelledby="headingTitle" data-bs-parent="#ticketAccordion">
                             <div class="accordion-body">
                                 <div class="row mb-1" style="margin-bottom: 8px;">
                                     <label for="tinymce_textarea" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Description</label>
@@ -181,7 +181,7 @@
             <div class="post-item clearfix mb-3 mt-3">
                 <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
             </div>
-            <div class="mb-3 post-item clearfix">
+            <div class="mb-3 post-item clearfix upload_chat">
                 <label for="comment_file" class="form-label">Attach File</label>
                 <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
             </div>

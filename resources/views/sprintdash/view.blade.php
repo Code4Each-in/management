@@ -1,35 +1,92 @@
 @extends('layout')
-@section('title', 'Detail Sprint')
+@section('title', 'Sprint Detail')
 @section('subtitle', 'Edit Sprint')
 @section('content')
-@php
+<div class="row">
+    <div class="row mb-2">
+        <div class="col-md-2">
+            <a class="btn btn-primary mt-3" href="{{ route('tickets.create') }}">Add Ticket</a>
+        </div>
+    </div>
+    @php
     $donePercent = $totalTicketsCount > 0 ? round(($doneTicketsCount / $totalTicketsCount) * 100) : 0;
-    $remainingPercent = 100 - $donePercent;
 @endphp
 
-<div class="progress" style="height: 25px; font-size: 0.9rem;">
-    <div class="progress-bar bg-success" role="progressbar"
-         style="width: {{ $donePercent }}%"
-         aria-valuenow="{{ $donePercent }}" aria-valuemin="0" aria-valuemax="100">
-        Done ({{ $doneTicketsCount }})
-    </div>
-    <div class="progress-bar bg-danger" role="progressbar"
-         style="width: {{ $remainingPercent }}%"
-         aria-valuenow="{{ $remainingPercent }}" aria-valuemin="0" aria-valuemax="100">
-        Remaining ({{ $totalTicketsCount - $doneTicketsCount }})
+<div class="accordion mt-4 mb-3" id="sprintAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInfo">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo" aria-expanded="true" aria-controls="collapseInfo">
+                <strong>Sprint Info</strong>
+            </button>
+        </h2>
+        <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
+            <div class="accordion-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center p-3">
+                        <svg width="100" height="100" viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg"
+                                  d="M18 2.0845
+                                     a 15.9155 15.9155 0 0 1 0 31.831
+                                     a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="#eee"
+                                  stroke-width="2.5"/>
+                            <path class="circle"
+                                  stroke-dasharray="{{ $donePercent }}, 100"
+                                  d="M18 2.0845
+                                     a 15.9155 15.9155 0 0 1 0 31.831
+                                     a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="#0d6efd"
+                                  stroke-width="2.5"/>
+                            <text x="18" y="20.35" class="percentage" text-anchor="middle" font-size="6" fill="#0d6efd">{{ $donePercent }}%</text>
+                        </svg>
+                        <p class="mt-2 mb-0">Done ({{ $doneTicketsCount }}) / Total ({{ $totalTicketsCount }})</p>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ $sprint->name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">Project</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ $sprints->project_name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">Client</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ $clients->client_name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->start_date)->format('M d, Y h:i A') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">End Date</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
+                            </div>
+                        </div>
+                    </div> 
+                </div> 
+            </div>
+        </div>
     </div>
 </div>
-<div class="row mb-2">
-    <div class="col-md-2">
-        <a class="btn btn-primary mt-3"  href="{{ route('tickets.create') }}">Add
-    Ticket</a>
-    </div>
-</div>
-<div class="row">
     <div class="col-md-12">
         <div class="card recent-sales overflow-auto">
-        <div class="card-body">
-            <h5 class="card-title">All Tickets related to <u>{{ $sprint->name  ?? '---' }}</u> sprint</h5>
+        <div class="card-body mt-2">
             <table class="table table-borderless datatable" id="allsprint">
                 <thead>
                     <tr>

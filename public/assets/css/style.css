@@ -2687,3 +2687,28 @@ span.select2-search.select2-search--inline {
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
   padding-left: 0  !important;
 }
+
+.circular-progress {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background:
+      radial-gradient(closest-side, white 79%, transparent 80% 100%),
+      conic-gradient(#28a745 calc(var(--progress) * 1%), #dc3545 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin: 0 auto;
+}
+
+.upload_chat {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin: 10px auto 20px;
+}
