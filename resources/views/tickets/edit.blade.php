@@ -367,6 +367,24 @@ $('#edit_project_id').on('change', function () {
             $('#edit_sprint_id').empty().append('<option value="">Select Sprint</option>');
         }
     });
+    document.addEventListener("DOMContentLoaded", function() {
+    const currentDate = new Date();
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek === 5) { 
+        currentDate.setHours(currentDate.getHours() + 72);
+    } else if (dayOfWeek === 6 || dayOfWeek === 0) { 
+        currentDate.setHours(currentDate.getHours() + (72 - currentDate.getHours() % 24));
+    } else {
+        currentDate.setHours(currentDate.getHours() + 48);
+    }
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const maxEta = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById("edit_eta").setAttribute("max", maxEta);
+});
 </script>
 
 @endsection

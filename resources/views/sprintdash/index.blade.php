@@ -27,7 +27,7 @@
                     @foreach ($sprints as $sprint)
                         <tr>
                             <td>{{ $sprint->name }}</td>
-                            <td>{{ strip_tags(htmlspecialchars_decode($sprint->description ?? '---'));}}</td>
+                            <td>{{ str_replace('&nbsp;', ' ', strip_tags(htmlspecialchars_decode($sprint->description ?? '---'))) }}</td>
                             <td>{{ $sprint->project_name ?? '---' }}</td>
                             <td>
                                 {{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y') : '---' }}
@@ -158,6 +158,24 @@
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
 <script>
+     document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.getElementById('start_date');
+        const etaInput = document.getElementById('eta');
+
+        startDateInput.addEventListener('change', function () {
+            const startDate = new Date(this.value);
+            if (!isNaN(startDate.getTime())) {
+                const maxDate = new Date(startDate);
+                maxDate.setDate(maxDate.getDate() + 14); 
+
+                const formattedMax = maxDate.toISOString().slice(0, 16);
+                const formattedStart = startDate.toISOString().slice(0, 16);
+
+                etaInput.setAttribute('min', formattedStart);
+                etaInput.setAttribute('max', formattedMax);
+            }
+        });
+    });
 function opensprintModal() {
                 document.getElementById("addTicketsForm").reset();
                 $('#addSprints').modal('show');
