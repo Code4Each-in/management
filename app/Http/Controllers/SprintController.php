@@ -30,7 +30,6 @@ class SprintController extends Controller
         ->get();
         $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
         ->join('projects', 'sprints.project', '=', 'projects.id')
-        ->where('sprints.status', 1)
         ->get();
         return view('sprintdash.index', compact('projects','clients', 'sprints'));
 
