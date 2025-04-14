@@ -5,67 +5,164 @@
 <div class="col-md-2">
     <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="card recent-sales overflow-auto">
-        <div class="card-body">
-            <h5 class="card-title">All Sprints</h5>
-            <table class="table table-borderless datatable" id="allsprint">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th> 
-                        <th scope="col">Project</th>  
-                        <th scope="col">Started At</th>
-                        <th scope="col">End Date(d/m/y)</th> 
-                        <th scope="col">Status</th> 
-                        <th scope="col">Time Left</th> 
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($sprints as $sprint)
-                        <tr>
-                            <td>{{ $sprint->name }}</td>
-                            <td>{{ str_replace('&nbsp;', ' ', strip_tags(htmlspecialchars_decode($sprint->description ?? '---'))) }}</td>
-                            <td>{{ $sprint->project_name ?? '---' }}</td>
-                            <td>
-                                {{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y') : '---' }}
-                            </td>                            
-                            <td>{{ \Carbon\Carbon::parse($sprint->eta)->format('d/m/Y') }}</td>
-                            <td>{{ $sprint->status == 1 ? 'Active' : 'Inactive' }}</td>
-                            <td>
-                                @php
-                                    $eta = \Carbon\Carbon::parse($sprint->eta);
-                                    $now = \Carbon\Carbon::now('Asia/Kolkata');
-                                    $timeLeft = $eta->diff($now);
-                                    $daysLeft = $eta->diffInDays($now);
-                                    $timeLeftString = $eta->isPast() ? '-' . $timeLeft->format('%H:%I:%S') : $timeLeft->format('%H:%I:%S');
-                                @endphp
-                                <p>
-                                    @if($daysLeft <= 2 && $daysLeft >= 0)
-                                        <i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>
-                                    @endif
-                                    Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-                                </p>                                
-                            </td>                            
-                            <td>
-                                <a href="{{ url('/view/sprint/'.$sprint->id) }}">
-                                    <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
-                                </a>
-                                <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                                    <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
-                                </a>
-                                <i style="color:#4154f1;" onClick="deleteSprint('{{ $sprint->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
-                            </td>                            
-                        </tr>    
-                    @endforeach
-                </tbody>
-            </table>            
-        </div>
+<div class="sprint-section">
+    <div class="sprint-header production">
+      <div class="section-left">
+        <div class="section-icon bg-production">S</div>
+        <div class="section-title" style="color: #2c2c2e;">Active Sprints</div>
+        <div class="section-title">{{ $totalSprintCount ?? 0 }} Sprints</div>
+      </div>
+      <div class="add-task" title="Add Task">+</div>
     </div>
+    <table class="styled-sprint-table " id="table-design">
+        <thead>
+          <tr style="color: #2c2c2e;">
+            <th>Name</th>
+            <th>Project</th>
+            <th>Started At</th>
+            <th>End Date (d/m/y)</th>
+            <th>Status</th>
+            <th>Time Left</th>
+            <th>Progress</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach ($sprints as $sprint)
+            @php
+              $eta       = \Carbon\Carbon::parse($sprint->eta);
+              $start     = $sprint->start_date
+                             ? \Carbon\Carbon::parse($sprint->start_date)
+                             : null;
+              $now       = \Carbon\Carbon::now('Asia/Kolkata');
+              $daysLeft  = $eta->diffInDays($now);
+            @endphp
+            <tr>
+              <td>{{ $sprint->name }}</td>
+              <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
+              <td>
+                {{ $start
+                     ? $start->format('d/m/Y')
+                     : '---' }}
+              </td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
+              <td>
+                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                @if($daysLeft <= 2 && $daysLeft >= 0)
+                  <i class="fas fa-exclamation-circle text-danger"
+                     title="Sprint is approaching its end!"></i>
+                @endif
+                Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+              </td>
+              @php
+              $total = $sprint->tickets_count ?? 0;
+              $completed = $sprint->completed_tickets_count ?? 0;
+              $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+            @endphp
+            
+            <td>
+              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px; text-align: center;">
+                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+              </div>
+              <small>{{ $completed }}/{{ $total }} completed</small>
+            </td>
+              <td class="actions-cell" style="text-align: center;">
+                <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                  <i class="fa fa-eye fa-fw pointer"></i>
+                </a>
+                <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                  <i class="fa fa-edit fa-fw pointer"></i>
+                </a>
+                <i class="fa fa-trash fa-fw pointer text-danger"
+                   onclick="deleteSprint('{{ $sprint->id }}')"></i>
+              </td>            
+            </tr>
+          @endforeach
+        </tbody>
+      </table>      
+  </div>
+
+  <div class="sprint-section mt-5">
+    <div class="sprint-header staged">
+      <div class="section-left">
+        <div class="section-icon" style="background-color: #e91e63;">S</div>
+        <div class="section-title" style="color: #e91e63;">In-Active Sprints</div>
+        <div class="section-title">{{ $totalinSprintCount ?? 0 }} Sprints</div>
+      </div>
+      <div class="add-task" title="Add Task">+</div>
     </div>
-</div>
+    <table class="styled-sprint-table">
+        <thead>
+          <tr style="color: #2c2c2e;">
+            <th>Name</th>
+            <th>Project</th>
+            <th>Started At</th>
+            <th>End Date (d/m/y)</th>
+            <th>Status</th>
+            <th>Time Left</th>
+            <th>Progress</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($inactivesprints as $sprint)
+            @php
+              $eta      = \Carbon\Carbon::parse($sprint->eta);
+              $start    = $sprint->start_date
+                            ? \Carbon\Carbon::parse($sprint->start_date)
+                            : null;
+              $now      = \Carbon\Carbon::now('Asia/Kolkata');
+              $daysLeft = $eta->diffInDays($now);
+            @endphp
+            <tr>
+              <td>{{ $sprint->name }}</td>
+              <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
+              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
+              <td>
+                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                @if($daysLeft <= 2 && $daysLeft >= 0)
+                  <i class="fas fa-exclamation-circle text-danger"
+                     title="Sprint is approaching its end!"></i>
+                @endif
+                Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+              </td>
+              @php
+              $total = $sprint->tickets_count ?? 0;
+              $completed = $sprint->completed_tickets_count ?? 0;
+              $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+            @endphp
+            
+            <td style="text-align: center;">
+              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px;">
+                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+              </div>
+              <small>{{ $completed }}/{{ $total }} completed</small>
+            </td> 
+              <td class="actions-cell" style="text-align: center;">
+                <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                  <i class="fa fa-eye fa-fw pointer"></i>
+                </a>
+                <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                  <i class="fa fa-edit fa-fw pointer"></i>
+                </a>
+                <i class="fa fa-trash fa-fw pointer text-danger"
+                   onclick="deleteSprint('{{ $sprint->id }}')"></i>
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>      
+  </div>
+
 <div class="col-lg-12">
     <div class="card">
         <div class="modal fade" id="addSprints" tabindex="-1" aria-labelledby="role" aria-hidden="true">

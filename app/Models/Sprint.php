@@ -23,4 +23,18 @@ class Sprint extends Model
     {
         return $this->belongsTo(Users::class, 'user_id','id');
     }
+    public function tickets()
+    {
+        return $this->hasMany(Tickets::class, 'sprint_id');
+    }
+    public function project()
+    {
+        return $this->belongsTo(Projects::class, 'project');
+    }
+    public function projectDetails()
+    {
+        return $this->belongsTo(Projects::class, 'project');
+    }
+    
+
 }

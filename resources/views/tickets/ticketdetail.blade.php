@@ -7,104 +7,84 @@
     <i style="color:#4154f1;"></i>
 </a>
 </div>
-<div class="row mb-1" style="margin-bottom: 10px;">
-    <div class="col-md-12">
-        <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            <div class="card-body" style="padding: 15px;">
-                <div class="accordion" id="ticketAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTitle">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="true" aria-controls="collapseTitle">
-                                <strong>Title:&nbsp;</strong> {{ $tickets->title }}
-                            </button>
-                        </h2>
-                        <div id="collapseTitle" class="accordion-collapse collapse show" aria-labelledby="headingTitle" data-bs-parent="#ticketAccordion">
-                            <div class="accordion-body">
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="tinymce_textarea" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Description</label>
-                                    <div class="col-sm-9">
-                                        <p style="font-size: 0.95rem; color: #333;">
-                                            {{ preg_replace('/&nbsp;/', ' ', strip_tags(htmlspecialchars_decode($tickets->description))) }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="edit_project_id" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Project</label>
-                                    <div class="col-sm-9">
-                                        @foreach ($projects as $project)
-                                            <p style="font-size: 1rem; color: #333;">{{ $project['project_name'] }}</p>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="edit_assign" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Ticket Assigned</label>
-                                    <div class="col-sm-9" id="Ticketsdata">
-                                        @php
-                                            $assignedUsers = $ticketAssign->map(function($data) {
-                                                return $data->user->first_name;
-                                            })->implode(', ');
-                                        @endphp
-                                        <p style="font-size: 0.95rem; color: #333; margin: 2px 0;">{{ $assignedUsers }}</p>
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">ETA</label>
-                                    <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</p>                                        
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Status</label>
-                                    <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">
-                                            @if($tickets->status == 'to_do')
-                                                <span class="badge rounded-pill bg-primary">To do</span>
-                                            @elseif($tickets->status == 'in_progress')
-                                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
-                                            @elseif($tickets->status == 'ready')
-                                                <span class="badge bg-info text-dark">Ready</span>
-                                            @elseif($tickets->status == 'complete')
-                                                <span class="badge rounded-pill bg-success">Complete</span>
-                                            @else
-                                                {{ $tickets->status ? $tickets->status : '---' }}
-                                            @endif
-                                        </p>                                        
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Ticket Priority</label>
-                                    <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">
-                                            @if($tickets->priority == 'normal')
-                                                <span class="badge rounded-pill bg-success">Normal</span>
-                                            @elseif($tickets->priority == 'low')
-                                                <span class="badge rounded-pill bg-warning text-dark">Low</span>
-                                            @elseif($tickets->priority == 'high')
-                                                <span class="badge rounded-pill bg-primary">High</span>
-                                            @elseif($tickets->priority == 'priority')
-                                                <span class="badge bg-info text-dark">Priority</span>
-                                            @else
-                                                <span class="badge rounded-pill bg-danger">Urgent</span>
-                                            @endif
-                                        </p>                                        
-                                    </div>
-                                </div>
-                                <div class="row mb-1" style="margin-bottom: 8px;">
-                                    <label for="etaDateTime" class="col-sm-3 col-form-label" style="font-weight: bold; font-size: 0.9rem;">Ticket Status</label>
-                                    <div class="col-sm-9">
-                                        <p style="font-size: 1rem; color: #333;">
-                                            {{ $tickets->ticket_priority == 1 ? 'Active' : ($tickets->ticket_priority == 0 ? 'Inactive' : '---') }}
-                                        </p>
-                                    </div>                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container">
+    <div class="task-card">
+      <div class="task-header" onclick="toggleTaskDetails(this)">
+        <div class="task-icon">
+          <i class="fa-solid fa-folder-open"></i>
         </div>
+        <div class="task-title">
+          <h4>{{ $tickets->title }}</h4>
+          <span class="task-status">
+            @if($tickets->status == 'complete')
+              <i class="fa-solid fa-circle-check"></i> Complete
+            @elseif($tickets->status == 'ready')
+              <i class="fa-solid fa-circle-check"></i> Ready
+            @elseif($tickets->status == 'in_progress')
+              <i class="fa-solid fa-spinner fa-spin"></i> In Progress
+            @else
+              <i class="fa-solid fa-circle-dot"></i> To Do
+            @endif
+          </span>
+        </div>
+        <div class="task-toggle-icon">
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+  
+      <div class="task-details">
+        <div class="detail-item">
+          <i class="fa-solid fa-align-left"></i>
+          <strong>Description:</strong>
+          <span>{{ preg_replace('/&nbsp;/', ' ', strip_tags(htmlspecialchars_decode($tickets->description))) }}</span>
+        </div>
+
+        <div class="detail-item">
+          <i class="fa-solid fa-diagram-project"></i>
+          <strong>Project:</strong>
+          @foreach ($projects as $project)
+                <span>{{ $project['project_name'] ?? '---' }}</span>
+            @endforeach
+
+        </div>
+  
+        <div class="detail-item">
+          <i class="fa-solid fa-user"></i>
+          <strong>Assigned To:</strong>
+          <span>
+            @php
+              $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
+            @endphp
+            {{ $assignedUsers }}
+          </span>
+        </div>
+  
+        <div class="detail-item">
+          <i class="fa-solid fa-calendar-day"></i>
+          <strong>ETA:</strong>
+          <span>{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
+        </div>
+  
+        <div class="detail-item">
+          <i class="fa fa-layer-group"></i>
+          <strong>Priority:</strong>
+          <span class="priority {{ $tickets->priority }}">
+            <i class="fa fa-check-circle" aria-hidden="true"></i> {{ ucfirst($tickets->priority ?? 'Urgent') }}
+          </span>
+        </div>
+  
+        <div class="detail-item">
+          <i class="fa-solid fa-bolt"></i>
+          <strong>Ticket Status:</strong>
+          <span class="status-badge {{ $tickets->ticket_priority == 1 ? 'active' : 'inactive' }}">
+            <i class="fa-solid fa-circle-dot"></i>
+            {{ $tickets->ticket_priority == 1 ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+  
 
 
 
@@ -223,5 +203,8 @@
             });
         });
     });
+    function toggleTaskDetails(headerElement) {
+      headerElement.parentElement.classList.toggle('expanded');
+    }
     </script>    
 @endsection
