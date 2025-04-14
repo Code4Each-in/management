@@ -28,10 +28,29 @@ class SprintController extends Controller
         $projects = Projects::all();
         $clients = Client::orderBy('name', 'asc')  
         ->get();
-        $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
-        ->join('projects', 'sprints.project', '=', 'projects.id')
+        $sprints = Sprint::with('projectDetails')
+    ->withCount([
+        'tickets', 
+        'tickets as completed_tickets_count' => function ($query) {
+            $query->where('status', 'complete');
+        }
+    ])
+    ->where('sprints.status', 1)
+    ->get();
+
+        $totalSprintCount = $sprints->count();
+        $inactivesprints = Sprint::with('projectDetails')
+        ->withCount([
+            'tickets', 
+            'tickets as completed_tickets_count' => function ($query) {
+                $query->where('status', 'complete');
+            }
+        ])
+        ->where('sprints.status', 0)
         ->get();
-        return view('sprintdash.index', compact('projects','clients', 'sprints'));
+
+        $totalinSprintCount = $inactivesprints->count();
+        return view('sprintdash.index', compact('projects','clients', 'sprints', 'inactivesprints', 'totalSprintCount', 'totalinSprintCount'));
 
     }
 
