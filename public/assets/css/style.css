@@ -2800,23 +2800,27 @@ table.styled-sprint-table th {
   font-weight: 600;
 }
 
-.sprint-section table#table-design th, td {
+.styled-sprint-table th, .styled-sprint-table td {
+  padding: 7px 4px;
+  vertical-align: middle;
   font-size: 14px;
-  padding: 13px 10px;
-  border-bottom: 1px solid #e9ecef;
-  /* text-align: center; */
-  font-size: 15px;
+  border-bottom: 2px solid #dddbdb;
+  width: 10%;
 }
-
-
-.styled-sprint-table td:nth-child(7) {
+table.styled-sprint-table.sprint-table {
+  text-align: center;
+} 
+span.badge.bg-success {
+  background: #00b386 !important;
+}
+.styled-sprint-table td:nth-child(5) {
   background-color: #6bdbf8;
 }
 
-.styled-sprint-table td:nth-child(6){
+.styled-sprint-table td:nth-child(4){
    background-color:#a9e35a;
 }
-.styled-sprint-table td:nth-child(8){
+.styled-sprint-table td:nth-child(6){
     background-color:#7dbce6;
 }
 .confidence-tag {

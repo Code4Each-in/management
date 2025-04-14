@@ -14,17 +14,18 @@
       </div>
       <div class="add-task" title="Add Task">+</div>
     </div>
-    <table class="styled-sprint-table " id="table-design">
+    <table class="styled-sprint-table sprint-table">
         <thead>
           <tr style="color: #2c2c2e;">
             <th>Name</th>
             <th>Project</th>
+            
+            <th>Time Left</th>
             <th>Started At</th>
             <th>End Date (d/m/y)</th>
-            <th>Status</th>
-            <th>Time Left</th>
-            <th>Progress</th>
             <th>Actions</th>
+            <th>Status</th>
+            <th>Progress</th>
           </tr>
         </thead>
         <tbody>
@@ -40,17 +41,7 @@
             <tr>
               <td>{{ $sprint->name }}</td>
               <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
-              <td>
-                {{ $start
-                     ? $start->format('d/m/Y')
-                     : '---' }}
-              </td>
-              <td>{{ $eta->format('d/m/Y') }}</td>
-              <td>
-                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
-                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
+              
               <td style="text-align: center;">
                 @if($daysLeft <= 2 && $daysLeft >= 0)
                   <i class="fas fa-exclamation-circle text-danger"
@@ -58,18 +49,12 @@
                 @endif
                 Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
               </td>
-              @php
-              $total = $sprint->tickets_count ?? 0;
-              $completed = $sprint->completed_tickets_count ?? 0;
-              $progress = $total > 0 ? ($completed / $total) * 100 : 0;
-            @endphp
-            
-            <td>
-              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px; text-align: center;">
-                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
-              </div>
-              <small>{{ $completed }}/{{ $total }} completed</small>
-            </td>
+              <td>
+                {{ $start
+                     ? $start->format('d/m/Y')
+                     : '---' }}
+              </td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
               <td class="actions-cell" style="text-align: center;">
                 <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                   <i class="fa fa-eye fa-fw pointer"></i>
@@ -79,7 +64,23 @@
                 </a>
                 <i class="fa fa-trash fa-fw pointer text-danger"
                    onclick="deleteSprint('{{ $sprint->id }}')"></i>
-              </td>            
+              </td> 
+              <td>
+                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              @php
+              $total = $sprint->tickets_count ?? 0;
+              $completed = $sprint->completed_tickets_count ?? 0;
+              $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+            @endphp
+            <td style="text-align: center;">
+              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px; text-align: center;">
+                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+              </div>
+              <small>{{ $completed }}/{{ $total }} completed</small>
+            </td>           
             </tr>
           @endforeach
         </tbody>
@@ -95,17 +96,19 @@
       </div>
       <div class="add-task" title="Add Task">+</div>
     </div>
-    <table class="styled-sprint-table">
+    <table class="styled-sprint-table sprint-table">
         <thead>
-          <tr style="color: #2c2c2e;">
+          <tr style="color: #e91e63;">
             <th>Name</th>
             <th>Project</th>
+            
+            <th>Time Left</th>
             <th>Started At</th>
             <th>End Date (d/m/y)</th>
-            <th>Status</th>
-            <th>Time Left</th>
-            <th>Progress</th>
+            
             <th>Actions</th>
+            <th>Status</th>
+            <th>Progress</th>
           </tr>
         </thead>
         <tbody>
@@ -121,13 +124,7 @@
             <tr>
               <td>{{ $sprint->name }}</td>
               <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
-              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
-              <td>{{ $eta->format('d/m/Y') }}</td>
-              <td>
-                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
-                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
+              
               <td style="text-align: center;">
                 @if($daysLeft <= 2 && $daysLeft >= 0)
                   <i class="fas fa-exclamation-circle text-danger"
@@ -135,18 +132,15 @@
                 @endif
                 Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
               </td>
+              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
+              
+              
               @php
               $total = $sprint->tickets_count ?? 0;
               $completed = $sprint->completed_tickets_count ?? 0;
               $progress = $total > 0 ? ($completed / $total) * 100 : 0;
-            @endphp
-            
-            <td style="text-align: center;">
-              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px;">
-                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
-              </div>
-              <small>{{ $completed }}/{{ $total }} completed</small>
-            </td> 
+            @endphp 
               <td class="actions-cell" style="text-align: center;">
                 <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                   <i class="fa fa-eye fa-fw pointer"></i>
@@ -156,6 +150,17 @@
                 </a>
                 <i class="fa fa-trash fa-fw pointer text-danger"
                    onclick="deleteSprint('{{ $sprint->id }}')"></i>
+              </td>
+              <td>
+                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px;">
+                  <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+                </div>
+                <small>{{ $completed }}/{{ $total }} completed</small>
               </td>
             </tr>
           @endforeach
