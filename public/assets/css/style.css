@@ -2914,7 +2914,7 @@ animation: popIn 0.3s ease-in-out;
 
 .task-title h4 {
   margin: 0;
-  font-size: 1.1rem;
+font-size: 1rem;
 }
 
 .task-status {
@@ -2956,12 +2956,12 @@ animation: popIn 0.3s ease-in-out;
 
 .detail-item {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 15px 0;
-  font-size: 0.96rem;
-  color: #444;
-  border-bottom: 1px solid #f0f0f0;
+align-items: center;
+gap: 8px;
+padding: 10px 0;
+font-size: 0.96rem;
+color: #444;
+border-bottom: 1px solid #f0f0f0;
 }
 
 .detail-item:last-child {
@@ -3197,9 +3197,9 @@ textarea#comment {
    width: 100%;
 }
 }
-@media (max-width: 768px) {
+@media (max-width: 767px) {
    .task-header {
-       /* flex-direction: column; */
-       align-items: flex-start;
+    flex-direction: row;
+    align-items: flex-start;
    }
 }
