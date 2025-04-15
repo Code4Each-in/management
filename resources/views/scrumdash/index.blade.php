@@ -49,7 +49,7 @@
                     @endphp
                     <tr>
                         <td><a href="{{ url('/view/sprint/'.$sprint->id) }}" target="_blank">{{ $sprint->name }}</a></td>
-                        <td>{{ $sprint->project_name ?? '---' }}</td>
+                        <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
                         <td>{{ $eta->format('d/m/Y') }}</td>
                         <td>
                             @php
