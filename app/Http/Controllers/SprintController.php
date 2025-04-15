@@ -141,7 +141,19 @@ class SprintController extends Controller
         $progressTicketsCount = Tickets::where('sprint_id', $sprintId)
         ->whereRaw('LOWER(status) IN (?, ?)', ['in_progress', 'to_do'])
         ->count();
+        $progress = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['in_progress'])
+        ->count();
 
+        $todo = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['to_do'])
+        ->count();
+        $complete = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['complete'])
+        ->count();
+        $ready = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['ready'])
+        ->count();
         $totalTicketsCount = Tickets::where('sprint_id', $sprintId)->count();
 
         $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
@@ -156,7 +168,7 @@ class SprintController extends Controller
         )
         ->get();
 
-        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints'));
+        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints', 'progress', 'complete', 'todo', 'ready'));
 
     }
     
