@@ -176,7 +176,6 @@
           <th>S.No</th>
           <th>Name</th>
           <th>Project</th>
-          <th>Time Left</th>
           <th>Started At</th>
           <th>End Date (d/m/y)</th>
           <th>Actions</th>
@@ -199,13 +198,6 @@
             <td>{{ $loop->iteration }}</td>
             <td>{{ $sprint->name }}</td>
             <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
-            <td style="text-align: center;">
-              @if($daysLeft <= 2 && $daysLeft >= 0)
-                <i class="fas fa-exclamation-circle text-danger"
-                   title="Sprint is approaching its end!"></i>
-              @endif
-              Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-            </td>
             <td>{{ $start ? $start->format('d/m/Y') : '–' }}</td>
             <td>{{ $eta->format('d/m/Y') }}</td>
             <td class="actions-cell" style="text-align: center;">

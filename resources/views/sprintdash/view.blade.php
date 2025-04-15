@@ -123,7 +123,7 @@
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Description</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
+                        <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
                             </div>
                         </div>
 
