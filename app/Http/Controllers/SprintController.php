@@ -29,14 +29,17 @@ class SprintController extends Controller
         $clients = Client::orderBy('name', 'asc')  
         ->get();
         $sprints = Sprint::with('projectDetails')
-    ->withCount([
-        'tickets', 
-        'tickets as completed_tickets_count' => function ($query) {
-            $query->where('status', 'complete');
-        }
-    ])
-    ->where('sprints.status', 1)
-    ->get();
+        ->withCount([
+            'tickets', 
+            'tickets as completed_tickets_count' => function ($query) {
+                $query->where('status', 'complete');
+            }
+        ])
+        ->where('sprints.status', 1)
+        ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
+        ->get();
+    
+
 
         $totalSprintCount = $sprints->count();
         $inactivesprints = Sprint::with('projectDetails')
