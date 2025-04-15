@@ -48,9 +48,22 @@ class SprintController extends Controller
         ])
         ->where('sprints.status', 0)
         ->get();
+         
 
+        $completedsprints = Sprint::with(['projectDetails'])
+        ->withCount([
+            'tickets',
+            'tickets as completed_tickets_count' => function ($query) {
+                $query->where('status', 'complete');
+            }
+        ])
+        ->having('tickets_count', '>', 0)
+        ->havingRaw('tickets_count = completed_tickets_count')
+        ->get();
+    
+    
         $totalinSprintCount = $inactivesprints->count();
-        return view('sprintdash.index', compact('projects','clients', 'sprints', 'inactivesprints', 'totalSprintCount', 'totalinSprintCount'));
+        return view('sprintdash.index', compact('projects','clients', 'sprints', 'inactivesprints', 'totalSprintCount', 'totalinSprintCount', 'completedsprints'));
 
     }
 

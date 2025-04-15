@@ -508,5 +508,19 @@ class TicketsController extends Controller
     ]);
 }
 
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:to_do,in_progress,ready,complete',
+    ]);
+    
+    $ticket = Tickets::findOrFail($id);
+    $ticket->status = $request->status;
+    $ticket->save();
+
+    return response()->json(['success' => true]);
+}
+
+
 
 }

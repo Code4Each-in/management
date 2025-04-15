@@ -8,82 +8,95 @@
 </a>
 </div>
 <div class="container">
-    <div class="task-card">
-      <div class="task-header" onclick="toggleTaskDetails(this)">
-        <div class="task-icon">
-          <i class="fa-solid fa-folder-open"></i>
-        </div>
-        <div class="task-title">
-          <h4>{{ $tickets->title }}</h4>
-          <span class="task-status">
-            @if($tickets->status == 'complete')
-              <i class="fa-solid fa-circle-check"></i> Complete
-            @elseif($tickets->status == 'ready')
-              <i class="fa-solid fa-circle-check"></i> Ready
-            @elseif($tickets->status == 'in_progress')
-              <i class="fa-solid fa-spinner fa-spin"></i> In Progress
-            @else
-              <i class="fa-solid fa-circle-dot"></i> To Do
-            @endif
-          </span>
-        </div>
-        <div class="task-toggle-icon">
-          <i class="fa-solid fa-chevron-down"></i>
-        </div>
+  <div class="task-card expanded">
+    <div class="task-header" onclick="toggleTaskDetails(this)"> 
+      <div class="task-icon">
+        <i class="fa-solid fa-folder-open"></i>
       </div>
-  
-      <div class="task-details">
-        <div class="detail-item">
-          <i class="fa-solid fa-align-left"></i>
-          <strong>Description:</strong>
-          <span>{{ preg_replace('/&nbsp;/', ' ', strip_tags(htmlspecialchars_decode($tickets->description))) }}</span>
-        </div>
-
-        <div class="detail-item">
-          <i class="fa-solid fa-diagram-project"></i>
-          <strong>Project:</strong>
-          @foreach ($projects as $project)
-                <span>{{ $project['project_name'] ?? '---' }}</span>
-            @endforeach
-
-        </div>
-  
-        <div class="detail-item">
-          <i class="fa-solid fa-user"></i>
-          <strong>Assigned To:</strong>
-          <span>
-            @php
-              $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
-            @endphp
-            {{ $assignedUsers }}
-          </span>
-        </div>
-  
-        <div class="detail-item">
-          <i class="fa-solid fa-calendar-day"></i>
-          <strong>ETA:</strong>
-          <span>{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
-        </div>
-  
-        <div class="detail-item">
-          <i class="fa fa-layer-group"></i>
-          <strong>Priority:</strong>
-          <span class="priority {{ $tickets->priority }}">
-            <i class="fa fa-check-circle" aria-hidden="true"></i> {{ ucfirst($tickets->priority ?? 'Urgent') }}
-          </span>
-        </div>
-  
-        <div class="detail-item">
-          <i class="fa-solid fa-bolt"></i>
-          <strong>Ticket Status:</strong>
-          <span class="status-badge {{ $tickets->ticket_priority == 1 ? 'active' : 'inactive' }}">
-            <i class="fa-solid fa-circle-dot"></i>
-            {{ $tickets->ticket_priority == 1 ? 'Active' : 'Inactive' }}
-          </span>
-        </div>
+      <div class="task-title">
+        <h4>{{ $tickets->title }}</h4>
+        <span class="task-status">
+          @if($tickets->status == 'complete')
+            <i class="fa-solid fa-circle-check"></i> Complete
+          @elseif($tickets->status == 'ready')
+            <i class="fa-solid fa-circle-check"></i> Ready
+          @elseif($tickets->status == 'in_progress')
+            <i class="fa-solid fa-spinner fa-spin"></i> In Progress
+          @else
+            <i class="fa-solid fa-circle-dot"></i> To Do
+          @endif
+        </span>
+      </div>
+      <div class="task-toggle-icon">
+        <i class="fa-solid fa-chevron-down"></i>
       </div>
     </div>
+
+    <div class="task-details"> <!-- Always visible -->
+      <div class="detail-item">
+        <i class="fa-solid fa-align-left"></i>
+        <strong>Description:</strong>
+        <span>{{ preg_replace('/&nbsp;/', ' ', strip_tags(htmlspecialchars_decode($tickets->description))) }}</span>
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-diagram-project"></i>
+        <strong>Project:</strong>
+        @foreach ($projects as $project)
+          <span>{{ $project['project_name'] ?? '---' }}</span>
+        @endforeach
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-user"></i>
+        <strong>Assigned To:</strong>
+        <span>
+          @php
+            $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
+          @endphp
+          {{ $assignedUsers }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-calendar-day"></i>
+        <strong>ETA:</strong>
+        <span>{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
+      </div>
+
+      <div class="detail-item">
+        <i class="fa fa-layer-group"></i>
+        <strong>Priority:</strong>
+        <span class="priority {{ $tickets->priority }}">
+          <i class="fa fa-check-circle" aria-hidden="true"></i> {{ ucfirst($tickets->priority ?? 'Urgent') }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-bolt"></i>
+        <strong>Ticket Status:</strong>
+      
+        <div class="dropdown d-inline-block ms-2">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-circle-dot"></i>
+            {{ ucfirst($tickets->status) }}
+          </button>
+      
+          <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
+            @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+              <li>
+                <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                  {{ ucfirst(str_replace('_', ' ', $status)) }}
+                </a>
+              </li>
+            @endforeach
+          </ul>
+        </div>
+      </div>      
+    </div>
   </div>
+</div>
+
   
 
 
@@ -203,8 +216,57 @@
             });
         });
     });
-    function toggleTaskDetails(headerElement) {
-      headerElement.parentElement.classList.toggle('expanded');
-    }
-    </script>    
+      function toggleTaskDetails(headerElement) {
+        const card = headerElement.closest('.task-card');
+        card.classList.toggle('expanded');
+      }
+
+    </script>   
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+        document.body.addEventListener('click', function (e) {
+          const clickedItem = e.target.closest('.dropdown-item');
+          if (!clickedItem) return;
+    
+          e.preventDefault();
+    
+          const newStatus = clickedItem.getAttribute('data-value');
+          const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
+    
+          if (!newStatus || !ticketId) {
+            alert("Missing data");
+            return;
+          }
+    
+          fetch(`/tickets/${ticketId}/update-status`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({ status: newStatus }),
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Update the button text without reload
+              const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
+                .previousElementSibling;
+    
+              if (statusButton) {
+                statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+              }
+            } else {
+            }
+          })
+          .catch(error => {
+            console.error(error);
+            alert('An error occurred.');
+          });
+        });
+      });
+    </script>
+     
 @endsection

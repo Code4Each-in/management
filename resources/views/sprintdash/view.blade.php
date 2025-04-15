@@ -123,15 +123,29 @@
                                  @endif
                             </td>
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
-                            <td>@if($ticket->status == 'to_do')
-                                <span class="badge rounded-pill bg-primary">To do</span>
-                                @elseif($ticket->status == 'in_progress')
-                                <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
-                                @elseif($ticket->status == 'ready')
-                                <span class="badge bg-info text-dark">Ready</span>
-                                @else
-                                <span class="badge rounded-pill  bg-success">Complete</span>
-                                @endif</td>
+                            <td>
+                                <div class="dropdown">
+                                  <span class="badge rounded-pill dropdown-toggle
+                                    {{ $ticket->status == 'to_do' ? 'bg-primary' : '' }}
+                                    {{ $ticket->status == 'in_progress' ? 'bg-warning text-dark' : '' }}
+                                    {{ $ticket->status == 'ready' ? 'bg-info text-dark' : '' }}
+                                    {{ $ticket->status == 'complete' ? 'bg-success' : '' }}"
+                                    data-bs-toggle="dropdown" role="button" aria-expanded="false"
+                                    style="cursor: pointer;"
+                                  >
+                                    {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                  </span>
+                                  <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
+                                    @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+                                      <li>
+                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                          {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                        </a>
+                                      </li>
+                                    @endforeach
+                                  </ul>
+                                </div>
+                              </td>                              
                                 <td>
                                     @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
                                     {{ $user->assigned_user_name }} ({{ $user->designation }})
@@ -210,4 +224,59 @@
                 $(this).siblings('.readMoreLink').show();
             });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+      document.body.addEventListener('click', function (e) {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+  
+        e.preventDefault();
+  
+        const newStatus = item.getAttribute('data-value');
+        const ticketId = item.closest('.status-options')?.getAttribute('data-ticket-id');
+        const badge = item.closest('.dropdown').querySelector('.badge');
+  
+        if (!ticketId || !newStatus || !badge) return;
+  
+        fetch(`/tickets/${ticketId}/update-status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            badge.textContent = newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+            // Remove existing status color classes
+            badge.classList.remove('bg-primary', 'bg-warning', 'text-dark', 'bg-info', 'bg-success');
+  
+            // Apply new one
+            if (newStatus === 'to_do') {
+              badge.classList.add('bg-primary');
+            } else if (newStatus === 'in_progress') {
+              badge.classList.add('bg-warning', 'text-dark');
+            } else if (newStatus === 'ready') {
+              badge.classList.add('bg-info', 'text-dark');
+            } else if (newStatus === 'complete') {
+              badge.classList.add('bg-success');
+            }
+  
+          } else {
+            alert('Failed to update status.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Something went wrong.');
+        });
+      });
+    });
+  </script>
+  
 @endsection
