@@ -140,18 +140,28 @@
                                     @php
                                     $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
                                     @endphp
-                                    <td>
-                                    @if($data->status == 'to_do')
-                                    <span class="badge rounded-pill bg-primary">To do</span>
-                                    @elseif($data->status == 'in_progress')
-                                    <span class="badge rounded-pill bg-warning text-dark">In Progress</span>
-                                    @elseif($data->status == 'ready')
-                                    <span class="badge rounded-pill bg-info text-dark">Ready</span>
-                                    @else
-                                    <span class="badge rounded-pill  bg-success">Complete</span>
-                                    @endif
-                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $ticketStatusData->first_name ?? '' }} </p>
-                                    </td>
+                                  <td>
+                                    <div class="dropdown">
+                                      <button 
+                                        class="btn btn-sm btn-secondary dropdown-toggle" 
+                                        type="button" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false"
+                                      >
+                                        {{ ucfirst(str_replace('_', ' ', $data->status)) }}
+                                      </button>
+                                  
+                                      <ul class="dropdown-menu status-options" data-ticket-id="{{ $data->id }}">
+                                        @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+                                          <li>
+                                            <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                              {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                            </a>
+                                          </li>
+                                        @endforeach
+                                      </ul>
+                                    </div>
+                                  </td>                                                                                                                                                                                                                                                                                                                                                   
                                     <!-- <td>{{ $data->priority }}</td> -->
                                     @if($data->priority == 'normal')
                                     <td>
@@ -723,6 +733,53 @@ document.getElementById('f').addEventListener('input', checkCharLength);
             $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
         }
     });
-        </script>
+
+
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+      document.body.addEventListener('click', function (e) {
+        const clickedItem = e.target.closest('.dropdown-item');
+  
+        if (!clickedItem) return; 
+  
+        e.preventDefault(); 
+  
+        const newStatus = clickedItem.getAttribute('data-value');
+        const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
+  
+        if (!newStatus || !ticketId) {
+          alert("Missing status or ticket ID");
+          return;
+        }
+  
+        console.log(`Updating ticket ${ticketId} to status: ${newStatus}`);
+  
+        fetch(`/tickets/${ticketId}/update-status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload(); 
+          } else {
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          alert('An error occurred.');
+        });
+      });
+    });
+  </script>
+  
+  
     
         @endsection
