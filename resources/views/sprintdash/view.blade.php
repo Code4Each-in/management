@@ -33,7 +33,7 @@
     $todoDeg     = ($todoPercent / 100) * 360;
     $completeDeg = ($completePercent / 100) * 360;
         @endphp
-
+<div class="col-md-6">
 <div class="text-center">
     <svg viewBox="0 0 36 36" class="circular-chart" width="200" height="200">
         <circle cx="18" cy="18" r="15.9155" fill="#f0f0f0" />
@@ -104,8 +104,8 @@
             <span class="badge bg-purple text-white" style="background-color: #6f42c1;">Ready: {{ $ready }}</span>
         </div>
     </div>
-</div>              
-                    <div class="col-md-9">
+</div>       </div>       
+                    <div class="col-md-6">
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
                             <div class="col-sm-8">
