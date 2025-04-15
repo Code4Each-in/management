@@ -2886,7 +2886,7 @@ h3.heading-section {
   margin-bottom: 20px;
   transition: all 0.3s ease;
   overflow: hidden;
-  border-left: 5px solid #00bcd4;
+  border-left: 5px solid #012970;
 }
 
 .task-card:hover {
@@ -2903,9 +2903,9 @@ h3.heading-section {
 
 .task-icon i {
   font-size: 22px;
-  margin-right: 16px;
-  color: #00bcd4;
-  animation: popIn 0.3s ease-in-out;
+margin-right: 16px;
+color: #012970;
+animation: popIn 0.3s ease-in-out;
 }
 
 .task-title {
@@ -2969,11 +2969,11 @@ h3.heading-section {
 }
 
 .detail-item i {
-  color: #00bcd4;
-  font-size: 1.1rem;
-  min-width: 24px;
-  text-align: center;
-  animation: fadeInUp 0.6s ease-in-out;
+  color: #012970;
+font-size: 1.1rem;
+min-width: 24px;
+text-align: center;
+animation: fadeInUp 0.6s ease-in-out;
 }
 
 .detail-item strong {
@@ -2988,11 +2988,11 @@ h3.heading-section {
 
 .priority.normal {
   background: #e0f8e9;
-  color: #2e7d32;
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+color: #2e7d32;
+padding: 10px 12px;
+border-radius: 12px;
+font-size: 0.85rem;
+font-weight: 500;
 }
 
 .status-badge.active {

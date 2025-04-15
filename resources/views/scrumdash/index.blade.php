@@ -30,41 +30,56 @@
             <div class="card-body">
             <h5 class="card-title">Total Active Sprints</h5>
             <table class="table table-borderless datatable" id="totaljobs">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th> 
-                    <th scope="col">Project</th>                  
-                    <th scope="col">ETA (d/m/y)</th> 
-                    <th scope="col">Time Left</th> 
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($sprints as $sprint)
+                <thead>
                     <tr>
-                        <td><a href="{{ url('/view/sprint/'.$sprint->id) }}" target="_blank">
-                            {{ $sprint->name }}</a></td>
+                        <th scope="col">Name</th> 
+                        <th scope="col">Project</th>                  
+                        <th scope="col">ETA (d/m/y)</th> 
+                        <th scope="col">Time Left</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($sprints as $sprint)
+                    @php
+                        $eta = \Carbon\Carbon::parse($sprint->eta);
+                        $now = \Carbon\Carbon::now('Asia/Kolkata');
+                        $isPast = $now->greaterThan($eta);
+                        $daysDiff = $eta->diffInDays($now);
+                        $daysLeft = $isPast ? -$daysDiff : $daysDiff;
+                    @endphp
+                    <tr>
+                        <td><a href="{{ url('/view/sprint/'.$sprint->id) }}" target="_blank">{{ $sprint->name }}</a></td>
                         <td>{{ $sprint->project_name ?? '---' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($sprint->eta)->format('d/m/Y') }}</td>
+                        <td>{{ $eta->format('d/m/Y') }}</td>
                         <td>
                             @php
-                                $eta = \Carbon\Carbon::parse($sprint->eta);
-                                $now = \Carbon\Carbon::now('Asia/Kolkata');
-                                $timeLeft = $eta->diff($now);
-                                $daysLeft = $eta->diffInDays($now);
+                                // Calculate days left and display appropriate message
+                                $daysLeft = $now->diffInDays($eta, false); // Add `false` to get signed days
                             @endphp
-                            <p>{!! ($daysLeft <= 2 && $daysLeft >= 0) ? '<i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>' : '' !!} Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}</p>
-                        </td>                                                      
-                    </tr>    
-                @endforeach
-            </tbody>
-            </table>
+            
+                            <p>
+                                @if ($daysLeft < 0)
+                                    <i class="fas fa-exclamation-circle" style="color: red;" title="Task is overdue!"></i>
+                                    Overdue: {{ abs($daysLeft) }} days
+                                @elseif ($daysLeft <= 2 && $daysLeft >= 0)
+                                    <i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>
+                                    Days Left: {{ $daysLeft }}
+                                @else
+                                    Days Left: {{ $daysLeft }}
+                                @endif
+                            </p>
+                        </td>
+                    </tr>
+                    @endforeach            
+                </tbody>
+            </table>            
         </div>
     </div>
 </div>
 <div class="col-md-6">
     <div class="card recent-sales overflow-auto">
      <div class="card-body">
-        <h5 class="card-title">Jobs In Progress</h5>
+        <h5 class="card-title">Ongoing Jobs</h5>
         <table class="table table-borderless datatable" id="runningjobs">
             <thead>
                 <tr>

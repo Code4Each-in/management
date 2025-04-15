@@ -22,27 +22,89 @@
         <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
             <div class="accordion-body">
                 <div class="row align-items-center">
-                    <div class="col-md-3 text-center p-3">
-                        <svg width="100" height="100" viewBox="0 0 36 36" class="circular-chart">
-                            <path class="circle-bg"
-                                  d="M18 2.0845
-                                     a 15.9155 15.9155 0 0 1 0 31.831
-                                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                                  fill="none"
-                                  stroke="#eee"
-                                  stroke-width="2.5"/>
-                            <path class="circle"
-                                  stroke-dasharray="{{ $donePercent }}, 100"
-                                  d="M18 2.0845
-                                     a 15.9155 15.9155 0 0 1 0 31.831
-                                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                                  fill="none"
-                                  stroke="#0d6efd"
-                                  stroke-width="2.5"/>
-                            <text x="18" y="20.35" class="percentage" text-anchor="middle" font-size="6" fill="#0d6efd">{{ $donePercent }}%</text>
-                        </svg>
-                        <p class="mt-2 mb-0">Done ({{ $doneTicketsCount }}) / Total ({{ $totalTicketsCount }})</p>
-                    </div>
+                    @php
+    $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; // prevent division by zero
+
+    $progressPercent = round(($progress / $total) * 100, 1);
+    $todoPercent     = round(($todo / $total) * 100, 1);
+    $completePercent = round(($complete / $total) * 100, 1);
+    $readyPercent = round(($ready / $total) * 100, 1);
+    $progressDeg = ($progressPercent / 100) * 360;
+    $todoDeg     = ($todoPercent / 100) * 360;
+    $completeDeg = ($completePercent / 100) * 360;
+        @endphp
+
+<div class="text-center">
+    <svg viewBox="0 0 36 36" class="circular-chart" width="200" height="200">
+        <circle cx="18" cy="18" r="15.9155" fill="#f0f0f0" />
+
+        <!-- Complete -->
+        <path
+            stroke="#28a745"
+            stroke-width="3"
+            fill="none"
+            stroke-dasharray="{{ $completePercent }} {{ 100 - $completePercent }}"
+            d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+        />
+
+        <!-- In Progress -->
+        <path
+            stroke="#0dcaf0"
+            stroke-width="3"
+            fill="none"
+            stroke-dasharray="{{ $progressPercent }} {{ 100 - $progressPercent }}"
+            stroke-dashoffset="-{{ $completePercent }}"
+            d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+        />
+
+        <!-- To Do -->
+        <path
+            stroke="#ffc107"
+            stroke-width="3"
+            fill="none"
+            stroke-dasharray="{{ $todoPercent }} {{ 100 - $todoPercent }}"
+            stroke-dashoffset="-{{ $completePercent + $progressPercent }}"
+            d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+        />
+
+        <!-- Ready -->
+        <path
+            stroke="#6f42c1"
+            stroke-width="3"
+            fill="none"
+            stroke-dasharray="{{ $readyPercent }} {{ 100 - $readyPercent }}"
+            stroke-dashoffset="-{{ $completePercent + $progressPercent + $todoPercent }}"
+            d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+        />
+
+        <text x="18" y="20.35" class="percentage" text-anchor="middle" font-size="5" fill="#333">
+            Total: {{ $totalTicketsCount }}
+        </text>
+    </svg>
+
+    <div class="row mt-3 justify-content-center">
+        <div class="col-auto">
+            <span class="badge bg-success">Complete: {{ $complete }}</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-info text-dark">In Progress: {{ $progress }}</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-warning text-dark">To Do: {{ $todo }}</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-purple text-white" style="background-color: #6f42c1;">Ready: {{ $ready }}</span>
+        </div>
+    </div>
+</div>              
                     <div class="col-md-9">
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
@@ -55,6 +117,13 @@
                             <label class="col-sm-4 col-form-label fw-bold">Project</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $sprints->project_name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label fw-bold">Description</label>
+                            <div class="col-sm-8">
+                                <p class="mb-1">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
                             </div>
                         </div>
 
