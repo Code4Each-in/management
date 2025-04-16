@@ -27,10 +27,7 @@
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label required">Description</label>
                     <div class="col-sm-9">
-                        <textarea name="description" id="description" class="form-control" id="tinymce_textarea">{{ old('description') }}</textarea>
-                        @error('description')
-                            <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <textarea name="description"  class="form-control" id="tinymce_textarea">{{ old('description') }}</textarea>
                     </div>
                 </div>
 

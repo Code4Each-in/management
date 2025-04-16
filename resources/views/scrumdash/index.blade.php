@@ -1,12 +1,10 @@
 @extends('layout')
+@section('title', 'Scrum Dashboard')
 @section('subtitle', 'Scrum')
 @section('content')
 
     <div class="pagetitle scrumquotes">
             <div class="row">
-                <div class="col">
-                    <h1>Scrum Dashboard</h1>
-                </div>
                 <h3>{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</h3>
             </div>
     
