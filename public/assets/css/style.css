@@ -481,12 +481,13 @@ h6 {
 .header-nav>ul {
   margin: 0;
   padding: 0;
+  gap:10px;
 }
 
 .header-nav .nav-icon {
   font-size: 22px;
   color: #012970;
-  margin-right: 15px;
+  /* margin-right: 15px; */
   position: relative;
 }
 
