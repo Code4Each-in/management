@@ -30,111 +30,56 @@
                     </a>
                 </li><!-- End Search Icon-->
 
-                <!-- <li class="nav-item dropdown"> -->
-
-                <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
-                        <span class="badge bg-primary badge-number">4</span> -->
-                <!-- /  </a>End Notification Icon -->
-
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-                        <li class="dropdown-header">
-                            You have 4 new notifications
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                      <i class="bi bi-bell"></i>
+                      @if($unreadCount > 0)
+                        <span class="badge bg-primary badge-number">{{ $unreadCount }}</span>
+                      @endif
+                    </a><!-- End Notification Icon -->
+                  
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                      <li class="dropdown-header">
+                        You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
+                        <a href="{{ route('notifications.all') }}" target="_blank"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                      </li>
+                  
+                      <li><hr class="dropdown-divider"></li>
+                  
+                      @forelse($notifications as $notif)
                         <li class="notification-item">
-                            <i class="bi bi-exclamation-circle text-warning"></i>
+                          @php
+                            $icon = match($notif->type) {
+                              'comment' => 'bi-chat-dots text-primary',
+                              'status_change' => 'bi-arrow-repeat text-warning',
+                              'assigned' => 'bi-person-plus text-success',
+                              'mention' => 'bi-at text-info',
+                              default => 'bi-info-circle text-secondary'
+                            };
+                          @endphp
+                  
+                          <i class="bi {{ $icon }}"></i>
+                          <a href="{{ url('/view/ticket/'.$notif->ticket_id) }}" class="text-decoration-none text-dark">
                             <div>
-                                <h4>Test</h4>
-                                <p>Test here</p>
-                                <p>30 min. ago</p>
+                              <h4>{{ ucfirst(str_replace('_', ' ', $notif->type)) }}</h4>
+                              <p>{{ $notif->message }}</p>
+                              <p><small class="text-muted">{{ $notif->created_at->diffForHumans() }}</small></p>
                             </div>
+                          </a>
                         </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
+                  
+                        <li><hr class="dropdown-divider"></li>
+                      @empty
+                        <li class="notification-item text-center text-muted p-3">
+                          No new notifications
                         </li>
-
-                        <li class="notification-item">
-                            <i class="bi bi-x-circle text-danger"></i>
-                            <div>
-                                <h4>Test</h4>
-                                <p>Test here</p>
-                                <p>1 hr. ago</p>
-                            </div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Show all notifications</a>
-                        </li> -->
-
-                <!-- / </ul>End Notification Dropdown Items -->
-
-                <!-- </li>End Notification Nav -->
-
-                <!-- <li class="nav-item dropdown">-->
-
-                <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-chat-left-text"></i>
-                    <span class="badge bg-success badge-number">3</span>
-                </a>End Messages Icon -->
-
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            You have 3 new messages
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Test</h4>
-                                    <p>Test here...</p>
-                                    <p>4 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Test</h4>
-                                    <p>Test here...</p>
-                                    <p>6 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Show all messages</a>
-                        </li>
-
-                    </ul>End Messages Dropdown Items -->
-
-                <!-- </li>End Messages Nav -->
+                      @endforelse
+                  
+                      <li class="dropdown-footer">
+                        <a href="{{ route('notifications.all') }}" target="_blank">Show all notifications</a>
+                      </li>
+                    </ul><!-- End Notification Dropdown Items -->
+                  </li>                  
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"

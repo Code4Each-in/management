@@ -177,7 +177,8 @@
         }
     });
      $("#addTicketsForm").submit(function(event) {
-                    event.preventDefault();                   
+                    event.preventDefault();  
+                    tinymce.triggerSave();                 
                     var formData = new FormData(this);
                     $('#loader').show();
                     $.ajax({

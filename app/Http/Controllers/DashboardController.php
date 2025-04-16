@@ -12,6 +12,7 @@ use App\Models\UserAttendances;
 use App\Models\Users;
 use App\Models\Votes;
 use App\Models\Winners;
+use App\Models\Notification;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -271,6 +272,7 @@ $winner->uservotes = $winnerVotes;
     $todolist = TodoList:: where('user_id', $userId)
     ->select(['title', 'completed_at', 'user_id', 'status', 'created_at'])
     ->get();
+    
 
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(

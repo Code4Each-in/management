@@ -13,6 +13,7 @@ use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Sprint;
+use App\Models\Notification;
 //use Dotenv\Validator;
 
 
@@ -147,7 +148,12 @@ class TicketsController extends Controller
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     
             ]);
-            
+            Notification::create([
+                'user_id' => auth()->user()->id,
+                'type' => 'assigned',
+                'message' => "You’ve been assigned to Ticket #{$tickets->id}",
+                'ticket_id' => $tickets->id
+            ]);
             if (isset($validate['assign']))
             {			
                 foreach($validate['assign'] as $assign)
@@ -287,6 +293,13 @@ class TicketsController extends Controller
             'eta'=>$request['eta'],
             ]);
         
+            Notification::create([
+                'user_id' => auth()->user()->id, 
+                'type' => 'status_change',
+                'message' => "Ticket #{$ticketId} status changed to {$validate['status']}",
+                'ticket_id' => $ticketId
+            ]);
+
             if ($tickets && $ticketData->status != $validate['status']) {
                 foreach ($assignedUsers as $assignedUser) {
                     try {
@@ -407,6 +420,13 @@ class TicketsController extends Controller
                 'comment_by' => auth()->user()->id,
             ]);
 
+            Notification::create([
+                'user_id' => auth()->user()->id,
+                'type' => 'comment',
+                'message' => "New comment on Ticket #{$validate['id']}",
+                'ticket_id' => $validate['id']
+            ]);
+
          if ($ticket) {
              $id = auth()->user()->id;
              $user = Users::find($id);
@@ -513,12 +533,28 @@ public function updateStatus(Request $request, $id)
     $request->validate([
         'status' => 'required|in:to_do,in_progress,ready,complete',
     ]);
-    
+    $auth_user =  auth()->user()->id;
     $ticket = Tickets::findOrFail($id);
     $ticket->status = $request->status;
     $ticket->save();
 
+    Notification::create([
+        'user_id' => $auth_user, 
+        'type' => 'status_change',
+        'message' => "Ticket #{$ticket->id} status changed to {$ticket->status}",
+        'ticket_id' => $ticket->id
+    ]);
+
     return response()->json(['success' => true]);
+}
+
+public function notifications()
+{
+    $notifications = Notification::where('user_id', auth()->id())
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return view('notifications.index', compact('notifications'));
 }
 
 

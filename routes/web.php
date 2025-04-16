@@ -84,6 +84,8 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
+    //for notification functionality added this route in ticket controller
+	Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
 
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
