@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Sprint;
 use App\Models\Notification;
+use Illuminate\Support\Facades\DB;
 //use Dotenv\Validator;
 
 
@@ -548,14 +549,19 @@ public function updateStatus(Request $request, $id)
     return response()->json(['success' => true]);
 }
 
-public function notifications()
-{
-    $notifications = Notification::where('user_id', auth()->id())
-    ->orderBy('created_at', 'desc')
-    ->get();
-
-    return view('notifications.index', compact('notifications'));
-}
+        public function notifications()
+        {
+        $userId = auth()->id();
+        $assignedTicketIds = DB::table('ticket_assigns')
+        ->where('user_id', $userId)
+        ->pluck('ticket_id');
+        
+        $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+        return view('notifications.index', compact('notifications'));
+        }
 
 
 

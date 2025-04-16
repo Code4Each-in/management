@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Notification;
@@ -28,12 +28,18 @@ class AppServiceProvider extends ServiceProvider
         View::composer('includes.header', function ($view) {
             if (auth()->check()) {
                 $userId = auth()->id();
-                $unreadCount = Notification::where('user_id', $userId)->where('is_read', false)->count();
-                $notifications = Notification::where('user_id', $userId)
-                                    ->latest()
-                                    ->take(5)
-                                    ->get();
-    
+                $assignedTicketIds = DB::table('ticket_assigns')
+                    ->where('user_id', $userId)
+                    ->pluck('ticket_id');
+                $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
+                    ->latest()
+                    ->take(5)
+                    ->get();
+
+                $unreadCount = Notification::whereIn('ticket_id', $assignedTicketIds)
+                    ->where('is_read', false)
+                    ->count();
+
                 $view->with('unreadCount', $unreadCount)
                      ->with('notifications', $notifications);
             }
