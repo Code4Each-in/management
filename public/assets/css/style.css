@@ -486,7 +486,7 @@ h6 {
 .header-nav .nav-icon {
   font-size: 22px;
   color: #012970;
-  /* margin-right: 25px; */
+  margin-right: 15px;
   position: relative;
 }
 
@@ -503,12 +503,16 @@ h6 {
   font-weight: 600;
 }
 
-.header-nav .badge-number {
+.notifyicon .badge-number {
   position: absolute;
-  inset: -2px -5px auto auto;
-  font-weight: normal;
+  top: -5px;
+  right: -5px;
   font-size: 12px;
-  padding: 3px 6px;
+  padding: 3px 3px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  min-width: unset;
 }
 
 .header-nav .notifications {
@@ -3202,4 +3206,21 @@ textarea#comment {
     flex-direction: row;
     align-items: flex-start;
    }
+}
+
+
+/* .nav-icon {
+  position: relative;
+} */
+
+.badge-number {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  padding: 3px 3px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  min-width: unset;
 }

@@ -30,8 +30,8 @@
                     </a>
                 </li><!-- End Search Icon-->
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                <li class="nav-item dropdown notifyicon">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" style="display: flex;  gap: 10px;">
                       <i class="bi bi-bell"></i>
                       @if($unreadCount > 0)
                         <span class="badge bg-primary badge-number">{{ $unreadCount }}</span>
