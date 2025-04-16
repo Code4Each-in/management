@@ -344,6 +344,11 @@ use App\Models\Projects;?>
 
             }
 
+                $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
             function openprojectModal() {
                 document.getElementById("addProjectsForm").reset();
                 $('#addProjects').modal('show');
