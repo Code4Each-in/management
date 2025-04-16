@@ -549,19 +549,33 @@ public function updateStatus(Request $request, $id)
     return response()->json(['success' => true]);
 }
 
-        public function notifications()
-        {
-        $userId = auth()->id();
-        $assignedTicketIds = DB::table('ticket_assigns')
+public function notifications()
+{
+    $userId = auth()->id();
+    $assignedTicketIds = DB::table('ticket_assigns')
         ->where('user_id', $userId)
         ->pluck('ticket_id');
-        
-        $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
+
+    $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
         ->orderBy('created_at', 'desc')
+        ->take(5)
         ->get();
-        
-        return view('notifications.index', compact('notifications'));
-        }
+
+    $unreadCount = Notification::whereIn('ticket_id', $assignedTicketIds)
+        ->where('is_read', false)
+        ->count();
+
+    if (request()->ajax()) {
+        return response()->json([
+            'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
+            'unreadCount' => $unreadCount,
+            'notifications' => $notifications
+        ]);
+    }
+
+    return view('notifications.index', compact('notifications'));
+}
+
 
 
 
