@@ -29,18 +29,26 @@ class AppServiceProvider extends ServiceProvider
             if (auth()->check()) {
                 $userId = auth()->id();
         
-                $notifications = Notification::where('user_id', $userId)
-                    ->latest()
-                    ->take(5)
-                    ->get();
+                if ($userId == 1) {
+                    // Super admin sees all
+                    $notifications = Notification::latest()->take(5)->get();
+                    $unreadCount = Notification::where('is_read', false)->count();
+                } else {
+                    // Other users see their own notifications only
+                    $notifications = Notification::where('user_id', $userId)
+                        ->latest()
+                        ->take(5)
+                        ->get();
         
-                $unreadCount = Notification::where('user_id', $userId)
-                    ->where('is_read', false)
-                    ->count();
+                    $unreadCount = Notification::where('user_id', $userId)
+                        ->where('is_read', false)
+                        ->count();
+                }
         
                 $view->with('unreadCount', $unreadCount)
                      ->with('notifications', $notifications);
             }
-        });                      
+        });
+                            
     }
 }
