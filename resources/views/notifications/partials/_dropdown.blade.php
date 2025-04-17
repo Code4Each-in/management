@@ -27,7 +27,9 @@
                 @endphp
 
                 <i class="bi {{ $icon }}"></i>
-                <a href="{{ url('/view/ticket/'.$notif->ticket_id) }}" class="text-decoration-none text-dark">
+                <a href="{{ url('/view/ticket/'.$notif->ticket_id) }}"
+                    class="text-decoration-none text-dark mark-notification-read"
+                    data-id="{{ $notif->id }}">                 
                     <div>
                         <h4>{{ ucfirst(str_replace('_', ' ', $notif->type)) }}</h4>
                         <p>{{ $notif->message }}</p>
@@ -48,3 +50,22 @@
         </li>
     </ul><!-- End Notification Dropdown Items -->
 </li>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.mark-notification-read').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const notifId = this.dataset.id;
+
+                fetch(`/notifications/mark-as-read/${notifId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+            });
+        });
+    });
+</script>

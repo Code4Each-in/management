@@ -28,21 +28,19 @@ class AppServiceProvider extends ServiceProvider
         View::composer('includes.header', function ($view) {
             if (auth()->check()) {
                 $userId = auth()->id();
-                $assignedTicketIds = DB::table('ticket_assigns')
-                    ->where('user_id', $userId)
-                    ->pluck('ticket_id');
-                $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
+        
+                $notifications = Notification::where('user_id', $userId)
                     ->latest()
                     ->take(5)
                     ->get();
-
-                $unreadCount = Notification::whereIn('ticket_id', $assignedTicketIds)
+        
+                $unreadCount = Notification::where('user_id', $userId)
                     ->where('is_read', false)
                     ->count();
-
+        
                 $view->with('unreadCount', $unreadCount)
                      ->with('notifications', $notifications);
             }
-        });
+        });                      
     }
 }
