@@ -155,6 +155,20 @@ class TicketsController extends Controller
                 'message' => "You’ve been assigned to Ticket #{$tickets->id}",
                 'ticket_id' => $tickets->id
             ]);
+
+            $managerIds = DB::table('managers')
+            ->where('user_id', auth()->user()->id)
+            ->pluck('parent_user_id');
+    
+        foreach ($managerIds as $managerId) {
+            Notification::create([
+                'user_id' => $managerId,
+                'ticket_id' => $tickets->id,
+                'type' => 'status_change',
+                'message' => 'Ticket #' . $tickets->id. ' status was updated by ' . auth()->user()->first_name,
+                'is_read' => false,
+            ]);
+        }
             if (isset($validate['assign']))
             {			
                 foreach($validate['assign'] as $assign)
@@ -300,6 +314,19 @@ class TicketsController extends Controller
                 'message' => "Ticket #{$ticketId} status changed to {$validate['status']}",
                 'ticket_id' => $ticketId
             ]);
+            $managerIds = DB::table('managers')
+            ->where('user_id', auth()->user()->id)
+            ->pluck('parent_user_id');
+    
+        foreach ($managerIds as $managerId) {
+            Notification::create([
+                'user_id' => $managerId,
+                'ticket_id' => $ticketId,
+                'type' => 'status_change',
+                'message' => 'Ticket #' . $ticketId . ' status was updated by ' . auth()->user()->first_name,
+                'is_read' => false,
+            ]);
+        }
 
             if ($tickets && $ticketData->status != $validate['status']) {
                 foreach ($assignedUsers as $assignedUser) {
@@ -428,6 +455,20 @@ class TicketsController extends Controller
                 'ticket_id' => $validate['id']
             ]);
 
+            $managerIds = DB::table('managers')
+        ->where('user_id', auth()->user()->id)
+        ->pluck('parent_user_id');
+
+    foreach ($managerIds as $managerId) {
+        Notification::create([
+            'user_id' => $managerId,
+            'ticket_id' => $validate['id'],
+            'type' => 'status_change',
+            'message' => 'Ticket #' . $validate['id'] . ' status was updated by ' . auth()->user()->first_name,
+            'is_read' => false,
+        ]);
+    }
+
          if ($ticket) {
              $id = auth()->user()->id;
              $user = Users::find($id);
@@ -546,26 +587,45 @@ public function updateStatus(Request $request, $id)
         'ticket_id' => $ticket->id
     ]);
 
+    $managerIds = DB::table('managers')
+        ->where('user_id', $auth_user)
+        ->pluck('parent_user_id');
+
+    foreach ($managerIds as $managerId) {
+        Notification::create([
+            'user_id' => $managerId,
+            'ticket_id' => $ticket->id,
+            'type' => 'status_change',
+            'message' => 'Ticket #' . $ticket->id . ' status was updated by ' . auth()->user()->first_name,
+            'is_read' => false,
+        ]);
+    }
+
     return response()->json(['success' => true]);
 }
 
 public function notifications()
 {
     $userId = auth()->id();
+
+    // 1. Get ticket IDs assigned to the user
     $assignedTicketIds = DB::table('ticket_assigns')
         ->where('user_id', $userId)
         ->pluck('ticket_id');
 
-    $notifications = Notification::whereIn('ticket_id', $assignedTicketIds)
+    // 2. Show notifications:
+    //    - that are assigned directly to the user (notifications.user_id == $userId)
+    //    - OR where ticket_id is assigned to the user
+    $notifications = Notification::where(function ($query) use ($userId, $assignedTicketIds) {
+            $query->where('user_id', $userId)
+                  ->orWhereIn('ticket_id', $assignedTicketIds);
+        })
         ->orderBy('created_at', 'desc')
-        ->take(5)
         ->get();
 
-    $unreadCount = Notification::whereIn('ticket_id', $assignedTicketIds)
-        ->where('is_read', false)
-        ->count();
-
     if (request()->ajax()) {
+        $unreadCount = $notifications->where('is_read', false)->count();
+
         return response()->json([
             'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
             'unreadCount' => $unreadCount,
@@ -574,6 +634,21 @@ public function notifications()
     }
 
     return view('notifications.index', compact('notifications'));
+}
+
+
+
+public function markAsRead($id)
+{
+    $notification = Notification::findOrFail($id);
+    $userId = auth()->id();
+    $ticketIds = DB::table('ticket_assigns')->where('user_id', $userId)->pluck('ticket_id');
+
+    if ($ticketIds->contains($notification->ticket_id)) {
+        $notification->update(['is_read' => true]);
+    }
+
+    return response()->json(['success' => true]);
 }
 
 

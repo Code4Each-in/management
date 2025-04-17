@@ -481,7 +481,7 @@ h6 {
 .header-nav>ul {
   margin: 0;
   padding: 0;
-  gap:10px;
+  /* gap:10px; */
 }
 
 .header-nav .nav-icon {
@@ -3224,4 +3224,8 @@ textarea#comment {
   width: 20px;
   height: 20px;
   min-width: unset;
+}
+
+div#notificationDropdown {
+  margin-right: 28px;
 }
