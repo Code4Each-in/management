@@ -622,7 +622,7 @@ public function notifications()
 
             $unreadCount = Notification::where('user_id', $userId)
                 ->where('is_read', false)
-                ->count();
+                ->count(); 
         }
 
         return response()->json([
@@ -646,18 +646,16 @@ public function notifications()
 
 public function markAsRead($id)
 {
-    $notification = Notification::findOrFail($id);
     $userId = auth()->id();
-    $ticketIds = DB::table('ticket_assigns')->where('user_id', $userId)->pluck('ticket_id');
+    
+    $notification = Notification::where('id', $id)
+        ->where('user_id', $userId)
+        ->firstOrFail();
 
-    if ($ticketIds->contains($notification->ticket_id)) {
-        $notification->update(['is_read' => true]);
-    }
+    $notification->update(['is_read' => 1]);
 
     return response()->json(['success' => true]);
 }
-
-
 
 
 }
