@@ -609,14 +609,21 @@ public function notifications()
     $userId = auth()->id();
 
     if (request()->ajax()) {
-        $notifications = Notification::where('user_id', $userId)
-            ->latest()
-            ->take(5)
-            ->get();
+        if ($userId == 1) {
+       
+            $notifications = Notification::latest()->take(5)->get();
+            $unreadCount = Notification::where('is_read', false)->count();
+        } else {
+     
+            $notifications = Notification::where('user_id', $userId)
+                ->latest()
+                ->take(5)
+                ->get();
 
-        $unreadCount = Notification::where('user_id', $userId)
-            ->where('is_read', false)
-            ->count();
+            $unreadCount = Notification::where('user_id', $userId)
+                ->where('is_read', false)
+                ->count();
+        }
 
         return response()->json([
             'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
@@ -625,9 +632,13 @@ public function notifications()
         ]);
     }
 
-    $notifications = Notification::where('user_id', $userId)
-        ->orderBy('created_at', 'desc')
-        ->get();
+    if ($userId == 1) {
+        $notifications = Notification::orderBy('created_at', 'desc')->get();
+    } else {
+        $notifications = Notification::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 
     return view('notifications.index', compact('notifications'));
 }
