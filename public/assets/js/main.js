@@ -412,3 +412,22 @@ $(document).ready(function() {
       }
   });
 });
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.mark-notification-read').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const notifId = this.dataset.id;
+
+                fetch(`/notifications/mark-as-read/${notifId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+            });
+        });
+    });
+</script>
