@@ -608,23 +608,15 @@ public function notifications()
 {
     $userId = auth()->id();
 
-    // 1. Get ticket IDs assigned to the user
-    $assignedTicketIds = DB::table('ticket_assigns')
-        ->where('user_id', $userId)
-        ->pluck('ticket_id');
-
-    // 2. Show notifications:
-    //    - that are assigned directly to the user (notifications.user_id == $userId)
-    //    - OR where ticket_id is assigned to the user
-    $notifications = Notification::where(function ($query) use ($userId, $assignedTicketIds) {
-            $query->where('user_id', $userId)
-                  ->orWhereIn('ticket_id', $assignedTicketIds);
-        })
-        ->orderBy('created_at', 'desc')
-        ->get();
-
     if (request()->ajax()) {
-        $unreadCount = $notifications->where('is_read', false)->count();
+        $notifications = Notification::where('user_id', $userId)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $unreadCount = Notification::where('user_id', $userId)
+            ->where('is_read', false)
+            ->count();
 
         return response()->json([
             'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
@@ -633,9 +625,12 @@ public function notifications()
         ]);
     }
 
+    $notifications = Notification::where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
     return view('notifications.index', compact('notifications'));
 }
-
 
 
 public function markAsRead($id)
