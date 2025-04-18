@@ -646,16 +646,12 @@ public function notifications()
 
 public function markAsRead($id)
 {
-    $userId = auth()->id();
-    
     $notification = Notification::where('id', $id)
-        ->where('user_id', $userId)
         ->firstOrFail();
-
     $notification->update(['is_read' => 1]);
-
     return response()->json(['success' => true]);
 }
+
 
 
 }
