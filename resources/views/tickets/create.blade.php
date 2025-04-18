@@ -196,7 +196,7 @@
                                 })
                             } else {
                                 $("#addTickets").modal('hide');
-                                location.reload();
+                                location.reload(true);
                             }
                             $('#loader').hide();
                         },

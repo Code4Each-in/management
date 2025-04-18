@@ -321,7 +321,7 @@
         .then(data => {
           if (data.success) {
             badge.textContent = newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  
+            location.reload(true);
             // Remove existing status color classes
             badge.classList.remove('bg-primary', 'bg-warning', 'text-dark', 'bg-info', 'bg-success');
   

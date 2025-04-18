@@ -412,40 +412,52 @@ $(document).ready(function() {
       }
   });
 });
-document.addEventListener('DOMContentLoaded', function () {
-  const notificationsWrapper = document.querySelector('.notifications');
 
-  if (notificationsWrapper) {
-      notificationsWrapper.addEventListener('click', function (e) {
-          const target = e.target.closest('.mark-notification-read');
-          if (!target) return;
+    document.addEventListener('DOMContentLoaded', function () {
+        const notificationsWrapper = document.querySelector('.notifications');
+    
+        if (notificationsWrapper) {
+            notificationsWrapper.addEventListener('click', function (e) {
+                const target = e.target.closest('.mark-notification-read');
+                if (!target) return;
 
-          e.preventDefault();
+                // Check if the notification is already marked as read
+                if (target.classList.contains('read')) return;
 
-          const notifId = target.dataset.id;
-          const redirectUrl = target.getAttribute('href');
-
-          fetch(`/notifications/mark-as-read/${notifId}`, {
-              method: 'POST',
-              headers: {
-                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json'
-              },
-              body: JSON.stringify({})
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  setTimeout(() => {
-                      window.location.href = redirectUrl;
-                  }, 200); 
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              window.location.href = redirectUrl; 
-          });
-      });
-  }
-});
+                e.preventDefault();
+    
+                const notifId = target.dataset.id;
+                const redirectUrl = target.getAttribute('href');
+    
+                // First, send the request to mark the notification as read
+                fetch(`/notifications/mark-as-read/${notifId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Change the UI immediately (mark as read in the frontend)
+                        const notificationItem = target.closest('.notification-item');
+                        if (notificationItem) {
+                            notificationItem.classList.remove('unread');
+                            notificationItem.classList.add('read');
+                        }
+                            
+                        // Now redirect the user after marking as read
+                        window.location.href = redirectUrl;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback if there was an error marking as read, just redirect the user
+                    window.location.href = redirectUrl;
+                });
+            });
+        }
+    });

@@ -251,6 +251,7 @@
           .then(res => res.json())
           .then(data => {
             if (data.success) {
+              location.reload(true);
               // Update the button text without reload
               const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
                 .previousElementSibling;
