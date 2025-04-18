@@ -3229,3 +3229,12 @@ textarea#comment {
 div#notificationDropdown {
   margin-right: 28px;
 }
+.notification-item.unread {
+  background-color: #f0f4ff;
+  font-weight: 500;
+}
+
+.notification-item.read {
+  background-color: white;
+  opacity: 0.8;
+}

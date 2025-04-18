@@ -412,22 +412,40 @@ $(document).ready(function() {
       }
   });
 });
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.mark-notification-read').forEach(el => {
-            el.addEventListener('click', function (e) {
-                const notifId = this.dataset.id;
+document.addEventListener('DOMContentLoaded', function () {
+  const notificationsWrapper = document.querySelector('.notifications');
 
-                fetch(`/notifications/mark-as-read/${notifId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                });
-            });
-        });
-    });
-</script>
+  if (notificationsWrapper) {
+      notificationsWrapper.addEventListener('click', function (e) {
+          const target = e.target.closest('.mark-notification-read');
+          if (!target) return;
+
+          e.preventDefault();
+
+          const notifId = target.dataset.id;
+          const redirectUrl = target.getAttribute('href');
+
+          fetch(`/notifications/mark-as-read/${notifId}`, {
+              method: 'POST',
+              headers: {
+                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+              },
+              body: JSON.stringify({})
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  setTimeout(() => {
+                      window.location.href = redirectUrl;
+                  }, 200); 
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              window.location.href = redirectUrl; 
+          });
+      });
+  }
+});
