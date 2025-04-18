@@ -164,8 +164,8 @@ class TicketsController extends Controller
             Notification::create([
                 'user_id' => $managerId,
                 'ticket_id' => $tickets->id,
-                'type' => 'status_change',
-                'message' => 'Ticket #' . $tickets->id. ' status was updated by ' . auth()->user()->first_name,
+                'type' => 'assigned',
+                'message' => 'Ticket #' . $tickets->id. ' assigned to ' . auth()->user()->first_name,
                 'is_read' => false,
             ]);
         }
@@ -463,8 +463,8 @@ class TicketsController extends Controller
         Notification::create([
             'user_id' => $managerId,
             'ticket_id' => $validate['id'],
-            'type' => 'status_change',
-            'message' => 'Ticket #' . $validate['id'] . ' status was updated by ' . auth()->user()->first_name,
+            'type' => 'comment',
+            'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
             'is_read' => false,
         ]);
     }
@@ -649,6 +649,19 @@ public function markAsRead($id)
     $notification = Notification::where('id', $id)
         ->firstOrFail();
     $notification->update(['is_read' => 1]);
+    return response()->json(['success' => true]);
+}
+
+public function markAllAsRead()
+{
+    $userId = auth()->id();
+    if ($userId == 1) {
+        Notification::where('is_read', false)->update(['is_read' => true]);
+    } else {
+        Notification::where('user_id', $userId)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+    }
     return response()->json(['success' => true]);
 }
 

@@ -87,6 +87,7 @@ Route::middleware(['role_permission'])->group(function () {
     //for notification functionality added this route in ticket controller
 	Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
     Route::post('/notifications/mark-as-read/{id}', [TicketsController::class, 'markAsRead'])->name('notifications.markAsRead');
+	Route::post('/notifications/mark-all-read', [TicketsController::class, 'markAllAsRead'])->name('notifications.markAllRead');
 
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
