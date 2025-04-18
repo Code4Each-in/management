@@ -548,24 +548,22 @@
     <!-- <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a> -->
     <script>
         function fetchNotifications() {
-    $.ajax({
-        url: "{{ route('notifications.all') }}",
-        method: 'GET',
-        dataType: 'json',
-        success: function (res) {
-            $('#notificationDropdown').html(res.html);
-        },
-        error: function(err) {
-            console.error('Notification fetch failed', err);
+            $.ajax({
+                url: "{{ route('notifications.all') }}", 
+                method: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    $('#notificationDropdown').html(res.html); 
+                },
+                error: function(err) {
+                    console.error('Notification fetch failed', err);
+                }
+            });
         }
-    });
-}
-
-// Run on page load (optional) + every 10 seconds
-fetchNotifications();
-setInterval(fetchNotifications, 10000);
-
-        </script>
+        fetchNotifications();
+        setInterval(fetchNotifications, 10000); 
+    </script>
+    
 </body>
 
 </html>

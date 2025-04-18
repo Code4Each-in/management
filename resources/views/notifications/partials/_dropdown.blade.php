@@ -2,7 +2,7 @@
     <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" style="display: flex; gap: 10px;">
         <i class="bi bi-bell"></i>
         @if($unreadCount > 0)
-            <span class="badge bg-primary badge-number"><i class="bi bi-star-fill"></i></span>
+            <span class="badge bg-primary badge-number">{{ $unreadCount }}</span>
         @endif
     </a><!-- End Notification Icon -->
 
@@ -29,14 +29,16 @@
             <i class="bi {{ $icon }}"></i>
             <a href="{{ url('/view/ticket/'.$notif->ticket_id) }}"
                 class="text-decoration-none text-dark mark-notification-read"
-                data-id="{{ $notif->id }}">                 
+                data-id="{{ $notif->id }}"
+                data-ticket-url="{{ url('/view/ticket/'.$notif->ticket_id) }}">                 
                 <div>
                     <h4>{{ ucfirst(str_replace('_', ' ', $notif->type)) }}</h4>
                     <p>{{ $notif->message }}</p>
                     <p><small class="text-muted">{{ $notif->created_at->diffForHumans() }}</small></p>
                 </div>
             </a>
-        </li>        
+        </li>
+                    
 
             <li><hr class="dropdown-divider"></li>
         @empty
@@ -51,44 +53,55 @@
     </ul><!-- End Notification Dropdown Items -->
 </li>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const notificationsWrapper = document.querySelector('.notifications');
-    
-        if (notificationsWrapper) {
-            notificationsWrapper.addEventListener('click', function (e) {
-                const target = e.target.closest('.mark-notification-read');
-                if (!target) return;
-    
-                e.preventDefault();
-    
-                const notifId = target.dataset.id;
-                const redirectUrl = target.getAttribute('href');
-    
-                fetch(`/notifications/mark-as-read/${notifId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Optional: update UI here if needed
-                        // e.g., change background or unread count
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 200); // delay to ensure user sees the feedback
+document.addEventListener('DOMContentLoaded', function () {
+    const notificationsWrapper = document.querySelector('.notifications');
+
+    if (notificationsWrapper) {
+        notificationsWrapper.addEventListener('click', function (e) {
+          
+            const target = e.target.closest('.mark-notification-read');
+            if (!target) return;
+
+           
+            if (target.closest('.notification-item').classList.contains('read')) return;
+
+            e.preventDefault(); 
+
+            const notifId = target.dataset.id;
+            const redirectUrl = target.dataset.ticketUrl; 
+
+            fetch(`/notifications/mark-as-read/${notifId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const notificationItem = target.closest('.notification-item');
+                    if (notificationItem) {
+                        notificationItem.classList.remove('unread');
+                        notificationItem.classList.add('read');
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    window.location.href = redirectUrl; // fallback in case of error
-                });
+
+                
+                    location.reload(true); 
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 500); 
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.location.href = redirectUrl;
             });
-        }
-    });
-    </script>
+        });
+    }
+});
+</script>
+
     
