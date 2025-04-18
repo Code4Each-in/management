@@ -9,9 +9,9 @@
     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
         <li class="dropdown-header">
             You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
-            <a href="{{ route('notifications.all') }}" id="view-all-notifications" target="_blank">
+            <a href="{{ route('notifications.all') }}"  id="view-all-notifications">
                 <span class="badge rounded-pill bg-primary p-2 ms-2">View all</span>
-            </a>            
+            </a>
                     </li>
 
         <li><hr class="dropdown-divider"></li>
@@ -89,8 +89,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         notificationItem.classList.remove('unread');
                         notificationItem.classList.add('read');
                     }
-
-                
                     location.reload(true); 
                     setTimeout(() => {
                         window.location.href = redirectUrl;
@@ -112,28 +110,50 @@ document.addEventListener('DOMContentLoaded', function () {
     
         if (viewAllBtn && counterEl) {
             viewAllBtn.addEventListener('click', function () {
-                // Mark all notifications as read before redirecting
-                fetch("{{ route('notifications.markAllRead') }}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        counterEl.textContent = '0';
-                        // Let the user continue to the View All page in a new tab
-                        window.open("{{ route('notifications.all') }}", '_blank');
-                    }
-                });
+                
+                counterEl.textContent = '0';
+                
             });
         }
     });
     </script>
     
-    
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const viewAllBtn = document.getElementById('view-all-notifications');
+            const counterEl = document.getElementById('notification-counter');
+        
+            if (viewAllBtn) {
+                viewAllBtn.addEventListener('click', function (e) {
+                    e.preventDefault(); // prevent default link behavior
+        
+                    fetch("{{ route('notifications.markAllRead') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (counterEl) {
+                                counterEl.textContent = '0'; // update UI immediately
+                            }
+        
+                            // Now actually go to the "View All" page
+                            window.open("{{ route('notifications.all') }}", '_blank');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to mark all as read', error);
+                        // Still open the link in case of error
+                        window.open("{{ route('notifications.all') }}", '_blank');
+                    });
+                });
+            }
+        });
+        </script>
+        
