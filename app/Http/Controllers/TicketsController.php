@@ -651,17 +651,12 @@ public function markAsRead($id)
     $notification->update(['is_read' => 1]);
     return response()->json(['success' => true]);
 }
-
 public function markAllAsRead()
 {
-    $userId = auth()->id();
-    if ($userId == 1) {
-        Notification::where('is_read', false)->update(['is_read' => true]);
-    } else {
-        Notification::where('user_id', $userId)
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-    }
+    Notification::where('user_id', auth()->id())
+        ->where('is_read', false)
+        ->update(['is_read' => true]);
+
     return response()->json(['success' => true]);
 }
 
