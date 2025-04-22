@@ -1,19 +1,20 @@
-<li class="nav-item dropdown notifyicon">
-    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" style="display: flex; gap: 10px;">
-        <i class="bi bi-bell"></i>
-        @if($unreadCount > 0)
-            <span class="badge bg-primary badge-number" id="notification-counter">{{ $unreadCount }}</span>
-        @endif
-    </a><!-- End Notification Icon -->
+<a class="nav-link nav-icon" data-bs-toggle="dropdown" style="display: flex; gap: 10px;">
+    <i class="bi bi-bell"></i>
+    @if($unreadCount > 0)
+        <span class="badge bg-primary badge-number view-all-notifications"
+              @if($unreadCount == 0) style="display: none;" @endif>
+            &#8226;
+        </span>  
+    @endif
+</a>
 
-    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-        <li class="dropdown-header">
-            You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
-            <a href="{{ route('notifications.all') }}"  id="view-all-notifications">
-                <span class="badge rounded-pill bg-primary p-2 ms-2">View all</span>
-            </a>
-                    </li>
-
+<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+    <li class="dropdown-header">
+        You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
+        <a href="{{ route('notifications.all') }}" class="view-all-notifications">
+            <span class="badge rounded-pill bg-primary p-2 ms-2">View all</span>
+        </a>
+    </li>
         <li><hr class="dropdown-divider"></li>
 
         @forelse($notifications as $notif)
@@ -120,12 +121,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const viewAllBtn = document.getElementById('view-all-notifications');
+            const viewAllBtns = document.querySelectorAll('.view-all-notifications');
             const counterEl = document.getElementById('notification-counter');
         
-            if (viewAllBtn) {
-                viewAllBtn.addEventListener('click', function (e) {
-                    e.preventDefault(); // prevent default link behavior
+            viewAllBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
         
                     fetch("{{ route('notifications.markAllRead') }}", {
                         method: 'POST',
@@ -140,20 +141,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     .then(data => {
                         if (data.success) {
                             if (counterEl) {
-                                counterEl.textContent = '0'; // update UI immediately
+                                counterEl.textContent = '0'; 
                             }
-        
-                            // Now actually go to the "View All" page
                             window.open("{{ route('notifications.all') }}", '_blank');
                         }
                     })
                     .catch(error => {
                         console.error('Failed to mark all as read', error);
-                        // Still open the link in case of error
                         window.open("{{ route('notifications.all') }}", '_blank');
                     });
                 });
-            }
+            });
         });
-        </script>
+        </script>        
         

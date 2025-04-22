@@ -201,6 +201,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
+	Route::delete('/comments/{id}/delete', [TicketsController::class, 'deleteComment'])->name('comments.delete');
 	//Profiles Routes Without Role Permission Middleware
 	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
 	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');

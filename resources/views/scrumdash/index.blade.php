@@ -23,7 +23,7 @@
     </div>
 
 <div class="row">
-   <div class="col-md-6">
+   <div class="col-md-12">
         <div class="card recent-sales overflow-auto">
             <div class="card-body">
             <h5 class="card-title">Total Active Sprints</h5>
@@ -74,7 +74,9 @@
         </div>
     </div>
 </div>
-<div class="col-md-6">
+</div>
+<div class="row">
+<div class="col-md-12">
     <div class="card recent-sales overflow-auto">
      <div class="card-body">
         <h5 class="card-title">Ongoing Jobs</h5>
@@ -116,7 +118,7 @@
 </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    {{-- <div class="col-md-6">
         <div class="card recent-sales overflow-auto">
          <div class="card-body">
           <h5 class="card-title">Assigned Jobs</h5>
@@ -138,8 +140,8 @@
         </table>        
     </div>
   </div>
-</div>
-    <div class="col-md-6">
+</div> --}}
+    <div class="col-md-12">
         <div class="card recent-sales overflow-auto">
             <div class="card-body">
         <h5 class="card-title">No Job Assigned</h5>
@@ -175,11 +177,11 @@
             "order": []
         });
     });
-    $(document).ready(function() {
-        $('#assignedjobs').DataTable({
-            "order": []
-        });
-    });
+    // $(document).ready(function() {
+    //     $('#assignedjobs').DataTable({
+    //         "order": []
+    //     });
+    // });
     $(document).ready(function() {
         $('#notask').DataTable({
             "order": []
