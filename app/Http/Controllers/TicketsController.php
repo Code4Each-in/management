@@ -153,7 +153,8 @@ class TicketsController extends Controller
                 'user_id' => auth()->user()->id,
                 'type' => 'assigned',
                 'message' => "You’ve been assigned to Ticket #{$tickets->id}",
-                'ticket_id' => $tickets->id
+                'ticket_id' => $tickets->id,
+                'is_super_admin' => false
             ]);
 
             $managerIds = DB::table('managers')
@@ -167,8 +168,23 @@ class TicketsController extends Controller
                 'type' => 'assigned',
                 'message' => 'Ticket #' . $tickets->id. ' assigned to ' . auth()->user()->first_name,
                 'is_read' => false,
+                'is_super_admin' => false
             ]);
         }
+
+                
+
+            if (auth()->user()->id  == 1) {
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'ticket_id' => $tickets->id,
+                    'type' => 'assigned',
+                    'message' => 'Ticket #' . $tickets->id . ' assigned to ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => true,
+                ]);
+            }
+
             if (isset($validate['assign']))
             {			
                 foreach($validate['assign'] as $assign)
@@ -312,7 +328,8 @@ class TicketsController extends Controller
                 'user_id' => auth()->user()->id, 
                 'type' => 'status_change',
                 'message' => "Ticket #{$ticketId} status changed to {$validate['status']}",
-                'ticket_id' => $ticketId
+                'ticket_id' => $ticketId,
+                'is_super_admin' => false
             ]);
             $managerIds = DB::table('managers')
             ->where('user_id', auth()->user()->id)
@@ -325,8 +342,21 @@ class TicketsController extends Controller
                 'type' => 'status_change',
                 'message' => 'Ticket #' . $ticketId . ' status was updated by ' . auth()->user()->first_name,
                 'is_read' => false,
+                'is_super_admin' => false
             ]);
         }
+
+
+            if (auth()->user()->id == 1) {
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'ticket_id' => $tickets->id,
+                    'type' => 'assigned',
+                    'message' => 'Ticket #' . $tickets->id . ' assigned to ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => true,
+                ]);
+            }
 
             if ($tickets && $ticketData->status != $validate['status']) {
                 foreach ($assignedUsers as $assignedUser) {
@@ -452,7 +482,8 @@ class TicketsController extends Controller
                 'user_id' => auth()->user()->id,
                 'type' => 'comment',
                 'message' => "New comment on Ticket #{$validate['id']}",
-                'ticket_id' => $validate['id']
+                'ticket_id' => $validate['id'],
+                'is_super_admin' => false
             ]);
 
             $managerIds = DB::table('managers')
@@ -466,8 +497,20 @@ class TicketsController extends Controller
             'type' => 'comment',
             'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
             'is_read' => false,
+            'is_super_admin' => false
         ]);
     }
+
+            if (auth()->user()->id ==1) {
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'ticket_id' => $validate['id'],
+                    'type' => 'assigned',
+                    'message' => 'Ticket #' . $validate['id'] . ' assigned to ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => true
+                ]);
+            }
 
          if ($ticket) {
              $id = auth()->user()->id;
@@ -584,7 +627,8 @@ public function updateStatus(Request $request, $id)
         'user_id' => $auth_user, 
         'type' => 'status_change',
         'message' => "Ticket #{$ticket->id} status changed to {$ticket->status}",
-        'ticket_id' => $ticket->id
+        'ticket_id' => $ticket->id,
+        'is_super_admin' => false
     ]);
 
     $managerIds = DB::table('managers')
@@ -598,8 +642,20 @@ public function updateStatus(Request $request, $id)
             'type' => 'status_change',
             'message' => 'Ticket #' . $ticket->id . ' status was updated by ' . auth()->user()->first_name,
             'is_read' => false,
+            'is_super_admin' => false
         ]);
     }
+
+            if (auth()->user()->id == 1) {
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'ticket_id' => $ticket->id,
+                    'type' => 'assigned',
+                    'message' => 'Ticket #' . $ticket->id . ' assigned to ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => true
+                ]);
+            }
 
     return response()->json(['success' => true]);
 }
@@ -646,24 +702,55 @@ public function notifications()
 
 public function markAsRead($id)
 {
-    $notification = Notification::where('id', $id)
-        ->firstOrFail();
+    logger("MarkAsRead called with ID: " . $id); 
+
+    $notification = Notification::where('id', $id)->first();
+    if (!$notification) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Notification not found',
+            'id' => $id
+        ], 404);
+    }
+
     $notification->update(['is_read' => 1]);
-    return response()->json(['success' => true]);
+
+    return response()->json([
+        'success' => true,
+        'id' => $id
+    ]);
 }
+
 
 public function markAllAsRead()
 {
-    $userId = auth()->id();
-    if ($userId == 1) {
-        Notification::where('is_read', false)->update(['is_read' => true]);
-    } else {
-        Notification::where('user_id', $userId)
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-    }
+    Notification::where('user_id', auth()->id())
+        ->where('is_read', false)
+        ->update(['is_read' => true]);
+
     return response()->json(['success' => true]);
 }
+
+public function deleteComment($id)
+{
+    $comment = Ticketcomments::find($id);
+
+    if (!$comment) {
+        return response()->json([
+            'status' => 404,
+            'message' => 'Comment not found.'
+        ]);
+    }
+
+    $comment->delete();
+
+    return response()->json([
+        'status' => 200,
+        'message' => 'Comment deleted successfully.',
+        'id' => $id 
+    ]);
+}
+
 
 
 

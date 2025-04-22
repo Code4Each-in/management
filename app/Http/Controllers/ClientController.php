@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Models\Country;
 use App\Models\Projects;
 use Illuminate\Http\Request;
+use App\Models\Users;
+use Illuminate\Support\Facades\Hash;
 
 class ClientController extends Controller
 {
@@ -44,7 +46,29 @@ class ClientController extends Controller
         ], [
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
         ]);
-        
+        $user = Users::create([
+            'first_name' => $request->input('name'),
+            'last_name' => '',
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+            'salary' => null,
+            'employee_id' => null,
+            'address' => $request->input('address'),
+            'city' => $request->input('city'),
+            'designation' => 'Client',
+            'state' => null,
+            'status' => 1,
+            'zip' => $request->input('zip'),
+            'phone' => $request->input('phone'),
+            'department_id' => null,
+            'role_id' => 6,
+            'joining_date' => now(),
+            'birth_date' => $request->input('birth_date'),
+            'profile_picture' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         if(Client::create($request->all())) {
             return "success";
         }

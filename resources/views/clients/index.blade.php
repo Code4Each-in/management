@@ -121,6 +121,13 @@ use App\Models\Client;?>
                                 
                             </div>
                             <div class="row mb-3">
+                                <label for="password" class="col-sm-3 col-form-label">Password</label>
+                                <div class="col-sm-9">
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="Enter Password">
+                                </div>
+                                
+                            </div>
+                            <div class="row mb-3">
                                 <label for="email" class="col-sm-3 col-form-label">Secondary Email</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" name="secondary_email" id="secondary_email" placeholder="Enter secondary email">
