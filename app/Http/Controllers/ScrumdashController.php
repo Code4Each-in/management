@@ -99,13 +99,13 @@ $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
         $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
         
                 $notasks = Users::where('users.status', 1)
-                ->where('users.role_id', '<>', 1)
+                ->whereNotIn('users.role_id', [1, 2, 6])
                 ->whereNotIn('users.first_name', $assignedUserNames)
                 ->whereNotIn('users.designation', ['BDE', 'HR Executive'])
                 ->orderBy('users.first_name', 'asc')
                 ->select('users.*', 'users.first_name as assigned_user_name')
                 ->get();
-
+    
                 $today = Carbon::now(); 
                 $dateOnly = $today->toDateString(); 
                 $quotes = Quote::whereDate('start_date', $dateOnly)
