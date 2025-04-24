@@ -35,17 +35,6 @@
             <label for="message" class="form-label">Message</label>
             <textarea name="message" id="message" rows="5" class="form-control" required></textarea>
         </div>
-        <div class="mb-3">
-            <label for="footer" class="form-label">Footer</label>
-            <textarea name="footer" id="tinymce_textarea" rows="3" class="form-control">
-                <b>Thanks &amp; Regards</b><br>
-                <i>HR Manager</i><br>
-                <b>Code4Each</b><br>
-                <b>Website:-</b> <a href="https://code4each.com/" style="color: #ff6666;">https://code4each.com/</a><br>
-                <img src="https://hr.code4each.com/assets/img/code4each_logo.png" alt="Code4Each Logo" style="height:40px; margin-top:5px;">
-            </textarea>
-
-        </div>
 
         <h5>Select Employees to Email:</h5>
 

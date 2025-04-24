@@ -34,21 +34,17 @@ class EmailAll extends Controller
         ]);
 
         $subject = $request->input('subject');
-        $message = $request->input('message');  // No need to strip tags
-        $footer = $request->input('footer');    // No need to strip tags
-
-        $finalMessage = $message . "<br><br>" . $footer;  // Ensure HTML line breaks are preserved
-
+        $message = $request->input('message');
         foreach ($request->emails as $email) {
-            Mail::send([], [], function ($mail) use ($email, $subject, $finalMessage) {
+            Mail::send('Email.employee_mail', [
+                'mailSubject' => $subject,
+                'emailBody' => $message,
+            ], function ($mail) use ($email, $subject) {
                 $mail->to($email)
-                    ->subject($subject)
-                    ->setBody($finalMessage, 'text/html');  // Specify HTML format
+                     ->subject($subject);
             });
         }
 
         return back()->with('success', 'Emails sent successfully!');
     }
-
-
 }
