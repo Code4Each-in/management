@@ -132,7 +132,10 @@ class TicketsController extends Controller
             }
             
     		$validate = $validator->valid();
-            $eta = date("Y-m-d H:i:s",strtotime($request['eta'])); 
+            $eta = isset($request['eta']) && !empty($request['eta'])
+            ? date("Y-m-d H:i:s", strtotime($request['eta']))
+            : now();
+
 
             $tickets =Tickets::create([
                 'title' => $validate['title'],
@@ -310,6 +313,9 @@ class TicketsController extends Controller
            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$ticketId)->get(['ticket_assigns.*','users.first_name','users.email']);
            $ticketData = Tickets::with('ticketAssigns')->where('id',$ticketId)->first();
            $changed_by = auth()->user()->first_name;
+           $eta = isset($request['eta']) && !empty($request['eta'])
+            ? date("Y-m-d H:i:s", strtotime($request['eta']))
+            : now();
 
             $tickets=   Tickets::where('id', $ticketId)  
             ->update([
@@ -321,7 +327,7 @@ class TicketsController extends Controller
             'status' => $validate['status'],
             'status_changed_by'=> auth()->user()->id,
             'priority' => $validate['priority'],
-            'eta'=>$request['eta'],
+            'eta'=>$eta
             ]);
         
             Notification::create([
