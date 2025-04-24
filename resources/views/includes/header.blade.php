@@ -32,7 +32,7 @@
 
                 <div id="notificationDropdown">
                     @include('notifications.partials._dropdown')
-                </div>                            
+                </div>
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
@@ -116,28 +116,7 @@
     <aside id="sidebar" class="sidebar">
 
         <ul class="sidebar-nav" id="sidebar-nav">
-            @if(auth()->user()->role_id == 6)
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
-                    href="{{ route('projects.index') }}">
-                    <i class="bi bi-list-task"></i> <span>Projects</span>
-                </a>
-            </li>
-            @endif
-            @if(auth()->user()->role_id != 6)
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
                     <i class="bi bi-grid"></i>
@@ -152,6 +131,7 @@
                     <span>Scrum Dashboard</span>
                 </a>
             </li>
+            
             @if(in_array(auth()->user()->role_id, [2, 3]))
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
@@ -163,13 +143,6 @@
             @endif
 
           @if(auth()->user()->role->name == 'Super Admin')
-          <li class="nav-item">
-            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                href="{{ route('sprint.index') }}">
-                <i class="bi bi-clipboard"></i>
-                <span>Sprint</span>
-            </a>
-        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -222,13 +195,7 @@
                     <span>Roles</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
+
 
           @endif
             <li class="nav-item">
@@ -313,12 +280,12 @@
             </li>
 
         <li class="nav-item">
-            <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}" 
+            <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}"
              href="{{ route('todo_list.index') }}">
              <i class="bi bi-journal-code"></i> <span>ToDo</span>
             </a>
         </li>
-        
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
                     href="{{ route('tickets.index') }}">
@@ -334,7 +301,7 @@
                     <span>Holidays</span>
                 </a>
             </li>
-        
+
             @if (auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('devices') ? '' : 'collapsed' }}"
@@ -358,6 +325,13 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('emailtoall') ? '' : 'collapsed' }}"
+                    href="{{ route('emailall.index') }}">
+                    <i class="bi bi-envelope"></i>
+                    <span>Email</span>
+                </a>
             </li>
 
             <li class="nav-item">
@@ -404,7 +378,6 @@
                 </ul>
             </li>
 
-            @endif
             @endif
             <!-- <li class="nav-item">
         <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
@@ -586,11 +559,11 @@
     <script>
         function fetchNotifications() {
             $.ajax({
-                url: "{{ route('notifications.all') }}", 
+                url: "{{ route('notifications.all') }}",
                 method: 'GET',
                 dataType: 'json',
                 success: function (res) {
-                    $('#notificationDropdown').html(res.html); 
+                    $('#notificationDropdown').html(res.html);
                 },
                 error: function(err) {
                     console.error('Notification fetch failed', err);
@@ -598,9 +571,9 @@
             });
         }
         fetchNotifications();
-        setInterval(fetchNotifications, 10000); 
+        setInterval(fetchNotifications, 10000);
     </script>
-    
+
 </body>
 
 </html>
