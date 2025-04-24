@@ -23,6 +23,8 @@
             <i class="fa-solid fa-circle-check"></i> Complete
           @elseif($tickets->status == 'ready')
             <i class="fa-solid fa-circle-check"></i> Ready
+            @elseif($tickets->status == 'deployed')
+            <i class="fa-solid fa-circle-check"></i> Deployed
           @elseif($tickets->status == 'in_progress')
             <i class="fa-solid fa-spinner fa-spin"></i> In Progress
           @else
@@ -86,7 +88,7 @@
           </button>
       
           <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-            @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
               <li>
                 <a class="dropdown-item" href="#" data-value="{{ $status }}">
                   {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -188,7 +190,7 @@
                     <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
                 </div>
             @endif
-            <div class="card mt-3">
+            <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
               @csrf
               <div class="post-item clearfix mb-3 mt-3">
