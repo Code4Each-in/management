@@ -12,6 +12,7 @@
     </div>
     @endif
 
+
     @if($errors->any())
     <div class="alert alert-danger mt-2">
         <ul class="mb-0">

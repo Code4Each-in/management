@@ -271,4 +271,5 @@ Route::middleware(['role_permission'])->group(function () {
         Route::get('/emailtoall', 'index')->name('emailall.index');
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
+
 });

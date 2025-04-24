@@ -19,6 +19,7 @@ class EmailAll extends Controller
 }
 
 
+
     /**
      * Send emails to selected employees.
      */
