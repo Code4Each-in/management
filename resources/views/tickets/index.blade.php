@@ -152,7 +152,7 @@
                                       </button>
                                   
                                       <ul class="dropdown-menu status-options" data-ticket-id="{{ $data->id }}">
-                                        @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+                                        @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
                                           <li>
                                             <a class="dropdown-item" href="#" data-value="{{ $status }}">
                                               {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -274,6 +274,7 @@
                                         <option value="to_do">To do</option>
                                         <option value="in_progress">In Progress</option>
                                         <option value="ready">Ready</option>
+                                        <option value="deployed">Deployed</option>
                                         <option value="complete">
                                             Complete </option>
                                     </select>
@@ -363,6 +364,7 @@
                                         <option value="">To do</option>
                                         <option value="in_progress">In Progress</option>
                                         <option value="ready">Ready</option>
+                                        <option value="deployed">Deployed</option>
                                         <option value="complete">
                                             Complete </option>
                                     </select>

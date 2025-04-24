@@ -11,7 +11,7 @@ class ProjectAssigns extends Model
     protected $fillable = [
         'project_id',
         'user_id',
-  
+        'client_id'
     ];
     public function user()
     {

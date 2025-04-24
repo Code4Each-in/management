@@ -2,9 +2,11 @@
 @section('title', 'Sprint Dashboard')
 @section('subtitle', 'Sprint')
 @section('content')
+@if ($role_id != 6)
 <div class="col-md-2">
     <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
 </div>
+@endif
 <div class="sprint-section">
     <div class="sprint-header production">
       <div class="section-left">
@@ -21,11 +23,13 @@
             <th>Name</th>
             <th>Project</th>
             <th>Time Left</th>
-            <th>Started At</th>
-            <th>End Date (d/m/y)</th>
+            @if ($role_id != 6)
+                <th>Started At</th>
+                <th>End Date (d/m/y)</th>
+            @endif
             <th>Actions</th>
             <th>Status</th>
-            <th>Progress</th>
+            <th>Workflow Stage</th>
           </tr>
         </thead>
         <tbody>
@@ -53,32 +57,49 @@
                   @endif
                   Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
                 </td>
-      
+                @php
+                $firstRole = explode(' ', $role_id)[0] ?? 0;
+               @endphp
+            @if ($firstRole != 6)
                 <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                 <td>{{ $eta->format('d/m/Y') }}</td>
-      
-                <td class="actions-cell" style="text-align: center;">
-                  <a href="{{ url('/view/sprint/'.$sprint->id) }}">
-                    <i class="fa fa-eye fa-fw pointer"></i>
-                  </a>
+            @endif
+            <td class="actions-cell" style="text-align: center;">
+              <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                  <i class="fa fa-eye fa-fw pointer"></i>
+              </a>
+          
+              @if ($firstRole != 6) 
                   <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                    <i class="fa fa-edit fa-fw pointer"></i>
+                      <i class="fa fa-edit fa-fw pointer"></i>
                   </a>
                   <i class="fa fa-trash fa-fw pointer text-danger" onclick="deleteSprint('{{ $sprint->id }}')"></i>
-                </td>
-      
+              @endif
+          </td>                       
                 <td>
                   <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
                     {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-      
                 <td style="text-align: center;">
-                  <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px; text-align: center;">
-                    <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+                  <div class="d-flex justify-content-center status-group">
+                      <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                          {{ $sprint->todo_tickets_count ?? 0 }}
+                      </div>
+                      <div class="status-box bg-info text-dark" title="In Progress">
+                          {{ $sprint->in_progress_tickets_count ?? 0 }}
+                      </div>
+                      <div class="status-box bg-success text-white" title="Ready">
+                          {{ $sprint->ready_tickets_count ?? 0 }}
+                      </div>
+                      <div class="status-box bg-info text-white" title="Deployed">
+                        {{ $sprint->deployed_tickets_count ?? 0 }}
+                    </div>
+                      <div class="status-box bg-warning text-dark" title="Complete">
+                          {{ $sprint->completed_tickets_count ?? 0 }}
+                      </div>
                   </div>
-                  <small>{{ $completed }}/{{ $total }} completed</small>
-                </td>
+              </td>                                         
               </tr>
             @endif
           @endforeach
@@ -103,11 +124,13 @@
             <th>Name</th>
             <th>Project</th>
             <th>Time Left</th>
-            <th>Started At</th>
-            <th>End Date (d/m/y)</th>
+            @if ($role_id != 6)
+                <th>Started At</th>
+                <th>End Date (d/m/y)</th>
+            @endif
             <th>Actions</th>
             <th>Status</th>
-            <th>Progress</th>
+            <th>Workflow Stage</th>
           </tr>
         </thead>
         <tbody>
@@ -131,16 +154,23 @@
                 @endif
                 Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
               </td>
+              @php
+              $firstRole = explode(' ', $role_id)[0] ?? 0;
+             @endphp
+          @if ($firstRole != 6)
               <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
               <td>{{ $eta->format('d/m/Y') }}</td>
+          @endif
               <td class="actions-cell" style="text-align: center;">
                 <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                   <i class="fa fa-eye fa-fw pointer"></i>
                 </a>
+                @if ($firstRole != 6)
                 <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                   <i class="fa fa-edit fa-fw pointer"></i>
                 </a>
                 <i class="fa fa-trash fa-fw pointer text-danger" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                @endif
               </td>
               <td>
                 <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
@@ -148,11 +178,21 @@
                 </span>
               </td>
               <td style="text-align: center;">
-                <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px;">
-                  <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+                <div class="d-flex justify-content-center status-group">
+                    <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                        {{ $sprint->todo_tickets_count ?? 0 }}
+                    </div>
+                    <div class="status-box bg-info text-dark" title="In Progress">
+                        {{ $sprint->in_progress_tickets_count ?? 0 }}
+                    </div>
+                    <div class="status-box bg-success text-white" title="Ready">
+                        {{ $sprint->ready_tickets_count ?? 0 }}
+                    </div>
+                    <div class="status-box bg-warning text-dark" title="Complete">
+                        {{ $sprint->completed_tickets_count ?? 0 }}
+                    </div>
                 </div>
-                <small>{{ $completed }}/{{ $total }} completed</small>
-              </td>
+            </td>
             </tr>
           @endforeach
         </tbody>
@@ -176,11 +216,13 @@
           <th>S.No</th>
           <th>Name</th>
           <th>Project</th>
-          <th>Started At</th>
-          <th>End Date (d/m/y)</th>
+          @if ($role_id != 6)
+                <th>Started At</th>
+                <th>End Date (d/m/y)</th>
+            @endif
           <th>Actions</th>
           <th>Status</th>
-          <th>Progress</th>
+          <th>Workflow Stage</th>
         </tr>
       </thead>
       <tbody>
@@ -198,17 +240,24 @@
             <td>{{ $loop->iteration }}</td>
             <td>{{ $sprint->name }}</td>
             <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
-            <td>{{ $start ? $start->format('d/m/Y') : '–' }}</td>
-            <td>{{ $eta->format('d/m/Y') }}</td>
+            @php
+              $firstRole = explode(' ', $role_id)[0] ?? 0;
+             @endphp
+          @if ($firstRole != 6)
+              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
+          @endif
             <td class="actions-cell" style="text-align: center;">
               <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                 <i class="fa fa-eye fa-fw pointer"></i>
               </a>
+              @if ($firstRole != 6)
               <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                 <i class="fa fa-edit fa-fw pointer"></i>
               </a>
               <i class="fa fa-trash fa-fw pointer text-danger"
                  onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                 @endif
             </td>
             <td>
               <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
@@ -216,11 +265,21 @@
               </span>
             </td>
             <td style="text-align: center;">
-              <div class="progress-bar-wrapper" style="background: #f0f0f0; height: 8px; border-radius: 5px;">
-                <div class="progress-bar" style="width: {{ $progress }}%; height: 100%; background-color: #28a745; border-radius: 5px;"></div>
+              <div class="d-flex justify-content-center status-group">
+                  <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                      {{ $sprint->todo_tickets_count ?? 0 }}
+                  </div>
+                  <div class="status-box bg-info text-dark" title="In Progress">
+                      {{ $sprint->in_progress_tickets_count ?? 0 }}
+                  </div>
+                  <div class="status-box bg-success text-white" title="Ready">
+                      {{ $sprint->ready_tickets_count ?? 0 }}
+                  </div>
+                  <div class="status-box bg-warning text-dark" title="Complete">
+                      {{ $sprint->completed_tickets_count ?? 0 }}
+                  </div>
               </div>
-              <small>{{ $completed }}/{{ $total }} completed</small>
-            </td>
+          </td>
           </tr>
         @endforeach
       </tbody>

@@ -1,19 +1,20 @@
-<li class="nav-item dropdown notifyicon">
-    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" style="display: flex; gap: 10px;">
-        <i class="bi bi-bell"></i>
-        @if($unreadCount > 0)
-            <span class="badge bg-primary badge-number" id="notification-counter">{{ $unreadCount }}</span>
-        @endif
-    </a><!-- End Notification Icon -->
+<a class="nav-link nav-icon" data-bs-toggle="dropdown" style="display: flex; gap: 10px;">
+    <i class="bi bi-bell"></i>
+    @if($unreadCount > 0)
+        <span class="badge bg-primary badge-number view-all-notifications"
+              @if($unreadCount == 0) style="display: none;" @endif>
+            &#8226;
+        </span>  
+    @endif
+</a>
 
-    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-        <li class="dropdown-header">
-            You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
-            <a href="{{ route('notifications.all') }}" id="view-all-notifications" target="_blank">
-                <span class="badge rounded-pill bg-primary p-2 ms-2">View all</span>
-            </a>            
-                    </li>
-
+<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+    <li class="dropdown-header">
+        You have {{ $unreadCount }} new notification{{ $unreadCount > 1 ? 's' : '' }}
+        <a href="{{ route('notifications.all') }}" class="view-all-notifications">
+            <span class="badge rounded-pill bg-primary p-2 ms-2">View all</span>
+        </a>
+    </li>
         <li><hr class="dropdown-divider"></li>
 
         @forelse($notifications as $notif)
@@ -89,8 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         notificationItem.classList.remove('unread');
                         notificationItem.classList.add('read');
                     }
-
-                
                     location.reload(true); 
                     setTimeout(() => {
                         window.location.href = redirectUrl;
@@ -112,28 +111,47 @@ document.addEventListener('DOMContentLoaded', function () {
     
         if (viewAllBtn && counterEl) {
             viewAllBtn.addEventListener('click', function () {
-                // Mark all notifications as read before redirecting
-                fetch("{{ route('notifications.markAllRead') }}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        counterEl.textContent = '0';
-                        // Let the user continue to the View All page in a new tab
-                        window.open("{{ route('notifications.all') }}", '_blank');
-                    }
-                });
+                
+                counterEl.textContent = '0';
+                
             });
         }
     });
     </script>
     
-    
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const viewAllBtns = document.querySelectorAll('.view-all-notifications');
+            const counterEl = document.getElementById('notification-counter');
+        
+            viewAllBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+        
+                    fetch("{{ route('notifications.markAllRead') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (counterEl) {
+                                counterEl.textContent = '0'; 
+                            }
+                            window.open("{{ route('notifications.all') }}", '_blank');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to mark all as read', error);
+                        window.open("{{ route('notifications.all') }}", '_blank');
+                    });
+                });
+            });
+        });
+        </script>        
+        

@@ -116,7 +116,28 @@
     <aside id="sidebar" class="sidebar">
 
         <ul class="sidebar-nav" id="sidebar-nav">
-
+            @if(auth()->user()->role_id == 6)
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                    href="{{ route('sprint.index') }}">
+                    <i class="bi bi-clipboard"></i>
+                    <span>Sprint</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
+                    href="{{ route('projects.index') }}">
+                    <i class="bi bi-list-task"></i> <span>Projects</span>
+                </a>
+            </li>
+            @endif
+            @if(auth()->user()->role_id != 6)
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
                     <i class="bi bi-grid"></i>
@@ -131,15 +152,14 @@
                     <span>Scrum Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
           @if(auth()->user()->role->name == 'Super Admin')
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                href="{{ route('sprint.index') }}">
+                <i class="bi bi-clipboard"></i>
+                <span>Sprint</span>
+            </a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -192,9 +212,22 @@
                     <span>Roles</span>
                 </a>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                    href="{{ route('sprint.index') }}">
+                    <i class="bi bi-clipboard"></i>
+                    <span>Sprint</span>
+                </a>
+            </li>
 
           @endif
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                href="{{ route('sprint.index') }}">
+                <i class="bi bi-clipboard"></i>
+                <span>Sprint</span>
+            </a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
                     <i class="bi bi-person-square"></i>

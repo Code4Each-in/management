@@ -22,86 +22,39 @@
         <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
             <div class="accordion-body">
                 <div class="row align-items-center">
+                    <div class="button-design2">
+                    <button id="resetChartBtn">Reset Chart</button>
+                    </div>
                     @php
-    $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; // prevent division by zero
+    $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; 
 
     $progressPercent = round(($progress / $total) * 100, 1);
     $todoPercent     = round(($todo / $total) * 100, 1);
     $completePercent = round(($complete / $total) * 100, 1);
     $readyPercent = round(($ready / $total) * 100, 1);
+    $deployedPercent = round(($deployed / $total) * 100, 1);
     $progressDeg = ($progressPercent / 100) * 360;
     $todoDeg     = ($todoPercent / 100) * 360;
     $completeDeg = ($completePercent / 100) * 360;
         @endphp
 <div class="col-md-6">
 <div class="text-center">
-    <svg viewBox="0 0 36 36" class="circular-chart" width="200" height="200">
-        <circle cx="18" cy="18" r="15.9155" fill="#f0f0f0" />
-
-        <!-- Complete -->
-        <path
-            stroke="#28a745"
-            stroke-width="3"
-            fill="none"
-            stroke-dasharray="{{ $completePercent }} {{ 100 - $completePercent }}"
-            d="M18 2.0845
-            a 15.9155 15.9155 0 0 1 0 31.831
-            a 15.9155 15.9155 0 0 1 0 -31.831"
-        />
-
-        <!-- In Progress -->
-        <path
-            stroke="#0dcaf0"
-            stroke-width="3"
-            fill="none"
-            stroke-dasharray="{{ $progressPercent }} {{ 100 - $progressPercent }}"
-            stroke-dashoffset="-{{ $completePercent }}"
-            d="M18 2.0845
-            a 15.9155 15.9155 0 0 1 0 31.831
-            a 15.9155 15.9155 0 0 1 0 -31.831"
-        />
-
-        <!-- To Do -->
-        <path
-            stroke="#ffc107"
-            stroke-width="3"
-            fill="none"
-            stroke-dasharray="{{ $todoPercent }} {{ 100 - $todoPercent }}"
-            stroke-dashoffset="-{{ $completePercent + $progressPercent }}"
-            d="M18 2.0845
-            a 15.9155 15.9155 0 0 1 0 31.831
-            a 15.9155 15.9155 0 0 1 0 -31.831"
-        />
-
-        <!-- Ready -->
-        <path
-            stroke="#6f42c1"
-            stroke-width="3"
-            fill="none"
-            stroke-dasharray="{{ $readyPercent }} {{ 100 - $readyPercent }}"
-            stroke-dashoffset="-{{ $completePercent + $progressPercent + $todoPercent }}"
-            d="M18 2.0845
-            a 15.9155 15.9155 0 0 1 0 31.831
-            a 15.9155 15.9155 0 0 1 0 -31.831"
-        />
-
-        <text x="18" y="20.35" class="percentage" text-anchor="middle" font-size="5" fill="#333">
-            Total: {{ $totalTicketsCount }}
-        </text>
-    </svg>
-
+    <div id="pieChart" style="min-height: 400px;"></div>
     <div class="row mt-3 justify-content-center">
         <div class="col-auto">
-            <span class="badge bg-success">Complete: {{ $complete }}</span>
+            <span class="badge bg-purple text-white status-filter" style="background-color: #6f42c1;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-info text-dark">In Progress: {{ $progress }}</span>
+            <span class="badge bg-info text-dark status-filter" data-status="in_progress">In Progress: {{ $progress }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-warning text-dark">To Do: {{ $todo }}</span>
+            <span class="badge bg-success text-dark status-filter" data-status="ready">Ready: {{ $ready }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-purple text-white" style="background-color: #6f42c1;">Ready: {{ $ready }}</span>
+            <span class="badge bg-success text-dark status-filter" data-status="deployed">Deployed: {{ $deployed }}</span>
+        </div>
+        <div class="col-auto mt-2">
+            <span class="badge bg-warning status-filter" data-status="complete">Complete: {{ $complete }}</span>
         </div>
     </div>
 </div>       </div>       
@@ -133,7 +86,7 @@
                                 <p class="mb-1">{{ $clients->client_name }}</p>
                             </div>
                         </div>
-
+                        @if ($role_id != 6)
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
                             <div class="col-sm-8">
@@ -147,6 +100,7 @@
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
                             </div>
                         </div>
+                        @endif
                     </div> 
                 </div> 
             </div>
@@ -169,7 +123,7 @@
                 </thead>
                 <tbody>
                     @foreach ($tickets as $ticket)
-                        <tr>
+                        <tr class="ticket-row" data-status="{{ $ticket->status }}">
                             <td>{{ $ticket->title }}</td>
                             <td>
                                 @if(strlen($ticket->description) >= 100)
@@ -198,6 +152,7 @@
                                     {{ $ticket->status == 'to_do' ? 'bg-primary' : '' }}
                                     {{ $ticket->status == 'in_progress' ? 'bg-warning text-dark' : '' }}
                                     {{ $ticket->status == 'ready' ? 'bg-info text-dark' : '' }}
+                                    {{ $ticket->status == 'deployed' ? 'bg-primary text-dark' : '' }}
                                     {{ $ticket->status == 'complete' ? 'bg-success' : '' }}"
                                     data-bs-toggle="dropdown" role="button" aria-expanded="false"
                                     style="cursor: pointer;"
@@ -205,7 +160,7 @@
                                     {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
                                   </span>
                                   <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                    @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+                                    @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
                                       <li>
                                         <a class="dropdown-item" href="#" data-value="{{ $status }}">
                                           {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -221,13 +176,18 @@
                                     @endforeach
                                 </td>
                             <td>
+                                @php
+                                $firstRole = explode(' ', $role_id)[0] ?? 0;
+                                @endphp
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                 </a>
+                                @if ($firstRole != 6)
                                 <a href="{{ url('/edit/ticket/'.$ticket->id) }}">
                                     <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
                                 </a>
                                 <i style="color:#4154f1;" onClick="deleteTickets('{{ $ticket->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                @endif
                             </td>                            
                         </tr>
                     @endforeach
@@ -292,6 +252,10 @@
                 $(this).hide();
                 $(this).siblings('.readMoreLink').show();
             });
+                $('#resetChartBtn').on('click', function() {
+                    location.reload();
+                });
+
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -334,6 +298,8 @@
               badge.classList.add('bg-info', 'text-dark');
             } else if (newStatus === 'complete') {
               badge.classList.add('bg-success');
+            }else if (newStatus === 'deployed') {
+              badge.classList.add('bg-warning');
             }
   
           } else {
@@ -347,5 +313,76 @@
       });
     });
   </script>
-  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chart = echarts.init(document.querySelector("#pieChart"));
+    
+        const chartOptions = {
+            title: {
+                text: 'Ticket Status Overview',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [{
+                name: 'Tickets',
+                type: 'pie',
+                radius: '50%',
+                data: [
+                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#6f42c1' }, status: 'to_do' },
+                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#0dcaf0' }, status: 'in_progress' },
+                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#198754' }, status: 'ready' },
+                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#4176F7' }, status: 'deployed' },
+                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#ffc107' }, status: 'complete' }
+                ],
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+    
+        chart.setOption(chartOptions);
+        chart.on('click', function (params) {
+            const clickedStatus = params.data.status;
+            filterTableByStatus(clickedStatus);
+        });
+        document.querySelectorAll('.status-filter').forEach(badge => {
+            badge.addEventListener('click', function () {
+                const selectedStatus = this.getAttribute('data-status');
+                filterTableByStatus(selectedStatus);
+            });
+        });
+        function filterTableByStatus(status) {
+            document.querySelectorAll('.ticket-row').forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                row.style.display = (rowStatus === status) ? '' : 'none';
+            });
+        }
+    });
+    </script>    
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.status-filter').forEach(badge => {
+                badge.addEventListener('click', function () {
+                    const selectedStatus = this.getAttribute('data-status');
+    
+                    // Hide all rows first
+                    document.querySelectorAll('.ticket-row').forEach(row => {
+                        const status = row.getAttribute('data-status');
+                        row.style.display = (status === selectedStatus) ? '' : 'none';
+                    });
+                });
+            });
+        });
+    </script>    
 @endsection

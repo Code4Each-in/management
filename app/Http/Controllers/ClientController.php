@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Models\Country;
 use App\Models\Projects;
 use Illuminate\Http\Request;
+use App\Models\Users;
+use Illuminate\Support\Facades\Hash;
 
 class ClientController extends Controller
 {
@@ -35,21 +37,59 @@ class ClientController extends Controller
     }
     
     public function store(Request $request)
-    {
-        
-        $request->validate([
-            'name' => 'required'
-            // 'email' => 'email',
-            /*'phone' => ['regex:/^\d{5,15}$/']
-        ], [
-            'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
-        ]);
-        
-        if(Client::create($request->all())) {
-            return "success";
-        }
+{
+    
+    $request->validate([
+        'name' => 'required',
+    ]);
 
-    }
+    $client = Client::create([
+        'name' => $request->input('name'),
+        'email' => $request->input('email'),
+        'secondary_email' => $request->input('secondary_email'),
+        'additional_email' => $request->input('additional_email'),
+        'phone' => $request->input('phone'),
+        'birth_date' => $request->input('birth_date'),
+        'address' => $request->input('address'),
+        'city' => $request->input('city'),
+        'status' => 1, 
+        'zip' => $request->input('zip'),
+        'country' => $request->input('country'),
+        'projects' => $request->input('projects'),
+        'company' => $request->input('company'),
+        'source' => $request->input('source'),
+        'skype' => $request->input('skype'),
+        'last_worked' => $request->input('last_worked'),
+        'password' => $request->input('password'), 
+    ]);
+
+    $user = Users::create([
+        'first_name' => $request->input('name'),
+        'last_name' => '',
+        'email' => $request->input('email'),
+        'password' => bcrypt($request->input('password')),
+        'salary' => null,
+        'employee_id' => null,
+        'address' => $request->input('address'),
+        'city' => $request->input('city'),
+        'designation' => 'Client',
+        'state' => null,
+        'status' => 1,
+        'zip' => $request->input('zip'),
+        'phone' => $request->input('phone'),
+        'department_id' => null,
+        'role_id' => 6, // Client role
+        'joining_date' => now(),
+        'birth_date' => $request->input('birth_date'),
+        'profile_picture' => null,
+        'client_id' => $client->id, 
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return response()->json(['status' => 'success', 'user' => $user]);
+}
+
 
 
     public function edit(Request $request, $id)

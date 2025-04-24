@@ -10,33 +10,56 @@ use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
+use Auth;
 class ProjectsController extends Controller
 {
  
     public function index()
     {
-       
-       $projects = Projects::with('client')->get(); // Load clients' data for each project
-       $clients = Client::orderBy('name', 'asc')  
-                 ->get();
-   
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        $clients = Client::orderBy('name', 'asc')->get();
+    
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
-        ->where('roles.name','!=', 'Super Admin')->Where('roles.name','!=', 'HR Manager')
-        ->select('users.*', 'roles.name as role_name')->where('status','!=',0)->orderBy('first_name','asc')
-        ->get();
-        $projects = Projects::orderBy('id', 'desc')->get();
+            ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
+            ->where('users.status', '!=', 0)
+            ->select('users.*', 'roles.name as role_name')
+            ->orderBy('first_name', 'asc')
+            ->get();
+        if ($user->role_id == 6) {
+            $assignedProjectIds = ProjectAssigns::where('client_id', $clientId)
+                ->pluck('project_id')
+                ->toArray();
+            $projects = Projects::where(function ($query) use ($clientId, $assignedProjectIds) {
+                $query->whereIn('id', $assignedProjectIds);
+                if (!is_null($clientId)) {
+                    $query->where('client_id', $clientId); 
+                }
+            })->orderBy('id', 'desc')->get();
+        } else {
+            $projectsQuery = Projects::query();
+            if (!is_null($clientId)) {
+                $projectsQuery->where('client_id', $clientId);
+            }
+            $projects = $projectsQuery->orderBy('id', 'desc')->get();
+        }
+
         foreach ($projects as $key => $data) {
             $projectAssigns = ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')
                 ->where('project_id', $data->id)
-                ->orderBy('id', 'desc')
+                ->orderBy('project_assigns.id', 'desc')
                 ->get(['project_assigns.*', 'users.first_name', 'users.profile_picture']);
+    
             $clientName = Client::where('id', $data->client_id)->pluck('name')->first();
-            $projects[$key]->projectassign = !empty($projectAssigns) ? $projectAssigns : null;
-            $projects[$key]->client_name = $clientName; 
+    
+            $projects[$key]->projectassign = $projectAssigns ?: null;
+            $projects[$key]->client_name = $clientName;
         }
-        return view('projects.index',compact('users','projects','clients'));   
+    
+        return view('projects.index', compact('users', 'projects', 'clients'));
     }
+    
 
     public function create(Client $client)
     {
@@ -98,7 +121,7 @@ class ProjectsController extends Controller
                 $manager =ProjectAssigns::create([					
                     'project_id' => $projects->id,
                     'user_id' => $manager,
-               
+                     'client_id' => $projects->client_id
                 ]);
             }		
         }

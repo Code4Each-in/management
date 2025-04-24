@@ -24,51 +24,104 @@ class SprintController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $projects = Projects::all();
-        $clients = Client::orderBy('name', 'asc')  
-        ->get();
-        $sprints = Sprint::with('projectDetails')
-        ->withCount([
-            'tickets', 
-            'tickets as completed_tickets_count' => function ($query) {
-                $query->where('status', 'complete');
-            }
-        ])
-        ->where('sprints.status', 1)
-        ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
-        ->get();
-    
+{
+    $projects = Projects::all();
+    $clients = Client::orderBy('name', 'asc')->get();
+    $user = Auth::user();
+    $clientId = $user->client_id;
+    $sprints = Sprint::with('projectDetails')
+    ->withCount([
+        'tickets',
+        'tickets as completed_tickets_count' => function ($query) {
+            $query->where('status', 'complete');
+        },
+        'tickets as todo_tickets_count' => function ($query) {
+            $query->where('status', 'to_do');
+        },
+        'tickets as in_progress_tickets_count' => function ($query) {
+            $query->where('status', 'in_progress');
+        },
+        'tickets as deployed_tickets_count' => function ($query) {
+            $query->where('status', 'deployed');
+        },
+        'tickets as ready_tickets_count' => function ($query) {
+            $query->where('status', 'ready');
+        },
+    ])
+    ->where('sprints.status', 1)
+    ->when(!is_null($clientId), function ($query) use ($clientId) {
+        $query->where('sprints.client', $clientId);
+    })
+    ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
+    ->get();
 
 
-        $totalSprintCount = $sprints->count();
-        $inactivesprints = Sprint::with('projectDetails')
-        ->withCount([
-            'tickets', 
-            'tickets as completed_tickets_count' => function ($query) {
-                $query->where('status', 'complete');
-            }
-        ])
-        ->where('sprints.status', 0)
-        ->get();
-         
+    $inactivesprints = Sprint::with('projectDetails')
+    ->withCount([
+        'tickets',
+        'tickets as completed_tickets_count' => function ($query) {
+            $query->where('status', 'complete');
+        },
+        'tickets as todo_tickets_count' => function ($query) {
+            $query->where('status', 'to_do');
+        },
+        'tickets as in_progress_tickets_count' => function ($query) {
+            $query->where('status', 'in_progress');
+        },
+        'tickets as deployed_tickets_count' => function ($query) {
+            $query->where('status', 'deployed');
+        },
+        'tickets as ready_tickets_count' => function ($query) {
+            $query->where('status', 'ready');
+        },
+    ])
+    ->where('sprints.status', 0)
+    ->when(!is_null($clientId), function ($query) use ($clientId) {
+        $query->where('sprints.client', $clientId);
+    })
+    ->get();
 
-        $completedsprints = Sprint::with(['projectDetails'])
-        ->withCount([
-            'tickets',
-            'tickets as completed_tickets_count' => function ($query) {
-                $query->where('status', 'complete');
-            }
-        ])
-        ->having('tickets_count', '>', 0)
-        ->havingRaw('tickets_count = completed_tickets_count')
-        ->get();
-    
-    
-        $totalinSprintCount = $inactivesprints->count();
-        return view('sprintdash.index', compact('projects','clients', 'sprints', 'inactivesprints', 'totalSprintCount', 'totalinSprintCount', 'completedsprints'));
+    $completedsprints = Sprint::with('projectDetails')
+    ->withCount([
+        'tickets',
+        'tickets as completed_tickets_count' => function ($query) {
+            $query->where('status', 'complete');
+        },
+        'tickets as todo_tickets_count' => function ($query) {
+            $query->where('status', 'to_do');
+        },
+        'tickets as in_progress_tickets_count' => function ($query) {
+            $query->where('status', 'in_progress');
+        },
+        'tickets as deployed_tickets_count' => function ($query) {
+            $query->where('status', 'deployed');
+        },
+        'tickets as ready_tickets_count' => function ($query) {
+            $query->where('status', 'ready');
+        },
+    ])
+    ->when(!is_null($clientId), function ($query) use ($clientId) {
+        $query->where('sprints.client', $clientId); 
+    })
+    ->having('tickets_count', '>', 0)
+    ->havingRaw('tickets_count = completed_tickets_count')
+    ->get();
 
-    }
+    $totalSprintCount = $sprints->count();
+    $totalinSprintCount = $inactivesprints->count();
+    $role_id = auth()->user()->role_id;
+    return view('sprintdash.index', compact(
+        'projects', 
+        'clients', 
+        'sprints', 
+        'inactivesprints', 
+        'totalSprintCount', 
+        'totalinSprintCount', 
+        'completedsprints',
+        'role_id',
+        'user'
+    ));
+}
 
     public function store(Request $request)
 {
@@ -157,6 +210,9 @@ class SprintController extends Controller
         $ready = Tickets::where('sprint_id', $sprintId)
         ->whereRaw('LOWER(status) = ?', ['ready'])
         ->count();
+        $deployed = Tickets::where('sprint_id', $sprintId)
+        ->whereRaw('LOWER(status) = ?', ['deployed'])
+        ->count();
         $totalTicketsCount = Tickets::where('sprint_id', $sprintId)->count();
 
         $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
@@ -170,8 +226,8 @@ class SprintController extends Controller
             'users.designation'
         )
         ->get();
-
-        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints', 'progress', 'complete', 'todo', 'ready'));
+        $role_id = auth()->user()->role_id;
+        return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints', 'progress', 'complete', 'todo', 'ready', 'role_id', 'deployed'));
 
     }
     

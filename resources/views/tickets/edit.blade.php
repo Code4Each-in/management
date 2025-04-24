@@ -101,6 +101,7 @@
                                 Progress
                             </option>
                             <option value="ready" {{$tickets->status == 'ready' ? 'selected' : ' ' }}>Ready</option>
+                            <option value="ready" {{$tickets->status == 'deployed' ? 'selected' : ' ' }}>Deployed</option>
                             <option value="complete" {{$tickets->status == 'complete' ? 'selected' : ' ' }}>
                                 Complete </option>
                         </select>

@@ -7,6 +7,9 @@
     <i style="color:#4154f1;"></i>
 </a>
 </div>
+<div id="loader">
+  <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
 <div class="container">
   <div class="task-card expanded">
     <div class="task-header" onclick="toggleTaskDetails(this)"> 
@@ -20,6 +23,8 @@
             <i class="fa-solid fa-circle-check"></i> Complete
           @elseif($tickets->status == 'ready')
             <i class="fa-solid fa-circle-check"></i> Ready
+            @elseif($tickets->status == 'deployed')
+            <i class="fa-solid fa-circle-check"></i> Deployed
           @elseif($tickets->status == 'in_progress')
             <i class="fa-solid fa-spinner fa-spin"></i> In Progress
           @else
@@ -83,7 +88,7 @@
           </button>
       
           <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-            @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
               <li>
                 <a class="dropdown-item" href="#" data-value="{{ $status }}">
                   {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -96,11 +101,6 @@
     </div>
   </div>
 </div>
-
-  
-
-
-
 <div class="row">
     <div class="col-md-12">
         <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
@@ -114,9 +114,14 @@
     <div class="row mb-3" style="margin-bottom: 15px;">       
         @if(Auth::user()->id == $data->comment_by)
             <div class="col-md-10 offset-md-2 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
+                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
+                  data-id="{{ $data->id }}" 
+                  title="Delete Comment" 
+                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
+                   &times;
+               </a></p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
+                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
                 @php
                 $documents = explode(',', $data->document);
             @endphp
@@ -128,7 +133,13 @@
                             {{ basename($doc) }}
                         </a>
                     </p>
-                @endif
+                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
+                    data-id="{{ $data->id }}" 
+                    title="Delete Comment" 
+                    style="font-size: 1rem; line-height: 1; float: right;">
+                &times;
+            </button>
+                            @endif
 @endforeach
                 
             </div>
@@ -143,9 +154,14 @@
                 </div>
             @endif
             <div class="col-md-10 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}</p>
+                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
+                  data-id="{{ $data->id }}" 
+                  title="Delete Comment" 
+                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
+                   &times;
+               </a></p>
                 <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{{ $data->comments }}</p>
+                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
                 @php
                 $documents = explode(',', $data->document);
             @endphp
@@ -157,7 +173,13 @@
                             {{ basename($doc) }}
                         </a>
                     </p>
-                @endif
+                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
+                    data-id="{{ $data->id }}" 
+                    title="Delete Comment" 
+                    style="font-size: 1rem; line-height: 1; float: right;">
+                &times;
+            </button>
+                            @endif
             @endforeach                            
             </div>
         @endif
@@ -168,60 +190,115 @@
                     <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
                 </div>
             @endif
-        </div>
-        <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
-            @csrf
-            <div class="post-item clearfix mb-3 mt-3">
-                <textarea class="form-control comment-input" name="comment" id="comment" placeholder="Enter your comment" rows="3" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+            <div class="card mt-3 card-designform">
+            <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
+              @csrf
+              <div class="post-item clearfix mb-3 mt-3">
+                <textarea class="form-control comment-input" name="comment" id="tinymce_textarea" rows="3"></textarea>
+            </div>          
+              <div class="mb-3 post-item clearfix upload_chat">
+                  <label for="comment_file" class="form-label">Attach File</label>
+                  <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
+              </div>
+              <div class="alert alert-danger" style="display:none;"></div>
+              <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">
+              <div class="button-design">
+                  <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
+                                  <i class="bi bi-send-fill"></i> Comment
+                  </button>
+              </div>
+          </form>
             </div>
-            <div class="mb-3 post-item clearfix upload_chat">
-                <label for="comment_file" class="form-label">Attach File</label>
-                <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
-            </div>
-            <div class="alert alert-danger" style="display:none;"></div>
-            <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">
-            <div class="button-design">
-                <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
-                                <i class="bi bi-send-fill"></i> Comment
-                </button>
-            </div>
-        </form>
+        </div>    
     </div>
-
 </div>
-<script>
-    $(document).ready(function() {
-        $('#commentsData').on('submit', function(e) {
-            e.preventDefault();
-            $('.alert-danger').hide().html('');
-            var formData = new FormData(this);
-            $.ajax({
-                url: '{{ route('comments.add') }}',
-                type: 'POST',
-                data: formData,
-                contentType: false, 
-                processData: false, 
-                success: function(response) {
-                    if (response.status === 200) {
-                        $('#comment').val('');
-                        $('#comment_file').val('');
-                        location.reload();
-                    } else {
-                        $('.alert-danger').show().html(response.message || 'Something went wrong.');
-                    }
-                },
-                error: function(xhr) {
-                    $('.alert-danger').show().html('An error occurred while submitting the comment.');
-                }
-            });
-        });
-    });
-      function toggleTaskDetails(headerElement) {
-        const card = headerElement.closest('.task-card');
-        card.classList.toggle('expanded');
-      }
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-    </script>   
+<script>
+  $(document).ready(function() {
+      $('#commentsData').on('submit', function(e) {
+          e.preventDefault();
+          $('.alert-danger').hide().html('');
+          var formData = new FormData(this);
+          $('#loader').show(); 
+          $.ajax({
+              url: '{{ route('comments.add') }}',
+              type: 'POST',
+              data: formData,
+              contentType: false, 
+              processData: false, 
+              success: function(response) {
+                  if (response.status === 200) {
+                      $('#comment').val('');
+                      $('#comment_file').val('');
+                      location.reload();
+                  } else {
+                      $('.alert-danger').show().html(response.message || 'Something went wrong.');
+                  }
+              },
+              error: function(xhr) {
+                  $('.alert-danger').show().html('An error occurred while submitting the comment.');
+              },
+              complete: function() {
+                  $('#loader').hide(); 
+              }
+          });
+      });
+  });
+
+  function toggleTaskDetails(headerElement) {
+      const card = headerElement.closest('.task-card');
+      card.classList.toggle('expanded');
+  }
+  $(document).on('click', '.delete-comment', function() {
+    const commentId = $(this).data('id');
+    const commentItem = $(this).closest('.post-item');
+
+    if (confirm('Are you sure you want to delete this comment?')) {
+        $.ajax({
+            url: '/comments/' + commentId + '/delete',
+            type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.status === 200) {
+                    commentItem.fadeOut(300, function() {
+                        $(this).remove(); 
+                    });
+
+                    location.reload(); 
+                } else {
+                    alert(response.message || 'Failed to delete comment.');
+                }
+            },
+            error: function() {
+                alert('An error occurred while deleting the comment.');
+            }
+        });
+    }
+});
+
+</script> 
+<script>
+  tinymce.init({
+    selector: '#tinymce_textarea',
+    plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | link image media | preview fullscreen',
+    menubar: 'file edit view insert format tools table help',
+    height: 300,
+    setup: function (editor) {
+      editor.on('keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          $('#commentsData').submit(); 
+          e.preventDefault();
+        }
+      });
+    }
+  });
+</script>
+
+        
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

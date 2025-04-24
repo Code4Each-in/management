@@ -24,7 +24,8 @@ class Client extends Model
         'company',
         'source',
         'skype',
-        'last_worked'
+        'last_worked',
+        'password'
         
     ];
 
