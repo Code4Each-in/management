@@ -50,7 +50,10 @@ class DashboardController extends Controller
         $upcomingHoliday = Holidays::whereBetween('from', [$today, $endDate])
             ->orderBy('from')->first();
         // user count For dashboard
-        $userCount = Users::orderBy('id', 'desc')->where('status', 1)->get()->count();
+        $userCount = Users::where('status', 1)
+        ->where('role_id', '!=', 6)
+        ->orderBy('id', 'desc')
+        ->count();
 
         $dayMonth = date('m-d');
         $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])

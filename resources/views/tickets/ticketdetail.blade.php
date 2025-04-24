@@ -66,7 +66,7 @@
       <div class="detail-item">
         <i class="fa-solid fa-calendar-day"></i>
         <strong>ETA:</strong>
-        <span>{{ $tickets->eta ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
+        <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
       </div>
 
       <div class="detail-item">
