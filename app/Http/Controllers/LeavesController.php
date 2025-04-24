@@ -149,7 +149,11 @@ class LeavesController extends Controller
 	 {
         $members = Users::whereHas('role', function ($q) {
             $q->where('name', '!=', 'Super Admin');
-        })->where('status',1)->get();
+        })
+        ->where('status', 1)
+        ->where('role_id', '!=', 6)
+        ->get();
+    
 
         if (auth()->user()->role->name == 'Super Admin')
 		{

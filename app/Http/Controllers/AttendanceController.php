@@ -139,7 +139,12 @@ class AttendanceController extends Controller
 
           public function showTeamsAttendance(Request $request)
           {
-            $users = Users::with('role')->whereRelation('role', 'name', '!=',  'Super Admin')->where('status',1)->get();
+            $users = Users::with('role')
+          ->whereRelation('role', 'name', '!=', 'Super Admin')
+          ->where('status', 1)
+          ->where('role_id', '!=', 6)
+          ->get();
+
             if (auth()->user()->role->name == 'Super Admin')
               {
                 $teamAttendance = UserAttendances::

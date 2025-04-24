@@ -22,9 +22,14 @@ class AssignedDevicesController extends Controller
         //Get Free Devices For Assign
         $devices = Devices::where('status',0)->get();
         //Get Users Without Admin To Assign Device Where Users Are Active 
-        $users = Users::with('department')->whereHas('role', function($q){
+        $users = Users::with('department')
+        ->whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
-        })->where('status',1)->get();
+        })
+        ->where('status', 1)
+        ->where('role_id', '!=', 6)
+        ->get();
+
         if ($allDevicesFilter == 'on') {
         $assignedDevices = AssignedDevices::with('user','device')->orderBy('id','desc')->get();
         } else {

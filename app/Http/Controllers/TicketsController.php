@@ -26,12 +26,13 @@ class TicketsController extends Controller
             $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
             $projectFilter =  $ticketsFilter['project_filter'] ?? '';
             $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
-            $user = Users::whereHas('role', function($q) {
-                $q->where('name', '!=', 'Super Admin');
+            $user = Users::whereHas('role', function ($query) {
+                $query->where('name', '!=', 'Super Admin');
             })
             ->where('status', '!=', 0)
-            ->orderBy('first_name', 'asc') 
-            ->get();
+            ->where('role_id', '!=', 6)
+            ->orderBy('first_name', 'asc')
+            ->get();        
             $sprints = Sprint::where('status', 1)->get();
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
@@ -90,6 +91,7 @@ class TicketsController extends Controller
                     $q->where('name', '!=', 'Super Admin');
                 })
                 ->where('status', '!=', 0)
+                ->where('role_id', '!=', 6)
                 ->orderBy('first_name', 'asc')
                 ->get();
             $sprints = Sprint::where('status', 1)->get();
@@ -263,7 +265,8 @@ class TicketsController extends Controller
         })->orderBy('id','desc')->get()->toArray();	
         $userCount = Users::orderBy('first_name', 'asc')  
         ->orderBy('id', 'desc')          
-        ->where('status', '!=', 0)        
+        ->where('status', '!=', 0)  
+        ->where('role_id', '!=', 6)      
         ->get();
         foreach($user as $key1=> $data1)
         {

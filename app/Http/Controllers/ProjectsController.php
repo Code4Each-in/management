@@ -24,6 +24,7 @@ class ProjectsController extends Controller
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
             ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
             ->where('users.status', '!=', 0)
+            ->where('users.role_id', '!=', 6)
             ->select('users.*', 'roles.name as role_name')
             ->orderBy('first_name', 'asc')
             ->get();
@@ -151,9 +152,14 @@ class ProjectsController extends Controller
        $clients = Client::all(); // Load all clients for the dropdown
         // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
-        ->where('roles.name','!=', 'Super Admin')->where('roles.name','!=','HR Manager')
-        ->select('users.*' ,'roles.name as role_name')->where('status','!=',0)->orderBy('id','desc')
+        ->where('roles.name','!=', 'Super Admin')
+        ->where('roles.name','!=','HR Manager')
+        ->where('users.status','!=',0)
+        ->where('users.role_id', '!=', 6)
+        ->select('users.*' ,'roles.name as role_name')
+        ->orderBy('id','desc')
         ->get();
+
         $projects = Projects::where(['id' => $projectId])->first();
         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
         $projectAssign = ProjectAssigns::with('user')->where('project_id',$projectId)->get();
