@@ -26,6 +26,7 @@ use App\Http\Controllers\VotesController;
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\ScrumdashController;
 use App\Http\Controllers\SprintController;
+use App\Http\Controllers\EmailAll;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -266,7 +267,24 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::put('/todo_list/{todoList}/status', [TodoListController::class, 'updateStatus'])->name('todo_list.updateStatus');
 	Route::put('/todo_list/{todoList}/hold', [TodoListController::class, 'holdTask'])->name('todo_list.hold');
 
-	
-	
+	//Scrum Dashboard
+	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
+
+	//sprint dashboard
+	Route::get('/sprint', [SprintController::class, 'index'])->name('sprint.index');
+	Route::post('/add/sprint', [SprintController::class, 'store'])->name('sprint.add');
+	Route::delete('/delete/sprint', [SprintController::class, 'destroy'])->name('sprint.delete');
+	Route::get('/edit/sprint/{sprintId}', [SprintController::class, 'editSprint'])->name('sprint.edit');
+    Route::get('/view/sprint/{sprintId}', [SprintController::class, 'viewSprint'])->name('sprint.view');
+	Route::post('/update/sprint/{sprintId}', [SprintController::class, 'updateSprint'])->name('sprint.update');
+	Route::get('/get-sprints-by-project/{project_id}', [SprintController::class, 'getSprints']);
+
+    //Email to all
+    Route::controller(EmailAll::class)->group(function () {
+        Route::get('/emailtoall', 'index')->name('emailall.index');
+        Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
+    });
+
+
 
 });
