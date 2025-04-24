@@ -136,7 +136,8 @@ class TicketsController extends Controller
     		$validate = $validator->valid();
             $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
-            : now();
+            : null;
+
 
 
             $tickets =Tickets::create([
@@ -318,7 +319,7 @@ class TicketsController extends Controller
            $changed_by = auth()->user()->first_name;
            $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
-            : now();
+            : null;
 
             $tickets=   Tickets::where('id', $ticketId)  
             ->update([

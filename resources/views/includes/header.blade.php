@@ -116,7 +116,28 @@
     <aside id="sidebar" class="sidebar">
 
         <ul class="sidebar-nav" id="sidebar-nav">
-
+            @if(auth()->user()->role_id == 6)
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                    href="{{ route('sprint.index') }}">
+                    <i class="bi bi-clipboard"></i>
+                    <span>Sprint</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
+                    href="{{ route('projects.index') }}">
+                    <i class="bi bi-list-task"></i> <span>Projects</span>
+                </a>
+            </li>
+        @endif
+        @if(auth()->user()->role_id != 6)
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
                     <i class="bi bi-grid"></i>
@@ -131,7 +152,7 @@
                     <span>Scrum Dashboard</span>
                 </a>
             </li>
-            
+
             @if(in_array(auth()->user()->role_id, [2, 3]))
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
@@ -143,6 +164,13 @@
             @endif
 
           @if(auth()->user()->role->name == 'Super Admin')
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                href="{{ route('sprint.index') }}">
+                <i class="bi bi-clipboard"></i>
+                <span>Sprint</span>
+            </a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -378,6 +406,7 @@
                 </ul>
             </li>
 
+            @endif
             @endif
             <!-- <li class="nav-item">
         <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">

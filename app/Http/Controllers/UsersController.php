@@ -79,7 +79,11 @@ class UsersController extends Controller
 				$usersData[$key]->assignedDevices = !empty($assignedDevices)? $assignedDevices:null;
 			}
 	   }
-		$users_Data = Users::with('role','department')->where('status','!=',0)->orderBy('id','desc')->get();  //Users data with role and department relation
+	   $users_Data = Users::with('role', 'department')
+	   ->where('status', '!=', 0)
+	   ->where('role_id', '!=', 6)
+	   ->orderBy('id', 'desc')
+	   ->get();
 		$roleData = Roles::orderBy('id','desc')->get();  // Roles Data
 		$departmentData = Departments::orderBy('id','desc')->get();
 
