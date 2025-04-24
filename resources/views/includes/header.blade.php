@@ -131,14 +131,17 @@
                     <span>Scrum Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
+            
+            @if(in_array(auth()->user()->role_id, [2, 3]))
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                        href="{{ route('sprint.index') }}">
+                        <i class="bi bi-clipboard"></i>
+                        <span>Sprint</span>
+                    </a>
+                </li>
+            @endif
+
           @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
