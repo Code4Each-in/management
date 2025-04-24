@@ -616,7 +616,7 @@ class TicketsController extends Controller
 public function updateStatus(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|in:to_do,in_progress,ready,complete',
+        'status' => 'required|in:to_do,in_progress,ready,deployed,complete',
     ]);
     $auth_user =  auth()->user()->id;
     $ticket = Tickets::findOrFail($id);

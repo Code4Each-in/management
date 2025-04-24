@@ -6,6 +6,7 @@
 use App\Models\Users;
 use App\Models\Votes;
 @endphp -->
+@if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
 
 <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
@@ -785,6 +786,29 @@ use App\Models\Votes;
                 <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
             </div>
         </div>
+    </div>
+</div>
+@endif
+<div class="row">
+    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
+        <div class="row">
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-card">
+<div class="card-body">
+    <h5 class="card-title">Total Sprints</h5>
+    <div class="d-flex align-items-center">
+        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+            <i class="bi bi-person"></i>
+        </div>
+        <div class="ps-3">
+
+            <h6>{{$countsprints}}</h6>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 @endsection

@@ -22,7 +22,9 @@
         <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
             <div class="accordion-body">
                 <div class="row align-items-center">
+                    <div class="button-design2">
                     <button id="resetChartBtn">Reset Chart</button>
+                    </div>
                     @php
     $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; 
 
@@ -30,6 +32,7 @@
     $todoPercent     = round(($todo / $total) * 100, 1);
     $completePercent = round(($complete / $total) * 100, 1);
     $readyPercent = round(($ready / $total) * 100, 1);
+    $deployedPercent = round(($deployed / $total) * 100, 1);
     $progressDeg = ($progressPercent / 100) * 360;
     $todoDeg     = ($todoPercent / 100) * 360;
     $completeDeg = ($completePercent / 100) * 360;
@@ -48,6 +51,9 @@
             <span class="badge bg-success text-dark status-filter" data-status="ready">Ready: {{ $ready }}</span>
         </div>
         <div class="col-auto">
+            <span class="badge bg-success text-dark status-filter" data-status="deployed">Deployed: {{ $deployed }}</span>
+        </div>
+        <div class="col-auto mt-2">
             <span class="badge bg-warning status-filter" data-status="complete">Complete: {{ $complete }}</span>
         </div>
     </div>
@@ -80,7 +86,7 @@
                                 <p class="mb-1">{{ $clients->client_name }}</p>
                             </div>
                         </div>
-
+                        @if ($role_id != 6)
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
                             <div class="col-sm-8">
@@ -94,6 +100,7 @@
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
                             </div>
                         </div>
+                        @endif
                     </div> 
                 </div> 
             </div>
@@ -145,6 +152,7 @@
                                     {{ $ticket->status == 'to_do' ? 'bg-primary' : '' }}
                                     {{ $ticket->status == 'in_progress' ? 'bg-warning text-dark' : '' }}
                                     {{ $ticket->status == 'ready' ? 'bg-info text-dark' : '' }}
+                                    {{ $ticket->status == 'deployed' ? 'bg-primary text-dark' : '' }}
                                     {{ $ticket->status == 'complete' ? 'bg-success' : '' }}"
                                     data-bs-toggle="dropdown" role="button" aria-expanded="false"
                                     style="cursor: pointer;"
@@ -152,7 +160,7 @@
                                     {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
                                   </span>
                                   <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                    @foreach(['to_do', 'in_progress', 'ready', 'complete'] as $status)
+                                    @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
                                       <li>
                                         <a class="dropdown-item" href="#" data-value="{{ $status }}">
                                           {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -290,6 +298,8 @@
               badge.classList.add('bg-info', 'text-dark');
             } else if (newStatus === 'complete') {
               badge.classList.add('bg-success');
+            }else if (newStatus === 'deployed') {
+              badge.classList.add('bg-warning');
             }
   
           } else {
@@ -327,6 +337,7 @@
                     { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#6f42c1' }, status: 'to_do' },
                     { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#0dcaf0' }, status: 'in_progress' },
                     { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#198754' }, status: 'ready' },
+                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#4176F7' }, status: 'deployed' },
                     { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#ffc107' }, status: 'complete' }
                 ],
                 emphasis: {

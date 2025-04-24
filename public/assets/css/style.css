@@ -1441,9 +1441,9 @@ input:checked + .slider:before {
   justify-content: center;
 }
 
-.comments .comment-user-profile img.rounded-circle {
+/* .comments .comment-user-profile img.rounded-circle {
   width: 100%;
-}
+} */
 
 .bootstrap-tagsinput .label {
   display: inline;
@@ -2488,8 +2488,8 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
 
 .button-design {
     display: flex;
-    justify-content: center;
-    width: 51%;
+    justify-content: left;
+    width: 100%;
 }
 
 .button-design button.btncomment  {
@@ -2633,7 +2633,7 @@ textarea#comment
     padding: 15px;
     display: flex;
     column-gap: 40px;
-    / justify-content: space-between; /
+    justify-content: space-between;
     flex-direction: column;
 }
     .blockquote h1 {
@@ -2711,7 +2711,7 @@ span.select2-search.select2-search--inline {
 }
 
 .upload_chat {
-  width: 60%;
+  width: 100%;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -3257,4 +3257,303 @@ div#notificationDropdown {
 .status-group .status-box:last-child {
   border-right: 1px solid #dee2e6;
   border-radius: 0 25px 25px 0;
+}
+
+.button-design2fgh {
+  display: flex;
+  justify-content: end;
+  margin: 10px auto 15px;
+}
+
+button#resetChartBtnwtstweq {
+  background-color: #012970;
+  border: 2px solid #012970;
+  color: #fff;
+  padding: 7px;
+  border-radius: 5px;
+}
+/* Card Styling */
+.card-designform {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+/* Form Styling */
+form#commentsData {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Post Item (Each Comment) */
+.post-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+/* Comment Input Area */
+.comment-input {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  resize: vertical;
+  /* min-height: 120px; */
+  max-height: 300px;
+  box-sizing: border-box;
+}
+
+/* Comment Input Focus */
+.comment-input:focus {
+  border-color: #3e8ef7;
+  background-color: #ffffff;
+  outline: none;
+}
+
+/* TinyMCE Editor Styling */
+.tox.tox-tinymce {
+  visibility: visible;
+  max-width: 100%;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+/* TinyMCE Editor Toolbar */
+.tox-toolbar__group {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.tox-tbtn {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tox-tbtn:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.tox-tbtn:focus {
+  outline: none;
+  background-color: #d0d0d0;
+}
+.button-design2 {
+  display: flex;
+  justify-content: end;
+  margin: 10px auto 15px;
+}
+
+button#resetChartBtn {
+  background-color: #012970;
+  border: 2px solid #012970;
+  color: #fff;
+  padding: 7px;
+  border-radius: 5px;
+}
+/* Card Styling */
+.card-designform {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+/* Form Styling */
+form#commentsData {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Post Item (Each Comment) */
+.post-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+/* Comment Input Area */
+.comment-input {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  resize: vertical;
+  /* min-height: 120px; */
+  max-height: 300px;
+  box-sizing: border-box;
+}
+
+/* Comment Input Focus */
+.comment-input:focus {
+  border-color: #3e8ef7;
+  background-color: #ffffff;
+  outline: none;
+}
+
+/* TinyMCE Editor Styling */
+.tox.tox-tinymce {
+  visibility: visible;
+  max-width: 100%;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+/* TinyMCE Editor Toolbar */
+.tox-toolbar__group {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.tox-tbtn {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tox-tbtn:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.tox-tbtn:focus {
+  outline: none;
+  background-color: #d0d0d0;
+}
+
+/* Comment Textarea Visibility */
+#tinymce_textarea {
+  visibility: hidden;
+  display: none;
+}
+
+/* TinyMCE Editor Container */
+.tox-editor-container {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: #fff;
+}
+
+/* Button Styling */
+button[type="button"]dfrg {
+  background-color: #3e8ef7;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+button[type="button"]gfdg:hover {
+  background-color: #1a7cd4;
+}
+
+/* Responsive Design for Small Screens */
+@media (max-width: 768px) {
+  .card {
+      padding: 15px;
+  }
+
+  .tox-toolbar__primary {
+      font-size: 14px;
+  }
+
+  .tox-tbtn {
+      padding: 8px;
+      font-size: 14px;
+  }
+
+  button[type="button"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+  }
+}/* Comment Textarea Visibility */
+#tinymce_textarea {
+  visibility: hidden;
+  display: none;
+}
+
+/* TinyMCE Editor Container */
+.tox-editor-container {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: #fff;
+}
+
+/* Button Styling */
+button[type="button"]jnj {
+  background-color: #3e8ef7;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+button[type="button"]jjkhk:hover {
+  background-color: #1a7cd4;
+}
+
+/* Responsive Design for Small Screens */
+@media (max-width: 768px) {
+  .card {
+      padding: 15px;
+  }
+
+  .tox-toolbar__primary {
+      font-size: 14px;
+  }
+
+  .tox-tbtn {
+      padding: 8px;
+      font-size: 14px;
+  }
+
+  button[type="button"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+  }
 }
