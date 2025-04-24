@@ -26,6 +26,7 @@ use App\Http\Controllers\VotesController;
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\ScrumdashController;
 use App\Http\Controllers\SprintController;
+use App\Http\Controllers\EmailAll;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -264,6 +265,10 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/view/sprint/{sprintId}', [SprintController::class, 'viewSprint'])->name('sprint.view');
 	Route::post('/update/sprint/{sprintId}', [SprintController::class, 'updateSprint'])->name('sprint.update');
 	Route::get('/get-sprints-by-project/{project_id}', [SprintController::class, 'getSprints']);
-	
 
+    //Email to all
+    Route::controller(EmailAll::class)->group(function () {
+        Route::get('/emailtoall', 'index')->name('emailall.index');
+        Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
+    });
 });
