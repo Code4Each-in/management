@@ -88,6 +88,7 @@
                             <option value="to_do">To Do</option>
                             <option value="in_progress">In Progress</option>
                             <option value="ready">Ready</option>
+                            <option value="deployed">Deployed</option>
                             <option value="complete">Complete</option>
                         </select>
                         @error('status')

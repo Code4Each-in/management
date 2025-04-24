@@ -2,9 +2,11 @@
 @section('title', 'Sprint Dashboard')
 @section('subtitle', 'Sprint')
 @section('content')
+@if ($role_id != 6)
 <div class="col-md-2">
     <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
 </div>
+@endif
 <div class="sprint-section">
     <div class="sprint-header production">
       <div class="section-left">
@@ -90,6 +92,9 @@
                       <div class="status-box bg-success text-white" title="Ready">
                           {{ $sprint->ready_tickets_count ?? 0 }}
                       </div>
+                      <div class="status-box bg-info text-white" title="Deployed">
+                        {{ $sprint->deployed_tickets_count ?? 0 }}
+                    </div>
                       <div class="status-box bg-warning text-dark" title="Complete">
                           {{ $sprint->completed_tickets_count ?? 0 }}
                       </div>

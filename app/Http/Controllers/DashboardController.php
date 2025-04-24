@@ -11,6 +11,7 @@ use App\Models\UserLeaves;
 use App\Models\UserAttendances;
 use App\Models\Users;
 use App\Models\Votes;
+use App\Models\Sprint;
 use App\Models\Winners;
 use App\Models\Notification;
 use App\Models\TodoList;
@@ -60,7 +61,17 @@ class DashboardController extends Controller
         $userBirthdateEvent = Users::whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
             ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent])
             ->where('status', 1)->get();
+            
+            $clientId = $user->client_id;
+            $countsprints = 0;
+            if ($clientId !== null) {
 
+                $countsprints = Sprint::where('client', $clientId)
+                    ->where('status', 1)
+                    ->count();
+            }
+
+            
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
@@ -298,7 +309,8 @@ $winner->uservotes = $winnerVotes;
             'winners',
             'allVotes',
             'todolist',
-            'tasks'
+            'tasks',
+            'countsprints'
         ));
     }
 
