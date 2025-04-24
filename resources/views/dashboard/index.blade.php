@@ -789,7 +789,8 @@ use App\Models\Votes;
     </div>
 </div>
 @endif
-{{-- <div class="row">
+@if (auth()->user()->role_id == 6)
+<div class="row">
     <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
         <div class="row">
             <div class="col-xxl-4 col-md-6">
@@ -810,7 +811,8 @@ use App\Models\Votes;
     </div>
 </div>
     </div>
-</div> --}}
+</div>
+@endif
 @endsection
 @section('js_scripts')
 <script>
