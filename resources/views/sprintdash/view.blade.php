@@ -53,7 +53,7 @@
         <div class="col-auto">
             <span class="badge bg-success text-dark status-filter" data-status="deployed">Deployed: {{ $deployed }}</span>
         </div>
-        <div class="col-auto mt-2">
+        <div class="col-auto">
             <span class="badge bg-warning status-filter" data-status="complete">Complete: {{ $complete }}</span>
         </div>
     </div>
