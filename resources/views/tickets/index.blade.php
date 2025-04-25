@@ -468,6 +468,7 @@
 
                 $('#editTicketsForm').submit(function(event) {
                     event.preventDefault();
+                    $('#description_input').val(quill.root.innerHTML);
                     var formData = new FormData(this);
                     $('#loader').show();
 

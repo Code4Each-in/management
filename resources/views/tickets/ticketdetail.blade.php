@@ -194,8 +194,62 @@
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
               @csrf
               <div class="post-item clearfix mb-3 mt-3">
-                <textarea class="form-control comment-input" name="comment" id="tinymce_textarea" rows="3"></textarea>
-            </div>          
+                <label for="comment" class="col-sm-3 col-form-label">Comment</label>
+                <div class="col-sm-12">
+                    <div id="toolbar-container">
+                        <span class="ql-formats">
+                            <select class="ql-font"></select>
+                            <select class="ql-size"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-script" value="sub"></button>
+                            <button class="ql-script" value="super"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-header" value="1"></button>
+                            <button class="ql-header" value="2"></button>
+                            <button class="ql-blockquote"></button>
+                            <button class="ql-code-block"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                            <button class="ql-indent" value="-1"></button>
+                            <button class="ql-indent" value="+1"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-direction" value="rtl"></button>
+                            <select class="ql-align"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image"></button>
+                            <button class="ql-video"></button>
+                            <button class="ql-formula"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-clean"></button>
+                        </span>
+                    </div>
+                    <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
+                    <input type="hidden" name="comment" id="comment_input">
+            
+                    @if ($errors->has('comment'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
+                    @endif
+                </div>
+            </div>
+                     
               <div class="mb-3 post-item clearfix upload_chat">
                   <label for="comment_file" class="form-label">Attach File</label>
                   <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
@@ -218,6 +272,7 @@
   $(document).ready(function() {
       $('#commentsData').on('submit', function(e) {
           e.preventDefault();
+          document.getElementById('comment_input').value = quill.root.innerHTML;
           $('.alert-danger').hide().html('');
           var formData = new FormData(this);
           $('#loader').show(); 
