@@ -139,6 +139,14 @@
                                     <!-- <td>{{ $data->status }}</td> -->
                                     @php
                                     $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
+                                    $statusColors = [
+                                        'to_do' => '#264653',         
+                                        'in_progress' => '#f4a261',   
+                                        'ready' => '#e09f3e',   
+                                        'deployed' => '#e76f51',   
+                                        'complete' => '#2a9d8f',   
+                                    ];
+                                    $bgColor = $statusColors[$data->status] ?? '#6c757d';
                                     @endphp
                                   <td>
                                     <div class="dropdown">
@@ -147,6 +155,11 @@
                                         type="button" 
                                         data-bs-toggle="dropdown" 
                                         aria-expanded="false"
+                                        style="
+                                            background-color: {{ $bgColor }};
+                                            border-color: {{ $bgColor }};
+                                            border-width: 1px;
+                                        "
                                       >
                                         {{ ucfirst(str_replace('_', ' ', $data->status)) }}
                                       </button>
@@ -161,14 +174,14 @@
                                         @endforeach
                                       </ul>
                                     </div>
-                                  </td>                                                                                                                                                                                                                                                                                                                                                   
+                                </td>                                                                                                                                  
                                     <!-- <td>{{ $data->priority }}</td> -->
                                     @if($data->priority == 'normal')
                                     <td>
                                         <span class="badge rounded-pill bg-success">Normal</span>
                                     </td>
                                     @elseif($data->priority == 'low')
-                                    <td><span class="badge rounded-pill bg-warning text-dark">low</span></td>
+                                    <td><span class="badge rounded-pill bg-warning">Low</span></td>
                                     @elseif($data->priority == 'high')
                                     <td><span class="badge rounded-pill bg-primary">High</span></td>
                                     @elseif($data->priority == 'priority')

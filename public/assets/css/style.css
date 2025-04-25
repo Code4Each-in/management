@@ -2231,7 +2231,7 @@ input.form-control-text {
 
 /* Button Styling */
 .btn {
-    border-radius: 6px;
+    border-radius: 10px;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -2279,14 +2279,11 @@ input.form-control-text {
 
 /* Badge Styling */
 .badge {
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    padding: 10px 14px;
-    min-width: 100px;
-    text-align: center;
-    border-radius: 5px;
+  border-radius: 10px !important;
+  font-size: 13px;
+  min-width: 100px;
+  text-align: center;
+  padding: 12px 14px;
 }
 
 /* Buttons */
@@ -2302,10 +2299,10 @@ input.form-control-text {
     transition: transform 0.2s ease-in-out;
 }
 
-.fa-edit:hover {
+/* .fa-edit:hover {
     color: #28a745;
     transform: scale(1.1);
-}
+} */
 
 .fa-trash-alt:hover {
     color: #dc3545;
@@ -2339,7 +2336,7 @@ input.form-control-text {
     padding: 8px 14px;
     min-width: 115px;
     text-align: center;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 /* Ensure Buttons Align Properly */
 .btn-hold, .btn-reopen {
@@ -2816,7 +2813,16 @@ table.styled-sprint-table.sprint-table {
   text-align: center;
 } 
 span.badge.bg-success {
-  background: #00b386 !important;
+  background: #3f996b !important;
+}
+span.badge.rounded-pill.bg-warning {
+  background: #cda21d !important;
+}
+span.badge.rounded-pill.bg-primary {
+  background: #D66A00 !important;
+}
+span.badge.rounded-pill.bg-danger {
+  background: #b00000d1 !important;
 }
 .styled-sprint-table td:nth-child(5) {
   background-color: #6bdbf8;
@@ -2961,7 +2967,7 @@ font-size: 1rem;
 
 .detail-item {
   display: flex;
-align-items: center;
+/* align-items: center; */
 gap: 8px;
 padding: 10px 0;
 font-size: 0.96rem;
@@ -3556,4 +3562,7 @@ button[type="button"]jjkhk:hover {
       padding: 14px;
       font-size: 18px;
   }
+}
+.ticketSave {
+  padding: 8px 34px;
 }

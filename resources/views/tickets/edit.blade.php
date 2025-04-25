@@ -203,7 +203,7 @@
 
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-primary" onClick="updateTicket()" href="javascript:void(0)">Save</button>
+                    <button type="submit" class="btn btn-primary ticketSave" onClick="updateTicket()" href="javascript:void(0)">Save</button>
                 </div>
             </form>
         </div>

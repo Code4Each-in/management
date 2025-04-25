@@ -18,7 +18,7 @@
       </div>
       <div class="task-title">
         <h4>{{ $tickets->title }}</h4>
-        <span class="task-status">
+        <!-- <span class="task-status">
           @if($tickets->status == 'complete')
             <i class="fa-solid fa-circle-check"></i> Complete
           @elseif($tickets->status == 'ready')
@@ -30,7 +30,7 @@
           @else
             <i class="fa-solid fa-circle-dot"></i> To Do
           @endif
-        </span>
+        </span> -->
       </div>
       <div class="task-toggle-icon">
         <i class="fa-solid fa-chevron-down"></i>
@@ -77,13 +77,22 @@
         </span>
       </div>
 
+      @php
+        $statusColors = [
+            'to_do' => '#264653',        
+            'in_progress' => '#f4a261',  
+            'ready' => '#e09f3e',       
+            'deployed' => '#e76f51',  
+            'complete' => '#2a9d8f',   
+        ];
+        $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+      @endphp
       <div class="detail-item">
         <i class="fa-solid fa-bolt"></i>
         <strong>Ticket Status:</strong>
-      
         <div class="dropdown d-inline-block ms-2">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-circle-dot"></i>
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+            <!-- <i class="fa-solid fa-circle-dot"></i> -->
             {{ ucfirst($tickets->status) }}
           </button>
       
@@ -333,10 +342,10 @@
               const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
                 .previousElementSibling;
     
-              if (statusButton) {
-                statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-              }
-            } else {
+            //   if (statusButton) {
+            //     statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+            //   }
+            // } else {
             }
           })
           .catch(error => {
