@@ -25,10 +25,16 @@ class SprintController extends Controller
      */
     public function index()
 {
-    $projects = Projects::all();
+    $projectFilter = request()->input('project_filter');
     $clients = Client::orderBy('name', 'asc')->get();
     $user = Auth::user();
     $clientId = $user->client_id;
+    if (!is_null($clientId)) {
+        $projects = Projects::where('client_id', $clientId)->get();
+    } else {
+        $projects = Projects::all();
+    }
+    
     $sprints = Sprint::with('projectDetails')
     ->withCount([
         'tickets',
@@ -51,6 +57,9 @@ class SprintController extends Controller
     ->where('sprints.status', 1)
     ->when(!is_null($clientId), function ($query) use ($clientId) {
         $query->where('sprints.client', $clientId);
+    })
+    ->when($projectFilter, function ($query) use ($projectFilter) {
+        $query->where('project', $projectFilter);
     })
     ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
     ->get();
@@ -79,6 +88,9 @@ class SprintController extends Controller
     ->when(!is_null($clientId), function ($query) use ($clientId) {
         $query->where('sprints.client', $clientId);
     })
+    ->when($projectFilter, function ($query) use ($projectFilter) {
+        $query->where('project', $projectFilter);
+    })
     ->get();
 
     $completedsprints = Sprint::with('projectDetails')
@@ -102,6 +114,9 @@ class SprintController extends Controller
     ])
     ->when(!is_null($clientId), function ($query) use ($clientId) {
         $query->where('sprints.client', $clientId); 
+    })
+    ->when($projectFilter, function ($query) use ($projectFilter) {
+        $query->where('project', $projectFilter);
     })
     ->having('tickets_count', '>', 0)
     ->havingRaw('tickets_count = completed_tickets_count')

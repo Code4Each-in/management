@@ -100,6 +100,11 @@ use App\Models\Projects;?>
                                 </tr>
                                 @empty
                                 @endforelse
+                                @if($projects->isEmpty())
+                                <tr>
+                                    <td colspan="8" class="text-center">No records to show</td>
+                                </tr>
+                                @endif
                         </table>
   
 
