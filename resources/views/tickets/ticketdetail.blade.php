@@ -131,95 +131,72 @@
     </div>
   </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
-        <div class="comments comment-design" style="overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
-            @if(!empty($ticketsCreatedByUser->ticketby->first_name))
-            <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
-            @endif
-
-            @if(count($CommentsData) != 0)
-            @foreach ($CommentsData as $data)
-    <div class="row mb-3" style="margin-bottom: 15px;">       
-        @if(Auth::user()->id == $data->comment_by)
-            <div class="col-md-10 offset-md-2 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
-                  data-id="{{ $data->id }}" 
-                  title="Delete Comment" 
-                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
-                   &times;
-               </a></p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
-                @php
-                $documents = explode(',', $data->document);
-            @endphp
-
-            @foreach ($documents as $doc)
-                @if (!empty($doc))
-                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
-                            {{ basename($doc) }}
-                        </a>
-                    </p>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
-                    data-id="{{ $data->id }}" 
-                    title="Delete Comment" 
-                    style="font-size: 1rem; line-height: 1; float: right;">
-                &times;
-            </button>
-                            @endif
-@endforeach
-                
+          <div class="main-section">
+            <div class="msger-header">
+                <h1>Chat</h1>
+                <i class="fas fa-comment icon"></i> <!-- Font Awesome chat icon -->
             </div>
-        @else
-            @if(!empty($data->user->profile_picture))
-                <div class="col-md-2 comment-user-profile" style="padding-right: 10px;">
-                    <img src="{{ asset('assets/img/') . '/' . $data->user->profile_picture }}" class="rounded-circle" alt="" width="35" height="35">
-                </div>
-            @else
-                <div class="col-md-2 comment-user-profile" style="padding-right: 10px;">
-                    <img src="{{ asset('assets/img/blankImage.jpg') }}" alt="Profile" class="rounded-circle" width="35" height="35">
-                </div>
-            @endif
-            <div class="col-md-10 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
-                  data-id="{{ $data->id }}" 
-                  title="Delete Comment" 
-                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
-                   &times;
-               </a></p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
-                @php
-                $documents = explode(',', $data->document);
-            @endphp
-            
-            @foreach ($documents as $doc)
-                @if (!empty($doc))
-                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
-                            {{ basename($doc) }}
-                        </a>
-                    </p>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
-                    data-id="{{ $data->id }}" 
-                    title="Delete Comment" 
-                    style="font-size: 1rem; line-height: 1; float: right;">
-                &times;
-            </button>
+            <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+                @if(count($CommentsData) != 0)
+                    @foreach ($CommentsData as $data)
+                        <div class="message">
+                            <div class="info">{{ date("M d, Y", strtotime($data->created_at)) }}</div>
+                            <div class="user">
+                                <!-- User Avatar -->
+                                @if(!empty($data->user->profile_picture))
+                                    <div class="avatar" style="background-color: #27ae60;">
+                                        <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
+                                    </div>
+                                @else
+                                    <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
+                                @endif
+        
+                                <!-- User Information -->
+                                <div>
+                                    <span class="name">{{ $data->user->first_name }}</span> 
+                                    <span class="role">
+                                      @if ($data->user->role_id == 6)
+                                          {{ $data->user->project->name ?? 'Project Not Assigned' }}
+                                      @else
+                                          Code4Each
+                                      @endif
+                                  </span>                                  
+                                </div>
+                            </div>
+                            <div class="text">
+                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                                @php
+                                    $documents = explode(',', $data->document);
+                                @endphp
+        
+                                <!-- Display Documents -->
+                                @foreach ($documents as $doc)
+                                    @if (!empty($doc))
+                                        <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                                            <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
+                                                {{ basename($doc) }}
+                                            </a>
+                                        </p>
+                                    @endif
+                                @endforeach
+                            </div>
+                            <!-- Delete button (only for the comment owner) -->
+                            @if(Auth::user()->id == $data->comment_by)
+                                <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
+                                        data-id="{{ $data->id }}" 
+                                        title="Delete Comment" 
+                                        style="font-size: 1rem; line-height: 1; float: right;">
+                                    &times;
+                                </button>
                             @endif
-            @endforeach                            
+                        </div>
+                    @endforeach
+                @else
+                    <div class="center text-center mt-2">
+                        <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
-@endforeach       
-            @else
-                <div class="center text-center mt-2">
-                    <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
-                </div>
-            @endif
             <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
               @csrf
@@ -293,9 +270,6 @@
               </div>
           </form>
             </div>
-        </div>    
-    </div>
-</div>
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
