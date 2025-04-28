@@ -10,15 +10,15 @@
 <div class="sprint-section">
     <div class="sprint-header production">
       <div class="section-left">
-        <div class="section-icon bg-production">A</div>
-        <div class="section-title" style="color: #2c2c2e;">Active Sprints</div>
-        <div class="section-title">{{ $totalSprintCount ?? 0 }} Sprints</div>
+        <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
+        <div class="section-title" style="color: #297bab;">Active Sprints</div>
+        <div class="section-title">• {{ $totalSprintCount ?? 0 }} Sprints</div>
       </div>
     </div>
     <div class="table-responsive">
       <table class="styled-sprint-table sprint-table">
         <thead>
-          <tr style="color: #2c2c2e;">
+          <tr style="color: #297bab;">
             <th>S.No</th>
             <th>Name</th>
             <th>Project</th>
@@ -83,7 +83,7 @@
                 </td>
                 <td style="text-align: center;">
                   <div class="d-flex justify-content-center status-group">
-                      <div class="status-box text-white" title="To Do" style="background-color: #264653;">
+                      <div class="status-box text-white" title="To Do" style="background-color: #948979;">
                           {{ $sprint->todo_tickets_count ?? 0 }}
                       </div>
                       <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
@@ -111,15 +111,15 @@
   <div class="sprint-section mt-5">
     <div class="sprint-header staged">
       <div class="section-left">
-        <div class="section-icon" style="background-color: #e91e63;">I</div>
-        <div class="section-title" style="color: #e91e63;">In-Active Sprints</div>
-        <div class="section-title">{{ $totalinSprintCount ?? 0 }} Sprints</div>
+        <div class="section-icon" style="background-color: #b00000d1;">I</div>
+        <div class="section-title" style="color: #b00000d1;">In-Active Sprints</div>
+        <div class="section-title">• {{ $totalinSprintCount ?? 0 }} Sprints</div>
       </div>
     </div>
     <div class="table-responsive">
       <table class="styled-sprint-table sprint-table">
         <thead>
-          <tr style="color: #e91e63;">
+          <tr style="color: #b00000d1;">
             <th>S.No</th> <!-- Added S.No column -->
             <th>Name</th>
             <th>Project</th>
@@ -179,7 +179,7 @@
               </td>
               <td style="text-align: center;">
                 <div class="d-flex justify-content-center status-group">
-                    <div class="status-box text-white" title="To Do" style="background-color: #264653;">
+                    <div class="status-box text-white" title="To Do" style="background-color: #948979;">
                         {{ $sprint->todo_tickets_count ?? 0 }}
                     </div>
                     <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
@@ -266,7 +266,7 @@
             </td>
             <td style="text-align: center;">
               <div class="d-flex justify-content-center status-group">
-                  <div class="status-box text-white" title="To Do" style="background-color: #264653;">
+                  <div class="status-box text-white" title="To Do" style="background-color: #948979;">
                       {{ $sprint->todo_tickets_count ?? 0 }}
                   </div>
                   <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
