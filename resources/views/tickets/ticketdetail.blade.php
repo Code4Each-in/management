@@ -160,17 +160,17 @@
                                       @else
                                           Code4Each
                                       @endif
-                                      @if(Auth::user()->id == $data->comment_by)
-                                      <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
-                                     title="Delete Comment"
-                                     style="font-size:  25px;line-height: 1;float: right;margin-left: 15px;">
-                                     &times;
-                                     </button>                            
+                                      @if(Auth::user()->id == $data->comment_by)                            
                                       @endif
                                   </span>                                  
                                 </div>
                             </div>
                             <div class="text">
+                              <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
+                                title="Delete Comment"
+                                style="font-size:25px;line-height: 1;float: right;margin-left: 15px;">
+                                &times;
+                                </button>
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
