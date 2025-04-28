@@ -156,9 +156,16 @@
                                     <span class="name">{{ $data->user->first_name }}</span> 
                                     <span class="role">
                                       @if ($data->user->role_id == 6)
-                                          {{ $data->user->project->name ?? 'Project Not Assigned' }}
+                                          {{ $projectName ?? 'Project Not Assigned' }}
                                       @else
                                           Code4Each
+                                      @endif
+                                      @if(Auth::user()->id == $data->comment_by)
+                                      <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
+                                     title="Delete Comment"
+                                     style="font-size:  25px;line-height: 1;float: right;margin-left: 15px;">
+                                     &times;
+                                     </button>                            
                                       @endif
                                   </span>                                  
                                 </div>
@@ -181,14 +188,7 @@
                                 @endforeach
                             </div>
                             <!-- Delete button (only for the comment owner) -->
-                            @if(Auth::user()->id == $data->comment_by)
-                                <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
-                                        data-id="{{ $data->id }}" 
-                                        title="Delete Comment" 
-                                        style="font-size: 1rem; line-height: 1; float: right;">
-                                    &times;
-                                </button>
-                            @endif
+        
                         </div>
                     @endforeach
                 @else
