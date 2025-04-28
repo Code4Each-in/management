@@ -2231,7 +2231,7 @@ input.form-control-text {
 
 /* Button Styling */
 .btn {
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -2276,10 +2276,12 @@ input.form-control-text {
 .table tbody tr:hover {
     background-color: #f1f1f1;
 }
-
+span.badge.rounded-pill.bg-info {
+  background: #297bab !important;
+}
 /* Badge Styling */
 .badge {
-  border-radius: 10px !important;
+  border-radius: 5px !important;
   font-size: 13px;
   min-width: 100px;
   text-align: center;
@@ -2336,7 +2338,7 @@ input.form-control-text {
     padding: 8px 14px;
     min-width: 115px;
     text-align: center;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 /* Ensure Buttons Align Properly */
 .btn-hold, .btn-reopen {
@@ -3271,13 +3273,14 @@ div#notificationDropdown {
   margin: 10px auto 15px;
 }
 
-button#resetChartBtnwtstweq {
-  background-color: #012970;
-  border: 2px solid #012970;
+button#resetChartBtn {
+  background-color: #004c9d;
+  border: 2px solid #004e9b;
   color: #fff;
   padding: 7px;
   border-radius: 5px;
 }
+
 /* Card Styling */
 .card-designform {
   background-color: #ffffff;
@@ -3366,13 +3369,6 @@ form#commentsData {
   margin: 10px auto 15px;
 }
 
-button#resetChartBtn {
-  background-color: #012970;
-  border: 2px solid #012970;
-  color: #fff;
-  padding: 7px;
-  border-radius: 5px;
-}
 /* Card Styling */
 .card-designform {
   background-color: #ffffff;
@@ -3565,4 +3561,19 @@ button[type="button"]jjkhk:hover {
 }
 .ticketSave {
   padding: 8px 34px;
+}
+.status-cell .activeStatus {
+  background-color: #297bab !important;
+}
+.status-cell .inactiveStatus {
+  background-color: #b00000d1 !important;
+}
+i.fa.fa-trash.fa-fw.pointer {
+  color: #3e59f0;
+}
+span.badge.active {
+  background: #297bab;
+}
+span.badge.inactive {
+  background: #b00000d1;
 }

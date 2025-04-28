@@ -80,7 +80,7 @@ use App\Models\Projects;?>
                                     @if($data->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
                                     @elseif($data->status == 'active')
-                                    <span class="badge rounded-pill bg-info text-mute">Active</span>
+                                    <span class="badge rounded-pill bg-info ">Active</span>
                                     @elseif($data->status == 'deactivated')
                                     <span class="badge rounded-pill bg-danger text-mute">Deactivated</span>
                                     @else
