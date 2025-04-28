@@ -73,29 +73,29 @@
                   <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                       <i class="fa fa-edit fa-fw pointer"></i>
                   </a>
-                  <i class="fa fa-trash fa-fw pointer text-danger" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                  <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
               @endif
           </td>                       
                 <td>
-                  <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                  <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
                     {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
                 <td style="text-align: center;">
                   <div class="d-flex justify-content-center status-group">
-                      <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                      <div class="status-box text-white" title="To Do" style="background-color: #264653;">
                           {{ $sprint->todo_tickets_count ?? 0 }}
                       </div>
-                      <div class="status-box bg-info text-dark" title="In Progress">
+                      <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
                           {{ $sprint->in_progress_tickets_count ?? 0 }}
                       </div>
-                      <div class="status-box bg-success text-white" title="Ready">
+                      <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
                           {{ $sprint->ready_tickets_count ?? 0 }}
                       </div>
-                      <div class="status-box bg-info text-white" title="Deployed">
+                      <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
                         {{ $sprint->deployed_tickets_count ?? 0 }}
                     </div>
-                      <div class="status-box bg-warning text-dark" title="Complete">
+                      <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
                           {{ $sprint->completed_tickets_count ?? 0 }}
                       </div>
                   </div>
@@ -169,26 +169,26 @@
                 <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                   <i class="fa fa-edit fa-fw pointer"></i>
                 </a>
-                <i class="fa fa-trash fa-fw pointer text-danger" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
                 @endif
               </td>
               <td>
-                <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+                <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
                   {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
                 </span>
               </td>
               <td style="text-align: center;">
                 <div class="d-flex justify-content-center status-group">
-                    <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                    <div class="status-box text-white" title="To Do" style="background-color: #264653;">
                         {{ $sprint->todo_tickets_count ?? 0 }}
                     </div>
-                    <div class="status-box bg-info text-dark" title="In Progress">
+                    <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
                         {{ $sprint->in_progress_tickets_count ?? 0 }}
                     </div>
-                    <div class="status-box bg-success text-white" title="Ready">
+                    <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
                         {{ $sprint->ready_tickets_count ?? 0 }}
                     </div>
-                    <div class="status-box bg-warning text-dark" title="Complete">
+                    <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
                         {{ $sprint->completed_tickets_count ?? 0 }}
                     </div>
                 </div>
@@ -204,15 +204,15 @@
 <div class="sprint-section mt-5">
   <div class="sprint-header qa">
     <div class="section-left">
-      <div class="section-icon" style="background-color: #4caf50;">C</div>
-      <div class="section-title" style="color: #4caf50;">Completed Sprints</div>
+      <div class="section-icon" style="background-color: #3f996b">C</div>
+      <div class="section-title" style="color: #3f996b">Completed Sprints</div>
       <div class="section-title">• {{ count($completedsprints) }} Sprint{{ count($completedsprints) > 1 ? 's' : '' }}</div>
     </div>
   </div>
   <div class="table-responsive">
     <table class="styled-sprint-table sprint-table">
       <thead>
-        <tr style="color: #4caf50;">
+        <tr style="color: #3f996b">
           <th>S.No</th>
           <th>Name</th>
           <th>Project</th>
@@ -255,27 +255,27 @@
               <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                 <i class="fa fa-edit fa-fw pointer"></i>
               </a>
-              <i class="fa fa-trash fa-fw pointer text-danger"
+              <i class="fa fa-trash fa-fw pointer"
                  onclick="deleteSprint('{{ $sprint->id }}')"></i>
                  @endif
             </td>
             <td>
-              <span class="badge {{ $sprint->status == 1 ? 'bg-success' : 'bg-secondary' }}">
+              <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
                 {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
               </span>
             </td>
             <td style="text-align: center;">
               <div class="d-flex justify-content-center status-group">
-                  <div class="status-box text-white" title="To Do" style="background-color: #6f42c1;">
+                  <div class="status-box text-white" title="To Do" style="background-color: #264653;">
                       {{ $sprint->todo_tickets_count ?? 0 }}
                   </div>
-                  <div class="status-box bg-info text-dark" title="In Progress">
+                  <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
                       {{ $sprint->in_progress_tickets_count ?? 0 }}
                   </div>
-                  <div class="status-box bg-success text-white" title="Ready">
+                  <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
                       {{ $sprint->ready_tickets_count ?? 0 }}
                   </div>
-                  <div class="status-box bg-warning text-dark" title="Complete">
+                  <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
                       {{ $sprint->completed_tickets_count ?? 0 }}
                   </div>
               </div>

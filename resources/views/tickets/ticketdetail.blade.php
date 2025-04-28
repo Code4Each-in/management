@@ -69,18 +69,39 @@
         <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
       </div>
 
+      @php
+          $priorityColors = [
+              'normal' => '#3f996b',    
+              'low' => '#cda21d',       
+              'high' => '#D66A00',      
+              'urgent' => '#b00000d1',  
+          ];
+
+          $priority = $tickets->priority ?? 'urgent'; 
+          $bgColor = $priorityColors[$priority] ?? '#6c757d';
+      @endphp
+
       <div class="detail-item">
-        <i class="fa fa-layer-group"></i>
-        <strong>Priority:</strong>
-        <span class="priority {{ $tickets->priority }}">
-          <i class="fa fa-check-circle" aria-hidden="true"></i> {{ ucfirst($tickets->priority ?? 'Urgent') }}
-        </span>
+          <i class="fa fa-layer-group"></i>
+          <strong>Priority:</strong>
+          <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
+              {{ ucfirst($priority) }}
+          </span>
+      </div>
       </div>
 
+
       @php
+          $statusLabels = [
+            'to_do' => 'To do',        
+            'in_progress' => 'In progress',  
+            'ready' => 'Ready',       
+            'deployed' => 'Deployed',  
+            'complete' => 'Complete',   
+        ];
         $statusColors = [
             'to_do' => '#264653',        
-            'in_progress' => '#f4a261',  
+            'in_progress' => '#3fa6d7',  
             'ready' => '#e09f3e',       
             'deployed' => '#e76f51',  
             'complete' => '#2a9d8f',   
@@ -90,10 +111,10 @@
       <div class="detail-item">
         <i class="fa-solid fa-bolt"></i>
         <strong>Ticket Status:</strong>
-        <div class="dropdown d-inline-block ms-2">
+        <div class="dropdown d-inline-block ms-0">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
             <!-- <i class="fa-solid fa-circle-dot"></i> -->
-            {{ ucfirst($tickets->status) }}
+            {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
           </button>
       
           <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">

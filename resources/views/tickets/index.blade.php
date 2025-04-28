@@ -141,7 +141,7 @@
                                     $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
                                     $statusColors = [
                                         'to_do' => '#264653',         
-                                        'in_progress' => '#f4a261',   
+                                        'in_progress' => '#3fa6d7',   
                                         'ready' => '#e09f3e',   
                                         'deployed' => '#e76f51',   
                                         'complete' => '#2a9d8f',   

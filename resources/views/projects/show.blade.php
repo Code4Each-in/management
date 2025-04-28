@@ -153,7 +153,7 @@
                                 @if($projects->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
                                     @elseif($projects->status == 'active')
-                                    <span class="badge rounded-pill bg-info text-mute">Active</span>
+                                    <span class="badge rounded-pill bg-info">Active</span>
                                     @elseif($projects->status == 'deactivated')
                                     <span class="badge rounded-pill bg-danger text-mute">Deactivated</span>
                                     @else
