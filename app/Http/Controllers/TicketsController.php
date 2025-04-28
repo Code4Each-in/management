@@ -362,7 +362,7 @@ class TicketsController extends Controller
                     'user_id' => auth()->user()->id,
                     'ticket_id' => $ticketId,
                     'type' => 'assigned',
-                    'message' => 'Ticket #' . $tickets->id . ' assigned to ' . auth()->user()->first_name,
+                    'message' => 'Ticket #' . $ticketId . ' assigned to ' . auth()->user()->first_name,
                     'is_read' => false,
                     'is_super_admin' => true,
                 ]);
