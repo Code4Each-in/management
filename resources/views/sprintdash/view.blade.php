@@ -37,28 +37,28 @@
     $todoDeg     = ($todoPercent / 100) * 360;
     $completeDeg = ($completePercent / 100) * 360;
         @endphp
-<div class="col-md-6">
+<div class="col-md-8">
 <div class="text-center">
     <div id="pieChart" style="min-height: 400px;"></div>
-    <div class="row mt-3 justify-content-center">
+    <div class="row mt-0 justify-content-center">
         <div class="col-auto">
-            <span class="badge bg-purple text-white status-filter" style="background-color: #6f42c1;" data-status="to_do">To Do: {{ $todo }}</span>
+            <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-info text-dark status-filter" data-status="in_progress">In Progress: {{ $progress }}</span>
+            <span class="badge text-white status-filter" data-status="in_progress" style="background-color: #3fa6d7;">In Progress: {{ $progress }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-success text-dark status-filter" data-status="ready">Ready: {{ $ready }}</span>
+            <span class="badge text-white status-filter" data-status="ready" style="background-color: #e09f3e;">Ready: {{ $ready }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-success text-dark status-filter" data-status="deployed">Deployed: {{ $deployed }}</span>
+            <span class="badge text-white status-filter" data-status="deployed" style="background-color: #e76f51;">Deployed: {{ $deployed }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-warning status-filter" data-status="complete">Complete: {{ $complete }}</span>
+            <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;">Complete: {{ $complete }}</span>
         </div>
     </div>
 </div>       </div>       
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
                             <div class="col-sm-8">
@@ -148,15 +148,22 @@
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
                             <td>
                                 <div class="dropdown">
-                                  <span class="badge rounded-pill dropdown-toggle
-                                    {{ $ticket->status == 'to_do' ? 'bg-primary' : '' }}
-                                    {{ $ticket->status == 'in_progress' ? 'bg-warning text-dark' : '' }}
-                                    {{ $ticket->status == 'ready' ? 'bg-info text-dark' : '' }}
-                                    {{ $ticket->status == 'deployed' ? 'bg-primary text-dark' : '' }}
-                                    {{ $ticket->status == 'complete' ? 'bg-success' : '' }}"
-                                    data-bs-toggle="dropdown" role="button" aria-expanded="false"
-                                    style="cursor: pointer;"
-                                  >
+                                @php
+                                    $statusColors = [
+                                        'to_do' => '#948979',
+                                        'in_progress' => '#3fa6d7',
+                                        'ready' => '#e09f3e',
+                                        'deployed' => '#e76f51',
+                                        'complete' => '#2a9d8f',
+                                    ];
+                                    $color = $statusColors[$ticket->status] ?? ''; 
+                                    @endphp
+                                    <span class="badge rounded-pill dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        role="button"
+                                        aria-expanded="false"
+                                        style="cursor: pointer; background-color: {{ $color }};"
+                                        >
                                     {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
                                   </span>
                                   <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
@@ -334,11 +341,11 @@
                 type: 'pie',
                 radius: '50%',
                 data: [
-                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#6f42c1' }, status: 'to_do' },
-                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#0dcaf0' }, status: 'in_progress' },
-                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#198754' }, status: 'ready' },
-                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#4176F7' }, status: 'deployed' },
-                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#ffc107' }, status: 'complete' }
+                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#948979' }, status: 'to_do' },
+                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#3fa6d7' }, status: 'in_progress' },
+                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#e09f3e' }, status: 'ready' },
+                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#e76f51' }, status: 'deployed' },
+                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#2a9d8f' }, status: 'complete' }
                 ],
                 emphasis: {
                     itemStyle: {

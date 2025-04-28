@@ -2231,7 +2231,7 @@ input.form-control-text {
 
 /* Button Styling */
 .btn {
-    border-radius: 6px;
+    border-radius: 5px;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -2276,17 +2276,17 @@ input.form-control-text {
 .table tbody tr:hover {
     background-color: #f1f1f1;
 }
-
+span.badge.rounded-pill.bg-info {
+  background: #297bab !important;
+}
 /* Badge Styling */
 .badge {
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    padding: 10px 14px;
-    min-width: 100px;
-    text-align: center;
-    border-radius: 5px;
+  border-radius: 5px !important;
+  font-size: 13px;
+  min-width: 100px;
+  text-align: center;
+  padding: 12px 14px;
+  cursor: pointer;
 }
 
 /* Buttons */
@@ -2302,10 +2302,10 @@ input.form-control-text {
     transition: transform 0.2s ease-in-out;
 }
 
-.fa-edit:hover {
+/* .fa-edit:hover {
     color: #28a745;
     transform: scale(1.1);
-}
+} */
 
 .fa-trash-alt:hover {
     color: #dc3545;
@@ -2816,7 +2816,16 @@ table.styled-sprint-table.sprint-table {
   text-align: center;
 } 
 span.badge.bg-success {
-  background: #00b386 !important;
+  background: #3f996b !important;
+}
+span.badge.rounded-pill.bg-warning {
+  background: #cda21d !important;
+}
+span.badge.rounded-pill.bg-primary {
+  background: #D66A00 !important;
+}
+span.badge.rounded-pill.bg-danger {
+  background: #b00000d1 !important;
 }
 .styled-sprint-table td:nth-child(5) {
   background-color: #6bdbf8;
@@ -2961,7 +2970,7 @@ font-size: 1rem;
 
 .detail-item {
   display: flex;
-align-items: center;
+/* align-items: center; */
 gap: 8px;
 padding: 10px 0;
 font-size: 0.96rem;
@@ -3228,6 +3237,7 @@ textarea#comment {
 
 div#notificationDropdown {
   margin-right: 28px;
+  cursor: pointer;
 }
 .notification-item.unread {
   background-color: #f0f4ff;
@@ -3265,13 +3275,14 @@ div#notificationDropdown {
   margin: 10px auto 15px;
 }
 
-button#resetChartBtnwtstweq {
-  background-color: #012970;
-  border: 2px solid #012970;
+button#resetChartBtn {
+  background-color: #004c9d;
+  border: 2px solid #004e9b;
   color: #fff;
   padding: 7px;
   border-radius: 5px;
 }
+
 /* Card Styling */
 .card-designform {
   background-color: #ffffff;
@@ -3360,13 +3371,6 @@ form#commentsData {
   margin: 10px auto 15px;
 }
 
-button#resetChartBtn {
-  background-color: #012970;
-  border: 2px solid #012970;
-  color: #fff;
-  padding: 7px;
-  border-radius: 5px;
-}
 /* Card Styling */
 .card-designform {
   background-color: #ffffff;
@@ -3556,4 +3560,22 @@ button[type="button"]jjkhk:hover {
       padding: 14px;
       font-size: 18px;
   }
+}
+.ticketSave {
+  padding: 8px 34px;
+}
+.status-cell .activeStatus {
+  background-color: #297bab !important;
+}
+.status-cell .inactiveStatus {
+  background-color: #b00000d1 !important;
+}
+i.fa.fa-trash.fa-fw.pointer {
+  color: #3e59f0;
+}
+span.badge.active {
+  background: #297bab;
+}
+span.badge.inactive {
+  background: #b00000d1;
 }

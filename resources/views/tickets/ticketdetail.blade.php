@@ -18,7 +18,7 @@
       </div>
       <div class="task-title">
         <h4>{{ $tickets->title }}</h4>
-        <span class="task-status">
+        <!-- <span class="task-status">
           @if($tickets->status == 'complete')
             <i class="fa-solid fa-circle-check"></i> Complete
           @elseif($tickets->status == 'ready')
@@ -30,7 +30,7 @@
           @else
             <i class="fa-solid fa-circle-dot"></i> To Do
           @endif
-        </span>
+        </span> -->
       </div>
       <div class="task-toggle-icon">
         <i class="fa-solid fa-chevron-down"></i>
@@ -69,22 +69,52 @@
         <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
       </div>
 
+      @php
+          $priorityColors = [
+              'normal' => '#3f996b',    
+              'low' => '#cda21d',       
+              'high' => '#D66A00',      
+              'urgent' => '#b00000d1',  
+          ];
+
+          $priority = $tickets->priority ?? 'urgent'; 
+          $bgColor = $priorityColors[$priority] ?? '#6c757d';
+      @endphp
+
       <div class="detail-item">
-        <i class="fa fa-layer-group"></i>
-        <strong>Priority:</strong>
-        <span class="priority {{ $tickets->priority }}">
-          <i class="fa fa-check-circle" aria-hidden="true"></i> {{ ucfirst($tickets->priority ?? 'Urgent') }}
-        </span>
+          <i class="fa fa-layer-group"></i>
+          <strong>Priority:</strong>
+          <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
+              {{ ucfirst($priority) }}
+          </span>
+      </div>
       </div>
 
+
+      @php
+          $statusLabels = [
+            'to_do' => 'To do',        
+            'in_progress' => 'In progress',  
+            'ready' => 'Ready',       
+            'deployed' => 'Deployed',  
+            'complete' => 'Complete',   
+        ];
+        $statusColors = [
+            'to_do' => '#948979',        
+            'in_progress' => '#3fa6d7',  
+            'ready' => '#e09f3e',       
+            'deployed' => '#e76f51',  
+            'complete' => '#2a9d8f',   
+        ];
+        $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+      @endphp
       <div class="detail-item">
         <i class="fa-solid fa-bolt"></i>
         <strong>Ticket Status:</strong>
-      
-        <div class="dropdown d-inline-block ms-2">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-circle-dot"></i>
-            {{ ucfirst($tickets->status) }}
+        <div class="dropdown d-inline-block ms-0">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+            <!-- <i class="fa-solid fa-circle-dot"></i> -->
+            {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
           </button>
       
           <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
@@ -388,10 +418,10 @@
               const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
                 .previousElementSibling;
     
-              if (statusButton) {
-                statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-              }
-            } else {
+            //   if (statusButton) {
+            //     statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+            //   }
+            // } else {
             }
           })
           .catch(error => {
