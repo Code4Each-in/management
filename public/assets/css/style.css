@@ -2286,6 +2286,7 @@ span.badge.rounded-pill.bg-info {
   min-width: 100px;
   text-align: center;
   padding: 12px 14px;
+  cursor: pointer;
 }
 
 /* Buttons */
@@ -3236,6 +3237,7 @@ textarea#comment {
 
 div#notificationDropdown {
   margin-right: 28px;
+  cursor: pointer;
 }
 .notification-item.unread {
   background-color: #f0f4ff;

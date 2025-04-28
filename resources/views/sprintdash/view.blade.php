@@ -42,7 +42,7 @@
     <div id="pieChart" style="min-height: 400px;"></div>
     <div class="row mt-0 justify-content-center">
         <div class="col-auto">
-            <span class="badge bg-purple text-white status-filter" style="background-color: #264653;" data-status="to_do">To Do: {{ $todo }}</span>
+            <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
         <div class="col-auto">
             <span class="badge text-white status-filter" data-status="in_progress" style="background-color: #3fa6d7;">In Progress: {{ $progress }}</span>
@@ -150,7 +150,7 @@
                                 <div class="dropdown">
                                 @php
                                     $statusColors = [
-                                        'to_do' => '#264653',
+                                        'to_do' => '#948979',
                                         'in_progress' => '#3fa6d7',
                                         'ready' => '#e09f3e',
                                         'deployed' => '#e76f51',
@@ -341,7 +341,7 @@
                 type: 'pie',
                 radius: '50%',
                 data: [
-                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#264653' }, status: 'to_do' },
+                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#948979' }, status: 'to_do' },
                     { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#3fa6d7' }, status: 'in_progress' },
                     { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#e09f3e' }, status: 'ready' },
                     { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#e76f51' }, status: 'deployed' },
