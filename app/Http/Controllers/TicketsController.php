@@ -264,10 +264,10 @@ class TicketsController extends Controller
          $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->orderBy('id','desc')->get()->toArray();	
-        $userCount = Users::orderBy('first_name', 'asc')  
-        ->orderBy('id', 'desc')          
-        ->where('status', '!=', 0)  
-        ->where('role_id', '!=', 6)      
+        $userCount = Users::where('status', '!=', 0)
+        ->whereNotIn('role_id', [1, 6])
+        ->orderBy('first_name', 'asc')
+        ->orderBy('id', 'desc')
         ->get();
         foreach($user as $key1=> $data1)
         {
@@ -585,7 +585,11 @@ class TicketsController extends Controller
         public function viewTicket($ticketId)
     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
-
+        $ticket = Tickets::find($ticketId);
+        $projectId = $ticket->project_id;
+        $project = Projects::find($projectId);
+        
+        $projectName = $project ? $project->project_name : 'Project Not Found';
         $user = Users::whereHas('role', function($q){
            $q->where('name', '!=', 'Super Admin');
        })->orderBy('id','desc')->get()->toArray();	
@@ -605,7 +609,7 @@ class TicketsController extends Controller
        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
        $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
-        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));
+        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName'));
     }
     public function viewDocument($filename)
 {
