@@ -360,7 +360,7 @@ class TicketsController extends Controller
             if (auth()->user()->id == 1) {
                 Notification::create([
                     'user_id' => auth()->user()->id,
-                    'ticket_id' => $tickets->id,
+                    'ticket_id' => $ticketId,
                     'type' => 'assigned',
                     'message' => 'Ticket #' . $tickets->id . ' assigned to ' . auth()->user()->first_name,
                     'is_read' => false,
