@@ -29,10 +29,11 @@
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
-
+                @if (auth()->user()->role_id != 6)
                 <div id="notificationDropdown">
                     @include('notifications.partials._dropdown')
                 </div>
+                @endif
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
@@ -136,6 +137,12 @@
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('devlisting') ? '' : 'collapsed' }}"
+                    href="{{ route('projects.devlisting') }}">
+                    <i class="bi bi-list-task"></i> <span>Developer Listing</span>
+                </a>
+            </li>
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -223,7 +230,13 @@
                     <span>Roles</span>
                 </a>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                    href="{{ route('sprint.index') }}">
+                    <i class="bi bi-clipboard"></i>
+                    <span>Sprint</span>
+                </a>
+            </li>
 
           @endif
             <li class="nav-item">
@@ -600,7 +613,7 @@
             });
         }
         fetchNotifications();
-        setInterval(fetchNotifications, 10000);
+        setInterval(fetchNotifications, 30000);
     </script>
 
 </body>

@@ -6,12 +6,16 @@ use App\Models\Client;
 use App\Models\ProjectAssigns;
 use App\Models\ProjectFiles;
 use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
+use App\Models\Feedback;
+use App\Models\Sprint;
+
 class ProjectsController extends Controller
 {
  
@@ -291,5 +295,57 @@ class ProjectsController extends Controller
     }
    
 
+    public function devlisting()
+    {
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        $developerIds = DB::table('ticket_assigns')
+            ->whereIn('ticket_id', $ticketIds)
+            ->distinct()
+            ->pluck('user_id');
+        $developers = Users::whereIn('id', $developerIds)->get();
+        return view('developer.developer-listing', compact('developers'));
+    }
+
+        public function developerDetail($id)
+    {
+        $developer = Users::findOrFail($id);
+        return view('developer.developer-detail', compact('developer'));
+    }
+
+    public function submitFeedback(Request $request)
+    {
+        $validate = $request->validate([
+            'developer_id' => 'required|integer|exists:users,id', 
+            'feedback' => 'required|string|max:1000',
+        ]);
+    
+       
+        $feedback = Feedback::create([
+            'developer_id' => $validate['developer_id'],
+            'feedback' => $validate['feedback'],
+            'created_by' => auth()->id(), 
+        ]);
+    
+        return response()->json(['message' => 'Feedback submitted successfully!'], 200);
+    }
+
+    public function showSprints(Projects $project)
+{
+    
+    $sprints = Sprint::where('project', $project->id)
+    ->where('deleted_at', null)
+    ->orderBy('id', 'desc')
+    ->get();
+
+
+    return view('developer.project-sprints', compact('project', 'sprints'));
+}
+
+    
+
+    
 
 }

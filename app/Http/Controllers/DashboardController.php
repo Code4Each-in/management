@@ -14,6 +14,7 @@ use App\Models\Votes;
 use App\Models\Sprint;
 use App\Models\Winners;
 use App\Models\Notification;
+use App\Models\Projects;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -67,11 +68,14 @@ class DashboardController extends Controller
             
             $clientId = $user->client_id;
             $countsprints = 0;
+            $projects = 0;
             if ($clientId !== null) {
 
-                $countsprints = Sprint::where('client', $clientId)
-                    ->where('status', 1)
-                    ->count();
+                $projects = Projects::where('client_id', $clientId)->get();
+                $sprints = Sprint::whereIn('project', $projects->pluck('id'))
+                                ->where('status', 1)  
+                                ->get();
+
             }
 
             
@@ -313,7 +317,8 @@ $winner->uservotes = $winnerVotes;
             'allVotes',
             'todolist',
             'tasks',
-            'countsprints'
+            'countsprints',
+            'projects'
         ));
     }
 

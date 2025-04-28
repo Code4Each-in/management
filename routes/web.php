@@ -285,6 +285,9 @@ Route::middleware(['role_permission'])->group(function () {
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
 
-
+//developer related listing 
+    Route::get('/projects/dev-listing', [ProjectsController::class, 'devListing'])->name('projects.devlisting');
+	Route::get('/developer/detail/{id}', [ProjectsController::class, 'developerDetail'])->name('developer.detail');
+	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
 
 });

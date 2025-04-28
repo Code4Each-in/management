@@ -2,11 +2,24 @@
 @section('title', 'Sprint Dashboard')
 @section('subtitle', 'Sprint')
 @section('content')
-@if ($role_id != 6)
 <div class="col-md-2">
     <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
 </div>
-@endif
+<div class="col-md-2">
+  <label for="projectFilterselectBox">Project</label>
+  <select class="form-control" id="projectFilterselectBox" name="project_filter">
+      <option value="" {{ request()->input('project_filter') == '' ? 'selected' : '' }}>All Projects</option>
+      @foreach ($projects as $project)
+          <option value="{{ $project->id }}" {{ request()->input('project_filter') == $project->id ? 'selected' : '' }}>
+              {{ $project->project_name }}
+          </option>
+      @endforeach
+  </select>
+  
+  @if ($errors->has('project_filter'))
+      <span style="font-size: 10px;" class="text-danger">{{ $errors->first('project_filter') }}</span>
+  @endif
+</div>
 <div class="sprint-section">
     <div class="sprint-header production">
       <div class="section-left">
@@ -103,6 +116,11 @@
               </tr>
             @endif
           @endforeach
+          @if($sprints->isEmpty())
+          <tr>
+              <td colspan="8" class="text-center">No records to show</td>
+          </tr>
+          @endif
         </tbody>
       </table>             
     </div>     
@@ -188,6 +206,9 @@
                     <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
                         {{ $sprint->ready_tickets_count ?? 0 }}
                     </div>
+                    <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
+                      {{ $sprint->deployed_tickets_count ?? 0 }}
+                  </div>
                     <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
                         {{ $sprint->completed_tickets_count ?? 0 }}
                     </div>
@@ -275,6 +296,9 @@
                   <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
                       {{ $sprint->ready_tickets_count ?? 0 }}
                   </div>
+                  <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
+                    {{ $sprint->deployed_tickets_count ?? 0 }}
+                </div>
                   <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
                       {{ $sprint->completed_tickets_count ?? 0 }}
                   </div>
@@ -520,5 +544,13 @@ function opensprintModal() {
                 }
             }
 </script>
+<script>
+  document.getElementById('projectFilterselectBox').addEventListener('change', function() {
+      var projectId = this.value;
+      var url = new URL(window.location.href);
+      url.searchParams.set('project_filter', projectId);
+      window.location.href = url.href;
+  });
+  </script> 
 @endsection
 @section('js_scripts')
