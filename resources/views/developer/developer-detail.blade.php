@@ -60,18 +60,27 @@
 @section('js_scripts')
 <script>
     $(document).ready(function() {
-    
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-    
+
+        // Open modal and set developer_id
+        $('.open-feedback-modal').on('click', function(e) {
+            e.preventDefault();
+            var developerId = $(this).data('developer-id');
+            $('#feedback-form input[name="developer_id"]').val(developerId);
+            $('#feedbackModal').modal('show'); // Show the modal
+        });
+
+        // Submit feedback form
         $('#feedback-form').submit(function (e) {
             e.preventDefault();
-    
+
             let formData = new FormData(this);
-    
+
             $.ajax({
                 url: "{{ route('feedback.submit') }}",
                 type: 'POST',
@@ -80,6 +89,8 @@
                 contentType: false,
                 success: function (response) {
                     alert(response.message);
+                    $('#feedbackModal').modal('hide'); 
+                    $('#feedback-form')[0].reset();     
                 },
                 error: function (xhr, status, error) {
                     console.log('ERROR:', xhr.responseText);
@@ -87,7 +98,7 @@
                 }
             });
         });
-    
+
     });
-    </script>    
+</script>  
 @endsection

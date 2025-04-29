@@ -160,17 +160,17 @@
                                       @else
                                           Code4Each
                                       @endif
-                                      @if(Auth::user()->id == $data->comment_by)
-                                      <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
-                                     title="Delete Comment"
-                                     style="font-size:  25px;line-height: 1;float: right;margin-left: 15px;">
-                                     &times;
-                                     </button>                            
+                                      @if(Auth::user()->id == $data->comment_by)                            
                                       @endif
                                   </span>                                  
                                 </div>
                             </div>
                             <div class="text">
+                              <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
+                                title="Delete Comment"
+                                style="font-size:25px;line-height: 1;float: right;margin-left: 15px;">
+                                &times;
+                                </button>
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
@@ -358,52 +358,59 @@
 </script>
 
         
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-        document.body.addEventListener('click', function (e) {
-          const clickedItem = e.target.closest('.dropdown-item');
-          if (!clickedItem) return;
-    
-          e.preventDefault();
-    
-          const newStatus = clickedItem.getAttribute('data-value');
-          const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
-    
-          if (!newStatus || !ticketId) {
-            alert("Missing data");
-            return;
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+    document.body.addEventListener('click', function (e) {
+      const clickedItem = e.target.closest('.dropdown-item');
+  
+      // Only handle clicks inside a .status-options container
+      if (!clickedItem || !clickedItem.closest('.status-options')) return;
+  
+      e.preventDefault();
+  
+      const newStatus = clickedItem.getAttribute('data-value');
+      const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
+  
+      if (!newStatus || !ticketId) {
+        alert("Missing data");
+        return;
+      }
+  
+      fetch(`/tickets/${ticketId}/update-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Optional: update button text without reload
+          const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)?.previousElementSibling;
+  
+          if (statusButton) {
+            const formattedStatus = newStatus
+              .replace('_', ' ')
+              .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word
+            statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${formattedStatus}`;
+          } else {
+            location.reload(true); // fallback: reload if button not found
           }
-    
-          fetch(`/tickets/${ticketId}/update-status`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify({ status: newStatus }),
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              location.reload(true);
-              // Update the button text without reload
-              const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
-                .previousElementSibling;
-    
-            //   if (statusButton) {
-            //     statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-            //   }
-            // } else {
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            alert('An error occurred.');
-          });
-        });
+        } else {
+          alert('Failed to update status.');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred.');
       });
-    </script>
+    });
+  });
+  </script>
+  
      
 @endsection

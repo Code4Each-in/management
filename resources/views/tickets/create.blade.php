@@ -98,7 +98,7 @@
                 </div>
 
                 <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label required">Sprint</label>
+                    <label class="col-sm-3 col-form-label">Sprint</label>
                     <div class="col-sm-9">
                         <select name="sprint_id" class="form-select form-control" id="sprint_id">
                             <option value="">Select Sprint</option>
@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label required">Status</label>
+                    <label class="col-sm-3 col-form-label">Status</label>
                     <div class="col-sm-9">
                         <select name="status" class="form-select">
                             <option value="to_do">To Do</option>
@@ -147,7 +147,7 @@
                 </div>
 
                 <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label required">Priority</label>
+                    <label class="col-sm-3 col-form-label">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select">
                             <option value="normal">Normal</option>

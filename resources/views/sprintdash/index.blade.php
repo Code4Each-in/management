@@ -6,7 +6,7 @@
     <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
 </div>
 <div class="col-md-2">
-  <label for="projectFilterselectBox">Project</label>
+  <label for="projectFilterselectBox">Filter By Project</label>
   <select class="form-control" id="projectFilterselectBox" name="project_filter">
       <option value="" {{ request()->input('project_filter') == '' ? 'selected' : '' }}>All Projects</option>
       @foreach ($projects as $project)
@@ -35,8 +35,9 @@
             <th>S.No</th>
             <th>Name</th>
             <th>Project</th>
-            <th>Time Left</th>
+            
             @if ($role_id != 6)
+               <th>Time Left</th>
                 <th>Started At</th>
                 <th>End Date (d/m/y)</th>
             @endif
@@ -63,17 +64,16 @@
                 <td>{{ $serial++ }}</td>
                 <td>{{ $sprint->name }}</td>
                 <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
-      
-                <td style="text-align: center;">
-                  @if($daysLeft <= 2 && $daysLeft >= 0)
-                    <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-                  @endif
-                  Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-                </td>
                 @php
                 $firstRole = explode(' ', $role_id)[0] ?? 0;
                @endphp
             @if ($firstRole != 6)
+            <td style="text-align: center;">
+              @if($daysLeft <= 2 && $daysLeft >= 0)
+                <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
+              @endif
+              Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+            </td>
                 <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                 <td>{{ $eta->format('d/m/Y') }}</td>
             @endif
@@ -141,8 +141,8 @@
             <th>S.No</th> <!-- Added S.No column -->
             <th>Name</th>
             <th>Project</th>
-            <th>Time Left</th>
             @if ($role_id != 6)
+                <th>Time Left</th>
                 <th>Started At</th>
                 <th>End Date (d/m/y)</th>
             @endif
@@ -166,16 +166,16 @@
               <td>{{ $loop->iteration }}</td> <!-- S.No -->
               <td>{{ $sprint->name }}</td>
               <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
-              <td style="text-align: center;">
-                @if($daysLeft <= 2 && $daysLeft >= 0)
-                  <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-                @endif
-                Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-              </td>
               @php
               $firstRole = explode(' ', $role_id)[0] ?? 0;
              @endphp
           @if ($firstRole != 6)
+          <td style="text-align: center;">
+            @if($daysLeft <= 2 && $daysLeft >= 0)
+              <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
+            @endif
+            Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+          </td>
               <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
               <td>{{ $eta->format('d/m/Y') }}</td>
           @endif

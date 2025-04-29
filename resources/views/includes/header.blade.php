@@ -22,6 +22,11 @@
         </div>End Search Bar -->
 
         <nav class="header-nav ms-auto">
+            @if (auth()->user()->role_id != 6)
+                <div id="notificationDropdown">
+                    @include('notifications.partials._dropdown')
+                </div>
+                @endif
             <ul class="d-flex align-items-center">
 
                 <li class="nav-item d-block d-lg-none">
@@ -29,11 +34,6 @@
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
-                @if (auth()->user()->role_id != 6)
-                <div id="notificationDropdown">
-                    @include('notifications.partials._dropdown')
-                </div>
-                @endif
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
@@ -76,12 +76,14 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
+                            @if (auth()->user()->role_id != 6)
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="{{route('profile')}}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
                         </li>
+                        @endif
                         <hr class="dropdown-divider">
 
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('logout')}}">

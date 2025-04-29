@@ -15,6 +15,7 @@ use App\Models\Sprint;
 use App\Models\Winners;
 use App\Models\Notification;
 use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -32,10 +33,27 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
-        ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
-        ->orderBy('created_at', 'desc') // Sorting in descending order
+        ->whereRaw("LOWER(status) != 'completed'") 
+        ->orderBy('created_at', 'desc')
         ->get();
-
+        $notifications  = 0;
+        if ($user->role_id == 6) {
+            $clientId = $user->client_id;
+        
+            $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        
+            $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        
+            $notifications = Notification::whereIn('ticket_id', $ticketIds)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->unique(function ($notification) {
+                    return $notification->ticket_id . '-' . $notification->created_at->format('Y-m-d');
+                })
+                ->groupBy(function ($notification) {
+                    return $notification->created_at->format('Y-m-d');
+                });
+        }
         //dd($tasks->toArray());
         // Debug output
         // Get the authenticated user
@@ -171,7 +189,7 @@ class DashboardController extends Controller
             $uservote = collect();
         } else {
             $uservote = Users::where('status', 1)
-                ->whereNotIn('role_id', [1, 2, 5])
+                ->whereNotIn('role_id', [1, 2, 5, 6])
                 ->get();
         }
 
@@ -318,7 +336,8 @@ $winner->uservotes = $winnerVotes;
             'todolist',
             'tasks',
             'countsprints',
-            'projects'
+            'projects',
+            'notifications'
         ));
     }
 
