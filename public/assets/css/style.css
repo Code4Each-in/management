@@ -263,7 +263,7 @@ h6 {
 }
 
 .card-body {
-  padding: 0 20px 20px 20px;
+  padding: 20px 20px 20px 20px;
 }
 
 .card-img-overlay {
@@ -3694,6 +3694,35 @@ span.badge.inactive {
 }
 
 nav.header-nav.ms-auto {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.text {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+}
+div#projects_length {
+  padding-bottom: 20px;
+}
+div#dev-listing_length {
+  padding-bottom: 20px;
+}
+div#projects_length {
+  padding-bottom: 20px;
+}
+.badges.bg-primary.text-capitalize.probtn{
+  background-color: #297BAB !important;
+  border-radius: 5px !important;
+  min-width: 100px;
+  text-align: center;
+  color: #fff;
+  padding: 6px 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

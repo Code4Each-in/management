@@ -790,11 +790,14 @@ use App\Models\Votes;
 </div>
 @endif
 @if (auth()->user()->role_id == 6)
-    <div class="row">
-        <div class="card m-3">
-            <div class="card-body pb-4">
-                <h4 class="mb-3">Projects List</h4>
-                <table class="table table-striped">
+<div class="row">
+    <!-- Left 8-column block for both tables -->
+    <div class="col-lg-8">
+      <!-- First Card -->
+      <div class="card mb-3">
+        <div class="card-body pb-4">
+          <h4 class="mb-3">Projects List</h4>
+          <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Sr No</th>
@@ -821,10 +824,37 @@ use App\Models\Votes;
                 </table>
             </div>
         </div>
-
-        <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
-            <div class="row">
-                <div class="col-xxl-4 col-md-6">
+        <div class="card">
+            <div class="card-body pb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Notification</th>
+                            <th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($notifications as $notification)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $notification->message }}</td>
+                                <td>
+                                    <a href="{{ url('/view/ticket/'.$notification->ticket_id)}}" target="_blank">
+                                        <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>{{ $notification->ticket_id }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>               
+                </table> 
+                <div class="text-center mt-3">
+                    <a href="{{ url('/notification/all') }}" class="btn btn-primary">See All</a>
+                </div>                
+        </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
                     <div class="card info-card sales-card">
                         @if ($userBirthdateEvent->isNotEmpty())
                             @php
@@ -861,9 +891,9 @@ use App\Models\Votes;
                             @endforeach
 
                             @if ($hasUpcomingEvents)
-                                <div class="card upcoming-events">
-                                    <div class="card-body pb-4">
-                                        <h5 class="card-title">Upcoming Events</h5>
+                            <div class="card upcoming-holidays">
+                                <div class="card-body pb-0">
+                                  <h5 class="card-title">Upcoming Holidays</h5>
 
                                         <div class="news">
                                             @foreach ($userBirthdateEvent as $user)
@@ -960,41 +990,6 @@ use App\Models\Votes;
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xxl-12 col-md-6">
-        <div class="card m-3">
-            <div class="card-body pb-4">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Sr No</th>
-                    <th>Notification</th>
-                    <th>Ticket</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($notifications as $date => $notificationsByDate)
-                    <tr>
-                        <td colspan="3" style="background-color: #f8f9fa; text-align: center;">
-                            <strong>{{ $date }}</strong>
-                        </td>
-                    </tr>
-                    @foreach($notificationsByDate as $notification)
-                        <tr>
-                            <td>{{ $loop->parent->iteration . '.' . $loop->iteration }}</td>
-                            <td>{{ $notification->message }}</td>
-                            <td>
-                                <a href="{{ url('/view/ticket/'.$notification->ticket_id)}}" target="_blank">
-                                    <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>{{ $notification->ticket_id }}
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
-                @endforeach
-            </tbody>
-        </table>
-    </div>
         </div>
     </div>
 @endif

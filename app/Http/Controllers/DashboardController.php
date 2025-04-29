@@ -45,15 +45,11 @@ class DashboardController extends Controller
             $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
         
             $notifications = Notification::whereIn('ticket_id', $ticketIds)
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->unique(function ($notification) {
-                    return $notification->ticket_id . '-' . $notification->created_at->format('Y-m-d');
-                })
-                ->groupBy(function ($notification) {
-                    return $notification->created_at->format('Y-m-d');
-                });
-        }
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('created_at') 
+            ->take(5); 
+        }        
         //dd($tasks->toArray());
         // Debug output
         // Get the authenticated user

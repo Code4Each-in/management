@@ -259,7 +259,7 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label">Credentials</label>
                                 <div class="col-sm-9">
-                                    <textarea name="credentials" class="form-control" id="tinymce_textarea"></textarea>
+                                    <textarea name="credentials" class="form-control"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-3">

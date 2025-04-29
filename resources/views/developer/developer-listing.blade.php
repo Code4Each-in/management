@@ -11,7 +11,7 @@
                         <th style="width: 60px;">Sr No</th>
                         <th style="width: 200px;">Developer</th>
                         <th style="width: 400px;">Skills</th> <!-- Increased width here -->
-                        <th style="width: 80px;">Action</th>
+                        <th style="width: 80px;">Feedback</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,7 +23,7 @@
                             @if(!empty($developer->skills))
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach(explode(',', $developer->skills) as $skill)
-                                        <div class="badge bg-primary text-capitalize" style="font-size: 0.8rem; padding: 0.4em 0.7em; border-radius: 1rem;">
+                                        <div class="badges bg-primary text-capitalize probtn" style="font-size: 0.8rem;">
                                             {{ trim($skill) }}
                                         </div>
                                     @endforeach
@@ -73,22 +73,22 @@
 @endsection
 @section('js_scripts')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
 
-        $(document).on('click', '.open-feedback-modal', function(e) {
-            e.preventDefault();  
+        $(document).on('click', '.open-feedback-modal', function (e) {
+            e.preventDefault();
             var developerId = $(this).data('developer-id');
             $('#feedback-form input[name="developer_id"]').val(developerId);
             $('#feedbackModal').modal('show');
         });
+
         $('#feedback-form').submit(function (e) {
             e.preventDefault();
-
             let formData = new FormData(this);
 
             $.ajax({
@@ -98,38 +98,25 @@
                 processData: false,
                 contentType: false,
                 success: function (response) {
-            $('#feedbackModal .modal-body').html(`
-            <div class="text-center p-4">
-                <i class="fa fa-check-circle" style="font-size: 50px; color: #28a745;"></i>
-                <h4 class="mt-3">Thank you for your feedback!</h4>
-            </div>
-        `);
-            setTimeout(function() {
-                $('#feedbackModal').modal('hide');
-                $('#feedback-form')[0].reset(); 
-                $('#feedbackModal .modal-body').html(`
-                    <form id="feedback-form" method="POST">
-                        @csrf
-                        <input type="hidden" class="form-control" name="developer_id">
-
-                        <div class="mb-3">
-                            <textarea name="feedback" rows="4" class="form-control" placeholder="Write your feedback here..." required></textarea>
+                    $('#feedbackModal .modal-body').html(`
+                        <div class="text-center p-4">
+                            <i class="fa fa-check-circle" style="font-size: 50px; color: #28a745;"></i>
+                            <h4 class="mt-3">Thank you for your feedback!</h4>
                         </div>
+                    `);
 
-                        <button type="submit" class="btn btn-success">Submit Feedback</button>
-                    </form>
-                `);
-            }, 3000);
-        },
+                    // ✅ Reload the page after 3 seconds
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3000);
+                },
+                error: function (xhr, status, error) {
+                    console.log('ERROR:', xhr.responseText);
+                    alert('Something went wrong!');
+                }
+            });
+        });
 
-        error: function (xhr, status, error) {
-            console.log('ERROR:', xhr.responseText);
-            alert('Something went wrong!');
-        }
-    });
-});
-});
-    $(document).ready(function() {
         $('#dev-listing').DataTable();
     });
 </script>

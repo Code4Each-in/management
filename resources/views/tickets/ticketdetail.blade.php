@@ -166,11 +166,9 @@
                                 </div>
                             </div>
                             <div class="text">
-                              <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}"
-                                title="Delete Comment"
-                                style="font-size:25px;line-height: 1;float: right;margin-left: 15px;">
-                                &times;
-                                </button>
+                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 15px;">
+                                  <i class="fa-solid fa-trash"></i>
+                              </button>
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
@@ -361,23 +359,22 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  
+
     document.body.addEventListener('click', function (e) {
       const clickedItem = e.target.closest('.dropdown-item');
-  
-      // Only handle clicks inside a .status-options container
-      if (!clickedItem || !clickedItem.closest('.status-options')) return;
-  
+
+      if (!clickedItem || !clickedItem.closest('.status-options')) return; // Only handle clicks inside status-options
+
       e.preventDefault();
-  
+
       const newStatus = clickedItem.getAttribute('data-value');
       const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
-  
+
       if (!newStatus || !ticketId) {
         alert("Missing data");
         return;
       }
-  
+
       fetch(`/tickets/${ticketId}/update-status`, {
         method: 'POST',
         headers: {
@@ -389,17 +386,19 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          // Optional: update button text without reload
+          // Update button text (optional visual update)
           const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)?.previousElementSibling;
-  
           if (statusButton) {
             const formattedStatus = newStatus
               .replace('_', ' ')
               .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word
             statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${formattedStatus}`;
-          } else {
-            location.reload(true); // fallback: reload if button not found
           }
+
+          // Always reload after a small delay (to let user briefly see change if needed)
+          setTimeout(() => {
+            location.reload(true);
+          }, 300); // 300ms delay before reload
         } else {
           alert('Failed to update status.');
         }
@@ -410,7 +409,7 @@
       });
     });
   });
-  </script>
+</script>
   
      
 @endsection

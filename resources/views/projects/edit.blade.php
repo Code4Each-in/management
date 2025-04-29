@@ -179,7 +179,7 @@ use App\Models\Client;
                 <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label">Credentials</label>
                                 <div class="col-sm-9">
-                                    <textarea name="credentials" class="form-control" id="tinymce_textarea">{{$projects->credentials}}</textarea>
+                                    <textarea name="credentials" class="form-control">{{$projects->credentials}}</textarea>
                                 </div>
                                 @if ($errors->has('credentials'))
                     <span style="font-size: 12px;" class="text-danger">{{ $errors->first('credentials') }}</span>

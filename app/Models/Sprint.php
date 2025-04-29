@@ -17,7 +17,8 @@ class Sprint extends Model
         'client',
         'project',
         'description',
-        'status'
+        'status',
+        'document',
     ];
     public function user()
     {
