@@ -439,7 +439,12 @@
                                   @endif
                               </div>
                           </div>                          
-                                                     
+                          <div class="row mb-3">
+                            <label for="add_document" class="col-sm-3 col-form-label">Attach Documents</label>
+                            <div class="col-sm-9">
+                                <input type="file" class="form-control" name="add_document[]" id="add_document" multiple>
+                            </div>
+                        </div>                                                                    
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary" href="javascript:void(0)">Save</button>

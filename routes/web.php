@@ -288,5 +288,8 @@ Route::middleware(['role_permission'])->group(function () {
 //developer related listing 
     Route::get('/projects/dev-listing', [ProjectsController::class, 'devListing'])->name('projects.devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
+    Route::delete('/delete/sprint/file', [SprintController::class, 'deleteSprintFile']);
+	Route::get('/notification/all', [SprintController::class, 'allNotifications'])->name('notification.all');
+
 
 });

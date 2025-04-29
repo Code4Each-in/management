@@ -57,7 +57,49 @@
             <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;">Complete: {{ $complete }}</span>
         </div>
     </div>
-</div>       </div>       
+</div>    
+            <div class="row mb-5 mt-3">
+                <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
+                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
+                    @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
+                    No Uploaded Document Found
+                    @else  
+                        @foreach ($ProjectDocuments as $data)
+                            <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                                @php
+                                    $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                                    $iconClass = '';
+
+                                    switch ($extension) {
+                                        case 'pdf':
+                                            $iconClass = 'bi-file-earmark-pdf';
+                                            break;
+                                        case 'doc':
+                                        case 'docx':
+                                            $iconClass = 'bi-file-earmark-word';
+                                            break;
+                                        case 'xls':
+                                        case 'xlsx':
+                                            $iconClass = 'bi-file-earmark-excel';
+                                            break;
+                                        case 'jpg':
+                                        case 'jpeg':
+                                        case 'png':
+                                            $iconClass = 'bi-file-earmark-image';
+                                            break;
+                                        default:
+                                            $iconClass = 'bi-file-earmark';
+                                            break;
+                                    }
+                                @endphp
+                                <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
+                                <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
+                            </button>
+                        @endforeach
+                    @endif
+                </div>
+            </div>   
+            </div>       
                     <div class="col-md-4">
                         <div class="row mb-2">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
@@ -391,5 +433,25 @@
                 });
             });
         });
-    </script>    
+    </script>  
+    <script>
+        function deleteSprintFile(id) {
+            var sprintId = {{ $sprint->id }};
+            alert(sprintId);
+         if (confirm("Are you sure ?") == true) {
+             $.ajax({
+                 type: 'DELETE',
+                 url: "{{ url('/delete/sprint/file') }}",
+                 data: {
+                     id: id,
+                     sprintId: sprintId,
+                     _token: '{{ csrf_token() }}'
+                 },
+                 success: function (data) {
+                     location.reload();
+                 }
+             });
+         }
+     }
+         </script>   
 @endsection
