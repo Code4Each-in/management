@@ -371,10 +371,16 @@ $ProjectDocuments = collect($existingDocs)->map(function ($filename, $index) {
             unset($documents[$request->id]);
             $sprint->document = implode(',', array_values($documents)); 
             $sprint->save();
-
+            if (!empty($fileToDelete)) {
+                $filePath = public_path('assets/img/' . $fileToDelete);
+        
+                if (file_exists($filePath) && is_file($filePath)) {
+                    unlink($filePath);
+                }
             $request->session()->flash('message', 'Sprint file deleted successfully.');
             return response()->json(['status' => 200]);
         }
+    }
 
         public function allNotifications()
         {

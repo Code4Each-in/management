@@ -2,93 +2,287 @@
 @section('title', 'Sprint Dashboard')
 @section('subtitle', 'Sprint')
 @section('content')
-<div class="col-md-2">
-    <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
-</div>
-<div class="col-md-2">
-  <label for="projectFilterselectBox">Filter By Project</label>
-  <select class="form-control" id="projectFilterselectBox" name="project_filter">
-      <option value="" {{ request()->input('project_filter') == '' ? 'selected' : '' }}>All Projects</option>
-      @foreach ($projects as $project)
-          <option value="{{ $project->id }}" {{ request()->input('project_filter') == $project->id ? 'selected' : '' }}>
-              {{ $project->project_name }}
-          </option>
-      @endforeach
-  </select>
-  
-  @if ($errors->has('project_filter'))
-      <span style="font-size: 10px;" class="text-danger">{{ $errors->first('project_filter') }}</span>
-  @endif
-</div>
-<div class="sprint-section">
-    <div class="sprint-header production">
-      <div class="section-left">
-        <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
-        <div class="section-title" style="color: #297bab;">Active Sprints</div>
-        <div class="section-title">• {{ $totalSprintCount ?? 0 }} Sprints</div>
-      </div>
-    </div>
-    <div class="table-responsive">
-      <table class="styled-sprint-table sprint-table">
-        <thead>
-          <tr style="color: #297bab;">
-            <th>S.No</th>
-            <th>Name</th>
-            <th>Project</th>
-            
-            @if ($role_id != 6)
-               <th>Time Left</th>
-                <th>Started At</th>
-                <th>End Date (d/m/y)</th>
-            @endif
-            <th>Actions</th>
-            <th>Status</th>
-            <th>Workflow Stage</th>
-          </tr>
-        </thead>
-        <tbody>
-          @php $serial = 1; @endphp
-          @foreach ($sprints as $sprint)
-            @php
-              $eta       = \Carbon\Carbon::parse($sprint->eta);
-              $start     = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-              $now       = \Carbon\Carbon::now('Asia/Kolkata');
-              $daysLeft  = $eta->diffInDays($now);
-              $total     = $sprint->tickets_count ?? 0;
-              $completed = $sprint->completed_tickets_count ?? 0;
-              $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
-            @endphp
+<div class="row row-design">
+  <div class="col-md-2">
+      <button class="btn btn-primary m-3" onClick="opensprintModal()" href="javascript:void(0)">Add Sprint</button>
+  </div>
+    <div class="col-md-2">
+      <label for="projectFilterselectBox">Filter By Project</label>
+      <select class="form-control" id="projectFilterselectBox" name="project_filter">
+          <option value="" {{ request()->input('project_filter') == '' ? 'selected' : '' }}>All Projects</option>
+          @foreach ($projects as $project)
+              <option value="{{ $project->id }}" {{ request()->input('project_filter') == $project->id ? 'selected' : '' }}>
+                  {{ $project->project_name }}
+              </option>
+          @endforeach
+      </select>
       
-            @if ($total === 0 || $completed < $total)
-              <tr>
-                <td>{{ $serial++ }}</td>
-                <td>{{ $sprint->name }}</td>
-                <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
+      @if ($errors->has('project_filter'))
+          <span style="font-size: 10px;" class="text-danger">{{ $errors->first('project_filter') }}</span>
+      @endif
+    </div>
+</div>
+<div class="row ">
+    <div class="sprint-section">
+        <div class="sprint-header production">
+          <div class="section-left">
+            <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
+            <div class="section-title" style="color: #297bab;">Active Sprints</div>
+            <div class="section-title">• {{ $totalSprintCount ?? 0 }} Sprints</div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="styled-sprint-table sprint-table">
+            <thead>
+              <tr style="color: #297bab;">
+                <th>S.No</th>
+                <th>Name</th>
+                <th>Project</th>
+                
+                @if ($role_id != 6)
+                  <th>Time Left</th>
+                    <th>Started At</th>
+                    <th>End Date (d/m/y)</th>
+                @endif
+                <th>Actions</th>
+                <th>Status</th>
+                <th>Workflow Stage</th>
+              </tr>
+            </thead>
+            <tbody>
+              @php $serial = 1; @endphp
+              @foreach ($sprints as $sprint)
                 @php
-                $firstRole = explode(' ', $role_id)[0] ?? 0;
-               @endphp
-            @if ($firstRole != 6)
-            <td style="text-align: center;">
-              @if($daysLeft <= 2 && $daysLeft >= 0)
-                <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-              @endif
-              Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-            </td>
-                <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
-                <td>{{ $eta->format('d/m/Y') }}</td>
-            @endif
-            <td class="actions-cell" style="text-align: center;">
-              <a href="{{ url('/view/sprint/'.$sprint->id) }}">
-                  <i class="fa fa-eye fa-fw pointer"></i>
-              </a>
+                  $eta       = \Carbon\Carbon::parse($sprint->eta);
+                  $start     = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                  $now       = \Carbon\Carbon::now('Asia/Kolkata');
+                  $daysLeft  = $eta->diffInDays($now);
+                  $total     = $sprint->tickets_count ?? 0;
+                  $completed = $sprint->completed_tickets_count ?? 0;
+                  $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
+                @endphp
           
-              @if ($firstRole != 6) 
-                  <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                      <i class="fa fa-edit fa-fw pointer"></i>
+                @if ($total === 0 || $completed < $total)
+                  <tr>
+                    <td>{{ $serial++ }}</td>
+                    <td>{{ $sprint->name }}</td>
+                    <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
+                    @php
+                    $firstRole = explode(' ', $role_id)[0] ?? 0;
+                  @endphp
+                @if ($firstRole != 6)
+                <td style="text-align: center;">
+                  @if($daysLeft <= 2 && $daysLeft >= 0)
+                    <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
+                  @endif
+                  Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+                </td>
+                    <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+                    <td>{{ $eta->format('d/m/Y') }}</td>
+                @endif
+                <td class="actions-cell" style="text-align: center;">
+                  <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                      <i class="fa fa-eye fa-fw pointer"></i>
                   </a>
-                  <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+              
+                  @if ($firstRole != 6) 
+                      <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                          <i class="fa fa-edit fa-fw pointer"></i>
+                      </a>
+                      <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                  @endif
+              </td>                       
+                    <td>
+                      <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
+                        {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td style="text-align: center;">
+                      <div class="d-flex justify-content-center status-group">
+                          <div class="status-box text-white" title="To Do" style="background-color: #948979;">
+                              {{ $sprint->todo_tickets_count ?? 0 }}
+                          </div>
+                          <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
+                              {{ $sprint->in_progress_tickets_count ?? 0 }}
+                          </div>
+                          <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
+                              {{ $sprint->ready_tickets_count ?? 0 }}
+                          </div>
+                          <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
+                            {{ $sprint->deployed_tickets_count ?? 0 }}
+                        </div>
+                          <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
+                              {{ $sprint->completed_tickets_count ?? 0 }}
+                          </div>
+                      </div>
+                  </td>                                         
+                  </tr>
+                @endif
+              @endforeach
+              @if($sprints->isEmpty())
+              <tr>
+                  <td colspan="8" class="text-center">No records to show</td>
+              </tr>
               @endif
-          </td>                       
+            </tbody>
+          </table>             
+        </div>     
+      </div>
+      @if($inactivesprints && $inactivesprints->count() > 0)
+      <div class="sprint-section mt-5">
+        <div class="sprint-header staged">
+          <div class="section-left">
+            <div class="section-icon" style="background-color: #b00000d1;">I</div>
+            <div class="section-title" style="color: #b00000d1;">In-Active Sprints</div>
+            <div class="section-title">• {{ $totalinSprintCount ?? 0 }} Sprints</div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="styled-sprint-table sprint-table">
+            <thead>
+              <tr style="color: #b00000d1;">
+                <th>S.No</th> <!-- Added S.No column -->
+                <th>Name</th>
+                <th>Project</th>
+                @if ($role_id != 6)
+                    <th>Time Left</th>
+                    <th>Started At</th>
+                    <th>End Date (d/m/y)</th>
+                @endif
+                <th>Actions</th>
+                <th>Status</th>
+                <th>Workflow Stage</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($inactivesprints as $sprint)
+                @php
+                  $eta      = \Carbon\Carbon::parse($sprint->eta);
+                  $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                  $now      = \Carbon\Carbon::now('Asia/Kolkata');
+                  $daysLeft = $eta->diffInDays($now);
+                  $total = $sprint->tickets_count ?? 0;
+                  $completed = $sprint->completed_tickets_count ?? 0;
+                  $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+                @endphp
+                <tr>
+                  <td>{{ $loop->iteration }}</td> <!-- S.No -->
+                  <td>{{ $sprint->name }}</td>
+                  <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
+                  @php
+                  $firstRole = explode(' ', $role_id)[0] ?? 0;
+                @endphp
+              @if ($firstRole != 6)
+              <td style="text-align: center;">
+                @if($daysLeft <= 2 && $daysLeft >= 0)
+                  <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
+                @endif
+                Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+              </td>
+                  <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+                  <td>{{ $eta->format('d/m/Y') }}</td>
+              @endif
+                  <td class="actions-cell" style="text-align: center;">
+                    <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                      <i class="fa fa-eye fa-fw pointer"></i>
+                    </a>
+                    @if ($firstRole != 6)
+                    <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                      <i class="fa fa-edit fa-fw pointer"></i>
+                    </a>
+                    <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                    @endif
+                  </td>
+                  <td>
+                    <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
+                      {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
+                    <div class="d-flex justify-content-center status-group">
+                        <div class="status-box text-white" title="To Do" style="background-color: #948979;">
+                            {{ $sprint->todo_tickets_count ?? 0 }}
+                        </div>
+                        <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
+                            {{ $sprint->in_progress_tickets_count ?? 0 }}
+                        </div>
+                        <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
+                            {{ $sprint->ready_tickets_count ?? 0 }}
+                        </div>
+                        <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
+                          {{ $sprint->deployed_tickets_count ?? 0 }}
+                      </div>
+                        <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
+                            {{ $sprint->completed_tickets_count ?? 0 }}
+                        </div>
+                    </div>
+                </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>      
+        </div>     
+      </div>
+      @endif
+      @if(isset($completedsprints) && count($completedsprints) > 0)
+    <div class="sprint-section mt-5">
+      <div class="sprint-header qa">
+        <div class="section-left">
+          <div class="section-icon" style="background-color: #3f996b">C</div>
+          <div class="section-title" style="color: #3f996b">Completed Sprints</div>
+          <div class="section-title">• {{ count($completedsprints) }} Sprint{{ count($completedsprints) > 1 ? 's' : '' }}</div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="styled-sprint-table sprint-table">
+          <thead>
+            <tr style="color: #3f996b">
+              <th>S.No</th>
+              <th>Name</th>
+              <th>Project</th>
+              @if ($role_id != 6)
+                    <th>Started At</th>
+                    <th>End Date (d/m/y)</th>
+                @endif
+              <th>Actions</th>
+              <th>Status</th>
+              <th>Workflow Stage</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($completedsprints as $sprint)
+              @php
+                $eta      = \Carbon\Carbon::parse($sprint->eta);
+                $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                $now      = \Carbon\Carbon::now('Asia/Kolkata');
+                $daysLeft = $eta->diffInDays($now);
+                $total    = $sprint->tickets_count ?? 0;
+                $completed = $sprint->completed_tickets_count ?? 0;
+                $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+              @endphp
+              <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $sprint->name }}</td>
+                <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
+                @php
+                  $firstRole = explode(' ', $role_id)[0] ?? 0;
+                @endphp
+              @if ($firstRole != 6)
+                  <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+                  <td>{{ $eta->format('d/m/Y') }}</td>
+              @endif
+                <td class="actions-cell" style="text-align: center;">
+                  <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                    <i class="fa fa-eye fa-fw pointer"></i>
+                  </a>
+                  @if ($firstRole != 6)
+                  <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                    <i class="fa fa-edit fa-fw pointer"></i>
+                  </a>
+                  <i class="fa fa-trash fa-fw pointer"
+                    onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                    @endif
+                </td>
                 <td>
                   <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
                     {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
@@ -112,203 +306,13 @@
                           {{ $sprint->completed_tickets_count ?? 0 }}
                       </div>
                   </div>
-              </td>                                         
+              </td>
               </tr>
-            @endif
-          @endforeach
-          @if($sprints->isEmpty())
-          <tr>
-              <td colspan="8" class="text-center">No records to show</td>
-          </tr>
-          @endif
-        </tbody>
-      </table>             
-    </div>     
-  </div>
-  @if($inactivesprints && $inactivesprints->count() > 0)
-  <div class="sprint-section mt-5">
-    <div class="sprint-header staged">
-      <div class="section-left">
-        <div class="section-icon" style="background-color: #b00000d1;">I</div>
-        <div class="section-title" style="color: #b00000d1;">In-Active Sprints</div>
-        <div class="section-title">• {{ $totalinSprintCount ?? 0 }} Sprints</div>
-      </div>
+            @endforeach
+          </tbody>
+        </table>     
+      </div> 
     </div>
-    <div class="table-responsive">
-      <table class="styled-sprint-table sprint-table">
-        <thead>
-          <tr style="color: #b00000d1;">
-            <th>S.No</th> <!-- Added S.No column -->
-            <th>Name</th>
-            <th>Project</th>
-            @if ($role_id != 6)
-                <th>Time Left</th>
-                <th>Started At</th>
-                <th>End Date (d/m/y)</th>
-            @endif
-            <th>Actions</th>
-            <th>Status</th>
-            <th>Workflow Stage</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($inactivesprints as $sprint)
-            @php
-              $eta      = \Carbon\Carbon::parse($sprint->eta);
-              $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-              $now      = \Carbon\Carbon::now('Asia/Kolkata');
-              $daysLeft = $eta->diffInDays($now);
-              $total = $sprint->tickets_count ?? 0;
-              $completed = $sprint->completed_tickets_count ?? 0;
-              $progress = $total > 0 ? ($completed / $total) * 100 : 0;
-            @endphp
-            <tr>
-              <td>{{ $loop->iteration }}</td> <!-- S.No -->
-              <td>{{ $sprint->name }}</td>
-              <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
-              @php
-              $firstRole = explode(' ', $role_id)[0] ?? 0;
-             @endphp
-          @if ($firstRole != 6)
-          <td style="text-align: center;">
-            @if($daysLeft <= 2 && $daysLeft >= 0)
-              <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-            @endif
-            Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-          </td>
-              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
-              <td>{{ $eta->format('d/m/Y') }}</td>
-          @endif
-              <td class="actions-cell" style="text-align: center;">
-                <a href="{{ url('/view/sprint/'.$sprint->id) }}">
-                  <i class="fa fa-eye fa-fw pointer"></i>
-                </a>
-                @if ($firstRole != 6)
-                <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                  <i class="fa fa-edit fa-fw pointer"></i>
-                </a>
-                <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
-                @endif
-              </td>
-              <td>
-                <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
-                  {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-              <td style="text-align: center;">
-                <div class="d-flex justify-content-center status-group">
-                    <div class="status-box text-white" title="To Do" style="background-color: #948979;">
-                        {{ $sprint->todo_tickets_count ?? 0 }}
-                    </div>
-                    <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
-                        {{ $sprint->in_progress_tickets_count ?? 0 }}
-                    </div>
-                    <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
-                        {{ $sprint->ready_tickets_count ?? 0 }}
-                    </div>
-                    <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
-                      {{ $sprint->deployed_tickets_count ?? 0 }}
-                  </div>
-                    <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
-                        {{ $sprint->completed_tickets_count ?? 0 }}
-                    </div>
-                </div>
-            </td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>      
-    </div>     
-  </div>
-  @endif
-  @if(isset($completedsprints) && count($completedsprints) > 0)
-<div class="sprint-section mt-5">
-  <div class="sprint-header qa">
-    <div class="section-left">
-      <div class="section-icon" style="background-color: #3f996b">C</div>
-      <div class="section-title" style="color: #3f996b">Completed Sprints</div>
-      <div class="section-title">• {{ count($completedsprints) }} Sprint{{ count($completedsprints) > 1 ? 's' : '' }}</div>
-    </div>
-  </div>
-  <div class="table-responsive">
-    <table class="styled-sprint-table sprint-table">
-      <thead>
-        <tr style="color: #3f996b">
-          <th>S.No</th>
-          <th>Name</th>
-          <th>Project</th>
-          @if ($role_id != 6)
-                <th>Started At</th>
-                <th>End Date (d/m/y)</th>
-            @endif
-          <th>Actions</th>
-          <th>Status</th>
-          <th>Workflow Stage</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($completedsprints as $sprint)
-          @php
-            $eta      = \Carbon\Carbon::parse($sprint->eta);
-            $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-            $now      = \Carbon\Carbon::now('Asia/Kolkata');
-            $daysLeft = $eta->diffInDays($now);
-            $total    = $sprint->tickets_count ?? 0;
-            $completed = $sprint->completed_tickets_count ?? 0;
-            $progress = $total > 0 ? ($completed / $total) * 100 : 0;
-          @endphp
-          <tr>
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $sprint->name }}</td>
-            <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
-            @php
-              $firstRole = explode(' ', $role_id)[0] ?? 0;
-             @endphp
-          @if ($firstRole != 6)
-              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
-              <td>{{ $eta->format('d/m/Y') }}</td>
-          @endif
-            <td class="actions-cell" style="text-align: center;">
-              <a href="{{ url('/view/sprint/'.$sprint->id) }}">
-                <i class="fa fa-eye fa-fw pointer"></i>
-              </a>
-              @if ($firstRole != 6)
-              <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                <i class="fa fa-edit fa-fw pointer"></i>
-              </a>
-              <i class="fa fa-trash fa-fw pointer"
-                 onclick="deleteSprint('{{ $sprint->id }}')"></i>
-                 @endif
-            </td>
-            <td>
-              <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
-                {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td style="text-align: center;">
-              <div class="d-flex justify-content-center status-group">
-                  <div class="status-box text-white" title="To Do" style="background-color: #948979;">
-                      {{ $sprint->todo_tickets_count ?? 0 }}
-                  </div>
-                  <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
-                      {{ $sprint->in_progress_tickets_count ?? 0 }}
-                  </div>
-                  <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
-                      {{ $sprint->ready_tickets_count ?? 0 }}
-                  </div>
-                  <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
-                    {{ $sprint->deployed_tickets_count ?? 0 }}
-                </div>
-                  <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
-                      {{ $sprint->completed_tickets_count ?? 0 }}
-                  </div>
-              </div>
-          </td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>     
-  </div> 
 </div>
 @endif
 

@@ -3699,12 +3699,6 @@ nav.header-nav.ms-auto {
     align-items: center;
 }
 
-.text {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  align-items: center;
-}
 div#projects_length {
   padding-bottom: 20px;
 }
@@ -3725,4 +3719,19 @@ div#projects_length {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+
+.row.row-design {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row.row-design .col-md-2 {
+padding: 0!important;
+}
+.row-design .col-md-2 button.btn.btn-primary.m-3 {
+  margin: 0 !important;
+  background: #4154f1;
 }

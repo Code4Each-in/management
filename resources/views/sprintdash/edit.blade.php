@@ -124,38 +124,40 @@
                     @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
                     No Uploaded Document Found
                     @else  
-                        @foreach ($ProjectDocuments as $data)
-                            <button type="button" class="btn btn-outline-primary btn-sm mb-2">
-                                @php
-                                    $extension = pathinfo($data->document, PATHINFO_EXTENSION);
-                                    $iconClass = '';
-            
-                                    switch ($extension) {
-                                        case 'pdf':
-                                            $iconClass = 'bi-file-earmark-pdf';
-                                            break;
-                                        case 'doc':
-                                        case 'docx':
-                                            $iconClass = 'bi-file-earmark-word';
-                                            break;
-                                        case 'xls':
-                                        case 'xlsx':
-                                            $iconClass = 'bi-file-earmark-excel';
-                                            break;
-                                        case 'jpg':
-                                        case 'jpeg':
-                                        case 'png':
-                                            $iconClass = 'bi-file-earmark-image';
-                                            break;
-                                        default:
-                                            $iconClass = 'bi-file-earmark';
-                                            break;
-                                    }
-                                @endphp
-                                 <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
-                                 <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
-                            </button>
-                        @endforeach
+                    @foreach ($ProjectDocuments as $data)
+                    @if (!empty($data->document))
+                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                        @php
+                            $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                            $iconClass = '';
+    
+                            switch ($extension) {
+                                case 'pdf':
+                                    $iconClass = 'bi-file-earmark-pdf';
+                                    break;
+                                case 'doc':
+                                case 'docx':
+                                    $iconClass = 'bi-file-earmark-word';
+                                    break;
+                                case 'xls':
+                                case 'xlsx':
+                                    $iconClass = 'bi-file-earmark-excel';
+                                    break;
+                                case 'jpg':
+                                case 'jpeg':
+                                case 'png':
+                                    $iconClass = 'bi-file-earmark-image';
+                                    break;
+                                default:
+                                    $iconClass = 'bi-file-earmark';
+                                    break;
+                            }
+                        @endphp
+                         <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
+                         <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
+                    </button>
+                    @endif
+                @endforeach
                     @endif
                 </div>
             </div>   
