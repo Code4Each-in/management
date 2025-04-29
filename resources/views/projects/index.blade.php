@@ -102,7 +102,9 @@ use App\Models\Projects;?>
                                 @endforelse
                                 @if($projects->isEmpty())
                                 <tr>
-                                    <td colspan="8" class="text-center">No records to show</td>
+                                    <td colspan="{{ auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' ? 9 : 8 }}" class="text-center">
+                                        No records to show
+                                    </td>
                                 </tr>
                                 @endif
                         </table>
