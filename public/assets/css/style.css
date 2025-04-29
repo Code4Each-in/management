@@ -3692,3 +3692,8 @@ span.badge.inactive {
         margin: auto;
     }
 }
+
+nav.header-nav.ms-auto {
+  display: flex;
+  justify-content: flex-end;
+}

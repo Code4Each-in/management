@@ -108,22 +108,22 @@ class TicketsController extends Controller
 
     public function store(Request $request) 
 	{ 
-        $validator = Validator::make($request->all(),[
-            'title' => 'required',
-            'description'=>'required',
-            // 'assign'=>'required',
-            // 'eta_to' => 'required',
-             'project_id' => 'required',
-             'status'=>'required', 
-             'priority'=>'required',
-             'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
-            ],[
-                'add_document.*.file' => 'The :attribute must be a file.', 
-                'add_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-                'add_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-                'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
-
-            ]);
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|min:15',
+            'description' => 'required',
+            'project_id' => 'required',
+            'assign' => 'required|array|min:1',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+        ], [
+            'title.required' => 'Title is required.',
+            'title.min' => 'Title must be at least 15 characters.',
+            'description.required' => 'Description is required.',
+            'project_id.required' => 'Project is required.',
+            'assign.required' => 'Assign users is required.',
+            'add_document.*.file' => 'Each document must be a valid file.',
+            'add_document.*.mimes' => 'Each document must be of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
+            'add_document.*.max' => 'Each document must not exceed 5MB.',
+        ]);        
             $validator->setAttributeNames([
                 'add_document.*' => 'document',
             ]);
@@ -289,20 +289,19 @@ class TicketsController extends Controller
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
-        $validator = Validator::make($request->all(),[
-            'title' => 'required', 
-            'description'=>'required', 
-            'status'=>'required',
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'description' => 'required',
             'edit_project_id' => 'required',
-            'priority'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
-            ],[
-                'edit_document.*.file' => 'The :attribute must be a file.', 
-                'edit_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-                'edit_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-                'edit_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
-
-            ]);
+        ], [
+            'title.required' => 'Title is required.',
+            'description.required' => 'Description is required.',
+            'edit_project_id.required' => 'Project is required.',
+            'edit_document.*.file' => 'Each document must be a valid file.',
+            'edit_document.*.mimes' => 'Each document must be a file of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
+            'edit_document.*.max' => 'Each document may not be greater than 5000 kilobytes.',
+        ]);        
 
             $validator->setAttributeNames([
                 'edit_document.*' => 'document',
