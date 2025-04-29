@@ -134,7 +134,7 @@
           <div class="main-section">
             <div class="msger-header">
                 <h1>Chat</h1>
-                <i class="fas fa-comment icon"></i> <!-- Font Awesome chat icon -->
+                <i class="fas fa-comment icon"></i> 
             </div>
             <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
                 @if(count($CommentsData) != 0)
@@ -142,7 +142,6 @@
                         <div class="message">
                             <div class="info">{{ date("M d, Y", strtotime($data->created_at)) }}</div>
                             <div class="user">
-                                <!-- User Avatar -->
                                 @if(!empty($data->user->profile_picture))
                                     <div class="avatar" style="background-color: #27ae60;">
                                         <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
@@ -150,8 +149,6 @@
                                 @else
                                     <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                 @endif
-        
-                                <!-- User Information -->
                                 <div>
                                     <span class="name">{{ $data->user->first_name }}</span> 
                                     <span class="role">
@@ -166,9 +163,11 @@
                                 </div>
                             </div>
                             <div class="text">
+                              @if(Auth::user()->id == $data->comment_by)
                                 <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 15px;">
                                   <i class="fa-solid fa-trash"></i>
                               </button>
+                              @endif
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
