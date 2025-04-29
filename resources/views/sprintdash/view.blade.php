@@ -94,7 +94,7 @@
                                 }
                             @endphp
                             <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
-                            <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteUploadedFile('{{ $data->id }}')"></i>
+                            <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
                         </button>
                     @endif
                 @endforeach
