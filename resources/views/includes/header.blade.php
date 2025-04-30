@@ -66,7 +66,7 @@
                                         class="rounded-circle picture js-profile-picture">
                                     @endif
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-8">
                                     <h6>{{ auth()->user()->first_name ?? " " }}</h6>
                                     <span>{{ auth()->user()->role->name ?? " " }}</span>
                                 </div>

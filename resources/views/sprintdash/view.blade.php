@@ -191,7 +191,6 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
                             <td>
-                                <div class="dropdown">
                                 @php
                                     $statusColors = [
                                         'to_do' => '#948979',
@@ -201,26 +200,34 @@
                                         'complete' => '#2a9d8f',
                                     ];
                                     $color = $statusColors[$ticket->status] ?? ''; 
-                                    @endphp
-                                    <span class="badge rounded-pill dropdown-toggle"
-                                        data-bs-toggle="dropdown"
-                                        role="button"
-                                        aria-expanded="false"
-                                        style="cursor: pointer; background-color: {{ $color }};"
-                                        >
-                                    {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                                  </span>
-                                  <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                    @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
-                                      <li>
-                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                                          {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                        </a>
-                                      </li>
-                                    @endforeach
-                                  </ul>
-                                </div>
-                              </td>                              
+                                @endphp
+                            
+                                @if(Auth::user()->role_id != 6)
+                                    <div class="dropdown">
+                                        <span class="badge rounded-pill dropdown-toggle"
+                                              data-bs-toggle="dropdown"
+                                              role="button"
+                                              aria-expanded="false"
+                                              style="cursor: pointer; background-color: {{ $color }};">
+                                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                        </span>
+                                        <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
+                                            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                                                <li>
+                                                    <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @else
+                                    <span class="badge rounded-pill"
+                                          style="background-color: {{ $color }};">
+                                        {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                    </span>
+                                @endif
+                            </td>                                                          
                                 <td>
                                     @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
                                     {{ $user->assigned_user_name }} ({{ $user->designation }})
