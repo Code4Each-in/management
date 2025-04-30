@@ -176,6 +176,12 @@
                         <span>Sprint</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
+                        <i class="bi bi-people"></i>
+                        <span>Feedbacks</span>
+                    </a>
+                </li>
             @endif
 
           @if(auth()->user()->role->name == 'Super Admin')
@@ -221,6 +227,12 @@
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
                     <i class="bi bi-people"></i>
                     <span>Roles</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Feedbacks</span>
                 </a>
             </li>
           @endif
