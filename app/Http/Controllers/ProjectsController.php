@@ -345,22 +345,21 @@ class ProjectsController extends Controller
 }
 
 
-    public function allFeedback()
-    {
-
-        $user = auth()->user();
-        if ($user->role_id == 1) {
-            $feedbacks = Feedback::with(['developer', 'client'])->latest()->get();
-        } else {
-            
-            $feedbacks = Feedback::where('created_by', $user->id)
-                                ->with('client') 
-                                ->latest()
-                                ->get();
-        }
-
-        return view('developer.feedback', compact('feedbacks'));
+public function allFeedback()
+{
+    $user = auth()->user();
+    if ($user->role_id == 1) {
+        $feedbacks = Feedback::with(['developer', 'client'])->latest()->get();
+    } else {
+        
+        $feedbacks = Feedback::where('developer_id', $user->id)
+                            ->with(['developer', 'client']) 
+                            ->latest()
+                            ->get();
     }
+
+    return view('developer.feedback', compact('feedbacks'));
+}
 
 
 }
