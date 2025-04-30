@@ -92,42 +92,51 @@
 
 
       @php
-          $statusLabels = [
-            'to_do' => 'To do',        
-            'in_progress' => 'In progress',  
-            'ready' => 'Ready',       
-            'deployed' => 'Deployed',  
-            'complete' => 'Complete',   
-        ];
-        $statusColors = [
-            'to_do' => '#948979',        
-            'in_progress' => '#3fa6d7',  
-            'ready' => '#e09f3e',       
-            'deployed' => '#e76f51',  
-            'complete' => '#2a9d8f',   
-        ];
-        $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
-      @endphp
-      <div class="detail-item">
-        <i class="fa-solid fa-bolt"></i>
-        <strong>Ticket Status:</strong>
+    $statusLabels = [
+        'to_do' => 'To do',        
+        'in_progress' => 'In progress',  
+        'ready' => 'Ready',       
+        'deployed' => 'Deployed',  
+        'complete' => 'Complete',   
+    ];
+    $statusColors = [
+        'to_do' => '#948979',        
+        'in_progress' => '#3fa6d7',  
+        'ready' => '#e09f3e',       
+        'deployed' => '#e76f51',  
+        'complete' => '#2a9d8f',   
+    ];
+    $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+@endphp
+
+<div class="detail-item">
+    <i class="fa-solid fa-bolt"></i>
+    <strong>Ticket Status:</strong>
+
+    @if(Auth::user()->role_id != 6)
         <div class="dropdown d-inline-block ms-0">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
-            <!-- <i class="fa-solid fa-circle-dot"></i> -->
-            {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-          </button>
-      
-          <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
-              <li>
-                <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                  {{ ucfirst(str_replace('_', ' ', $status)) }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+            </button>
+            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
+                @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                    <li>
+                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
-      </div>      
+    @else
+    <button class="btn btn-sm btn-outline-secondary status-button ms-0"
+    type="button"
+    disabled
+    style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;">
+{{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+</button>
+    @endif
+</div>     
     </div>
   </div>
 </div>
