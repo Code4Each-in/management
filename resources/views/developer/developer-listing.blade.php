@@ -34,7 +34,7 @@
                         </td>                        
                         <td>
                             <a href="javascript:void(0);" class="open-feedback-modal" data-developer-id="{{ $developer->id }}">
-                                <i class="fa fa-eye fa-fw pointer"></i>
+                                <i class="fa fa-comment fa-fw pointer"></i>
                             </a>                          
                         </td>
                     </tr>
