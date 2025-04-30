@@ -3751,3 +3751,12 @@ li.dropdown-header .row {
 div#notification_length {
   padding-bottom: 20px;
 }
+@media (max-width: 767px) {
+  .delete-comment {
+      width: auto;
+  }
+  .status-button.ms-0 {
+      width: auto;
+      padding: 8px 14px;
+  }
+  }
