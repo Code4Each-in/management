@@ -152,7 +152,7 @@
     </div>
 </div>
     <div class="col-md-12">
-        <div class="card recent-sales">
+        <div class="card recent-sales overflow-auto ">
         <div class="card-body mt-2">
             <table class="table table-borderless datatable" id="allsprint">
                 <thead>
