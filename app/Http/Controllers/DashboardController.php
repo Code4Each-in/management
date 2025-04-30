@@ -45,6 +45,7 @@ class DashboardController extends Controller
             $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
         
             $notifications = Notification::whereIn('ticket_id', $ticketIds)
+            ->where('message', 'not like', '%assigned%') // partial match
             ->orderBy('created_at', 'desc')
             ->get()
             ->unique('created_at') 
