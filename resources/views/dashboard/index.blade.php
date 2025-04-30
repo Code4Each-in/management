@@ -849,47 +849,49 @@ use App\Models\Votes;
                     </tbody>               
                 </table> 
                 <div class="text-center mt-3">
-                    <a href="{{ url('/notification/all') }}" class="btn btn-primary">See All</a>
+                    <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
                 </div>                
         </div>
             </div>
         </div>
-        <div class="col-lg-4">
-                    <div class="card info-card sales-card">
-                        @if ($userBirthdateEvent->isNotEmpty())
-                            @php
-                                $hasUpcomingEvents = false;
-                            @endphp
+                    <div class="col-lg-4">
+                                <div class="card info-card sales-card">
+                                    @if ($userBirthdateEvent->isNotEmpty())
+                                        @php
+                                            $hasUpcomingEvents = false;
+                                        @endphp
 
-                            @foreach ($userBirthdateEvent as $user)
-                                @php
-                                    $birthMonth = date('m', strtotime($user->birth_date));
-                                    $birthDay = date('d', strtotime($user->birth_date));
-                                    $joinMonth = date('m', strtotime($user->joining_date));
-                                    $joinDay = date('d', strtotime($user->joining_date));
-                                    $currentMonth = date('m');
-                                    $currentDay = date('d');
+                                        @foreach ($userBirthdateEvent as $user)
+                                            @php
+                                                $birthMonth = date('m', strtotime($user->birth_date));
+                                                $birthDay = date('d', strtotime($user->birth_date));
+                                                $joinMonth = date('m', strtotime($user->joining_date));
+                                                $joinDay = date('d', strtotime($user->joining_date));
+                                                $currentMonth = date('m');
+                                                $currentDay = date('d');
 
-                                    $joiningDate = new DateTime($user->joining_date);
-                                    $currentDate = new DateTime(date('Y-m-d'));
-                                    $interval = $joiningDate->diff($currentDate);
+                                                $joiningDate = new DateTime($user->joining_date);
+                                                $currentDate = new DateTime(date('Y-m-d'));
+                                                $interval = $joiningDate->diff($currentDate);
 
-                                    $isBirthdayThisMonth = $currentMonth == $birthMonth;
-                                    $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+                                                $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                                                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
 
-                                    $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
-                                    if ($interval->y > 1) {
-                                        $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
-                                    } else {
-                                        $isAnniversaryUpcoming = false;
-                                    }
+                                                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                                                if ($interval->y > 1) {
+                                                    $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                                                } else {
+                                                    $isAnniversaryUpcoming = false;
+                                                }
 
-                                    if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
-                                        $hasUpcomingEvents = true;
-                                    }
-                                @endphp
-                            @endforeach
-
+                                                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                                                    $hasUpcomingEvents = true;
+                                                }
+                                            @endphp
+                                        @endforeach
+                                    
+                    </div>
+                        <div class="col-lg-4">
                             @if ($hasUpcomingEvents)
                             <div class="card upcoming-holidays">
                                 <div class="card-body pb-0">
@@ -948,6 +950,7 @@ use App\Models\Votes;
                                 </div>
                             @endif
                         @endif
+                        </div>
 
                         <div class="card upcoming-holidays">
                             <div class="card-body pb-0">
