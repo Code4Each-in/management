@@ -14,6 +14,8 @@ use App\Models\Votes;
 use App\Models\Sprint;
 use App\Models\Winners;
 use App\Models\Notification;
+use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -31,10 +33,24 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
-        ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
-        ->orderBy('created_at', 'desc') // Sorting in descending order
+        ->whereRaw("LOWER(status) != 'completed'") 
+        ->orderBy('created_at', 'desc')
         ->get();
-
+        $notifications  = 0;
+        if ($user->role_id == 6) {
+            $clientId = $user->client_id;
+        
+            $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        
+            $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        
+            $notifications = Notification::whereIn('ticket_id', $ticketIds)
+            ->where('message', 'not like', '%assigned%') // partial match
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('created_at') 
+            ->take(5); 
+        }        
         //dd($tasks->toArray());
         // Debug output
         // Get the authenticated user
@@ -67,11 +83,14 @@ class DashboardController extends Controller
             
             $clientId = $user->client_id;
             $countsprints = 0;
+            $projects = 0;
             if ($clientId !== null) {
 
-                $countsprints = Sprint::where('client', $clientId)
-                    ->where('status', 1)
-                    ->count();
+                $projects = Projects::where('client_id', $clientId)->get();
+                $sprints = Sprint::whereIn('project', $projects->pluck('id'))
+                                ->where('status', 1)  
+                                ->get();
+
             }
 
             
@@ -167,7 +186,7 @@ class DashboardController extends Controller
             $uservote = collect();
         } else {
             $uservote = Users::where('status', 1)
-                ->whereNotIn('role_id', [1, 2, 5])
+                ->whereNotIn('role_id', [1, 2, 5, 6])
                 ->get();
         }
 
@@ -313,7 +332,9 @@ $winner->uservotes = $winnerVotes;
             'allVotes',
             'todolist',
             'tasks',
-            'countsprints'
+            'countsprints',
+            'projects',
+            'notifications'
         ));
     }
 

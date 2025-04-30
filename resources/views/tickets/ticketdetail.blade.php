@@ -92,140 +92,177 @@
 
 
       @php
-          $statusLabels = [
-            'to_do' => 'To do',        
-            'in_progress' => 'In progress',  
-            'ready' => 'Ready',       
-            'deployed' => 'Deployed',  
-            'complete' => 'Complete',   
-        ];
-        $statusColors = [
-            'to_do' => '#948979',        
-            'in_progress' => '#3fa6d7',  
-            'ready' => '#e09f3e',       
-            'deployed' => '#e76f51',  
-            'complete' => '#2a9d8f',   
-        ];
-        $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
-      @endphp
-      <div class="detail-item">
-        <i class="fa-solid fa-bolt"></i>
-        <strong>Ticket Status:</strong>
+    $statusLabels = [
+        'to_do' => 'To do',        
+        'in_progress' => 'In progress',  
+        'ready' => 'Ready',       
+        'deployed' => 'Deployed',  
+        'complete' => 'Complete',   
+    ];
+    $statusColors = [
+        'to_do' => '#948979',        
+        'in_progress' => '#3fa6d7',  
+        'ready' => '#e09f3e',       
+        'deployed' => '#e76f51',  
+        'complete' => '#2a9d8f',   
+    ];
+    $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+@endphp
+
+<div class="detail-item">
+    <i class="fa-solid fa-bolt"></i>
+    <strong>Ticket Status:</strong>
+
+    @if(Auth::user()->role_id != 6)
         <div class="dropdown d-inline-block ms-0">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
-            <!-- <i class="fa-solid fa-circle-dot"></i> -->
-            {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-          </button>
-      
-          <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
-              <li>
-                <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                  {{ ucfirst(str_replace('_', ' ', $status)) }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+            </button>
+            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
+                @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                    <li>
+                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
-      </div>      
+    @else
+    <button class="btn btn-sm btn-outline-secondary status-button ms-0"
+    type="button"
+    disabled
+    style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;">
+{{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+</button>
+    @endif
+</div>     
     </div>
   </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <h1 class="h1 pagetitle" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #012970;">Ticket Chat</h1>
-        <div class="comments comment-design" style="overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
-            @if(!empty($ticketsCreatedByUser->ticketby->first_name))
-            <p><strong>Created by:&nbsp;{{ $ticketsCreatedByUser->ticketby->first_name ?? '' }}</strong></p>
-            @endif
-
-            @if(count($CommentsData) != 0)
-            @foreach ($CommentsData as $data)
-    <div class="row mb-3" style="margin-bottom: 15px;">       
-        @if(Auth::user()->id == $data->comment_by)
-            <div class="col-md-10 offset-md-2 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative; text-align: right;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
-                  data-id="{{ $data->id }}" 
-                  title="Delete Comment" 
-                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
-                   &times;
-               </a></p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>                
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
-                @php
-                $documents = explode(',', $data->document);
-            @endphp
-
-            @foreach ($documents as $doc)
-                @if (!empty($doc))
-                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
-                            {{ basename($doc) }}
-                        </a>
-                    </p>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
-                    data-id="{{ $data->id }}" 
-                    title="Delete Comment" 
-                    style="font-size: 1rem; line-height: 1; float: right;">
-                &times;
-            </button>
-                            @endif
-@endforeach
-                
+          <div class="main-section">
+            <div class="msger-header">
+                <h1>Chat</h1>
+                <i class="fas fa-comment icon"></i> 
             </div>
-        @else
-            @if(!empty($data->user->profile_picture))
-                <div class="col-md-2 comment-user-profile" style="padding-right: 10px;">
-                    <img src="{{ asset('assets/img/') . '/' . $data->user->profile_picture }}" class="rounded-circle" alt="" width="35" height="35">
-                </div>
-            @else
-                <div class="col-md-2 comment-user-profile" style="padding-right: 10px;">
-                    <img src="{{ asset('assets/img/blankImage.jpg') }}" alt="Profile" class="rounded-circle" width="35" height="35">
-                </div>
-            @endif
-            <div class="col-md-10 comment-bubble" style="border-radius: 25px; padding: 8px 16px; position: relative;">
-                <p style="font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">{{ $data->user->first_name }}<a href="javascript:void(0);" class="text-danger delete-comment" 
-                  data-id="{{ $data->id }}" 
-                  title="Delete Comment" 
-                  style="font-size: 1rem; line-height: 1; float: right; text-decoration: none; cursor: pointer;">
-                   &times;
-               </a></p>
-                <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 6px;">{{ date("M d, Y h:i A", strtotime($data->created_at)) }}</p>
-                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">{!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}</p>
-                @php
-                $documents = explode(',', $data->document);
-            @endphp
-            
-            @foreach ($documents as $doc)
-                @if (!empty($doc))
-                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                        <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
-                            {{ basename($doc) }}
-                        </a>
-                    </p>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent text-danger delete-comment" 
-                    data-id="{{ $data->id }}" 
-                    title="Delete Comment" 
-                    style="font-size: 1rem; line-height: 1; float: right;">
-                &times;
-            </button>
-                            @endif
-            @endforeach                            
+            <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+                @if(count($CommentsData) != 0)
+                    @foreach ($CommentsData as $data)
+                        <div class="message">
+                            <div class="info">{{ date("M d, Y", strtotime($data->created_at)) }}</div>
+                            <div class="user">
+                                @if(!empty($data->user->profile_picture))
+                                    <div class="avatar" style="background-color: #27ae60;">
+                                        <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
+                                    </div>
+                                @else
+                                    <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
+                                @endif
+                                <div>
+                                    <span class="name">{{ $data->user->first_name }}</span> 
+                                    <span class="role">
+                                      @if ($data->user->role_id == 6)
+                                          {{ $projectName ?? 'Project Not Assigned' }}
+                                      @else
+                                          Code4Each
+                                      @endif
+                                      @if(Auth::user()->id == $data->comment_by)                            
+                                      @endif
+                                  </span>                                  
+                                </div>
+                            </div>
+                            <div class="text">
+                              @if(Auth::user()->id == $data->comment_by)
+                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 15px;">
+                                  <i class="fa-solid fa-trash"></i>
+                              </button>
+                              @endif
+                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                                @php
+                                    $documents = explode(',', $data->document);
+                                @endphp
+        
+                                <!-- Display Documents -->
+                                @foreach ($documents as $doc)
+                                    @if (!empty($doc))
+                                        <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                                            <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
+                                                {{ basename($doc) }}
+                                            </a>
+                                        </p>
+                                    @endif
+                                @endforeach
+                            </div>
+                            <!-- Delete button (only for the comment owner) -->
+        
+                        </div>
+                    @endforeach
+                @else
+                    <div class="center text-center mt-2">
+                        <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
-@endforeach       
-            @else
-                <div class="center text-center mt-2">
-                    <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
-                </div>
-            @endif
             <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
               @csrf
               <div class="post-item clearfix mb-3 mt-3">
-                <textarea class="form-control comment-input" name="comment" id="tinymce_textarea" rows="3"></textarea>
-            </div>          
+                <label for="comment" class="col-sm-3 col-form-label">Comment</label>
+                <div class="col-sm-12">
+                    <div id="toolbar-container">
+                        <span class="ql-formats">
+                            <select class="ql-font"></select>
+                            <select class="ql-size"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-script" value="sub"></button>
+                            <button class="ql-script" value="super"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-header" value="1"></button>
+                            <button class="ql-header" value="2"></button>
+                            <button class="ql-blockquote"></button>
+                            <button class="ql-code-block"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                            <button class="ql-indent" value="-1"></button>
+                            <button class="ql-indent" value="+1"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-direction" value="rtl"></button>
+                            <select class="ql-align"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image"></button>
+                            <button class="ql-video"></button>
+                            <button class="ql-formula"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-clean"></button>
+                        </span>
+                    </div>
+                    <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
+                    <input type="hidden" name="comment" id="comment_input">
+            
+                    @if ($errors->has('comment'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
+                    @endif
+                </div>
+            </div>
+                     
               <div class="mb-3 post-item clearfix upload_chat">
                   <label for="comment_file" class="form-label">Attach File</label>
                   <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
@@ -239,15 +276,13 @@
               </div>
           </form>
             </div>
-        </div>    
-    </div>
-</div>
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
   $(document).ready(function() {
       $('#commentsData').on('submit', function(e) {
           e.preventDefault();
+          document.getElementById('comment_input').value = quill.root.innerHTML;
           $('.alert-danger').hide().html('');
           var formData = new FormData(this);
           $('#loader').show(); 
@@ -329,52 +364,60 @@
 </script>
 
         
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-        document.body.addEventListener('click', function (e) {
-          const clickedItem = e.target.closest('.dropdown-item');
-          if (!clickedItem) return;
-    
-          e.preventDefault();
-    
-          const newStatus = clickedItem.getAttribute('data-value');
-          const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
-    
-          if (!newStatus || !ticketId) {
-            alert("Missing data");
-            return;
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.body.addEventListener('click', function (e) {
+      const clickedItem = e.target.closest('.dropdown-item');
+
+      if (!clickedItem || !clickedItem.closest('.status-options')) return; // Only handle clicks inside status-options
+
+      e.preventDefault();
+
+      const newStatus = clickedItem.getAttribute('data-value');
+      const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
+
+      if (!newStatus || !ticketId) {
+        alert("Missing data");
+        return;
+      }
+
+      fetch(`/tickets/${ticketId}/update-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Update button text (optional visual update)
+          const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)?.previousElementSibling;
+          if (statusButton) {
+            const formattedStatus = newStatus
+              .replace('_', ' ')
+              .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word
+            statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${formattedStatus}`;
           }
-    
-          fetch(`/tickets/${ticketId}/update-status`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify({ status: newStatus }),
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              location.reload(true);
-              // Update the button text without reload
-              const statusButton = document.querySelector(`.status-options[data-ticket-id="${ticketId}"]`)
-                .previousElementSibling;
-    
-            //   if (statusButton) {
-            //     statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-            //   }
-            // } else {
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            alert('An error occurred.');
-          });
-        });
+
+          // Always reload after a small delay (to let user briefly see change if needed)
+          setTimeout(() => {
+            location.reload(true);
+          }, 300); // 300ms delay before reload
+        } else {
+          alert('Failed to update status.');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred.');
       });
-    </script>
+    });
+  });
+</script>
+  
      
 @endsection

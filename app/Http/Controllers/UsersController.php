@@ -27,49 +27,36 @@ class UsersController extends Controller
 	{
 		$usersFilter = request()->all() ;
         $allUsersFilter = $usersFilter['all_users'] ?? '';
-		if (auth()->user()->role->name == 'Super Admin')
-		{
 
+		if (auth()->user()->role->name == 'Super Admin') {
 			if ($allUsersFilter == 'on') {
-
 				$usersData = Users::with('documents')->whereHas('role', function($q){
 					$q->where('name', '!=', 'Super Admin');
-				})->orderBy('id','desc')->get();
-			}else{
+				})->where('users.role_id', '!=', 6)->orderBy('id','desc')->get();
 
+			} else {
 				$usersData = Users::with('documents')->whereHas('role', function($q){
 					$q->where('name', '!=', 'Super Admin');
-				})->where('status',1)->orderBy('id','desc')->get();
+				})->where('users.role_id', '!=', 6)->where('status',1)->orderBy('id','desc')->get();
 			}
-		}elseif (auth()->user()->role->name == 'HR Manager') {
-
+		} elseif (auth()->user()->role->name == 'HR Manager') {
 			if ($allUsersFilter == 'on') {
-
 				$usersData = Users::with('documents')->whereHas('role', function($q){
 					$q->where('name', '!=', 'Super Admin');
-				})->where('users.role_id','!=',auth()->user()->id)->orderBy('id','desc')->get();
-
-			}else{
-
+				})->where('users.role_id','!=',auth()->user()->id)->where('users.role_id', '!=', 6)->orderBy('id','desc')->get();
+			} else {
 				$usersData = Users::with('documents')->whereHas('role', function($q){
 					$q->where('name', '!=', 'Super Admin');
-				})->where('users.role_id','!=',auth()->user()->id)->where('status',1)->orderBy('id','desc')->get();
-
+				})->where('users.role_id','!=',auth()->user()->id)->where('users.role_id', '!=', 6)->where('status',1)->orderBy('id','desc')->get();
 			}
-
+		} else {
+			if ($allUsersFilter == 'on') {
+				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('users.role_id', '!=', 6)->get([ 'managers.user_id','users.*']);
+			} else {
+				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('users.role_id', '!=', 6)->where('status',1)->get([ 'managers.user_id','users.*']);
+			}
 		}
-		else
-		{
-			if ($allUsersFilter == 'on') {
-
-				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->get([ 'managers.user_id','users.*']);
-
-			}else{
-				$usersData = Users::join('managers', 'users.id', '=', 'managers.user_id')->where('managers.parent_user_id',auth()->user()->id)->where('status',1)->get([ 'managers.user_id','users.*']);
-
-			}
-
-		}
+		
 		if(!empty($usersData)){
 			foreach ($usersData as $key=>$data)
 			{
@@ -78,7 +65,7 @@ class UsersController extends Controller
 						->count();
 				$usersData[$key]->assignedDevices = !empty($assignedDevices)? $assignedDevices:null;
 			}
-	   }
+		}
 	   $users_Data = Users::with('role', 'department')
 	   ->where('status', '!=', 0)
 	   ->where('role_id', '!=', 6)

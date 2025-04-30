@@ -40,7 +40,7 @@
 <div class="col-md-8">
 <div class="text-center">
     <div id="pieChart" style="min-height: 400px;"></div>
-    <div class="row mt-0 justify-content-center">
+    <dfiv class="row mt-0 justify-content-center">
         <div class="col-auto">
             <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
@@ -56,45 +56,89 @@
         <div class="col-auto">
             <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;">Complete: {{ $complete }}</span>
         </div>
-    </div>
-</div>       </div>       
+    </dfiv>
+</div>    
+            <div class="row mb-5 mt-3">
+                <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents:</label>
+                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
+                    @if ($ProjectDocuments->isEmpty())
+                    No Uploaded Document Found
+                    @else  
+                    @foreach ($ProjectDocuments as $data)
+                    @if (!empty($data->document))
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                            @php
+                                $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                                $iconClass = '';
+                
+                                switch ($extension) {
+                                    case 'pdf':
+                                        $iconClass = 'bi-file-earmark-pdf';
+                                        break;
+                                    case 'doc':
+                                    case 'docx':
+                                        $iconClass = 'bi-file-earmark-word';
+                                        break;
+                                    case 'xls':
+                                    case 'xlsx':
+                                        $iconClass = 'bi-file-earmark-excel';
+                                        break;
+                                    case 'jpg':
+                                    case 'jpeg':
+                                    case 'png':
+                                        $iconClass = 'bi-file-earmark-image';
+                                        break;
+                                    default:
+                                        $iconClass = 'bi-file-earmark';
+                                        break;
+                                }
+                            @endphp
+                            <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
+                            <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
+                        </button>
+                    @endif
+                @endforeach
+                    @endif
+                </div>
+            </div>   
+            </div>       
                     <div class="col-md-4">
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $sprint->name }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Project</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $sprints->project_name }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Description</label>
                             <div class="col-sm-8">
                         <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Client</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $clients->client_name }}</p>
                             </div>
                         </div>
                         @if ($role_id != 6)
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->start_date)->format('M d, Y h:i A') }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">End Date</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
@@ -147,7 +191,6 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
                             <td>
-                                <div class="dropdown">
                                 @php
                                     $statusColors = [
                                         'to_do' => '#948979',
@@ -157,26 +200,34 @@
                                         'complete' => '#2a9d8f',
                                     ];
                                     $color = $statusColors[$ticket->status] ?? ''; 
-                                    @endphp
-                                    <span class="badge rounded-pill dropdown-toggle"
-                                        data-bs-toggle="dropdown"
-                                        role="button"
-                                        aria-expanded="false"
-                                        style="cursor: pointer; background-color: {{ $color }};"
-                                        >
-                                    {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                                  </span>
-                                  <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                    @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
-                                      <li>
-                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                                          {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                        </a>
-                                      </li>
-                                    @endforeach
-                                  </ul>
-                                </div>
-                              </td>                              
+                                @endphp
+                            
+                                @if(Auth::user()->role_id != 6)
+                                    <div class="dropdown">
+                                        <span class="badge rounded-pill dropdown-toggle"
+                                              data-bs-toggle="dropdown"
+                                              role="button"
+                                              aria-expanded="false"
+                                              style="cursor: pointer; background-color: {{ $color }};">
+                                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                        </span>
+                                        <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
+                                            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                                                <li>
+                                                    <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @else
+                                    <span class="badge rounded-pill"
+                                          style="background-color: {{ $color }};">
+                                        {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                    </span>
+                                @endif
+                            </td>                                                          
                                 <td>
                                     @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
                                     {{ $user->assigned_user_name }} ({{ $user->designation }})
@@ -391,5 +442,24 @@
                 });
             });
         });
-    </script>    
+    </script>  
+    <script>
+        function deleteSprintFile(id) {
+            var sprintId = {{ $sprint->id }};
+         if (confirm("Are you sure ?") == true) {
+             $.ajax({
+                 type: 'DELETE',
+                 url: "{{ url('/delete/sprint/file') }}",
+                 data: {
+                     id: id,
+                     sprintId: sprintId,
+                     _token: '{{ csrf_token() }}'
+                 },
+                 success: function (data) {
+                     location.reload();
+                 }
+             });
+         }
+     }
+         </script>   
 @endsection

@@ -791,27 +791,210 @@ use App\Models\Votes;
 @endif
 @if (auth()->user()->role_id == 6)
 <div class="row">
-    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
-        <div class="row">
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-card">
-<div class="card-body">
-    <h5 class="card-title">Total Sprints</h5>
-    <div class="d-flex align-items-center">
-        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-            <i class="bi bi-person"></i>
+    <!-- Left 8-column block for both tables -->
+    <div class="col-lg-8">
+      <!-- First Card -->
+      <div class="card mb-3">
+        <div class="card-body pb-4">
+          <h4 class="mb-3">Projects List</h4>
+          <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Project Name</th>
+                            <th>Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($projects as $project)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $project->project_name }}</td>
+                                <td>{{ $project->start_date }}</td>
+                                <td>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="ps-3">
+        <div class="card">
+            <div class="card-body pb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Notification</th>
+                            <th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($notifications as $notification)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $notification->message }}</td>
+                                <td>
+                                    <a href="{{ url('/view/ticket/'.$notification->ticket_id)}}" target="_blank">
+                                        <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>{{ $notification->ticket_id }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>               
+                </table> 
+                <div class="text-center mt-3">
+                    <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
+                </div>                
+        </div>
+            </div>
+        </div>
+                    <div class="col-lg-4">
+                                <div class="card info-card sales-card">
+                                    @if ($userBirthdateEvent->isNotEmpty())
+                                        @php
+                                            $hasUpcomingEvents = false;
+                                        @endphp
 
-            <h6>{{$countsprints}}</h6>
+                                        @foreach ($userBirthdateEvent as $user)
+                                            @php
+                                                $birthMonth = date('m', strtotime($user->birth_date));
+                                                $birthDay = date('d', strtotime($user->birth_date));
+                                                $joinMonth = date('m', strtotime($user->joining_date));
+                                                $joinDay = date('d', strtotime($user->joining_date));
+                                                $currentMonth = date('m');
+                                                $currentDay = date('d');
+
+                                                $joiningDate = new DateTime($user->joining_date);
+                                                $currentDate = new DateTime(date('Y-m-d'));
+                                                $interval = $joiningDate->diff($currentDate);
+
+                                                $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                                                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+                                                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                                                if ($interval->y > 1) {
+                                                    $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                                                } else {
+                                                    $isAnniversaryUpcoming = false;
+                                                }
+
+                                                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                                                    $hasUpcomingEvents = true;
+                                                }
+                                            @endphp
+                                        @endforeach
+                                    
+                    </div>
+                        <div class="col-lg-4">
+                            @if ($hasUpcomingEvents)
+                            <div class="card upcoming-holidays">
+                                <div class="card-body pb-0">
+                                  <h5 class="card-title">Upcoming Holidays</h5>
+
+                                        <div class="news">
+                                            @foreach ($userBirthdateEvent as $user)
+                                                @php
+                                                    $birthMonth = date('m', strtotime($user->birth_date));
+                                                    $birthDay = date('d', strtotime($user->birth_date));
+                                                    $joinMonth = date('m', strtotime($user->joining_date));
+                                                    $joinDay = date('d', strtotime($user->joining_date));
+                                                    $currentMonth = date('m');
+                                                    $currentDay = date('d');
+
+                                                    $joiningDate = new DateTime($user->joining_date);
+                                                    $currentDate = new DateTime(date('Y-m-d'));
+                                                    $interval = $joiningDate->diff($currentDate);
+
+                                                    $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                                                    $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+                                                    $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                                                    if ($interval->y > 1) {
+                                                        $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                                                    } else {
+                                                        $isAnniversaryUpcoming = false;
+                                                    }
+                                                @endphp
+
+                                                @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
+                                                    <div class="post-item clearfix">
+                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                                                        <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
+                                                        <span> & </span>
+                                                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                                                        <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                                                    </div>
+                                                @elseif ($isBirthdayUpcoming)
+                                                    <div class="post-item clearfix">
+                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                                                        <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
+                                                    </div>
+                                                @elseif ($isAnniversaryUpcoming)
+                                                    <div class="post-item clearfix">
+                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                                                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                                                        <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+                        </div>
+
+                        <div class="card upcoming-holidays">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title"> Upcoming Holidays</h5>
+
+                                <div class="news">
+                                    @if ($upcomingFourHolidays)
+                                        @foreach ($upcomingFourHolidays as $holiday)
+                                            <div class="post-item clearfix">
+                                                <h4>
+                                                    {{ $holiday->name }}
+                                                    <span> |
+                                                        @if ($holiday->from === $holiday->to)
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                                        @else
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
+                                                            {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                                        @endif
+                                                    </span>
+                                                </h4>
+                                                <p>
+                                                    Holiday
+                                                    @if ($holiday->from === $holiday->to)
+                                                        On {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                    @else
+                                                        From {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                        to {{ date("d-M-Y", strtotime($holiday->to)) }}
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="alert" role="alert">
+                                            No upcoming holidays found.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-        </div>
-    </div>
-</div>
-    </div>
-</div>
 @endif
 @endsection
 @section('js_scripts')

@@ -21,15 +21,65 @@
                         @endif
                     </div>
                 </div>
+
                 <div class="row mb-5">
-                    <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
-                    <div class=" col-sm-9">
-                        <textarea name="description" class="form-control" id="tinymce_textarea" >{{$tickets->description}}</textarea>
-                        @if ($errors->has('description'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
-                        @endif
+                <label class="col-sm-3 col-form-label required">Description</label>
+
+                <div class="col-sm-9 mb-3">
+                    <div id="toolbar-container">
+                        <span class="ql-formats">
+                            <select class="ql-font"></select>
+                            <select class="ql-size"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-script" value="sub"></button>
+                            <button class="ql-script" value="super"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-header" value="1"></button>
+                            <button class="ql-header" value="2"></button>
+                            <button class="ql-blockquote"></button>
+                            <button class="ql-code-block"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                            <button class="ql-indent" value="-1"></button>
+                            <button class="ql-indent" value="+1"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-direction" value="rtl"></button>
+                            <select class="ql-align"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image"></button>
+                            <button class="ql-video"></button>
+                            <button class="ql-formula"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-clean"></button>
+                        </span>
                     </div>
-                </div>
+                
+                    <div id="editor" style="height: 300px;">{!! $tickets->description !!}</div>
+                    <input type="hidden" name="description" id="edit_description">
+                
+                    @if ($errors->has('description'))
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
+                    @endif
+                </div>     
+                </div>                
                 <div class="row mb-5">
                     <label for="edit_project_id" class="col-sm-3 col-form-label required">Project</label>
                     <div class="col-sm-9">
@@ -43,7 +93,7 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label class="col-sm-3 col-form-label required">Sprint</label>
+                    <label class="col-sm-3 col-form-label">Sprint</label>
                     <div class="col-sm-9">
                         <select name="edit_sprint_id" class="form-select form-control" id="edit_sprint_id">
                             <option value="">Select Sprint</option>
@@ -93,7 +143,7 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
+                    <label for="edit_status" class="col-sm-3 col-form-label">Status</label>
                     <div class="col-sm-9">
                         <select name="status" class="form-select" id="edit_status">
                             <option value="to_do">To do</option>
@@ -113,7 +163,7 @@
 
 
                 <div class="row mb-5">
-                    <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
+                    <label for="edit_priority" class="col-sm-3 col-form-label">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select" id="edit_priority">
                             <option value="priority" {{$tickets->priority == 'priority' ? 'selected' : '' }}>
@@ -387,5 +437,9 @@ $('#edit_project_id').on('change', function () {
     document.getElementById("edit_eta").setAttribute("max", maxEta);
 });
 </script>
-
+<script>
+$('#editTicketsForm').on('submit', function () {
+    $('#edit_description').val(quill.root.innerHTML);
+});
+</script>
 @endsection

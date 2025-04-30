@@ -22,6 +22,11 @@
         </div>End Search Bar -->
 
         <nav class="header-nav ms-auto">
+            @if (auth()->user()->role_id != 6)
+                <div id="notificationDropdown">
+                    @include('notifications.partials._dropdown')
+                </div>
+                @endif
             <ul class="d-flex align-items-center">
 
                 <li class="nav-item d-block d-lg-none">
@@ -29,10 +34,6 @@
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
-
-                <div id="notificationDropdown">
-                    @include('notifications.partials._dropdown')
-                </div>
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
@@ -65,7 +66,7 @@
                                         class="rounded-circle picture js-profile-picture">
                                     @endif
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-8">
                                     <h6>{{ auth()->user()->first_name ?? " " }}</h6>
                                     <span>{{ auth()->user()->role->name ?? " " }}</span>
                                 </div>
@@ -75,12 +76,14 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
+                            @if (auth()->user()->role_id != 6)
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="{{route('profile')}}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
                         </li>
+                        @endif
                         <hr class="dropdown-divider">
 
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('logout')}}">
@@ -136,6 +139,18 @@
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('devlisting') ? '' : 'collapsed' }}"
+                    href="{{ route('projects.devlisting') }}">
+                    <i class="bi bi-list-task"></i> <span>Developer Listing</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('notification.all') ? '' : 'collapsed' }}"
+                    href="{{ route('notification.all') }}">
+                    <i class="bi bi-grid"></i> <span>All Notifications</span>
+                </a>
+            </li>            
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -159,6 +174,12 @@
                         href="{{ route('sprint.index') }}">
                         <i class="bi bi-clipboard"></i>
                         <span>Sprint</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
+                        <i class="bi bi-people"></i>
+                        <span>Feedbacks</span>
                     </a>
                 </li>
             @endif
@@ -208,6 +229,12 @@
                     <span>Roles</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Feedbacks</span>
+                </a>
+            </li>
           @endif
           @if (auth()->user()->role->name == 'HR Manager')
           <li class="nav-item">
@@ -223,7 +250,13 @@
                     <span>Roles</span>
                 </a>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                    href="{{ route('sprint.index') }}">
+                    <i class="bi bi-clipboard"></i>
+                    <span>Sprint</span>
+                </a>
+            </li>
 
           @endif
             <li class="nav-item">
@@ -600,7 +633,7 @@
             });
         }
         fetchNotifications();
-        setInterval(fetchNotifications, 10000);
+        setInterval(fetchNotifications, 30000);
     </script>
 
 </body>

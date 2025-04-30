@@ -100,6 +100,13 @@ use App\Models\Projects;?>
                                 </tr>
                                 @empty
                                 @endforelse
+                                @if($projects->isEmpty())
+                                <tr>
+                                    <td colspan="{{ auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' ? 9 : 8 }}" class="text-center">
+                                        No records to show
+                                    </td>
+                                </tr>
+                                @endif
                         </table>
   
 
@@ -181,9 +188,61 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
                                 <div class="col-sm-9">
-                                    <textarea name="description" class="form-control" id="tinymce_textarea"></textarea>
+                                    <!-- Quill Toolbar -->
+                                    <div id="toolbar-container">
+                                        <span class="ql-formats">
+                                            <select class="ql-font"></select>
+                                            <select class="ql-size"></select>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-bold"></button>
+                                            <button class="ql-italic"></button>
+                                            <button class="ql-underline"></button>
+                                            <button class="ql-strike"></button>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <select class="ql-color"></select>
+                                            <select class="ql-background"></select>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-script" value="sub"></button>
+                                            <button class="ql-script" value="super"></button>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-header" value="1"></button>
+                                            <button class="ql-header" value="2"></button>
+                                            <button class="ql-blockquote"></button>
+                                            <button class="ql-code-block"></button>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-list" value="ordered"></button>
+                                            <button class="ql-list" value="bullet"></button>
+                                            <button class="ql-indent" value="-1"></button>
+                                            <button class="ql-indent" value="+1"></button>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-direction" value="rtl"></button>
+                                            <select class="ql-align"></select>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-link"></button>
+                                            <button class="ql-image"></button>
+                                            <button class="ql-video"></button>
+                                            <button class="ql-formula"></button>
+                                        </span>
+                                        <span class="ql-formats">
+                                            <button class="ql-clean"></button>
+                                        </span>
+                                    </div>
+                            
+                                    <div id="editor" style="height: 300px;">{!! old('description') !!}</div>
+                                    <input type="hidden" name="description" id="description_input">
+                            
+                                    @if ($errors->has('description'))
+                                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
+                                    @endif
                                 </div>
-                            </div>
+                            </div>                            
                             <div class="row mb-3">
                                 <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
                                 <div class="col-sm-9">
@@ -200,7 +259,7 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label">Credentials</label>
                                 <div class="col-sm-9">
-                                    <textarea name="credentials" class="form-control" id="tinymce_textarea"></textarea>
+                                    <textarea name="credentials" class="form-control"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -266,6 +325,7 @@ use App\Models\Projects;?>
                 
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
+                    $('#description_input').val(quill.root.innerHTML);
                     var formData = new FormData(this);
                     // var totalfiles = document.getElementById('add_document').files.length;
 
@@ -357,7 +417,6 @@ use App\Models\Projects;?>
             function editTickets(id) {
                 $('#editProjects').modal('show');
                 $('#ticket_id').val(id);
-
                 $.ajax({
                     type: "POST",
                     url: "{{ url('/edit/project') }}",

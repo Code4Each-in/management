@@ -481,6 +481,7 @@
 
                 $('#editTicketsForm').submit(function(event) {
                     event.preventDefault();
+                    $('#description_input').val(quill.root.innerHTML);
                     var formData = new FormData(this);
                     $('#loader').show();
 
@@ -751,27 +752,29 @@ document.getElementById('f').addEventListener('input', checkCharLength);
 
 
   </script>
-  <script>
+ <script>
     document.addEventListener('DOMContentLoaded', function () {
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  
+    
       document.body.addEventListener('click', function (e) {
         const clickedItem = e.target.closest('.dropdown-item');
-  
-        if (!clickedItem) return; 
-  
-        e.preventDefault(); 
-  
+    
+        // Only handle clicks inside status-options
+        if (!clickedItem || !clickedItem.closest('.status-options')) return;
+    
+        e.preventDefault();
+    
         const newStatus = clickedItem.getAttribute('data-value');
-        const ticketId = clickedItem.closest('.status-options')?.getAttribute('data-ticket-id');
-  
+        const statusOptions = clickedItem.closest('.status-options');
+        const ticketId = statusOptions?.getAttribute('data-ticket-id');
+    
         if (!newStatus || !ticketId) {
           alert("Missing status or ticket ID");
           return;
         }
-  
+    
         console.log(`Updating ticket ${ticketId} to status: ${newStatus}`);
-  
+    
         fetch(`/tickets/${ticketId}/update-status`, {
           method: 'POST',
           headers: {
@@ -783,8 +786,10 @@ document.getElementById('f').addEventListener('input', checkCharLength);
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            location.reload(); 
+            // ✅ Now reload the page to apply new CSS/colors
+            location.reload(true); // true = reload from server (force reload)
           } else {
+            alert('Failed to update status.');
           }
         })
         .catch(error => {
@@ -793,8 +798,5 @@ document.getElementById('f').addEventListener('input', checkCharLength);
         });
       });
     });
-  </script>
-  
-  
-    
-        @endsection
+    </script>    
+    @endsection
