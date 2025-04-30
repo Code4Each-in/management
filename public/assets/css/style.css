@@ -594,12 +594,15 @@ h6 {
   margin-bottom: 0;
   font-weight: 600;
   color: #444444;
+  text-align: left;
+
 }
 
 .header-nav .profile .dropdown-header span {
   font-size: 14px;
+  text-align: left;
+  display: flex;
 }
-
 .header-nav .profile .dropdown-item {
   font-size: 14px;
   padding: 10px 15px;
@@ -3744,4 +3747,7 @@ li.dropdown-header .row {
   align-items: center;
   margin: 0px 0;
   padding: 0;
+}
+div#notification_length {
+  padding-bottom: 20px;
 }

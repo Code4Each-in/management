@@ -4,7 +4,7 @@
 @section('content')
 <div class="card">
     <div class="card-body pb-4">
-        <table class="table table-bordered" id="notification">
+        <table class="table table-striped  table-bordered" id="notification">
         <thead>
             <tr>
                 <th>Sr No</th>
