@@ -15,5 +15,13 @@ class Feedback extends Model
         'feedback', 
         'created_by', 
     ];
+    public function developer()
+{
+    return $this->belongsTo(Users::class, 'developer_id');
+}
+public function client()
+{
+    return $this->belongsTo(Users::class, 'created_by');
+}
 
 }
