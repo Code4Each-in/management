@@ -317,9 +317,6 @@
     </div>
 </div>
 @endif
-
-<div class="col-lg-12">
-    <div class="card">
         <div class="modal fade" id="addSprints" tabindex="-1" aria-labelledby="role" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content" style="width: 630px;">
@@ -463,8 +460,7 @@
             </div>
         </div>
         <!---end Add modal-->
-    </div>
-</div>
+   
 <div id="loader">
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>

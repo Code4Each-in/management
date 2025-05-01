@@ -7,7 +7,6 @@
         <table class="table table-striped  table-bordered" id="notification">
         <thead>
             <tr>
-                <th>Sr No</th>
                 <th>Notification</th>
                 <th>Ticket</th>
             </tr>
@@ -15,11 +14,10 @@
         <tbody>
             @foreach($notifications as $index => $notification)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
                     <td>{{ $notification->message }}</td>
                     <td>
                         <a href="{{ url('/view/ticket/'.$notification->ticket_id) }}" target="_blank">
-                            <i class="fa fa-eye text-primary"></i> {{ $notification->ticket_id }}
+                            <i class="fa fa-eye text-primary"></i> 
                         </a>
                     </td>
                 </tr>
