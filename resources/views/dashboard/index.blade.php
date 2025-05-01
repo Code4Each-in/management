@@ -1286,7 +1286,7 @@ use App\Models\Votes;
                     const body = note.querySelector('.note-body').innerText.trim();
 
                     // Check if note is still default (incomplete)
-                    if (title === 'Title' || body === 'Type here...') {
+                    if (title === 'Title' && body === 'Type here...') {
                         note.classList.add('shake');
                         setTimeout(() => note.classList.remove('shake'), 500);
                         return;
