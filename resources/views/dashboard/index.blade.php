@@ -811,6 +811,7 @@ use App\Models\Votes;
       <div class="card mb-3">
         <div class="card-body pb-4">
           <h4 class="mb-3">Projects List</h4>
+          <div class="table-responsive">
           <table class="table table-striped">
                     <thead>
                         <tr>
@@ -831,19 +832,24 @@ use App\Models\Votes;
                                     <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
                                         <i class="fa fa-eye"></i>
                                     </a>
+                                    <a href="{{ url('/edit/project/'.$project->id)}}">
+                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                        </a>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+          </div>
             </div>
         </div>
         <div class="card">
             <div class="card-body pb-4">
+                <h4 class="mb-3">Recent Notifications</h4>
+                <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Sr No</th>
                             <th>Notification</th>
                             <th>Ticket</th>
                         </tr>
@@ -851,7 +857,6 @@ use App\Models\Votes;
                     <tbody>
                         @foreach($notifications as $notification)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $notification->message }}</td>
                                 <td>
                                     <a href="{{ url('/view/ticket/'.$notification->ticket_id)}}" target="_blank">
@@ -862,6 +867,7 @@ use App\Models\Votes;
                         @endforeach
                     </tbody>               
                 </table> 
+                </div>
                 <div class="text-center mt-3">
                     <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
                 </div>                

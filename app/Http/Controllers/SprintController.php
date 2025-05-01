@@ -27,13 +27,18 @@ class SprintController extends Controller
     public function index()
 {
     $projectFilter = request()->input('project_filter');
-    $clients = Client::orderBy('name', 'asc')->get();
+    
     $user = Auth::user();
     $clientId = $user->client_id;
     if (!is_null($clientId)) {
         $projects = Projects::where('client_id', $clientId)->get();
+        $clients = Client::where('id', $clientId)
+        ->orderBy('name', 'asc')
+        ->get();
+
     } else {
         $projects = Projects::all();
+        $clients = Client::orderBy('name', 'asc')->get();
     }
     
     $sprints = Sprint::with('projectDetails')
@@ -150,7 +155,7 @@ public function store(Request $request)
         'status' => 'required',
         'description' => 'required',
         'add_document' => 'nullable|array', 
-        'add_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx',
+        'add_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls',
     ]);
 
     if ($validator->fails()) {
@@ -201,9 +206,20 @@ public function store(Request $request)
      public function editSprint($sprintId)
     {
         $sprint = Sprint::findOrFail($sprintId);
-        $projects = Projects::all();
         $clients = Client::orderBy('name', 'asc')  
         ->get();
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        if (!is_null($clientId)) {
+            $projects = Projects::where('client_id', $clientId)->get();
+            $clients = Client::where('id', $clientId)
+            ->orderBy('name', 'asc')
+            ->get();
+    
+        } else {
+            $projects = Projects::all();
+            $clients = Client::orderBy('name', 'asc')->get();
+        }
         $allDocs = explode(',', $sprint->document);
 $existingDocs = array_filter($allDocs, function ($file) {
     return file_exists(public_path('assets/img/' . trim($file)));

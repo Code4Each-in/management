@@ -3305,9 +3305,8 @@ form#commentsData {
 
 /* Post Item (Each Comment) */
 .post-item {
-  display: flex;
   flex-direction: column;
-  /* margin-bottom: 30px; */
+  margin-bottom: 0px;
 }
 
 /* Comment Input Area */
@@ -3733,7 +3732,7 @@ padding: 0!important;
   background: #4154f1;
 }
 .card.info-card.sales-card {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 li.dropdown-header .row {
   display: flex;
@@ -3907,3 +3906,31 @@ div#notification_length {
   .sticky-heading i{
     font-size: 35px;
   }
+  .project {
+    width: auto;
+}
+
+@media (max-width: 767px) {
+  .main-section {
+  width: 100%;
+margin: auto;
+  
+}
+.row.row-design {
+display: flex;
+justify-content: center;
+align-items: center;
+flex-wrap: wrap;
+gap: 15px;
+}
+.row.row-design .btn {
+width: 50% !important;
+}
+select#projectFilterselectBox {
+width: 50%;
+}
+div#notification_filter {
+  padding-bottom: 25px;
+}
+} 
+

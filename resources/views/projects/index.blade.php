@@ -8,13 +8,14 @@ use App\Models\Projects;?>
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openprojectModal()" href="javascript:void(0)">Add
+            <button class="btn btn-primary mt-3 project" onClick="openprojectModal()" href="javascript:void(0)">Add
                 Project</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <!-- filter -->
                 <div class="box-header with-border mt-4" id="filter-box">
                     <div class="box-body table-responsive" style="margin-bottom: 5%">
+                        <div class="table-responsive">
                     <table class="table table-borderless dashboard" id="projects">
                             <thead>
                                 <tr>
@@ -26,7 +27,7 @@ use App\Models\Projects;?>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)   
                                     <th>Action</th>
                                     @endif
                                 </tr>
@@ -88,7 +89,7 @@ use App\Models\Projects;?>
                                     @endif
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)    
                                     <td> 
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
@@ -108,7 +109,7 @@ use App\Models\Projects;?>
                                 </tr>
                                 @endif
                         </table>
-  
+                        </div>
 
                     </div>
                 </div>
@@ -149,7 +150,7 @@ use App\Models\Projects;?>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
+                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>     
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>

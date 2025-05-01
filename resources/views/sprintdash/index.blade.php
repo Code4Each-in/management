@@ -84,11 +84,11 @@
                   <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                       <i class="fa fa-eye fa-fw pointer"></i>
                   </a>
-              
+                  <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                    <i class="fa fa-edit fa-fw pointer"></i>
+                </a>
                   @if ($firstRole != 6) 
-                      <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
-                          <i class="fa fa-edit fa-fw pointer"></i>
-                      </a>
+                      
                       <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
                   @endif
               </td>                       
@@ -186,10 +186,11 @@
                     <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                       <i class="fa fa-eye fa-fw pointer"></i>
                     </a>
-                    @if ($firstRole != 6)
                     <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                       <i class="fa fa-edit fa-fw pointer"></i>
                     </a>
+                    @if ($firstRole != 6)
+                    
                     <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
                     @endif
                   </td>
@@ -275,10 +276,11 @@
                   <a href="{{ url('/view/sprint/'.$sprint->id) }}">
                     <i class="fa fa-eye fa-fw pointer"></i>
                   </a>
-                  @if ($firstRole != 6)
                   <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                     <i class="fa fa-edit fa-fw pointer"></i>
                   </a>
+                  @if ($firstRole != 6)
+                  
                   <i class="fa fa-trash fa-fw pointer"
                     onclick="deleteSprint('{{ $sprint->id }}')"></i>
                     @endif
@@ -369,7 +371,9 @@
                                 <label for="client" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
                                     <select name="client" class="form-select form-control" id="client">
+                                      @if ($role_id != 6)
                                         <option value="" disabled selected>Select Client</option>
+                                        @endif
                                         @foreach ($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
@@ -534,6 +538,12 @@ function opensprintModal() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+    $(".alert-danger").text(xhr.responseJSON.message).fadeIn();
+
+setTimeout(() => {
+    $(".alert-danger").fadeOut();
+}, 4000);
+
 });
 
     function deleteSprint(id) {
