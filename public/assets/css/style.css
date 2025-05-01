@@ -3503,6 +3503,11 @@ button[type="button"]gfdg:hover {
       padding: 14px;
       font-size: 18px;
   }
+  div#addSprints button[type="button"] {
+    width: auto !important;
+    font-size: 14px;
+    background-size: auto !important;
+}
 }/* Comment Textarea Visibility */
 #tinymce_textarea {
   visibility: hidden;
@@ -3932,5 +3937,16 @@ width: 50%;
 div#notification_filter {
   padding-bottom: 25px;
 }
+div#addSprints .modal-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+div#addSprints .modal-content {
+  width: 100% !important;
+}
 } 
 
+card.upcoming-holidays {
+  margin-bottom: 0px !important;
+}

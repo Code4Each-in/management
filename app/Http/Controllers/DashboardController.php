@@ -77,6 +77,7 @@ class DashboardController extends Controller
                   ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth]);
         })
         ->where('status', 1)
+        ->where('role_id', '!=', 6)
         ->get();
     
 
@@ -86,6 +87,7 @@ class DashboardController extends Controller
                   ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent]);
         })
         ->where('status', '=', 1)
+        ->where('role_id', '!=', 6)
         ->get();
     
             

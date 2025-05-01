@@ -205,7 +205,7 @@ use App\Models\Votes;
             </ul> -->
             </div>
             @if(count($userBirthdate)!=0)
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Birthday/Anniversary</h5>
                 <div class="row mb-2">
                     @if(count($userBirthdate) !=0)
@@ -622,7 +622,7 @@ use App\Models\Votes;
               </ul>
             </div> -->
 
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Upcoming Holidays</h5>
 
                 <div class="news">
@@ -913,7 +913,7 @@ use App\Models\Votes;
                         
 
                         <div class="card upcoming-holidays">
-                            <div class="card-body pb-0">
+                            <div class="card-body">
                                 <h5 class="card-title"> Upcoming Holidays</h5>
 
                                 <div class="news">

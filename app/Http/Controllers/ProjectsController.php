@@ -42,12 +42,14 @@ class ProjectsController extends Controller
                     $query->where('client_id', $clientId); 
                 }
             })->orderBy('id', 'desc')->get();
+            $projectCount = $projects->count();
         } else {
             $projectsQuery = Projects::query();
             if (!is_null($clientId)) {
                 $projectsQuery->where('client_id', $clientId);
             }
             $projects = $projectsQuery->orderBy('id', 'desc')->get();
+            $projectCount = $projects->count();
         }
 
         foreach ($projects as $key => $data) {
@@ -62,7 +64,7 @@ class ProjectsController extends Controller
             $projects[$key]->client_name = $clientName;
         }
     
-        return view('projects.index', compact('users', 'projects', 'clients'));
+        return view('projects.index', compact('users', 'projects', 'clients', 'projectCount'));
     }
     
 

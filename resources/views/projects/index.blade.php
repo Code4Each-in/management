@@ -6,17 +6,24 @@ use App\Models\Projects;?>
 @section('subtitle', 'Projects')
 @section('content')
 <div class="col-lg-12">
+    <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)">Add
+        Project</button>
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3 project" onClick="openprojectModal()" href="javascript:void(0)">Add
-                Project</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <!-- filter -->
+                <div class="sprint-header production">
+                    <div class="section-left">
+                      <div class="section-icon bg-production" style="background-color: #297bab;">P</div>
+                      <div class="section-title" style="color: #297bab;">Total Projects</div>
+                      <div class="section-title">• {{ $projectCount ?? 0 }} Projects</div>
+                    </div>
+                  </div>
                 <div class="box-header with-border mt-4" id="filter-box">
-                    <div class="box-body table-responsive" style="margin-bottom: 5%">
+                    <div class="box-body" style="margin-bottom: 5%">
                         <div class="table-responsive">
-                    <table class="table table-borderless dashboard" id="projects">
+                    <table class="styled-sprint-table sprint-table" id="projects">
                             <thead>
                                 <tr>
                                     <th>Project Id</th>
@@ -156,7 +163,7 @@ use App\Models\Projects;?>
                                 <option value="" disabled>Select User</option>
                                          @foreach ($users ?? '' as $data)
                                         <option value="{{$data->id}}">
-                                        {{$data->first_name}} - {{$data->role_name}}
+                                        {{$data->first_name}} - {{$data->designation}}
                                         </option>
                                         @endforeach
                                 </select>
@@ -319,10 +326,6 @@ use App\Models\Projects;?>
                 setTimeout(function() {
                     $('.message').fadeOut("slow");
                 }, 2000);
-                $('#projects').DataTable({
-                    "order": []
-
-                });
                 
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
