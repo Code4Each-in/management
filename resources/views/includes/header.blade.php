@@ -29,7 +29,7 @@
                 @endif
             <ul class="d-flex align-items-center">
 
-                <li class="nav-item d-block d-lg-none">
+                <li class="nav-item d-block d-none">
                     <a class="nav-link nav-icon search-bar-toggle " href="#">
                         <i class="bi bi-search"></i>
                     </a>
@@ -136,19 +136,19 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
                     href="{{ route('projects.index') }}">
-                    <i class="bi bi-list-task"></i> <span>Projects</span>
+                    <i class="bi bi-collection"></i> <span>Projects</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('devlisting') ? '' : 'collapsed' }}"
                     href="{{ route('projects.devlisting') }}">
-                    <i class="bi bi-list-task"></i> <span>Developer Listing</span>
+                    <i class="bi bi-people"></i> <span>Developer Listing</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('notification.all') ? '' : 'collapsed' }}"
                     href="{{ route('notification.all') }}">
-                    <i class="bi bi-grid"></i> <span>All Notifications</span>
+                    <i class="bi bi-bell"></i> <span>All Notifications</span>
                 </a>
             </li>            
         @endif

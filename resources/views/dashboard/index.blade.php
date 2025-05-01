@@ -890,8 +890,8 @@ use App\Models\Votes;
                                             @endphp
                                         @endforeach
                                     
-                    </div>
-                        <div class="col-lg-4">
+                   
+                        
                             @if ($hasUpcomingEvents)
                             <div class="card upcoming-holidays">
                                 <div class="card-body pb-0">
@@ -950,7 +950,7 @@ use App\Models\Votes;
                                 </div>
                             @endif
                         @endif
-                        </div>
+                        
 
                         <div class="card upcoming-holidays">
                             <div class="card-body pb-0">
@@ -990,6 +990,7 @@ use App\Models\Votes;
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>

@@ -131,7 +131,6 @@
     @else
     <button class="btn btn-sm btn-outline-secondary status-button ms-0"
     type="button"
-    disabled
     style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;">
 {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
 </button>
@@ -142,7 +141,7 @@
 </div>
           <div class="main-section">
             <div class="msger-header">
-                <h1>Chat</h1>
+                <h1>Chats</h1>
                 <i class="fas fa-comment icon"></i> 
             </div>
             <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
