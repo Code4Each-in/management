@@ -39,7 +39,7 @@
         @endphp
 <div class="col-md-8">
 <div class="text-center">
-    <div id="pieChart" style="min-height: 400px;"></div>
+    <div id="pieChart" style="min-height: 350px;"></div>
     <dfiv class="row mt-0 justify-content-center">
         <div class="col-auto">
             <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>

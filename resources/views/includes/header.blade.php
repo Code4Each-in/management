@@ -141,7 +141,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('devlisting') ? '' : 'collapsed' }}"
-                    href="{{ route('projects.devlisting') }}">
+                    href="{{ route('devlisting') }}">
                     <i class="bi bi-people"></i> <span>Developer Listing</span>
                 </a>
             </li>
@@ -174,12 +174,6 @@
                         href="{{ route('sprint.index') }}">
                         <i class="bi bi-clipboard"></i>
                         <span>Sprint</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
-                        <i class="bi bi-people"></i>
-                        <span>Feedbacks</span>
                     </a>
                 </li>
             @endif
