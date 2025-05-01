@@ -72,14 +72,22 @@ class DashboardController extends Controller
         ->count();
 
         $dayMonth = date('m-d');
-        $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
-            ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
-            ->where('status', 1)->get();
+        $userBirthdate = Users::where(function ($query) use ($dayMonth) {
+            $query->whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
+                  ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth]);
+        })
+        ->where('status', 1)
+        ->get();
+    
 
         $dayMonthEvent = date('m');
-        $userBirthdateEvent = Users::whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
-            ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent])
-            ->where('status', 1)->get();
+        $userBirthdateEvent = Users::where(function ($query) use ($dayMonthEvent) {
+            $query->whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
+                  ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent]);
+        })
+        ->where('status', '=', 1)
+        ->get();
+    
             
             $clientId = $user->client_id;
             $countsprints = 0;

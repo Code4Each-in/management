@@ -141,14 +141,14 @@
 </div>
           <div class="main-section">
             <div class="msger-header">
-                <h1>Chats</h1>
+                <h1>Comments</h1>
                 <i class="fas fa-comment icon"></i> 
             </div>
             <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
                 @if(count($CommentsData) != 0)
                     @foreach ($CommentsData as $data)
                         <div class="message">
-                            <div class="info">{{ date("M d, Y", strtotime($data->created_at)) }}</div>
+                            <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
                             <div class="user">
                                 @if(!empty($data->user->profile_picture))
                                     <div class="avatar" style="background-color: #27ae60;">
