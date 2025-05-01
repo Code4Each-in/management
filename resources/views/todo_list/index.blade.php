@@ -11,9 +11,7 @@
                     @csrf
                     <div class="col-md-12">
                         <div class="input-text-group mb-3">
-                            <input type="text" class="form-control-text py-2" placeholder="WHAT NEEDS TO BE DONE?" style="
-    width: 100%;
-" name="title" id="taskTitle" required>
+                            <input type="text" class="form-control-text py-2" placeholder="WHAT NEEDS TO BE DONE?" style="width: 100%;" name="title" id="taskTitle" required>
                             <button type="submit" class="btn bg-primary text-white px-3">Add</button>
                         </div>
                     </div>
@@ -602,31 +600,6 @@
 //             $('#addTaskForm2 input[name="task_id"]').remove();
 //         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // $(document).ready(function () {
 //     $('#addTaskForm2').submit(function (e) {
 //         e.preventDefault();
@@ -696,39 +669,39 @@
 //     }
 // }
 
-// function toggleCompleted(checkbox) {
-//     var taskId = $(checkbox).val();
-//     var taskItem = $('#taskk_' + taskId);
-//     var taskTitle = $('#taskk_' + taskId + ' td:first');
-//     var holdButton = taskItem.find('.btn-hold');
-//     var reopenButton = taskItem.find('.btn-reopen');
+function toggleCompleted(checkbox) {
+    var taskId = $(checkbox).val();
+    var taskItem = $('#taskk_' + taskId);
+    var taskTitle = $('#taskk_' + taskId + ' td:first');
+    var holdButton = taskItem.find('.btn-hold');
+    var reopenButton = taskItem.find('.btn-reopen');
 
-//     if ($(checkbox).is(':checked')) {
-//         taskTitle.css('text-decoration', 'line-through');
-//         reopenButton.show();
-//         holdButton.hide();
-//     } else {
-//         taskTitle.css('text-decoration', 'none');
-//         reopenButton.hide();
-//         holdButton.show();
-//     }
+    if ($(checkbox).is(':checked')) {
+        taskTitle.css('text-decoration', 'line-through');
+        reopenButton.show();
+        holdButton.hide();
+    } else {
+        taskTitle.css('text-decoration', 'none');
+        reopenButton.hide();
+        holdButton.show();
+    }
 
-//     $.ajax({
-//         type: 'PUT',
-//         url: "{{ url('/todo_list')}}/" + taskId + "/status",
-//         data: {
-//             status: $(checkbox).is(':checked') ? 'completed' : 'open',
-//             _token: "{{ csrf_token() }}"
-//         },
-//         success: function(response) {
-//             taskItem.toggleClass('completed', $(checkbox).is(':checked'));
-//             location.reload();
-//         },
-//         error: function(xhr, status, error) {
-//             console.log("Error updating task status:", error);
-//         }
-//     });
-// }
+    $.ajax({
+        type: 'PUT',
+        url: "{{ url('/todo_list')}}/" + taskId + "/status",
+        data: {
+            status: $(checkbox).is(':checked') ? 'completed' : 'open',
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            taskItem.toggleClass('completed', $(checkbox).is(':checked'));
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            console.log("Error updating task status:", error);
+        }
+    });
+}
 
 
 $(document).ready(function () {
