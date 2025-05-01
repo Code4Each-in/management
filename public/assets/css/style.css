@@ -3754,3 +3754,156 @@ div#notification_length {
       padding: 8px 14px;
   }
   }
+
+  .sticky-card {
+    padding: 20px 15px 10px;
+  }
+  .notes-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    justify-content: center;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    height: 600px;
+    padding: 40px 0px;
+  }
+  
+  .note {
+    width: 300px;
+    max-height: fit-content;
+    overflow: hidden;
+    padding: 1.5rem;
+    background: #fff9a0;
+    border-radius: 10px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    animation: popIn 0.4s ease;
+    transition: all 0.3s ease-in-out;
+    transform: rotate(0deg);
+  }
+  
+  .note.expanded {
+    max-height: none;
+  }
+  
+  .note:hover {
+    transform: rotate(0deg) scale(1.05) !important; /* Ensure hover state works */
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.25);
+    z-index: 3;
+    -webkit-box-shadow: 10px 10px 7px rgba(0, 0, 0, .2);
+    -webkit-transform: scale(1.1);
+  }
+  
+  .note-title,
+  .note-body {
+    border: none;
+    outline: none;
+    background: transparent;
+  }
+  
+  .note-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .note-body {
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .read-more-link {
+    font-size: 0.85rem;
+    color: #007bff;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    display: inline-block;
+  }
+  
+  .delete-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    color: #c0392b;
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+  
+  .dots-menu {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    color: #555;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .add-note {
+    width: 250px;
+    height: 250px;
+    border: 2px dashed #bbb;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    font-size: 2.5rem;
+    color: #999;
+    cursor: pointer;
+    transition: 0.3s;
+    transform: rotate(-5deg) scale(1.02);
+  }
+  
+  .add-note:hover {
+    background: #fdfdfd;
+    transform: rotate(0deg) scale(1.05) !important;
+  }
+  
+  @keyframes popIn {
+    from {
+      transform: scale(0.6) rotate(10deg);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+  
+  .color-yellow { background: #fff9a0; }
+  .color-green  { background: #d4f4be; }
+  .color-blue   { background: #cce5ff; }
+  .color-pink   { background: #ffd6e0; }
+  .color-purple { background: #ede7f6; }
+  
+  .note:nth-child(odd) {
+    transform: rotate(-3deg) scale(1.02);
+  }
+   
+  .note:nth-child(even) {
+    transform: rotate(4deg) scale(1.02);
+  }
+  .vbo-sticky-note-sign {
+    font-size: 0.85em;
+    font-style: italic;
+    text-align: right;
+    margin-top: 30px; /* Reduced margin for a more compact look */
+    color: #000000; /* A darker color for the text to ensure readability */
+  }
+  
+  .vbo-sticky-note-sign-dt {
+    display: block; /* Ensures the date and time are on a new line */
+    margin-bottom: 4px; /* Adds a little space between the date and user */
+  }
+  
+  .vbo-sticky-note-sign-user {
+    font-weight: bold; /* Make the user name stand out */
+    color: #085cb6; /* A blue color to highlight the username */
+  }
+  .sticky-heading i{
+    font-size: 45px;
+  }
