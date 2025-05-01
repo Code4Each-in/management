@@ -3769,8 +3769,9 @@ div#notification_length {
     justify-content: center;
     overflow-y: auto; 
     overflow-x: hidden;
-    height: 600px;
+    max-height: 600px;
     padding: 40px 0px;
+    height: auto;
   }
   
   .note {
