@@ -3228,10 +3228,10 @@ textarea#comment {
 
 .badge-number {
   position: absolute;
-  top: -5px;
+  top: -6px;
   right: -5px;
-  font-size: 12px;
-  padding: 3px 3px;
+  font-size: 20px;
+  padding: 0px 3px;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -3307,7 +3307,7 @@ form#commentsData {
 .post-item {
   display: flex;
   flex-direction: column;
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
 }
 
 /* Comment Input Area */
@@ -3391,12 +3391,6 @@ form#commentsData {
   padding: 10px;
 }
 
-/* Post Item (Each Comment) */
-.post-item {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 30px;
-}
 
 /* Comment Input Area */
 .comment-input {

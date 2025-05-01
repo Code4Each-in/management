@@ -889,66 +889,6 @@ use App\Models\Votes;
                                                 }
                                             @endphp
                                         @endforeach
-                                    
-                   
-                        
-                            @if ($hasUpcomingEvents)
-                            <div class="card upcoming-holidays">
-                                <div class="card-body pb-0">
-                                  <h5 class="card-title">Upcoming Holidays</h5>
-
-                                        <div class="news">
-                                            @foreach ($userBirthdateEvent as $user)
-                                                @php
-                                                    $birthMonth = date('m', strtotime($user->birth_date));
-                                                    $birthDay = date('d', strtotime($user->birth_date));
-                                                    $joinMonth = date('m', strtotime($user->joining_date));
-                                                    $joinDay = date('d', strtotime($user->joining_date));
-                                                    $currentMonth = date('m');
-                                                    $currentDay = date('d');
-
-                                                    $joiningDate = new DateTime($user->joining_date);
-                                                    $currentDate = new DateTime(date('Y-m-d'));
-                                                    $interval = $joiningDate->diff($currentDate);
-
-                                                    $isBirthdayThisMonth = $currentMonth == $birthMonth;
-                                                    $isAnniversaryThisMonth = $currentMonth == $joinMonth;
-
-                                                    $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
-                                                    if ($interval->y > 1) {
-                                                        $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
-                                                    } else {
-                                                        $isAnniversaryUpcoming = false;
-                                                    }
-                                                @endphp
-
-                                                @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
-                                                    <div class="post-item clearfix">
-                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                                        <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
-                                                        <span> & </span>
-                                                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                                        <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
-                                                    </div>
-                                                @elseif ($isBirthdayUpcoming)
-                                                    <div class="post-item clearfix">
-                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                                        <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                                        <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
-                                                    </div>
-                                                @elseif ($isAnniversaryUpcoming)
-                                                    <div class="post-item clearfix">
-                                                        <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                                        <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                                        <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
                         @endif
                         
 
