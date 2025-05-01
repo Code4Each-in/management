@@ -1191,6 +1191,16 @@ use App\Models\Votes;
         let updateTimeout;
         const colors = ['color-yellow', 'color-green', 'color-blue', 'color-pink', 'color-purple'];
         const noteGrid = document.getElementById('noteGrid');
+        let lastColorIndex = -1;
+
+        function getRandomColorClass() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * colors.length);
+            } while (newIndex === lastColorIndex && colors.length > 1);
+            lastColorIndex = newIndex;
+            return colors[newIndex];
+        }
 
         function createNote(id, title = false, body= false, created = '', first_name = '', last_name = '') {
             const createdDate = new Date(created);
@@ -1199,7 +1209,7 @@ use App\Models\Votes;
             const formattedDateTime = `${formattedDate} ${formattedTime}`;
             const fullName = first_name + ' ' + last_name;
 
-            const colorClass = colors[Math.floor(Math.random() * colors.length)];
+            const colorClass = getRandomColorClass();
             const note = document.createElement('div');
             note.className = `note ${colorClass}`;
 
@@ -1212,15 +1222,15 @@ use App\Models\Votes;
             note.innerHTML = `
                 <input type="hidden" class="note-id" value="${id}">
                 <div class="note-inner-container">
-                <div class="delete-btn"><i class="fas fa-trash"></i></div>
-                <div class="note-content">
-                <div class="note-title" contenteditable="true">${title}</div>
-                <div class="note-body" contenteditable="true">${body}</div>
-                </div>
-                <div class="vbo-sticky-note-sign">
-                <span class="vbo-sticky-note-sign-dt">${formattedDateTime}</span>
-        <span class="vbo-sticky-note-sign-user">${fullName}</span>
-        </div>
+                    <div class="delete-btn"><i class="fas fa-trash"></i></div>
+                    <div class="note-content">
+                        <div class="note-title" contenteditable="true">${title}</div>
+                        <div class="note-body" contenteditable="true">${body}</div>
+                    </div>
+                    <div class="vbo-sticky-note-sign">
+                        <span class="vbo-sticky-note-sign-dt">${formattedDateTime}</span>
+                        <span class="vbo-sticky-note-sign-user">${fullName}</span>
+                    </div>
                 </div>
             `;
 
@@ -1275,9 +1285,7 @@ use App\Models\Votes;
                 .then(response => response.json())
                 .then(data => {
                     var notesResult = data.note;
-                    console.log('dsfdsf', data);
                     createNote(notesResult.id, false, false, notesResult.created_at, notesResult.first_name, notesResult.last_name);
-                    // id, title = 'Title', body = 'Type here...', created = '', first_name = '', last_name = ''
                 });
             };
             noteGrid.appendChild(addBtn);
