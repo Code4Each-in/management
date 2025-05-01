@@ -1285,9 +1285,7 @@ use App\Models\Votes;
                 .then(response => response.json())
                 .then(data => {
                     var notesResult = data.note;
-                    console.log('dsfdsf', data);
                     createNote(notesResult.id, false, false, notesResult.created_at, notesResult.first_name, notesResult.last_name);
-                    // id, title = 'Title', body = 'Type here...', created = '', first_name = '', last_name = ''
                 });
             };
             noteGrid.appendChild(addBtn);
