@@ -247,6 +247,20 @@ use App\Models\Votes;
     </div>
 </div>
 
+<!-- Sticky Notes Started -->
+<div class="col-lg-12 stickyNotes">
+  <div class="card">
+    <div class="sticky-card">
+      <div class="row">
+        <!-- <div class="container"> -->
+            <h3>Sticky Notes</h3>
+            <div class="notes-wrapper" id="noteGrid"></div>
+        </div>
+      <!-- </div> -->
+    </div>
+  </div>
+<!-- Sticky Notes Ended -->
+
 <!-- ---------- ToDo List Started ---------------- -->
 <div class="col-lg-12">
     <div class="card">
@@ -1149,7 +1163,140 @@ use App\Models\Votes;
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
+
+    // Fetch the sticky notes
+        $.ajax({
+            url: '{{ route('sticky.notes') }}',
+            method: 'GET',
+            success: function(response) {
+                const notes = response;
+                notes.forEach(function(note) {
+                    const title = note.title ? note.title : undefined;
+                    const body = note.notes ? note.notes : undefined;
+                    createNote(note.id, title, body, note.created_at, note.first_name, note.last_name);
+                });
+            },
+            error: function() {
+                console.error('Could not load sticky notes.');
+            }
+        });
     });
+        // sticky notes js started //
+        let updateTimeout;
+        const colors = ['color-yellow', 'color-green', 'color-blue', 'color-pink', 'color-purple'];
+        const noteGrid = document.getElementById('noteGrid');
+
+        function createNote(id, title = false, body= false, created = '', first_name = '', last_name = '') {
+            const createdDate = new Date(created);
+            const formattedDate = createdDate.toLocaleDateString();
+            const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const formattedDateTime = `${formattedDate} ${formattedTime}`;
+            const fullName = first_name + ' ' + last_name;
+
+            const colorClass = colors[Math.floor(Math.random() * colors.length)];
+            const note = document.createElement('div');
+            note.className = `note ${colorClass}`;
+
+            if (title === false) {
+                title = 'Title';
+            }
+            if (body === false) {
+                body = 'Type here...';
+            }
+            note.innerHTML = `
+                <input type="hidden" class="note-id" value="${id}">
+                <div class="note-inner-container">
+                <div class="delete-btn"><i class="fas fa-trash"></i></div>
+                <div class="note-content">
+                <div class="note-title" contenteditable="true">${title}</div>
+                <div class="note-body" contenteditable="true">${body}</div>
+                </div>
+                <div class="vbo-sticky-note-sign">
+                <span class="vbo-sticky-note-sign-dt">${formattedDateTime}</span>
+        <span class="vbo-sticky-note-sign-user">${fullName}</span>
+        </div>
+                </div>
+            `;
+
+            note.querySelector('.note-title').addEventListener('blur', updateNote);
+            note.querySelector('.note-body').addEventListener('blur', updateNote);
+
+            // Add delete button functionality
+            note.querySelector('.delete-btn').onclick = function() {
+                const noteId = note.querySelector('.note-id').value;
+
+                if (confirm('Are you sure you want to delete this note?')) {
+                    fetch('/sticky-notes/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ id: noteId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            note.remove(); 
+                        } else {
+                            alert('Failed to delete note.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            };
+
+            // Insert the note before the add button
+            noteGrid.insertBefore(note, document.getElementById('addBtn'));
+        }
+
+        function createAddBtn() {
+            const addBtn = document.createElement('div');
+            addBtn.id = 'addBtn';
+            addBtn.className = 'add-note';
+            addBtn.innerHTML = '<i class="bi bi-plus-circle-dotted"></i>';
+            addBtn.onclick = () => {
+                fetch('/sticky-notes/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var notesResult = data.note;
+                    console.log('dsfdsf', data);
+                    createNote(notesResult.id, false, false, notesResult.created_at, notesResult.first_name, notesResult.last_name);
+                    // id, title = 'Title', body = 'Type here...', created = '', first_name = '', last_name = ''
+                });
+            };
+            noteGrid.appendChild(addBtn);
+        }
+
+        function updateNote(event) {
+            clearTimeout(updateTimeout); 
+
+            updateTimeout = setTimeout(() => {
+                const noteElement = event.target.closest('.note');
+                const noteId = noteElement.querySelector('.note-id').value;
+                const title = noteElement.querySelector('.note-title').innerText.trim();
+                const body = noteElement.querySelector('.note-body').innerText.trim();
+
+                fetch(`/sticky-notes/update/${noteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ title: title, notes: body })
+                });
+            }, 1000); 
+        }
+        createAddBtn();
 </script>
 
 @endsection
