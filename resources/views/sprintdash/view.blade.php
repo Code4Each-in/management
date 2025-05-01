@@ -163,6 +163,7 @@
                         <th scope="col">Status</th>
                         <th scope="col">Assigned To</th>
                         <th scope="col">Actions</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
