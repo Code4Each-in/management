@@ -3769,8 +3769,9 @@ div#notification_length {
     justify-content: center;
     overflow-y: auto; 
     overflow-x: hidden;
-    height: 600px;
+    max-height: 600px;
     padding: 40px 0px;
+    height: auto;
   }
   
   .note {
@@ -3784,7 +3785,7 @@ div#notification_length {
     position: relative;
     display: flex;
     flex-direction: column;
-    animation: popIn 0.4s ease;
+    /* animation: popIn 0.4s ease; */
     transition: all 0.3s ease-in-out;
     transform: rotate(0deg);
   }
@@ -3946,6 +3947,26 @@ div#addSprints .modal-content {
   width: 100% !important;
 }
 } 
+h3.sticky-heading {
+  color: #012999;
+  font-family: "Poppins", sans-serif;
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
+  animation-fill-mode: both;
+}
+.note-saved-message {
+  color: green
+}
+
 
 card.upcoming-holidays {
   margin-bottom: 0px !important;

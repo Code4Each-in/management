@@ -1179,7 +1179,7 @@ use App\Models\Votes;
                 notes.forEach(function(note) {
                     const title = note.title ? note.title : undefined;
                     const body = note.notes ? note.notes : undefined;
-                    createNote(note.id, title, body, note.created_at, note.first_name, note.last_name);
+                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
                 });
             },
             error: function() {
@@ -1202,7 +1202,7 @@ use App\Models\Votes;
             return colors[newIndex];
         }
 
-        function createNote(id, title = false, body= false, created = '', first_name = '', last_name = '') {
+        function createNote(id, userid, title = false, body= false, created = '', first_name = '', last_name = '') {
             const createdDate = new Date(created);
             const formattedDate = createdDate.toLocaleDateString();
             const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1221,9 +1221,13 @@ use App\Models\Votes;
             }
             note.innerHTML = `
                 <input type="hidden" class="note-id" value="${id}">
+                <input type="hidden" class="user-id" value="${userid}">
                 <div class="note-inner-container">
                     <div class="delete-btn"><i class="fas fa-trash"></i></div>
                     <div class="note-content">
+                        <div class="note-saved-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Saved
+                        </div>
                         <div class="note-title" contenteditable="true">${title}</div>
                         <div class="note-body" contenteditable="true">${body}</div>
                     </div>
@@ -1273,7 +1277,23 @@ use App\Models\Votes;
             addBtn.id = 'addBtn';
             addBtn.className = 'add-note';
             addBtn.innerHTML = '<i class="bi bi-plus-circle-dotted"></i>';
+            
             addBtn.onclick = () => {
+                const notes = document.querySelectorAll('.note');
+
+                for (let note of notes) {
+                    const title = note.querySelector('.note-title').innerText.trim();
+                    const body = note.querySelector('.note-body').innerText.trim();
+
+                    // Check if note is still default (incomplete)
+                    if ((title === 'Title' || title === '') && (body === 'Type here...' || body === '')) {
+                        note.classList.add('shake');
+                        setTimeout(() => note.classList.remove('shake'), 500);
+                        return;
+                    }
+                }
+
+                // If all notes are complete, proceed to create a new note
                 fetch('/sticky-notes/create', {
                     method: 'POST',
                     headers: {
@@ -1284,15 +1304,16 @@ use App\Models\Votes;
                 })
                 .then(response => response.json())
                 .then(data => {
-                    var notesResult = data.note;
-                    createNote(notesResult.id, false, false, notesResult.created_at, notesResult.first_name, notesResult.last_name);
+                    const note = data.note;
+                    createNote(note.id, note.userid, false, false, note.created_at, note.first_name, note.last_name);
                 });
             };
+
             noteGrid.appendChild(addBtn);
         }
 
         function updateNote(event) {
-            clearTimeout(updateTimeout); 
+            clearTimeout(updateTimeout);
 
             updateTimeout = setTimeout(() => {
                 const noteElement = event.target.closest('.note');
@@ -1307,9 +1328,19 @@ use App\Models\Votes;
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ title: title, notes: body })
+                })
+                .then(() => {
+                    const savedMsg = noteElement.querySelector('.note-saved-message');
+                    savedMsg.style.display = 'block';
+                    savedMsg.classList.add('show');
+                    setTimeout(() => {
+                        savedMsg.classList.remove('show');
+                        savedMsg.style.display = 'none';
+                    }, 3000); 
                 });
-            }, 1000); 
+            }, 1000);
         }
+
         createAddBtn();
 </script>
 
