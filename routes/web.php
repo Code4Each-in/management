@@ -27,6 +27,7 @@ use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\ScrumdashController;
 use App\Http\Controllers\SprintController;
 use App\Http\Controllers\EmailAll;
+use App\Http\Controllers\StickyNoteController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -285,12 +286,16 @@ Route::middleware(['role_permission'])->group(function () {
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
 
-//developer related listing 
+	//developer related listing 
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
     Route::delete('/delete/sprint/file', [SprintController::class, 'deleteSprintFile']);
 	Route::get('/notification/all', [SprintController::class, 'allNotifications'])->name('notification.all');
 	Route::get('/developer/feedback', [ProjectsController::class, 'allfeedback'])->name('developer.feedback');
 
-
+	//Sticky Note
+	Route::get('/sticky-notes', [StickyNoteController::class, 'getNotes'])->name('sticky.notes');
+	Route::post('/sticky-notes/create', [StickyNoteController::class, 'createNote'])->name('sticky.notes.create');
+	Route::post('/sticky-notes/update/{id}', [StickyNoteController::class, 'updateNote'])->name('sticky.notes.update');
+	Route::post('/sticky-notes/delete', [StickyNoteController::class, 'deleteNote']);
 });
