@@ -509,10 +509,10 @@ h6 {
   top: -5px;
   right: -5px;
   font-size: 12px;
-  padding: 3px 3px;
+  padding: 2px 2px;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   min-width: unset;
 }
 
@@ -2284,7 +2284,7 @@ span.badge.rounded-pill.bg-info {
 }
 /* Badge Styling */
 .badge {
-  border-radius: 5px !important;
+  border-radius: 10px !important;
   font-size: 13px;
   min-width: 100px;
   text-align: center;

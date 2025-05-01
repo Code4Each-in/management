@@ -59,7 +59,7 @@
     </dfiv>
 </div>    
             <div class="row mb-5 mt-3">
-                <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents:</label>
+                <label class="col-sm-4 col-form-label fw-bold">Uploaded Documents:</label>
                 <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
                     @if ($ProjectDocuments->isEmpty())
                     No Uploaded Document Found
