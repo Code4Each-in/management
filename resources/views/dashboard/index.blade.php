@@ -1336,7 +1336,7 @@ use App\Models\Votes;
                     setTimeout(() => {
                         savedMsg.classList.remove('show');
                         savedMsg.style.display = 'none';
-                    }, 5000); 
+                    }, 3000); 
                 });
             }, 1000);
         }
