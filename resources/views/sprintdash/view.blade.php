@@ -21,9 +21,11 @@
         </h2>
         <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
             <div class="accordion-body">
-                <div class="row align-items-center">
+                <div class="row">
                     <div class="button-design2">
-                    <button id="resetChartBtn">Reset Chart</button>
+                        <button id="resetChartBtn" class="btn btn-light" title="Reset Chart">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>                        
                     </div>
                     @php
     $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; 
@@ -39,7 +41,7 @@
         @endphp
 <div class="col-md-8">
 <div class="text-center">
-    <div id="pieChart" style="min-height: 350px;"></div>
+    <div id="pieChart" style="min-height: 300px;"></div>
     <dfiv class="row mt-0 justify-content-center">
         <div class="col-auto">
             <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
@@ -241,10 +243,11 @@
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                 </a>
-                                @if ($firstRole != 6)
                                 <a href="{{ url('/edit/ticket/'.$ticket->id) }}">
                                     <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
                                 </a>
+                                @if ($firstRole != 6)
+                              
                                 <i style="color:#4154f1;" onClick="deleteTickets('{{ $ticket->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                 @endif
                             </td>                            
