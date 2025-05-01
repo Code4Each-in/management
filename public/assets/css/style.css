@@ -3929,4 +3929,8 @@ width: 50% !important;
 select#projectFilterselectBox {
 width: 50%;
 }
+div#notification_filter {
+  padding-bottom: 25px;
+}
 } 
+
