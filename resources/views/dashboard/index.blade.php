@@ -253,7 +253,7 @@ use App\Models\Votes;
     <div class="sticky-card">
       <div class="row">
         <!-- <div class="container"> -->
-            <h3>Sticky Notes</h3>
+            <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
             <div class="notes-wrapper" id="noteGrid"></div>
         </div>
       <!-- </div> -->
