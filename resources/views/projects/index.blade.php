@@ -5,11 +5,10 @@ use App\Models\Projects;?>
 @section('title', 'Projects')
 @section('subtitle', 'Projects')
 @section('content')
-<div class="col-lg-12">
+<div class="row">
     <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)">Add
         Project</button>
-    <div class="card">
-        <div class="card-body">
+        <div class="sprint-section">
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <!-- filter -->
