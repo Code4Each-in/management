@@ -178,7 +178,16 @@ class ProjectsController extends Controller
         ->select('users.*' ,'roles.name as role_name')
         ->orderBy('id','desc')
         ->get();
-
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        if ($user->role_id == 6) {
+        $clients = Client::where('id', $clientId)
+        ->orderBy('name', 'asc')
+        ->get();
+        }
+        else{
+            $clients = Client::all();
+        }
         $projects = Projects::where(['id' => $projectId])->first();
         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
         $projectAssign = ProjectAssigns::with('user')->where('project_id',$projectId)->get();
@@ -415,13 +424,6 @@ public function deleteproject(Request $request)
 
     return response()->json(['status' => 404, 'message' => 'Project not found']);
 }
-
-public function chat()
-{
-    return view('developer.chat');
-}
-
-
 
 
 

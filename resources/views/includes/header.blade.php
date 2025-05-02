@@ -150,7 +150,13 @@
                     href="{{ route('notification.all') }}">
                     <i class="bi bi-bell"></i> <span>All Notifications</span>
                 </a>
-            </li>           
+            </li>  
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Chat</span>
+                </a>
+            </li>         
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -227,6 +233,12 @@
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
                     <i class="bi bi-people"></i>
                     <span>Feedbacks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Chat</span>
                 </a>
             </li>
           @endif

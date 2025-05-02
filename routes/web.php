@@ -28,6 +28,7 @@ use App\Http\Controllers\ScrumdashController;
 use App\Http\Controllers\SprintController;
 use App\Http\Controllers\EmailAll;
 use App\Http\Controllers\StickyNoteController;
+use App\Http\Controllers\MessageController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -301,5 +302,8 @@ Route::middleware(['role_permission'])->group(function () {
 	 Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
 	 Route::post('/notifications/mark-as-read/{id}', [TicketsController::class, 'markAsRead'])->name('notifications.markAsRead');
 	 Route::post('/notifications/mark-all-read', [TicketsController::class, 'markAllAsRead'])->name('notifications.markAllRead');
-	 Route::get('/projectchat', [ProjectsController::class, 'chat'])->name('projectchat');
+
+
+	 //For messages
+	 Route::get('/messages', [MessageController::class, 'index'])->name('messages');
 });
