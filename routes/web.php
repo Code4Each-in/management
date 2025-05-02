@@ -86,10 +86,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
-    //for notification functionality added this route in ticket controller
-	Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
-    Route::post('/notifications/mark-as-read/{id}', [TicketsController::class, 'markAsRead'])->name('notifications.markAsRead');
-	Route::post('/notifications/mark-all-read', [TicketsController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+   
 
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
@@ -298,4 +295,9 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::post('/sticky-notes/create', [StickyNoteController::class, 'createNote'])->name('sticky.notes.create');
 	Route::post('/sticky-notes/update/{id}', [StickyNoteController::class, 'updateNote'])->name('sticky.notes.update');
 	Route::post('/sticky-notes/delete', [StickyNoteController::class, 'deleteNote']);
+
+	 //for notification functionality added this route in ticket controller
+	 Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
+	 Route::post('/notifications/mark-as-read/{id}', [TicketsController::class, 'markAsRead'])->name('notifications.markAsRead');
+	 Route::post('/notifications/mark-all-read', [TicketsController::class, 'markAllAsRead'])->name('notifications.markAllRead');
 });

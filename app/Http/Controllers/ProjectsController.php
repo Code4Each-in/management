@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\EmailNotification;
 use Auth;
 use App\Models\Feedback;
 use App\Models\Sprint;
@@ -330,6 +331,26 @@ class ProjectsController extends Controller
             'feedback' => $validate['feedback'],
             'created_by' => auth()->id(), 
         ]);
+        
+        $authname = auth()->user()->first_name;
+        
+        if ($feedback) {
+            try {
+                $messages = [
+                    "subject" => "New Feedback Received from - {$authname}",
+                    "title" => "You've received new feedback from {$authname}.",
+                    "body-text" => "Feedback: \"" . $validate['feedback'] . "\"",
+                ];
+        
+                $assignedUser = Users::find($validate['developer_id']); 
+        
+                if ($assignedUser) {
+                    $assignedUser->notify(new EmailNotification($messages));
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error sending notification for feedback: " . $e->getMessage());
+            }
+        }             
     
         return response()->json(['message' => 'Feedback submitted successfully!'], 200);
     }
