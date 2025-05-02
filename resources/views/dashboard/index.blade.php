@@ -881,7 +881,7 @@ use App\Models\Votes;
             </div>
         </div>
                     <div class="col-lg-4">
-                                <div class="card info-card sales-card">
+                                
                                     @if ($userBirthdateEvent->isNotEmpty())
                                         @php
                                             $hasUpcomingEvents = false;
@@ -957,11 +957,8 @@ use App\Models\Votes;
                             </div>
                         </div>
                     </div>
-                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 @endif
 @endsection
 @section('js_scripts')
