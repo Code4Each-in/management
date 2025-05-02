@@ -31,7 +31,9 @@ use App\Models\Projects;?>
                                     <th>Assign</th>
                                     <th>Client Name</th>
                                     <th>Start Date</th>
+                                    @if(auth()->user()->role_id != 6)
                                     <th>End Date</th>
+                                    @endif
                                     <th>Status</th>
                                     @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)   
                                     <th>Action</th>
@@ -60,7 +62,9 @@ use App\Models\Projects;?>
                                     </td>
                                     <td>{{ $data->client_name}}</td>
                                     <td>{{ $data->start_date}}</td>
+                                    @if(auth()->user()->role_id != 6)
                                     <td>{{ $data->end_date ?? '---'}}</td>
+                                    @endif
                                     <td>
                                     @if($data->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
@@ -124,7 +128,9 @@ use App\Models\Projects;?>
                                 <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
                                     <select name="client_id" class="form-select form-control" id="client_id">
+                                        @if(auth()->user()->role_id != 6)
                                         <option value="" disabled selected>Select Clients</option>
+                                        @endif
                                         @foreach ($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
