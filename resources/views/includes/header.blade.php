@@ -150,7 +150,7 @@
                     href="{{ route('notification.all') }}">
                     <i class="bi bi-bell"></i> <span>All Notifications</span>
                 </a>
-            </li>            
+            </li>           
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
