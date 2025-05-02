@@ -37,15 +37,20 @@ use App\Models\Client;
                 </div>
 
                 <div class="row mb-5">
-                    <label for="edit_assign" class="col-sm-3 col-form-label required"> Project Assigned</label>
+                    <label for="edit_assign" class="col-sm-3 col-form-label required">Project Assigned</label>
                     <div class="col-sm-9" id="Projectsdata">
-                        @foreach ($projectAssign as $data)
-                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
-                            {{$data->user->first_name}}<i class="bi bi-x pointer ticketassign" onClick="deleteProjectAssign('{{ $data->id }}')"></i></button>
-                        </button>
-                        @endforeach
+                        @if (!empty($projectAssign) && $projectAssign->isNotEmpty())
+                            @foreach ($projectAssign as $data)
+                                @if (!is_null($data->user_id) && $data->user)
+                                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                                        {{ $data->user->first_name }}
+                                        <i class="bi bi-x pointer ticketassign" onClick="deleteProjectAssign('{{ $data->id }}')"></i>
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
                     </div>
-                </div>
+                </div>                               
                 <div class="row mb-5 mt-4">
                     <label for="edit_liveurl" class="col-sm-3 col-form-label ">Live Url</label>
                     <div class="col-sm-9">
