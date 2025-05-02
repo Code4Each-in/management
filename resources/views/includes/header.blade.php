@@ -150,13 +150,7 @@
                     href="{{ route('notification.all') }}">
                     <i class="bi bi-bell"></i> <span>All Notifications</span>
                 </a>
-            </li>   
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('sticky.notes') ? '' : 'collapsed' }}"
-                    href="{{ route('sticky.notes') }}">
-                    <i class="bi-stickies"></i> <span>Sticky Notes</span>
-                </a>
-            </li>         
+            </li>           
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -236,12 +230,6 @@
                 </a>
             </li>
           @endif
-          <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('sticky.notes') ? '' : 'collapsed' }}"
-                href="{{ route('sticky.notes') }}">
-                <i class="bi-stickies"></i> <span>Sticky Notes</span>
-            </a>
-        </li>
           @if (auth()->user()->role->name == 'HR Manager')
           <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"

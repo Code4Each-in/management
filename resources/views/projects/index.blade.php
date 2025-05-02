@@ -8,9 +8,10 @@ use App\Models\Projects;?>
 <div class="row">
     <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)">Add
         Project</button>
+</div>
+<div class="row">
         <div class="sprint-section">
-            <div class="box-header with-border" id="filter-box">
-                <br>
+            
                 <!-- filter -->
                 <div class="sprint-header production">
                     <div class="section-left">
@@ -19,8 +20,8 @@ use App\Models\Projects;?>
                       <div class="section-title">• {{ $projectCount ?? 0 }} Projects</div>
                     </div>
                   </div>
-                <div class="box-header with-border mt-4" id="filter-box">
-                    <div class="box-body" style="margin-bottom: 5%">
+                <div class="box-header with-border" id="filter-box">
+                    <div class="box-body">
                         <div class="table-responsive">
                     <table class="styled-sprint-table sprint-table" id="projects">
                             <thead>
@@ -42,28 +43,6 @@ use App\Models\Projects;?>
                                 <tr>
                                     <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
-                                    {{-- <td>
-                                        @if(strlen($data->description) >= 100)
-                                        <span class="description">
-                                            @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
-                                            $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
-                                            echo $limitedDescription;
-                                            @endphp
-                                        </span>
-                                        <span class="fullDescription" style="display: none;">
-                                         @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
-                                            echo $plainTextDescription;
-                                            @endphp
-                                        </span>
-                                        <a href="#" class="readMoreLink">Read More</a>
-                                        <a href="#" class="readLessLink" style="display: none;">Read Less</a>
-                                        @else
-                                        {{ strip_tags(htmlspecialchars_decode($data->description ?? '---'));}}
-                                        @endif
-                                    </td> --}}
-
                                     <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
@@ -120,9 +99,8 @@ use App\Models\Projects;?>
                 </div>
                 <div>
                 </div>
-            </div>
         </div>
-
+</div>
         <!----Add Projects--->
         <div class="modal fade" id="addProjects" tabindex="-1" aria-labelledby="role" aria-hidden="true">
             <div class="modal-dialog">
