@@ -37,19 +37,23 @@ class DashboardController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
         $notifications  = 0;
+        $projectMap = '';
         if ($user->role_id == 6) {
             $clientId = $user->client_id;
         
-            $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+            $projectMap = Projects::where('client_id', $clientId)
+            ->pluck('project_name', 'id'); 
         
-            $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        $projectIds = $projectMap->keys(); 
         
-            $notifications = Notification::whereIn('ticket_id', $ticketIds)
-            ->where('message', 'not like', '%assigned%') // partial match
+        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        
+        $notifications = Notification::whereIn('ticket_id', $ticketIds)
+            ->where('message', 'not like', '%assigned%')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->unique('created_at') 
-            ->take(5); 
+            ->unique('created_at')
+            ->take(5);
         }        
         //dd($tasks->toArray());
         // Debug output
@@ -344,7 +348,8 @@ $winner->uservotes = $winnerVotes;
             'tasks',
             'countsprints',
             'projects',
-            'notifications'
+            'notifications',
+            'projectMap'
         ));
     }
 

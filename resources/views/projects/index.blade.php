@@ -28,7 +28,6 @@ use App\Models\Projects;?>
                                 <tr>
                                     <th>Project Id</th>
                                     <th>Project Name</th>
-                                    <th>Description</th>
                                     <th>Assign</th>
                                     <th>Client Name</th>
                                     <th>Start Date</th>
@@ -44,7 +43,7 @@ use App\Models\Projects;?>
                                 <tr>
                                     <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
-                                    <td>
+                                    {{-- <td>
                                         @if(strlen($data->description) >= 100)
                                         <span class="description">
                                             @php
@@ -64,7 +63,7 @@ use App\Models\Projects;?>
                                         @else
                                         {{ strip_tags(htmlspecialchars_decode($data->description ?? '---'));}}
                                         @endif
-                                    </td>
+                                    </td> --}}
 
                                     <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))

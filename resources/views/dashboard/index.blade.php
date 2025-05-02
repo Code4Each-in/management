@@ -851,21 +851,27 @@ use App\Models\Votes;
                     <thead>
                         <tr>
                             <th>Notification</th>
+                            <th>Project Name</th>
                             <th>Ticket</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($notifications as $notification)
+                            @php
+                                $ticket = \App\Models\Tickets::find($notification->ticket_id); 
+                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
+                            @endphp
                             <tr>
                                 <td>{{ $notification->message }}</td>
+                                <td>{{ $projectName }}</td>
                                 <td>
-                                    <a href="{{ url('/view/ticket/'.$notification->ticket_id)}}" target="_blank">
-                                        <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>{{ $notification->ticket_id }}
+                                    <a href="{{ url('/view/ticket/'.$notification->ticket_id) }}" target="_blank">
+                                        <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                     </a>
                                 </td>
                             </tr>
                         @endforeach
-                    </tbody>               
+                    </tbody>                                 
                 </table> 
                 </div>
                 <div class="text-center mt-3">
