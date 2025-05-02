@@ -49,16 +49,13 @@ class DashboardController extends Controller
         $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
         
         $notifications = Notification::whereIn('ticket_id', $ticketIds)
-            ->where('message', 'not like', '%assigned%')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->unique('created_at')
-            ->take(5);
+        ->where('message', 'not like', '%assigned%')
+        ->with('user') 
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('created_at')
+        ->take(5);
         }        
-        //dd($tasks->toArray());
-        // Debug output
-        // Get the authenticated user
-        // $user = auth()->user();
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();

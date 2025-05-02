@@ -24,7 +24,7 @@ class ProjectsController extends Controller
     {
         $user = Auth::user();
         $clientId = $user->client_id;
-        $clients = Client::orderBy('name', 'asc')->get();
+        
     
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
             ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
@@ -44,6 +44,9 @@ class ProjectsController extends Controller
                 }
             })->orderBy('id', 'desc')->get();
             $projectCount = $projects->count();
+            $clients = Client::where('id', $clientId)
+            ->orderBy('name', 'asc')
+            ->get();
         } else {
             $projectsQuery = Projects::query();
             if (!is_null($clientId)) {
@@ -51,6 +54,7 @@ class ProjectsController extends Controller
             }
             $projects = $projectsQuery->orderBy('id', 'desc')->get();
             $projectCount = $projects->count();
+            $clients = Client::orderBy('name', 'asc')->get();
         }
 
         foreach ($projects as $key => $data) {
