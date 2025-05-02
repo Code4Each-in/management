@@ -34,11 +34,12 @@ class ProjectsController extends Controller
             ->orderBy('first_name', 'asc')
             ->get();
         if ($user->role_id == 6) {
-            $assignedProjectIds = ProjectAssigns::where('client_id', $clientId)
-                ->pluck('project_id')
+            $projectIds = Projects::where('client_id', $clientId)
+                ->pluck('id')
                 ->toArray();
-            $projects = Projects::where(function ($query) use ($clientId, $assignedProjectIds) {
-                $query->whereIn('id', $assignedProjectIds);
+                
+            $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
+                $query->whereIn('id', $projectIds);
                 if (!is_null($clientId)) {
                     $query->where('client_id', $clientId); 
                 }
@@ -277,24 +278,27 @@ class ProjectsController extends Controller
         }
     }
 
-    public function DeleteProjectAssign(Request $request)
-{
-    ProjectAssigns::where('id', $request->id)->update(['user_id' => null]);
-    $request->session()->flash('message', 'ProjectAssign updated successfully.');
-    $AssignData = ProjectAssigns::where('project_id', $request->ProjectId)->get();
-    $user = Users::whereHas('role', function ($q) {
-        $q->where('name', '!=', 'Super Admin');
-    })->orderBy('id', 'desc')->get()->toArray();
-    foreach ($user as $key1 => $data1) {
-        foreach ($AssignData as $data2) {
-            if ($data1['id'] == $data2->user_id) {
-                unset($user[$key1]);
-            }
-        }
+    public function DeleteProjectAssign(request $request)
+    {
+        $projectAssign = ProjectAssigns::where('id',$request->id)->delete();
+        $request->session()->flash('message','ProjectAssign deleted successfully.');
+        $AssignData = ProjectAssigns::where(['project_id' => $request->ProjectId])->get();
+        
+        $user = Users::whereHas('role', function($q){
+            $q->where('name', '!=', 'Super Admin');
+        })->orderBy('id','desc')->get()->toArray();	
+    
+       foreach($user as $key1=> $data1)
+       {
+           foreach($AssignData as $key2=> $data2){
+               if($data1['id']==$data2['user_id']){
+                   unset($user[$key1]);
+               }
+           }
+       }
+        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
+      
     }
-
-    return response()->json(['status' => 200, 'user' => array_values($user), 'AssignData' => $AssignData]);
-}
 
     public function getProjectAssign(Request $request)
 	{
