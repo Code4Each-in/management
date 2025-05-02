@@ -22,6 +22,16 @@ use App\Models\Votes;
 </div>
 @endif
 
+@if($activeReminders->isNotEmpty())
+    @foreach($activeReminders as $reminder)
+        <div class="alert alert-info">
+            {{ $reminder->description }}
+            <button class="close" data-id="{{ $reminder->id }}" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endforeach
+@endif
 
 <!-- class=""> -->
 <div class="row">
@@ -355,7 +365,7 @@ use App\Models\Votes;
                             <th scope="col">To</th>
                             <th scope="col">Type</th>
                             <th scope="col">Status</th>
-                            
+
                         </tr>
                         <!-- <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5> -->
                     </thead>
@@ -496,8 +506,8 @@ use App\Models\Votes;
         </div>
         @endif
         <!------ End Vote Section-------->
-        
-        
+
+
         @if ($userBirthdateEvent->isNotEmpty())
     @php
         $hasUpcomingEvents = false; // Flag to track if there are upcoming events
@@ -593,7 +603,7 @@ use App\Models\Votes;
         </div>
     @endif
 @endif
-        
+
         <div class="card upcoming-holidays">
             <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -1026,6 +1036,30 @@ use App\Models\Votes;
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
     });
+    // jQuery for handling the cross button click
+    $(document).on('click', '.close', function() {
+    var reminderId = $(this).data('id');  // Get the reminder ID
+    var currentTime = new Date().toISOString();  // Get current time in ISO format
+
+    // Send the AJAX request to the route defined above
+    $.ajax({
+        url: '/reminder/mark-as-read',  // The URL of the route you defined
+        method: 'POST',
+        data: {
+            id: reminderId,  // Pass the reminder ID
+            clicked_at: currentTime,  // Pass the current time as clicked_at
+            _token: '{{ csrf_token() }}'  // CSRF token for security
+        },
+        success: function(response) {
+            console.log(response); // Log the response to check success
+            $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
+        },
+        error: function(xhr, status, error) {
+            console.log(xhr.responseText); // Log the error details
+            alert('Failed to save the click time');
+        }
+    });
+});
 </script>
 
 @endsection
