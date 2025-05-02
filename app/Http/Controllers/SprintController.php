@@ -155,7 +155,7 @@ public function store(Request $request)
         'status' => 'required',
         'description' => 'required',
         'add_document' => 'nullable|array', 
-        'add_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls',
+        'add_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx',
     ]);
 
     if ($validator->fails()) {
@@ -311,7 +311,7 @@ $ProjectDocuments = collect($existingDocs)->map(function ($filename, $index) {
                 'description' => 'required',
                 'status' => 'required',
                 'edit_document' => 'nullable|array',
-                'edit_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls|max:5120',
+                'edit_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:5120',
             ]);
 
             if ($validator->fails()) {

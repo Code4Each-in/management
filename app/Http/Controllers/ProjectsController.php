@@ -83,7 +83,7 @@ class ProjectsController extends Controller
         $validator = Validator::make($request->all(),[
             'project_name' => 'required',
             'client_id' => 'required',
-            'assign_to'=>'required',
+            'assign_to'=>'nullable',
             'live_url'=>'nullable|url',
             'dev_url'=>'nullable|url',
             'git_repo'=>'nullable|url',
@@ -136,6 +136,13 @@ class ProjectsController extends Controller
                      'client_id' => $projects->client_id
                 ]);
             }		
+        }
+        else {
+            ProjectAssigns::create([
+                'project_id' => $projects->id,
+                'user_id' => null,
+                'client_id' => $projects->client_id,
+            ]);
         }
         if($request->hasfile('add_document')){
             foreach($request->file('add_document') as $file)
@@ -209,15 +216,20 @@ class ProjectsController extends Controller
             }
     		$validate = $validator->valid();
 
-             if (isset($request->edit_assign))
-            {				
-                foreach($request->edit_assign as $data)
-                {				
-                    $data = ProjectAssigns::create([					
+            if (!empty($request->edit_assign) && is_array($request->edit_assign)) {
+                foreach ($request->edit_assign as $userId) {
+                    ProjectAssigns::create([
                         'project_id' => $projectId,
-                        'user_id' => $data,
+                        'user_id' => $userId,
+                        'client_id' => $validate['edit_client_id']
                     ]);
-                }		
+                }
+            } else {
+                ProjectAssigns::create([
+                    'project_id' => $projectId,
+                    'user_id' => null,
+                    'client_id' => $validate['edit_client_id']
+                ]);
             }
 
             $projects =Projects::where('id', $projectId)  
@@ -265,27 +277,24 @@ class ProjectsController extends Controller
         }
     }
 
-    public function DeleteProjectAssign(request $request)
-    {
-        $projectAssign = ProjectAssigns::where('id',$request->id)->delete();
-        $request->session()->flash('message','ProjectAssign deleted successfully.');
-        $AssignData = ProjectAssigns::where(['project_id' => $request->ProjectId])->get();
-        
-        $user = Users::whereHas('role', function($q){
-            $q->where('name', '!=', 'Super Admin');
-        })->orderBy('id','desc')->get()->toArray();	
-    
-       foreach($user as $key1=> $data1)
-       {
-           foreach($AssignData as $key2=> $data2){
-               if($data1['id']==$data2['user_id']){
-                   unset($user[$key1]);
-               }
-           }
-       }
-        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
-      
+    public function DeleteProjectAssign(Request $request)
+{
+    ProjectAssigns::where('id', $request->id)->update(['user_id' => null]);
+    $request->session()->flash('message', 'ProjectAssign updated successfully.');
+    $AssignData = ProjectAssigns::where('project_id', $request->ProjectId)->get();
+    $user = Users::whereHas('role', function ($q) {
+        $q->where('name', '!=', 'Super Admin');
+    })->orderBy('id', 'desc')->get()->toArray();
+    foreach ($user as $key1 => $data1) {
+        foreach ($AssignData as $data2) {
+            if ($data1['id'] == $data2->user_id) {
+                unset($user[$key1]);
+            }
+        }
     }
+
+    return response()->json(['status' => 200, 'user' => array_values($user), 'AssignData' => $AssignData]);
+}
 
     public function getProjectAssign(Request $request)
 	{
