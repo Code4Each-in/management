@@ -9,6 +9,7 @@
             <form method="post" id="edit-client-form" enctype="multipart/form-data">
                 @csrf
                 @method('PUT') <!-- Use 'PUT' HTTP method -->
+                <div class="alert alert-danger" style="display:none"></div>
                 <div class="form-group">
                     <label for="edit_clientname">Client Name</label>
                     <input type="text" class="form-control" name="name" id="edit_clientname" value="{{ $client->name }}">
@@ -89,33 +90,37 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#edit-client-form').submit(function(e) {
-            e.preventDefault();
+    $('#edit-client-form').submit(function(e) {
+        e.preventDefault();
 
-            var formData = $(this).serialize();
+        var formData = $(this).serialize();
 
-            $.ajax({
-                type: 'PUT', // Use 'PUT' or 'PATCH' HTTP method as appropriate
-                url: "{{ url('/clients/edit')}}",
-                data: formData,
-                success: function(data) {
-                    // Handle success, e.g., show a success message
-                    console.log(data);
-                },
-                error: function(err) {
-                    // Handle errors, e.g., display error messages
-                    console.error(err);
+        $.ajax({
+            type: 'PUT',
+            url: "{{ url('/clients/edit')}}",
+            data: formData,
+            success: function(data) {
+                $('.alert-danger').hide().html('');
+                console.log(data);
+            },
+            error: function(data) {
+                $('.alert-danger').html('').css('display', 'block');
+                
+                if (data.responseJSON && data.responseJSON.errors) {
+                    $.each(data.responseJSON.errors, function(key, value) {
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    });
+                } else if (data.responseJSON && data.responseJSON.message) {
+                    $('.alert-danger').append('<li>' + data.responseJSON.message + '</li>');
+                } else {
+                    $('.alert-danger').append('<li>An unknown error occurred.</li>');
                 }
-            });
+            }
         });
     });
-
-    $(function(){
-  $('#edit-client-form').submit(function() {
-    $('#loader').show(); 
-    return true;
-  });
 });
+
+  
 
 function editClient(id) {
     $('#edit-client-form').val(id);

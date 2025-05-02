@@ -311,7 +311,7 @@ $ProjectDocuments = collect($existingDocs)->map(function ($filename, $index) {
                 'description' => 'required',
                 'status' => 'required',
                 'edit_document' => 'nullable|array',
-                'edit_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
+                'edit_document.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,xls|max:5120',
             ]);
 
             if ($validator->fails()) {
