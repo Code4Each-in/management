@@ -148,6 +148,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/edit/project/{projectId}', [ProjectsController::class, 'editProject'])->name('projects.edit');
 	Route::post('/update/projects/{projectId}', [ProjectsController::class, 'updateProject'])->name('projects.update');
 	Route::get('/project/{projectId}', [ProjectsController::class, 'showProject'])->name('projects.show');
+    Route::delete('/delete/projects', [ProjectsController::class, 'deleteproject'])->name('projects.delete');
 
 
 	// Policies Routes
@@ -300,4 +301,5 @@ Route::middleware(['role_permission'])->group(function () {
 	 Route::get('/notifications', [TicketsController::class, 'notifications'])->name('notifications.all');
 	 Route::post('/notifications/mark-as-read/{id}', [TicketsController::class, 'markAsRead'])->name('notifications.markAsRead');
 	 Route::post('/notifications/mark-all-read', [TicketsController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+	 Route::get('/projectchat', [ProjectsController::class, 'chat'])->name('projectchat');
 });

@@ -401,5 +401,28 @@ public function allFeedback()
     return view('developer.feedback', compact('feedbacks'));
 }
 
+public function deleteproject(Request $request)
+{
+    $projectId = $request->id;
+
+    $project = Projects::find($projectId);
+
+    if ($project) {
+        $project->delete();
+
+        return response()->json(['status' => 200]);
+    }
+
+    return response()->json(['status' => 404, 'message' => 'Project not found']);
+}
+
+public function chat()
+{
+    return view('developer.chat');
+}
+
+
+
+
 
 }

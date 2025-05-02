@@ -154,7 +154,7 @@ use App\Models\Client;
                             <option>Select User</option>
                             @foreach ($users as $data)
                             <option value="{{$data['id']}}">
-                                {{$data['first_name']}}-{{$data['role_name']}} 
+                                {{$data['first_name']}}-{{$data['designation']}} 
                             </option>
                             @endforeach
                         </select>
