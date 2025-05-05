@@ -6,12 +6,17 @@ use App\Models\Client;
 use App\Models\ProjectAssigns;
 use App\Models\ProjectFiles;
 use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\EmailNotification;
 use Auth;
+use App\Models\Feedback;
+use App\Models\Sprint;
+
 class ProjectsController extends Controller
 {
  
@@ -19,7 +24,7 @@ class ProjectsController extends Controller
     {
         $user = Auth::user();
         $clientId = $user->client_id;
-        $clients = Client::orderBy('name', 'asc')->get();
+        
     
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
             ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
@@ -29,21 +34,28 @@ class ProjectsController extends Controller
             ->orderBy('first_name', 'asc')
             ->get();
         if ($user->role_id == 6) {
-            $assignedProjectIds = ProjectAssigns::where('client_id', $clientId)
-                ->pluck('project_id')
+            $projectIds = Projects::where('client_id', $clientId)
+                ->pluck('id')
                 ->toArray();
-            $projects = Projects::where(function ($query) use ($clientId, $assignedProjectIds) {
-                $query->whereIn('id', $assignedProjectIds);
+                
+            $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
+                $query->whereIn('id', $projectIds);
                 if (!is_null($clientId)) {
                     $query->where('client_id', $clientId); 
                 }
             })->orderBy('id', 'desc')->get();
+            $projectCount = $projects->count();
+            $clients = Client::where('id', $clientId)
+            ->orderBy('name', 'asc')
+            ->get();
         } else {
             $projectsQuery = Projects::query();
             if (!is_null($clientId)) {
                 $projectsQuery->where('client_id', $clientId);
             }
             $projects = $projectsQuery->orderBy('id', 'desc')->get();
+            $projectCount = $projects->count();
+            $clients = Client::orderBy('name', 'asc')->get();
         }
 
         foreach ($projects as $key => $data) {
@@ -58,7 +70,7 @@ class ProjectsController extends Controller
             $projects[$key]->client_name = $clientName;
         }
     
-        return view('projects.index', compact('users', 'projects', 'clients'));
+        return view('projects.index', compact('users', 'projects', 'clients', 'projectCount'));
     }
     
 
@@ -72,7 +84,7 @@ class ProjectsController extends Controller
         $validator = Validator::make($request->all(),[
             'project_name' => 'required',
             'client_id' => 'required',
-            'assign_to'=>'required',
+            'assign_to'=>'nullable',
             'live_url'=>'nullable|url',
             'dev_url'=>'nullable|url',
             'git_repo'=>'nullable|url',
@@ -126,6 +138,13 @@ class ProjectsController extends Controller
                 ]);
             }		
         }
+        else {
+            ProjectAssigns::create([
+                'project_id' => $projects->id,
+                'user_id' => null,
+                'client_id' => $projects->client_id,
+            ]);
+        }
         if($request->hasfile('add_document')){
             foreach($request->file('add_document') as $file)
             {
@@ -159,7 +178,16 @@ class ProjectsController extends Controller
         ->select('users.*' ,'roles.name as role_name')
         ->orderBy('id','desc')
         ->get();
-
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        if ($user->role_id == 6) {
+        $clients = Client::where('id', $clientId)
+        ->orderBy('name', 'asc')
+        ->get();
+        }
+        else{
+            $clients = Client::all();
+        }
         $projects = Projects::where(['id' => $projectId])->first();
         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
         $projectAssign = ProjectAssigns::with('user')->where('project_id',$projectId)->get();
@@ -198,15 +226,20 @@ class ProjectsController extends Controller
             }
     		$validate = $validator->valid();
 
-             if (isset($request->edit_assign))
-            {				
-                foreach($request->edit_assign as $data)
-                {				
-                    $data = ProjectAssigns::create([					
+            if (!empty($request->edit_assign) && is_array($request->edit_assign)) {
+                foreach ($request->edit_assign as $userId) {
+                    ProjectAssigns::create([
                         'project_id' => $projectId,
-                        'user_id' => $data,
+                        'user_id' => $userId,
+                        'client_id' => $validate['edit_client_id']
                     ]);
-                }		
+                }
+            } else {
+                ProjectAssigns::create([
+                    'project_id' => $projectId,
+                    'user_id' => null,
+                    'client_id' => $validate['edit_client_id']
+                ]);
             }
 
             $projects =Projects::where('id', $projectId)  
@@ -290,6 +323,108 @@ class ProjectsController extends Controller
         return view('projects.show',compact('projects','projectAssigns','ProjectDocuments'));
     }
    
+
+    public function devlisting()
+    {
+        $user = Auth::user();
+        $clientId = $user->client_id;
+        $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+        $developerIds = DB::table('ticket_assigns')
+            ->whereIn('ticket_id', $ticketIds)
+            ->distinct()
+            ->pluck('user_id');
+        $developers = Users::whereIn('id', $developerIds)->get();
+        return view('developer.developer-listing', compact('developers'));
+    }
+
+        public function developerDetail($id)
+    {
+        $developer = Users::findOrFail($id);
+        return view('developer.developer-detail', compact('developer'));
+    }
+
+    public function submitFeedback(Request $request)
+    {
+        $validate = $request->validate([
+            'developer_id' => 'required|integer|exists:users,id', 
+            'feedback' => 'required|string|max:1000',
+        ]);
+    
+       
+        $feedback = Feedback::create([
+            'developer_id' => $validate['developer_id'],
+            'feedback' => $validate['feedback'],
+            'created_by' => auth()->id(), 
+        ]);
+        
+        $authname = auth()->user()->first_name;
+        
+        if ($feedback) {
+            try {
+                $messages = [
+                    "subject" => "New Feedback Received from - {$authname}",
+                    "title" => "You've received new feedback from {$authname}.",
+                    "body-text" => "Feedback: \"" . $validate['feedback'] . "\"",
+                ];
+        
+                $assignedUser = Users::find($validate['developer_id']); 
+        
+                if ($assignedUser) {
+                    $assignedUser->notify(new EmailNotification($messages));
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error sending notification for feedback: " . $e->getMessage());
+            }
+        }             
+    
+        return response()->json(['message' => 'Feedback submitted successfully!'], 200);
+    }
+
+    public function showSprints(Projects $project)
+{
+    
+    $sprints = Sprint::where('project', $project->id)
+    ->where('deleted_at', null)
+    ->orderBy('id', 'desc')
+    ->get();
+
+
+    return view('developer.project-sprints', compact('project', 'sprints'));
+}
+
+
+public function allFeedback()
+{
+    $user = auth()->user();
+    if ($user->role_id == 1) {
+        $feedbacks = Feedback::with(['developer', 'client'])->latest()->get();
+    } else {
+        
+        $feedbacks = Feedback::where('developer_id', $user->id)
+                            ->with(['developer', 'client']) 
+                            ->latest()
+                            ->get();
+    }
+
+    return view('developer.feedback', compact('feedbacks'));
+}
+
+public function deleteproject(Request $request)
+{
+    $projectId = $request->id;
+
+    $project = Projects::find($projectId);
+
+    if ($project) {
+        $project->delete();
+
+        return response()->json(['status' => 200]);
+    }
+
+    return response()->json(['status' => 404, 'message' => 'Project not found']);
+}
+
 
 
 }

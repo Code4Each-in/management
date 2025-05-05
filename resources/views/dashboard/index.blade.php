@@ -215,7 +215,7 @@ use App\Models\Votes;
             </ul> -->
             </div>
             @if(count($userBirthdate)!=0)
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Birthday/Anniversary</h5>
                 <div class="row mb-2">
                     @if(count($userBirthdate) !=0)
@@ -256,6 +256,20 @@ use App\Models\Votes;
         </div>
     </div>
 </div>
+
+<!-- Sticky Notes Started -->
+<div class="col-lg-12 stickyNotes">
+  <div class="card">
+    <div class="sticky-card">
+      <div class="row">
+        <!-- <div class="container"> -->
+            <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+            <div class="notes-wrapper" id="noteGrid"></div>
+        </div>
+      <!-- </div> -->
+    </div>
+  </div>
+<!-- Sticky Notes Ended -->
 
 <!-- ---------- ToDo List Started ---------------- -->
 <div class="col-lg-12">
@@ -618,7 +632,7 @@ use App\Models\Votes;
               </ul>
             </div> -->
 
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Upcoming Holidays</h5>
 
                 <div class="news">
@@ -800,28 +814,178 @@ use App\Models\Votes;
 </div>
 @endif
 @if (auth()->user()->role_id == 6)
-<div class="row">
-    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
+   <!-- Sticky Notes Started -->
+   <div class="col-lg-12 stickyNotes">
+    <div class="card">
+      <div class="sticky-card">
         <div class="row">
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-card">
-<div class="card-body">
-    <h5 class="card-title">Total Sprints</h5>
-    <div class="d-flex align-items-center">
-        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-            <i class="bi bi-person"></i>
+          <!-- <div class="container"> -->
+              <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+              <div class="notes-wrapper" id="noteGrid"></div>
+          </div>
+        <!-- </div> -->
+      </div>
+    </div>
+  <!-- Sticky Notes Ended -->
+<div class="row">
+    <!-- Left 8-column block for both tables -->
+    <div class="col-lg-8">
+      <!-- First Card -->
+      <div class="card mb-3">
+        <div class="card-body pb-4">
+          <h4 class="mb-3">Projects List</h4>
+          <div class="table-responsive">
+          <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Project Name</th>
+                            <th>Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($projects as $project)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $project->project_name }}</td>
+                                <td>{{ $project->start_date }}</td>
+                                <td>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url('/edit/project/'.$project->id)}}">
+                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                        </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+          </div>
+            </div>
         </div>
-        <div class="ps-3">
+        <div class="card">
+            <div class="card-body pb-4">
+                <h4 class="mb-3">Recent Notifications</h4>
+                <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Notification</th>
+                            <th>Project Name</th>
+                            <th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($notifications as $notification)
+                            @php
+                                $ticket = \App\Models\Tickets::find($notification->ticket_id); 
+                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
+                                $creatorName = $notification->user->first_name ?? 'Unknown User';
+                            @endphp
+                            <tr>
+                                <td>
+                                    {{ $notification->message }} <br>
+                                    <small>By: {{ $creatorName }}</small>
+                                </td>
+                                <td>{{ $projectName }}</td>
+                                <td>
+                                    <a href="{{ url('/view/ticket/' . $notification->ticket_id) }}" target="_blank">
+                                        <i class="fa fa-eye text-primary"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>                                                    
+                </table> 
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
+                </div>                
+        </div>
+            </div>
+        </div>
+                    <div class="col-lg-4">
+                                
+                                    @if ($userBirthdateEvent->isNotEmpty())
+                                        @php
+                                            $hasUpcomingEvents = false;
+                                        @endphp
 
-            <h6>{{$countsprints}}</h6>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</div>
-    </div>
-</div>
+                                        @foreach ($userBirthdateEvent as $user)
+                                            @php
+                                                $birthMonth = date('m', strtotime($user->birth_date));
+                                                $birthDay = date('d', strtotime($user->birth_date));
+                                                $joinMonth = date('m', strtotime($user->joining_date));
+                                                $joinDay = date('d', strtotime($user->joining_date));
+                                                $currentMonth = date('m');
+                                                $currentDay = date('d');
+
+                                                $joiningDate = new DateTime($user->joining_date);
+                                                $currentDate = new DateTime(date('Y-m-d'));
+                                                $interval = $joiningDate->diff($currentDate);
+
+                                                $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                                                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+                                                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                                                if ($interval->y > 1) {
+                                                    $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                                                } else {
+                                                    $isAnniversaryUpcoming = false;
+                                                }
+
+                                                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                                                    $hasUpcomingEvents = true;
+                                                }
+                                            @endphp
+                                        @endforeach
+                        @endif
+                        
+
+                        <div class="card upcoming-holidays">
+                            <div class="card-body">
+                                <h5 class="card-title"> Upcoming Holidays</h5>
+
+                                <div class="news">
+                                    @if ($upcomingFourHolidays)
+                                        @foreach ($upcomingFourHolidays as $holiday)
+                                            <div class="post-item clearfix">
+                                                <h4>
+                                                    {{ $holiday->name }}
+                                                    <span> |
+                                                        @if ($holiday->from === $holiday->to)
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                                        @else
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
+                                                            {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                                        @endif
+                                                    </span>
+                                                </h4>
+                                                <p>
+                                                    Holiday
+                                                    @if ($holiday->from === $holiday->to)
+                                                        On {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                    @else
+                                                        From {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                        to {{ date("d-M-Y", strtotime($holiday->to)) }}
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="alert" role="alert">
+                                            No upcoming holidays found.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 @endif
 @endsection
 @section('js_scripts')
@@ -1035,6 +1199,23 @@ use App\Models\Votes;
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
+
+    // Fetch the sticky notes
+        $.ajax({
+            url: '{{ route('sticky.notes') }}',
+            method: 'GET',
+            success: function(response) {
+                const notes = response;
+                notes.forEach(function(note) {
+                    const title = note.title ? note.title : undefined;
+                    const body = note.notes ? note.notes : undefined;
+                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
+                });
+            },
+            error: function() {
+                console.error('Could not load sticky notes.');
+            }
+        });
     });
     // jQuery for handling the cross button click
     $(document).on('click', '.close', function() {
@@ -1060,6 +1241,162 @@ use App\Models\Votes;
         }
     });
 });
+
+        // sticky notes js started //
+        let updateTimeout;
+        const colors = ['color-yellow', 'color-green', 'color-blue', 'color-pink', 'color-purple'];
+        const noteGrid = document.getElementById('noteGrid');
+        let lastColorIndex = -1;
+
+        function getRandomColorClass() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * colors.length);
+            } while (newIndex === lastColorIndex && colors.length > 1);
+            lastColorIndex = newIndex;
+            return colors[newIndex];
+        }
+
+        function createNote(id, userid, title = false, body= false, created = '', first_name = '', last_name = '') {
+            const createdDate = new Date(created);
+            const formattedDate = createdDate.toLocaleDateString();
+            const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const formattedDateTime = `${formattedDate} ${formattedTime}`;
+            const fullName = first_name + ' ' + last_name;
+
+            const colorClass = getRandomColorClass();
+            const note = document.createElement('div');
+            note.className = `note ${colorClass}`;
+
+            if (title === false) {
+                title = 'Title';
+            }
+            if (body === false) {
+                body = 'Type here...';
+            }
+            note.innerHTML = `
+                <input type="hidden" class="note-id" value="${id}">
+                <input type="hidden" class="user-id" value="${userid}">
+                <div class="note-inner-container">
+                    <div class="delete-btn"><i class="fas fa-trash"></i></div>
+                    <div class="note-content">
+                        <div class="note-saved-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Saved
+                        </div>
+                        <div class="note-title" contenteditable="true">${title}</div>
+                        <div class="note-body" contenteditable="true">${body}</div>
+                    </div>
+                    <div class="vbo-sticky-note-sign">
+                        <span class="vbo-sticky-note-sign-dt">${formattedDateTime}</span>
+                        <span class="vbo-sticky-note-sign-user">${fullName}</span>
+                    </div>
+                </div>
+            `;
+
+            note.querySelector('.note-title').addEventListener('blur', updateNote);
+            note.querySelector('.note-body').addEventListener('blur', updateNote);
+
+            // Add delete button functionality
+            note.querySelector('.delete-btn').onclick = function() {
+                const noteId = note.querySelector('.note-id').value;
+
+                if (confirm('Are you sure you want to delete this note?')) {
+                    fetch('/sticky-notes/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ id: noteId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            note.remove(); 
+                        } else {
+                            alert('Failed to delete note.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            };
+
+            // Insert the note before the add button
+            noteGrid.insertBefore(note, document.getElementById('addBtn'));
+        }
+
+        function createAddBtn() {
+            const addBtn = document.createElement('div');
+            addBtn.id = 'addBtn';
+            addBtn.className = 'add-note';
+            addBtn.innerHTML = '<i class="bi bi-plus-circle-dotted"></i>';
+            
+            addBtn.onclick = () => {
+                const notes = document.querySelectorAll('.note');
+
+                for (let note of notes) {
+                    const title = note.querySelector('.note-title').innerText.trim();
+                    const body = note.querySelector('.note-body').innerText.trim();
+
+                    // Check if note is still default (incomplete)
+                    if ((title === 'Title' || title === '') && (body === 'Type here...' || body === '')) {
+                        note.classList.add('shake');
+                        setTimeout(() => note.classList.remove('shake'), 500);
+                        return;
+                    }
+                }
+
+                // If all notes are complete, proceed to create a new note
+                fetch('/sticky-notes/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const note = data.note;
+                    createNote(note.id, note.userid, false, false, note.created_at, note.first_name, note.last_name);
+                });
+            };
+
+            noteGrid.appendChild(addBtn);
+        }
+
+        function updateNote(event) {
+            clearTimeout(updateTimeout);
+
+            updateTimeout = setTimeout(() => {
+                const noteElement = event.target.closest('.note');
+                const noteId = noteElement.querySelector('.note-id').value;
+                const title = noteElement.querySelector('.note-title').innerText.trim();
+                const body = noteElement.querySelector('.note-body').innerText.trim();
+
+                fetch(`/sticky-notes/update/${noteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ title: title, notes: body })
+                })
+                .then(() => {
+                    const savedMsg = noteElement.querySelector('.note-saved-message');
+                    savedMsg.style.display = 'block';
+                    savedMsg.classList.add('show');
+                    setTimeout(() => {
+                        savedMsg.classList.remove('show');
+                        savedMsg.style.display = 'none';
+                    }, 3000); 
+                });
+            }, 1000);
+        }
+
+        createAddBtn();
 </script>
 
 @endsection

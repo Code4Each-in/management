@@ -21,9 +21,11 @@
         </h2>
         <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#sprintAccordion">
             <div class="accordion-body">
-                <div class="row align-items-center">
+                <div class="row">
                     <div class="button-design2">
-                    <button id="resetChartBtn">Reset Chart</button>
+                        <button id="resetChartBtn" class="btn btn-light" title="Reset Chart">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>                        
                     </div>
                     @php
     $total = $totalTicketsCount > 0 ? $totalTicketsCount : 1; 
@@ -37,64 +39,108 @@
     $todoDeg     = ($todoPercent / 100) * 360;
     $completeDeg = ($completePercent / 100) * 360;
         @endphp
-<div class="col-md-6">
+<div class="col-md-8">
 <div class="text-center">
-    <div id="pieChart" style="min-height: 400px;"></div>
-    <div class="row mt-3 justify-content-center">
+    <div id="pieChart" style="min-height: 300px;"></div>
+    <dfiv class="row mt-0 justify-content-center">
         <div class="col-auto">
-            <span class="badge bg-purple text-white status-filter" style="background-color: #6f42c1;" data-status="to_do">To Do: {{ $todo }}</span>
+            <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-info text-dark status-filter" data-status="in_progress">In Progress: {{ $progress }}</span>
+            <span class="badge text-white status-filter" data-status="in_progress" style="background-color: #3fa6d7;">In Progress: {{ $progress }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-success text-dark status-filter" data-status="ready">Ready: {{ $ready }}</span>
+            <span class="badge text-white status-filter" data-status="ready" style="background-color: #e09f3e;">Ready: {{ $ready }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-success text-dark status-filter" data-status="deployed">Deployed: {{ $deployed }}</span>
+            <span class="badge text-white status-filter" data-status="deployed" style="background-color: #e76f51;">Deployed: {{ $deployed }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge bg-warning status-filter" data-status="complete">Complete: {{ $complete }}</span>
+            <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;">Complete: {{ $complete }}</span>
         </div>
-    </div>
-</div>       </div>       
-                    <div class="col-md-6">
-                        <div class="row mb-2">
+    </dfiv>
+</div>    
+            <div class="row mb-5 mt-3">
+                <label class="col-sm-4 col-form-label fw-bold">Uploaded Documents:</label>
+                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
+                    @if ($ProjectDocuments->isEmpty())
+                    No Uploaded Document Found
+                    @else  
+                    @foreach ($ProjectDocuments as $data)
+                    @if (!empty($data->document))
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                            @php
+                                $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                                $iconClass = '';
+                
+                                switch ($extension) {
+                                    case 'pdf':
+                                        $iconClass = 'bi-file-earmark-pdf';
+                                        break;
+                                    case 'doc':
+                                    case 'docx':
+                                        $iconClass = 'bi-file-earmark-word';
+                                        break;
+                                    case 'xls':
+                                    case 'xlsx':
+                                        $iconClass = 'bi-file-earmark-excel';
+                                        break;
+                                    case 'jpg':
+                                    case 'jpeg':
+                                    case 'png':
+                                        $iconClass = 'bi-file-earmark-image';
+                                        break;
+                                    default:
+                                        $iconClass = 'bi-file-earmark';
+                                        break;
+                                }
+                            @endphp
+                            <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
+                            <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
+                        </button>
+                    @endif
+                @endforeach
+                    @endif
+                </div>
+            </div>   
+            </div>       
+                    <div class="col-md-4">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $sprint->name }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Project</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $sprints->project_name }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Description</label>
                             <div class="col-sm-8">
                         <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Client</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ $clients->client_name }}</p>
                             </div>
                         </div>
                         @if ($role_id != 6)
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->start_date)->format('M d, Y h:i A') }}</p>
                             </div>
                         </div>
 
-                        <div class="row mb-2">
+                        <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">End Date</label>
                             <div class="col-sm-8">
                                 <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
@@ -108,7 +154,7 @@
     </div>
 </div>
     <div class="col-md-12">
-        <div class="card recent-sales overflow-auto">
+        <div class="card recent-sales overflow-auto ">
         <div class="card-body mt-2">
             <table class="table table-borderless datatable" id="allsprint">
                 <thead>
@@ -119,6 +165,7 @@
                         <th scope="col">Status</th>
                         <th scope="col">Assigned To</th>
                         <th scope="col">Actions</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -147,29 +194,43 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
                             <td>
-                                <div class="dropdown">
-                                  <span class="badge rounded-pill dropdown-toggle
-                                    {{ $ticket->status == 'to_do' ? 'bg-primary' : '' }}
-                                    {{ $ticket->status == 'in_progress' ? 'bg-warning text-dark' : '' }}
-                                    {{ $ticket->status == 'ready' ? 'bg-info text-dark' : '' }}
-                                    {{ $ticket->status == 'deployed' ? 'bg-primary text-dark' : '' }}
-                                    {{ $ticket->status == 'complete' ? 'bg-success' : '' }}"
-                                    data-bs-toggle="dropdown" role="button" aria-expanded="false"
-                                    style="cursor: pointer;"
-                                  >
-                                    {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                                  </span>
-                                  <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                    @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
-                                      <li>
-                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                                          {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                        </a>
-                                      </li>
-                                    @endforeach
-                                  </ul>
-                                </div>
-                              </td>                              
+                                @php
+                                    $statusColors = [
+                                        'to_do' => '#948979',
+                                        'in_progress' => '#3fa6d7',
+                                        'ready' => '#e09f3e',
+                                        'deployed' => '#e76f51',
+                                        'complete' => '#2a9d8f',
+                                    ];
+                                    $color = $statusColors[$ticket->status] ?? ''; 
+                                @endphp
+                            
+                                @if(Auth::user()->role_id != 6)
+                                    <div class="dropdown">
+                                        <span class="badge rounded-pill dropdown-toggle"
+                                              data-bs-toggle="dropdown"
+                                              role="button"
+                                              aria-expanded="false"
+                                              style="cursor: pointer; background-color: {{ $color }};">
+                                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                        </span>
+                                        <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
+                                            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                                                <li>
+                                                    <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @else
+                                    <span class="badge rounded-pill"
+                                          style="background-color: {{ $color }};">
+                                        {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                                    </span>
+                                @endif
+                            </td>                                                          
                                 <td>
                                     @foreach($assignedUsers->where('ticket_id', $ticket->id) as $user)
                                     {{ $user->assigned_user_name }} ({{ $user->designation }})
@@ -182,10 +243,11 @@
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                 </a>
-                                @if ($firstRole != 6)
                                 <a href="{{ url('/edit/ticket/'.$ticket->id) }}">
                                     <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
                                 </a>
+                                @if ($firstRole != 6)
+                              
                                 <i style="color:#4154f1;" onClick="deleteTickets('{{ $ticket->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                 @endif
                             </td>                            
@@ -334,11 +396,11 @@
                 type: 'pie',
                 radius: '50%',
                 data: [
-                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#6f42c1' }, status: 'to_do' },
-                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#0dcaf0' }, status: 'in_progress' },
-                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#198754' }, status: 'ready' },
-                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#4176F7' }, status: 'deployed' },
-                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#ffc107' }, status: 'complete' }
+                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#948979' }, status: 'to_do' },
+                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#3fa6d7' }, status: 'in_progress' },
+                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#e09f3e' }, status: 'ready' },
+                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#e76f51' }, status: 'deployed' },
+                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#2a9d8f' }, status: 'complete' }
                 ],
                 emphasis: {
                     itemStyle: {
@@ -384,5 +446,24 @@
                 });
             });
         });
-    </script>    
+    </script>  
+    <script>
+        function deleteSprintFile(id) {
+            var sprintId = {{ $sprint->id }};
+         if (confirm("Are you sure ?") == true) {
+             $.ajax({
+                 type: 'DELETE',
+                 url: "{{ url('/delete/sprint/file') }}",
+                 data: {
+                     id: id,
+                     sprintId: sprintId,
+                     _token: '{{ csrf_token() }}'
+                 },
+                 success: function (data) {
+                     location.reload();
+                 }
+             });
+         }
+     }
+         </script>   
 @endsection

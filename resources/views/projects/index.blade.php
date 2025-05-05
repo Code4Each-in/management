@@ -5,28 +5,37 @@ use App\Models\Projects;?>
 @section('title', 'Projects')
 @section('subtitle', 'Projects')
 @section('content')
-<div class="col-lg-12">
-    <div class="card">
-        <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openprojectModal()" href="javascript:void(0)">Add
-                Project</button>
-            <div class="box-header with-border" id="filter-box">
-                <br>
+<div class="row">
+    <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)">Add
+        Project</button>
+</div>
+<div class="row">
+        <div class="sprint-section">
+            
                 <!-- filter -->
-                <div class="box-header with-border mt-4" id="filter-box">
-                    <div class="box-body table-responsive" style="margin-bottom: 5%">
-                    <table class="table table-borderless dashboard" id="projects">
+                <div class="sprint-header production">
+                    <div class="section-left">
+                      <div class="section-icon bg-production" style="background-color: #297bab;">P</div>
+                      <div class="section-title" style="color: #297bab;">Total Projects</div>
+                      <div class="section-title">• {{ $projectCount ?? 0 }} Projects</div>
+                    </div>
+                  </div>
+                <div class="box-header with-border" id="filter-box">
+                    <div class="box-body">
+                        <div class="table-responsive">
+                    <table class="styled-sprint-table sprint-table" id="projects">
                             <thead>
                                 <tr>
                                     <th>Project Id</th>
                                     <th>Project Name</th>
-                                    <th>Description</th>
                                     <th>Assign</th>
                                     <th>Client Name</th>
                                     <th>Start Date</th>
+                                    @if(auth()->user()->role_id != 6)
                                     <th>End Date</th>
+                                    @endif
                                     <th>Status</th>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)   
                                     <th>Action</th>
                                     @endif
                                 </tr>
@@ -36,28 +45,6 @@ use App\Models\Projects;?>
                                 <tr>
                                     <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
-                                    <td>
-                                        @if(strlen($data->description) >= 100)
-                                        <span class="description">
-                                            @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
-                                            $limitedDescription = substr($plainTextDescription, 0, 100) . '...';
-                                            echo $limitedDescription;
-                                            @endphp
-                                        </span>
-                                        <span class="fullDescription" style="display: none;">
-                                         @php
-                                            $plainTextDescription = strip_tags(htmlspecialchars_decode($data->description));
-                                            echo $plainTextDescription;
-                                            @endphp
-                                        </span>
-                                        <a href="#" class="readMoreLink">Read More</a>
-                                        <a href="#" class="readLessLink" style="display: none;">Read Less</a>
-                                        @else
-                                        {{ strip_tags(htmlspecialchars_decode($data->description ?? '---'));}}
-                                        @endif
-                                    </td>
-
                                     <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
@@ -75,12 +62,14 @@ use App\Models\Projects;?>
                                     </td>
                                     <td>{{ $data->client_name}}</td>
                                     <td>{{ $data->start_date}}</td>
+                                    @if(auth()->user()->role_id != 6)
                                     <td>{{ $data->end_date ?? '---'}}</td>
+                                    @endif
                                     <td>
                                     @if($data->status == 'not_started')
                                     <span class="badge rounded-pill bg-primary">Not Started</span>
                                     @elseif($data->status == 'active')
-                                    <span class="badge rounded-pill bg-info text-mute">Active</span>
+                                    <span class="badge rounded-pill bg-info ">Active</span>
                                     @elseif($data->status == 'deactivated')
                                     <span class="badge rounded-pill bg-danger text-mute">Deactivated</span>
                                     @else
@@ -88,28 +77,35 @@ use App\Models\Projects;?>
                                     @endif
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager')    
+                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)    
                                     <td> 
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        
-                                        <!-- <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
+                                        @if (auth()->user()->role['name'] == 'Super Admin')
+                                        <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        @endif
                                     </td>
                                     @endif
                                 </tr>
                                 @empty
                                 @endforelse
+                                @if($projects->isEmpty())
+                                <tr>
+                                    <td colspan="{{ auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' ? 9 : 8 }}" class="text-center">
+                                        No records to show
+                                    </td>
+                                </tr>
+                                @endif
                         </table>
-  
+                        </div>
 
                     </div>
                 </div>
                 <div>
                 </div>
-            </div>
         </div>
-
+</div>
         <!----Add Projects--->
         <div class="modal fade" id="addProjects" tabindex="-1" aria-labelledby="role" aria-hidden="true">
             <div class="modal-dialog">
@@ -133,7 +129,9 @@ use App\Models\Projects;?>
                                 <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
                                     <select name="client_id" class="form-select form-control" id="client_id">
+                                        @if(auth()->user()->role_id != 6)
                                         <option value="" disabled selected>Select Clients</option>
+                                        @endif
                                         @foreach ($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
@@ -142,13 +140,13 @@ use App\Models\Projects;?>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required ">Assign To</label>     
+                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>     
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
                                          @foreach ($users ?? '' as $data)
                                         <option value="{{$data->id}}">
-                                        {{$data->first_name}} - {{$data->role_name}}
+                                        {{$data->first_name}} - {{$data->designation}}
                                         </option>
                                         @endforeach
                                 </select>
@@ -252,7 +250,7 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="tinymce_textarea" class="col-sm-3 col-form-label">Credentials</label>
                                 <div class="col-sm-9">
-                                    <textarea name="credentials" class="form-control" id="tinymce_textarea"></textarea>
+                                    <textarea name="credentials" class="form-control"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -311,10 +309,6 @@ use App\Models\Projects;?>
                 setTimeout(function() {
                     $('.message').fadeOut("slow");
                 }, 2000);
-                $('#projects').DataTable({
-                    "order": []
-
-                });
                 
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
@@ -442,24 +436,31 @@ use App\Models\Projects;?>
                 });
             }
 
-            // function deleteProjects(id) {
-            //     $('#ticket_id').val(id);
-            //     // var id = $('#department_name').val();
+            function deleteProjects(id) {
+    if (confirm("Are you sure?")) {
+        $.ajax({
+            type: "DELETE",
+            url: "{{ url('/delete/projects') }}",
+            data: {
+                id: id,
+                _token: "{{ csrf_token() }}" 
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 200) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + res.message);
+                }
+            },
+            error: function(xhr) {
+                alert('Something went wrong.');
+                console.log(xhr.responseText);
+            }
+        });
+    }
+}
 
-            //     if (confirm("Are you sure ?") == true) {
-            //         $.ajax({
-            //             type: "DELETE",
-            //             url: "{{ url('/delete/projects') }}",
-            //             data: {
-            //                 id: id
-            //             },
-            //             dataType: 'json',
-            //             success: function(res) {
-            //                 location.reload();
-            //             }
-            //         });
-            //     }
-            // }
 
             $('.readMoreLink').click(function(event) {
                 event.preventDefault();

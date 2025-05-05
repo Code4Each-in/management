@@ -7,7 +7,7 @@
         <div class="card-body">
         <form id="editSprintsForm" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="sprint_id" value="{{ $sprint->id }}">
+            <input type="hidden" id="sprint_id" name="sprint_id" value="{{ $sprint->id }}">
             <div class="form-group mb-3 mt-4">
                 <label for="name">Sprint Name</label>
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $sprint->name) }}" required>
@@ -117,7 +117,56 @@
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                     @endif
                 
-            </div>                         
+            </div>     
+            <div class="row mb-5">
+                <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
+                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
+                    @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
+                    No Uploaded Document Found
+                    @else  
+                    @foreach ($ProjectDocuments as $data)
+                    @if (!empty($data->document))
+                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                        @php
+                            $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                            $iconClass = '';
+    
+                            switch ($extension) {
+                                case 'pdf':
+                                    $iconClass = 'bi-file-earmark-pdf';
+                                    break;
+                                case 'doc':
+                                case 'docx':
+                                    $iconClass = 'bi-file-earmark-word';
+                                    break;
+                                case 'xls':
+                                case 'xlsx':
+                                    $iconClass = 'bi-file-earmark-excel';
+                                    break;
+                                case 'jpg':
+                                case 'jpeg':
+                                case 'png':
+                                    $iconClass = 'bi-file-earmark-image';
+                                    break;
+                                default:
+                                    $iconClass = 'bi-file-earmark';
+                                    break;
+                            }
+                        @endphp
+                         <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
+                         <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
+                    </button>
+                    @endif
+                @endforeach
+                    @endif
+                </div>
+            </div>   
+            <div class="form-group mb-3">
+                <label for="edit_document" class="col-sm-3 col-form-label">Upload Documents</label>
+                <div>
+                    <input type="file" class="form-control" name="edit_document[]" id="edit_document" multiple>
+                </div>
+            </div>                                        
             <button type="submit" class="btn btn-primary mt-3">Update Sprint</button>
         </form>
     </div>
@@ -188,4 +237,23 @@
         });
     });
 </script>
+<script>
+   function deleteSprintFile(id) {
+    var sprintId = $('#sprint_id').val(); 
+    if (confirm("Are you sure ?") == true) {
+        $.ajax({
+            type: 'DELETE',
+            url: "{{ url('/delete/sprint/file') }}",
+            data: {
+                id: id,
+                sprintId: sprintId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (data) {
+                location.reload();
+            }
+        });
+    }
+}
+    </script>    
 @endsection
