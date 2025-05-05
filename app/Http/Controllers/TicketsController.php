@@ -108,22 +108,22 @@ class TicketsController extends Controller
 
     public function store(Request $request) 
 	{ 
-        $validator = Validator::make($request->all(),[
-            'title' => 'required',
-            'description'=>'required',
-            // 'assign'=>'required',
-            // 'eta_to' => 'required',
-             'project_id' => 'required',
-             'status'=>'required', 
-             'priority'=>'required',
-             'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
-            ],[
-                'add_document.*.file' => 'The :attribute must be a file.', 
-                'add_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-                'add_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-                'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
-
-            ]);
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|min:15',
+            'description' => 'required',
+            'project_id' => 'required',
+            'assign' => 'required|array|min:1',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+        ], [
+            'title.required' => 'Title is required.',
+            'title.min' => 'Title must be at least 15 characters.',
+            'description.required' => 'Description is required.',
+            'project_id.required' => 'Project is required.',
+            'assign.required' => 'Assign users is required.',
+            'add_document.*.file' => 'Each document must be a valid file.',
+            'add_document.*.mimes' => 'Each document must be of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
+            'add_document.*.max' => 'Each document must not exceed 5MB.',
+        ]);        
             $validator->setAttributeNames([
                 'add_document.*' => 'document',
             ]);
@@ -264,10 +264,10 @@ class TicketsController extends Controller
          $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->orderBy('id','desc')->get()->toArray();	
-        $userCount = Users::orderBy('first_name', 'asc')  
-        ->orderBy('id', 'desc')          
-        ->where('status', '!=', 0)  
-        ->where('role_id', '!=', 6)      
+        $userCount = Users::where('status', '!=', 0)
+        ->whereNotIn('role_id', [1, 6])
+        ->orderBy('first_name', 'asc')
+        ->orderBy('id', 'desc')
         ->get();
         foreach($user as $key1=> $data1)
         {
@@ -289,20 +289,19 @@ class TicketsController extends Controller
      }     
      public function updateTicket( Request $request ,$ticketId)
      {
-        $validator = Validator::make($request->all(),[
-            'title' => 'required', 
-            'description'=>'required', 
-            'status'=>'required',
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'description' => 'required',
             'edit_project_id' => 'required',
-            'priority'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
-            ],[
-                'edit_document.*.file' => 'The :attribute must be a file.', 
-                'edit_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-                'edit_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-                'edit_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
-
-            ]);
+        ], [
+            'title.required' => 'Title is required.',
+            'description.required' => 'Description is required.',
+            'edit_project_id.required' => 'Project is required.',
+            'edit_document.*.file' => 'Each document must be a valid file.',
+            'edit_document.*.mimes' => 'Each document must be a file of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
+            'edit_document.*.max' => 'Each document may not be greater than 5000 kilobytes.',
+        ]);        
 
             $validator->setAttributeNames([
                 'edit_document.*' => 'document',
@@ -360,9 +359,9 @@ class TicketsController extends Controller
             if (auth()->user()->id == 1) {
                 Notification::create([
                     'user_id' => auth()->user()->id,
-                    'ticket_id' => $tickets->id,
+                    'ticket_id' => $ticketId,
                     'type' => 'assigned',
-                    'message' => 'Ticket #' . $tickets->id . ' assigned to ' . auth()->user()->first_name,
+                    'message' => 'Ticket #' . $ticketId . ' assigned to ' . auth()->user()->first_name,
                     'is_read' => false,
                     'is_super_admin' => true,
                 ]);
@@ -585,7 +584,11 @@ class TicketsController extends Controller
         public function viewTicket($ticketId)
     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
-
+        $ticket = Tickets::find($ticketId);
+        $projectId = $ticket->project_id;
+        $project = Projects::find($projectId);
+        
+        $projectName = $project ? $project->project_name : 'Project Not Found';
         $user = Users::whereHas('role', function($q){
            $q->where('name', '!=', 'Super Admin');
        })->orderBy('id','desc')->get()->toArray();	
@@ -605,7 +608,7 @@ class TicketsController extends Controller
        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
        $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
-        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser'));
+        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName'));
     }
     public function viewDocument($filename)
 {

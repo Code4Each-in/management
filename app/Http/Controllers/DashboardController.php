@@ -14,6 +14,8 @@ use App\Models\Votes;
 use App\Models\Sprint;
 use App\Models\Winners;
 use App\Models\Notification;
+use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -32,9 +34,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
-            ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
-            ->orderBy('created_at', 'desc') // Sorting in descending order
-            ->get();
+        ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
+        ->orderBy('created_at', 'desc') // Sorting in descending order
+        ->get();
 
         //dd($tasks->toArray());
         // Debug output
@@ -57,23 +59,28 @@ class DashboardController extends Controller
             ->count();
 
         $dayMonth = date('m-d');
-        $userBirthdate = Users::whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
-            ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth])
-            ->where('status', 1)->get();
+        $userBirthdate = Users::where(function ($query) use ($dayMonth) {
+            $query->whereRaw("DATE_FORMAT(joining_date, '%m-%d') = ?", [$dayMonth])
+                  ->orWhereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$dayMonth]);
+        })
+        ->where('status', 1)
+        ->where('role_id', '!=', 6)
+        ->get();
+
 
         $dayMonthEvent = date('m');
         $userBirthdateEvent = Users::whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
             ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent])
             ->where('status', 1)->get();
 
-        $clientId = $user->client_id;
-        $countsprints = 0;
-        if ($clientId !== null) {
+            $clientId = $user->client_id;
+            $countsprints = 0;
+            if ($clientId !== null) {
 
-            $countsprints = Sprint::where('client', $clientId)
-                ->where('status', 1)
-                ->count();
-        }
+                $countsprints = Sprint::where('client', $clientId)
+                    ->where('status', 1)
+                    ->count();
+            }
 
 
         if (auth()->user()->role->name == 'Super Admin') {
@@ -168,7 +175,7 @@ class DashboardController extends Controller
             $uservote = collect();
         } else {
             $uservote = Users::where('status', 1)
-                ->whereNotIn('role_id', [1, 2, 5])
+                ->whereNotIn('role_id', [1, 2, 5, 6])
                 ->get();
         }
 
@@ -318,8 +325,7 @@ class DashboardController extends Controller
             'allVotes',
             'todolist',
             'tasks',
-            'countsprints',
-            'activeReminders'
+            'countsprints'
         ));
     }
 

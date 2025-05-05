@@ -215,7 +215,7 @@ use App\Models\Votes;
             </ul> -->
             </div>
             @if(count($userBirthdate)!=0)
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Birthday/Anniversary</h5>
                 <div class="row mb-2">
                     @if(count($userBirthdate) !=0)
@@ -256,6 +256,20 @@ use App\Models\Votes;
         </div>
     </div>
 </div>
+
+<!-- Sticky Notes Started -->
+<div class="col-lg-12 stickyNotes">
+  <div class="card">
+    <div class="sticky-card">
+      <div class="row">
+        <!-- <div class="container"> -->
+            <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+            <div class="notes-wrapper" id="noteGrid"></div>
+        </div>
+      <!-- </div> -->
+    </div>
+  </div>
+<!-- Sticky Notes Ended -->
 
 <!-- ---------- ToDo List Started ---------------- -->
 <div class="col-lg-12">
@@ -618,7 +632,7 @@ use App\Models\Votes;
               </ul>
             </div> -->
 
-            <div class="card-body pb-0">
+            <div class="card-body">
                 <h5 class="card-title"> Upcoming Holidays</h5>
 
                 <div class="news">
@@ -800,28 +814,178 @@ use App\Models\Votes;
 </div>
 @endif
 @if (auth()->user()->role_id == 6)
-<div class="row">
-    <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
+   <!-- Sticky Notes Started -->
+   <div class="col-lg-12 stickyNotes">
+    <div class="card">
+      <div class="sticky-card">
         <div class="row">
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-card">
-<div class="card-body">
-    <h5 class="card-title">Total Sprints</h5>
-    <div class="d-flex align-items-center">
-        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-            <i class="bi bi-person"></i>
+          <!-- <div class="container"> -->
+              <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+              <div class="notes-wrapper" id="noteGrid"></div>
+          </div>
+        <!-- </div> -->
+      </div>
+    </div>
+  <!-- Sticky Notes Ended -->
+<div class="row">
+    <!-- Left 8-column block for both tables -->
+    <div class="col-lg-8">
+      <!-- First Card -->
+      <div class="card mb-3">
+        <div class="card-body pb-4">
+          <h4 class="mb-3">Projects List</h4>
+          <div class="table-responsive">
+          <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Project Name</th>
+                            <th>Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($projects as $project)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $project->project_name }}</td>
+                                <td>{{ $project->start_date }}</td>
+                                <td>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url('/edit/project/'.$project->id)}}">
+                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                        </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+          </div>
+            </div>
         </div>
-        <div class="ps-3">
+        <div class="card">
+            <div class="card-body pb-4">
+                <h4 class="mb-3">Recent Notifications</h4>
+                <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Notification</th>
+                            <th>Project Name</th>
+                            <th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($notifications as $notification)
+                            @php
+                                $ticket = \App\Models\Tickets::find($notification->ticket_id);
+                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
+                                $creatorName = $notification->user->first_name ?? 'Unknown User';
+                            @endphp
+                            <tr>
+                                <td>
+                                    {{ $notification->message }} <br>
+                                    <small>By: {{ $creatorName }}</small>
+                                </td>
+                                <td>{{ $projectName }}</td>
+                                <td>
+                                    <a href="{{ url('/view/ticket/' . $notification->ticket_id) }}" target="_blank">
+                                        <i class="fa fa-eye text-primary"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
+                </div>
+        </div>
+            </div>
+        </div>
+                    <div class="col-lg-4">
 
-            <h6>{{$countsprints}}</h6>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</div>
-    </div>
-</div>
+                                    @if ($userBirthdateEvent->isNotEmpty())
+                                        @php
+                                            $hasUpcomingEvents = false;
+                                        @endphp
+
+                                        @foreach ($userBirthdateEvent as $user)
+                                            @php
+                                                $birthMonth = date('m', strtotime($user->birth_date));
+                                                $birthDay = date('d', strtotime($user->birth_date));
+                                                $joinMonth = date('m', strtotime($user->joining_date));
+                                                $joinDay = date('d', strtotime($user->joining_date));
+                                                $currentMonth = date('m');
+                                                $currentDay = date('d');
+
+                                                $joiningDate = new DateTime($user->joining_date);
+                                                $currentDate = new DateTime(date('Y-m-d'));
+                                                $interval = $joiningDate->diff($currentDate);
+
+                                                $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                                                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+
+                                                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                                                if ($interval->y > 1) {
+                                                    $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                                                } else {
+                                                    $isAnniversaryUpcoming = false;
+                                                }
+
+                                                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                                                    $hasUpcomingEvents = true;
+                                                }
+                                            @endphp
+                                        @endforeach
+                        @endif
+
+
+                        <div class="card upcoming-holidays">
+                            <div class="card-body">
+                                <h5 class="card-title"> Upcoming Holidays</h5>
+
+                                <div class="news">
+                                    @if ($upcomingFourHolidays)
+                                        @foreach ($upcomingFourHolidays as $holiday)
+                                            <div class="post-item clearfix">
+                                                <h4>
+                                                    {{ $holiday->name }}
+                                                    <span> |
+                                                        @if ($holiday->from === $holiday->to)
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                                        @else
+                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
+                                                            {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                                        @endif
+                                                    </span>
+                                                </h4>
+                                                <p>
+                                                    Holiday
+                                                    @if ($holiday->from === $holiday->to)
+                                                        On {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                    @else
+                                                        From {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                                        to {{ date("d-M-Y", strtotime($holiday->to)) }}
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="alert" role="alert">
+                                            No upcoming holidays found.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 @endif
 @endsection
 @section('js_scripts')
@@ -1036,30 +1200,6 @@ use App\Models\Votes;
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
     });
-    // jQuery for handling the cross button click
-    $(document).on('click', '.close', function() {
-    var reminderId = $(this).data('id');  // Get the reminder ID
-    var currentTime = new Date().toISOString();  // Get current time in ISO format
-
-    // Send the AJAX request to the route defined above
-    $.ajax({
-        url: '/reminder/mark-as-read',  // The URL of the route you defined
-        method: 'POST',
-        data: {
-            id: reminderId,  // Pass the reminder ID
-            clicked_at: currentTime,  // Pass the current time as clicked_at
-            _token: '{{ csrf_token() }}'  // CSRF token for security
-        },
-        success: function(response) {
-            console.log(response); // Log the response to check success
-            $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr.responseText); // Log the error details
-            alert('Failed to save the click time');
-        }
-    });
-});
 </script>
 
 @endsection

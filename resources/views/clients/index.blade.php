@@ -174,8 +174,8 @@ use App\Models\Client;?>
                                 <label for="state" class="col-sm-3 col-form-label">Status</label>
                                 <div class="col-sm-9">
                                     <select name="status" class="form-control">
-                                        <option value="0">Active</option>
-                                        <option value="1">Inactive</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
                                         <option value="2">Talked</option>
                                     </select>
                                 </div>

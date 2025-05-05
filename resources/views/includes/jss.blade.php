@@ -32,7 +32,7 @@
       syntax: true,
       toolbar: '#toolbar-container',
     },
-    placeholder: 'Compose an epic...',
+    placeholder: 'Add your description here....',
     theme: 'snow',
   });
 </script>

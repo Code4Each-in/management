@@ -93,7 +93,7 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label class="col-sm-3 col-form-label required">Sprint</label>
+                    <label class="col-sm-3 col-form-label">Sprint</label>
                     <div class="col-sm-9">
                         <select name="edit_sprint_id" class="form-select form-control" id="edit_sprint_id">
                             <option value="">Select Sprint</option>
@@ -143,7 +143,7 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_status" class="col-sm-3 col-form-label required">Status</label>
+                    <label for="edit_status" class="col-sm-3 col-form-label">Status</label>
                     <div class="col-sm-9">
                         <select name="status" class="form-select" id="edit_status">
                             <option value="to_do">To do</option>
@@ -163,7 +163,7 @@
 
 
                 <div class="row mb-5">
-                    <label for="edit_priority" class="col-sm-3 col-form-label required">Priority</label>
+                    <label for="edit_priority" class="col-sm-3 col-form-label">Priority</label>
                     <div class="col-sm-9">
                         <select name="priority" class="form-select" id="edit_priority">
                             <option value="priority" {{$tickets->priority == 'priority' ? 'selected' : '' }}>
