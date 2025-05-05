@@ -21,7 +21,7 @@ class ReminderController extends Controller
     {
         $data = $request->validate([
             'type' => 'required|in:daily,weekly,monthly',
-            'description' => 'required|string',
+            'description' => 'required',
             'weekly_day' => 'nullable|string',
             'monthly_date' => 'nullable|integer|min:1|max:31',
         ]);
@@ -48,9 +48,9 @@ class ReminderController extends Controller
         $reminder = Reminder::create($data);
 
         if ($reminder) {
-            return redirect()->route('dashboard.index')->with('reminder_notice', 'Reminder set successfully!');
+            return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder set successfully!');
         } else {
-            return redirect()->route('dashboard.index')->with('error', 'Failed to set reminder.');
+            return redirect()->route('reminder.create')->with('error', 'Failed to set reminder.');
         }
     }
 
@@ -111,7 +111,10 @@ public function destroy(Reminder $reminder)
         $reminder->delete();
         return response()->json(['success' => true]);
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to delete reminder: ' . $e->getMessage()
+        ]);
     }
 }
 
@@ -147,6 +150,10 @@ public function update(Request $request, $id)
 
     $reminder->update($data);
 
-    return redirect()->route('reminder.create')->with('success', 'Reminder updated successfully');
+    if ($reminder) {
+        return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder updated successfully!');
+    } else {
+        return redirect()->route('reminder.create')->with('error', 'Failed to update reminder.');
+    }
 }
 }
