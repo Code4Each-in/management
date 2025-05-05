@@ -8,6 +8,7 @@
     #remindersTable thead {
         background: #f6f6fe;
     }
+
     tr.odd {
         background-color: transparent;
     }
@@ -55,12 +56,14 @@
                         <td>{{ $reminder->created_at->timezone('Asia/Kolkata')->format('Y-m-d') }}</td>
                         <td>{{ $reminder->reminder_date->timezone('Asia/Kolkata')->format('Y-m-d') }}</td>
                         <td>
+                            @if(auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager' || $reminder->user_id === auth()->id())
                             <a href="{{ route('reminders.edit', $reminder->id) }}" class="text-primary">
                                 <i class="fa fa-edit fa-fw pointer"></i>
                             </a>
                             <a href="javascript:void(0)" onclick="deleteReminder('{{ $reminder->id }}')" class="text-primary">
                                 <i class="fa fa-trash fa-fw pointer"></i>
                             </a>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
@@ -76,30 +79,32 @@
     });
 
     function deleteReminder(id) {
-    if (confirm('Are you sure you want to delete this reminder?')) {
-        fetch(`/reminder/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Reminder deleted successfully');
-                location.reload();
-            } else {
-                alert(data.error || 'Failed to delete reminder');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while deleting the reminder');
-        });
+        if (confirm('Are you sure you want to delete this reminder?')) {
+            fetch(`/reminder/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Reminder deleted successfully');
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Failed to delete reminder');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the reminder');
+                });
+        }
     }
-}
 </script>
 
 @endsection

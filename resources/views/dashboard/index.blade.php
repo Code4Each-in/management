@@ -45,14 +45,16 @@ use App\Models\Votes;
 @endif
 
 @if($activeReminders->isNotEmpty())
-@foreach($activeReminders as $reminder)
-<div class="alert alert-info">
-    {{ $reminder->description }}
-    <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-@endforeach
+    @foreach($activeReminders as $reminder)
+        @if($reminder->user_id == auth()->user()->id) <!-- Assuming 'user_id' indicates who created the reminder -->
+            <div class="alert alert-info">
+                {{ $reminder->description }}
+                <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+    @endforeach
 @endif
 
 <!-- class=""> -->
