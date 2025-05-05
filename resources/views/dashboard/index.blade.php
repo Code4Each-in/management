@@ -22,6 +22,7 @@ use App\Models\Votes;
     color: #721c24; /* Slightly darker or alert-danger tone on hover */
     transform: scale(1.2);
 }
+
 .alert.alert-info {
     display: flex;
     justify-content: space-between;
