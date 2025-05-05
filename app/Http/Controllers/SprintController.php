@@ -409,6 +409,7 @@ $ProjectDocuments = collect($existingDocs)->map(function ($filename, $index) {
 
                 $notifications = Notification::whereIn('ticket_id', $ticketIds)
                 ->where('message', 'not like', '%assigned%') // partial match
+                ->with(['ticket.project'])
                 ->get()
                 ->unique('created_at') 
                 ->sortByDesc('created_at')

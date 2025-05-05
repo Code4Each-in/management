@@ -109,49 +109,49 @@ use App\Models\Client;?>
                             <div class="row mb-3">
                                 <label for="name" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="name" id="name" placeholder="Enter client name">
+                                    <input type="text" class="form-control text-dark" name="name" id="name" placeholder="Enter client name">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
-                                <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                <label for="email" class="col-sm-3 col-form-label required">Email</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="email" id="email" placeholder="Enter email">
+                                    <input type="text" class="form-control text-dark" name="email" id="email" placeholder="Enter email">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
-                                <label for="password" class="col-sm-3 col-form-label">Password</label>
+                                <label for="password" class="col-sm-3 col-form-label required">Password</label>
                                 <div class="col-sm-9">
-                                    <input type="password" class="form-control" name="password" id="password" placeholder="Enter Password">
+                                    <input type="password" class="form-control text-dark" name="password" id="password" placeholder="Enter Password">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="email" class="col-sm-3 col-form-label">Secondary Email</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="secondary_email" id="secondary_email" placeholder="Enter secondary email">
+                                    <input type="text" class="form-control text-dark" name="secondary_email" id="secondary_email" placeholder="Enter secondary email">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="email" class="col-sm-3 col-form-label">Additional Email</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="additional_email" id="additional_email" placeholder="Enter Additional email">
+                                    <input type="text" class="form-control text-dark" name="additional_email" id="additional_email" placeholder="Enter Additional email">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="phone" class="col-sm-3 col-form-label">Phone number</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone number">
+                                    <input type="text" class="form-control text-dark" name="phone" id="phone" placeholder="Enter phone number">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="birth_date" class="col-sm-3 col-form-label">Birth date</label>
                                 <div class="col-sm-9">
-                                    <input type="date" class="form-control" name="birth_date" id="birth_date" placeholder="Enter birth date">
+                                    <input type="date" class="form-control text-dark" name="birth_date" id="birth_date" placeholder="Enter birth date">
                                 </div>
                                 
                             </div>
@@ -159,21 +159,21 @@ use App\Models\Client;?>
                             <div class="row mb-3">
                                 <label for="address" class="col-sm-3 col-form-label">Address</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="address" id="address" placeholder="Enter address">
+                                    <input type="text" class="form-control text-dark" name="address" id="address" placeholder="Enter address">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="city" class="col-sm-3 col-form-label">City</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="city" id="city" placeholder="Enter city">
+                                    <input type="text" class="form-control text-dark" name="city" id="city" placeholder="Enter city">
                                 </div>
                                 
                             </div>
                             <div class="row mb-3">
                                 <label for="state" class="col-sm-3 col-form-label">Status</label>
                                 <div class="col-sm-9">
-                                    <select name="status" class="form-control">
+                                    <select name="status" class="form-control text-dark">
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
                                         <option value="2">Talked</option>
@@ -184,7 +184,7 @@ use App\Models\Client;?>
                             <div class="row mb-3">
                                 <label for="zip" class="col-sm-3 col-form-label">Zip</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="zip" id="zip" placeholder="Enter zip">
+                                    <input type="text" class="form-control text-dark" name="zip" id="zip" placeholder="Enter zip">
                                 </div>
                                 
                             </div>
@@ -192,19 +192,23 @@ use App\Models\Client;?>
                             <div class="row mb-3">
                                 <label for="country" class="col-sm-3 col-form-label">Country</label>
                                 <div class="col-sm-9">
-                                    <select name="country" class="form-control" id="country">
+                                    <select name="country" class="form-control text-dark" id="country">
                                         <option value="" disabled selected>Select Country</option>
+                                        <option value="Australia">Australia</option>
+                                        <option value="Canada">Canada</option>
+                                        <option value="India">India</option>
+                                        <option value="USA">USA</option>
                                         @foreach ($countries as $country)
                                             <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                        @endforeach
+                                        @endforeach 
                                     </select>        
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <!-- <div class="row mb-3">
                             <label for="project" class="col-sm-3 col-form-label">Projects</label>
                                 <div class="col-sm-9">
-                                    <select name="projects" class="form-select form-control" id="project_id">
+                                    <select name="projects" class="form-select form-control text-dark" id="project_id">
                                         <option value="" disabled selected>Select Project</option>
                                         @foreach ($projects as $data)
                                         <option value="{{$data->id}}">
@@ -213,33 +217,33 @@ use App\Models\Client;?>
                                         @endforeach
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <div class="row mb-3">
                                 <label for="company" class="col-sm-3 col-form-label">Company</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="company" id="company" placeholder="Enter company name">
+                                    <input type="text" class="form-control text-dark" name="company" id="company" placeholder="Enter company name">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <label for="source" class="col-sm-3 col-form-label">Source</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
+                                    <input type="text" class="form-control text-dark" name="source" id="source" placeholder="Enter source">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <label for="skype" class="col-sm-3 col-form-label">Skype</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
+                                    <input type="text" class="form-control text-dark" name="skype" id="skype" placeholder="Enter Skype info">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <label for="last_worked" class="col-sm-3 col-form-label">Last Worked</label>
                                 <div class="col-sm-9">
-                                    <input type="date" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
+                                    <input type="date" class="form-control text-dark" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                                 </div>
                             </div>
                         </div>
@@ -253,8 +257,7 @@ use App\Models\Client;?>
             </div>
         </div>
         <!---end Add modal-->
-    @endsection
-  <!---edit Client-->
+          <!---edit Client-->
   <div class="modal fade" id="editClient" tabindex="-1" aria-labelledby="role" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width: 630px;">
@@ -270,60 +273,60 @@ use App\Models\Client;?>
                     <div class="row mb-3">
                         <label for="name" class="col-sm-3 col-form-label required">Client Name</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter client name">
+                            <input type="text" class="form-control text-dark" name="name" id="name" placeholder="Enter client name">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="email" class="col-sm-3 col-form-label">Email</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="email" id="email" placeholder="Enter email">
+                            <input type="text" class="form-control text-dark" name="email" id="email" placeholder="Enter email">
                         </div>    
                     </div>
                     <div class="row mb-3">
                         <label for="email" class="col-sm-3 col-form-label">Secondary Email</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="secondary_email" id="secondary_email" placeholder="Enter Secondary email">
+                            <input type="text" class="form-control text-dark" name="secondary_email" id="secondary_email" placeholder="Enter Secondary email">
                         </div>    
                     </div>
                     <div class="row mb-3">
                         <label for="email" class="col-sm-3 col-form-label">Additional Email</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="additional_email" id="additional_email" placeholder="Enter Additional email">
+                            <input type="text" class="form-control text-dark" name="additional_email" id="additional_email" placeholder="Enter Additional email">
                         </div>    
                     </div>
                     <div class="row mb-3">
                         <label for="phone" class="col-sm-3 col-form-label">Phone number</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone number">
+                            <input type="text" class="form-control text-dark" name="phone" id="phone" placeholder="Enter phone number">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="birth_date" class="col-sm-3 col-form-label">Birth date</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="birth_date" id="birth_date" placeholder="Enter birth date">
+                            <input type="date" class="form-control text-dark" name="birth_date" id="birth_date" placeholder="Enter birth date">
                         </div>
                     </div>
                 
                     <div class="row mb-3">
                         <label for="address" class="col-sm-3 col-form-label">Address</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="address" id="address" placeholder="Enter address">
+                            <input type="text" class="form-control text-dark" name="address" id="address" placeholder="Enter address">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="city" class="col-sm-3 col-form-label">City</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="city" id="city" placeholder="Enter city">
+                            <input type="text" class="form-control text-dark" name="city" id="city" placeholder="Enter city">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="status" class="col-sm-3 col-form-label">Status</label>
                         <div class="col-sm-9">
-                        <select name="status" class="form-control">
+                        <select name="status" class="form-control text-dark">
                                 <option value="0">Active</option>
                                 <option value="1">Inactive</option>
                                 <option value="2">Talked</option>
@@ -334,27 +337,30 @@ use App\Models\Client;?>
                     <div class="row mb-3">
                         <label for="zip" class="col-sm-3 col-form-label">Zip</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="zip" id="zip" placeholder="Enter zip">
+                            <input type="text" class="form-control text-dark" name="zip" id="zip" placeholder="Enter zip">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="country" class="col-sm-3 col-form-label">Country</label>
-                        <div class="col-sm-9">
-                            <select name="country" class="form-control" id="country">
-                                <option value="" disabled selected>Select Country</option>
-                                @foreach ($countries as $country)
-                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                @endforeach
-                            </select>       
-                        </div>  
+                            <div class="col-sm-9">
+                                <select name="country" class="form-control text-dark" id="country">
+                                    <option value="" disabled selected>Select Country</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="India">India</option>
+                                    <option value="USA">USA</option>
+                                    @foreach ($countries as $country)
+                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                    @endforeach 
+                                </select>        
+                            </div>
                     </div>
 
-                
-                    <div class="row mb-3">
+                    <!-- <div class="row mb-3">
                     <label for="project" class="col-sm-3 col-form-label">Projects</label>
                         <div class="col-sm-9">
-                            <select name="projects" class="form-select form-control" id="project_id">
+                            <select name="projects" class="form-select form-control text-dark" id="project_id">
                                 <option value="" disabled selected>Select Project</option>
                                 @foreach ($projects as $data)
                                 <option value="{{$data->id}}">
@@ -363,33 +369,33 @@ use App\Models\Client;?>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="row mb-3">
                         <label for="company" class="col-sm-3 col-form-label">Company</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="company" id="company" placeholder="Enter company name">
+                            <input type="text" class="form-control text-dark" name="company" id="company" placeholder="Enter company name">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="source" class="col-sm-3 col-form-label">Source</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="source" id="source" placeholder="Enter source">
+                            <input type="text" class="form-control text-dark" name="source" id="source" placeholder="Enter source">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="skype" class="col-sm-3 col-form-label">Skype</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="skype" id="skype" placeholder="Enter Skype info">
+                            <input type="text" class="form-control text-dark" name="skype" id="skype" placeholder="Enter Skype info">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="last_worked" class="col-sm-3 col-form-label">Last worked</label>
                         <div class="col-sm-9">
-                            <input type="date" class="form-control" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
+                            <input type="date" class="form-control text-dark" name="last_worked" id="last_worked" placeholder="Enter Last Worked status">
                         </div>
                     </div>
                 </div>
@@ -403,7 +409,7 @@ use App\Models\Client;?>
     </div>
 </div>
 <!---end edit modal-->
-
+    @endsection
   @section('js_scripts')
   <script>
 
@@ -447,6 +453,12 @@ use App\Models\Client;?>
             }
         });
     });
+
+    $('#addClient').on('hidden.bs.modal', function () {
+        $('.alert-danger').html('').hide();
+        $('#addClientForm')[0].reset();
+    });
+
 
         $("#editClientForm").submit(function(event) {
             event.preventDefault();
