@@ -1218,9 +1218,22 @@ use App\Models\Votes;
                 });
             }
 
-            function getTaskId(element) {
-                return $(element).closest('.list-group-item').attr('id').split('_')[1];
-            }
+            // Fetch the sticky notes
+            $.ajax({
+                url: '{{ route('sticky.notes') }}',
+                method: 'GET',
+                success: function(response) {
+                    const notes = response;
+                    notes.forEach(function(note) {
+                        const title = note.title ? note.title : undefined;
+                        const body = note.notes ? note.notes : undefined;
+                        createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
+                    });
+                },
+                error: function() {
+                    console.error('Could not load sticky notes.');
+                }
+            });
         });
         // jQuery for handling the cross button click
         $(document).on('click', '.close', function() {
@@ -1245,30 +1258,10 @@ use App\Models\Votes;
                     alert('Failed to save the click time');
                 }
             });
-
-        }
-
+        });
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
-
-         // Fetch the sticky notes
-         $.ajax({
-            url: '{{ route('sticky.notes') }}',
-            method: 'GET',
-            success: function(response) {
-                const notes = response;
-                notes.forEach(function(note) {
-                    const title = note.title ? note.title : undefined;
-                    const body = note.notes ? note.notes : undefined;
-                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
-                });
-            },
-            error: function() {
-                console.error('Could not load sticky notes.');
-            }
-        });
-    });
     // jQuery for handling the cross button click
     $(document).on('click', '.close', function() {
     var reminderId = $(this).data('id');  // Get the reminder ID
