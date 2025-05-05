@@ -19,6 +19,7 @@ use App\Models\Tickets;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
+use App\Models\Reminder;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Relationship;
@@ -33,6 +34,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
+
         ->whereRaw("LOWER(status) != 'completed'") 
         ->orderBy('created_at', 'desc')
         ->get();
@@ -68,9 +70,9 @@ class DashboardController extends Controller
             ->orderBy('from')->first();
         // user count For dashboard
         $userCount = Users::where('status', 1)
-        ->where('role_id', '!=', 6)
-        ->orderBy('id', 'desc')
-        ->count();
+            ->where('role_id', '!=', 6)
+            ->orderBy('id', 'desc')
+            ->count();
 
         $dayMonth = date('m-d');
         $userBirthdate = Users::where(function ($query) use ($dayMonth) {
@@ -103,8 +105,16 @@ class DashboardController extends Controller
                                 ->get();
 
             }
+        $clientId = $user->client_id;
+        $countsprints = 0;
+        if ($clientId !== null) {
 
-            
+            $countsprints = Sprint::where('client', $clientId)
+                ->where('status', 1)
+                ->count();
+        }
+
+
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
@@ -230,52 +240,52 @@ class DashboardController extends Controller
 
 
 
-    //     $winners = Winners::where('month', $previousMonth)
-    //     ->where('year', $previousYear)
-    //     ->get();
+        //     $winners = Winners::where('month', $previousMonth)
+        //     ->where('year', $previousYear)
+        //     ->get();
 
-    // // Attach user details and votes to winners
-    // foreach ($winners as $winner) {
-    //     $user = Users::find($winner->user_id);
-    //     $uservotes = Votes::where('to', $user->id)
-    //         ->join('users', 'votes.to', '=', 'users.id') // Join users table to get voter details
-    //         ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
-    //         ->get();
+        // // Attach user details and votes to winners
+        // foreach ($winners as $winner) {
+        //     $user = Users::find($winner->user_id);
+        //     $uservotes = Votes::where('to', $user->id)
+        //         ->join('users', 'votes.to', '=', 'users.id') // Join users table to get voter details
+        //         ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+        //         ->get();
 
-    //     $winner->user = $user;
-    //     $winner->uservotes = $uservotes; // Now includes user details
-    // }
+        //     $winner->user = $user;
+        //     $winner->uservotes = $uservotes; // Now includes user details
+        // }
 
-    // $userIds = $winners->pluck('user_id');
+        // $userIds = $winners->pluck('user_id');
 
-    // Fetch winners from the previous month
-    $latestVote = Votes::latest('created_at')->first();
-    $latestMonth = Carbon::parse($latestVote->created_at)->month;
-    $latestYear = Carbon::parse($latestVote->created_at)->year;
-// Get winners of the latest month
-$winners = Winners::where('month', $latestMonth)
-->where('year', $latestYear)
-->get();
+        // Fetch winners from the previous month
+        $latestVote = Votes::latest('created_at')->first();
+        $latestMonth = Carbon::parse($latestVote->created_at)->month;
+        $latestYear = Carbon::parse($latestVote->created_at)->year;
+        // Get winners of the latest month
+        $winners = Winners::where('month', $latestMonth)
+            ->where('year', $latestYear)
+            ->get();
 
-// Collect winner user IDs
-$userIds = $winners->pluck('user_id');
+        // Collect winner user IDs
+        $userIds = $winners->pluck('user_id');
 
-// Fetch **all votes of winners**
-foreach ($winners as $winner) {
-$user = Users::find($winner->user_id);
+        // Fetch **all votes of winners**
+        foreach ($winners as $winner) {
+            $user = Users::find($winner->user_id);
 
-// Get **all votes of the winner in the latest month**
-$winnerVotes = Votes::where('to', $user->id)
-    ->join('users', 'votes.to', '=', 'users.id') // Get voter details
-    ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
-    ->whereMonth('votes.created_at', $latestMonth)
-    ->whereYear('votes.created_at', $latestYear)
-    ->orderBy('votes.created_at', 'desc')
-    ->get(); // **All votes of the winner**
+            // Get **all votes of the winner in the latest month**
+            $winnerVotes = Votes::where('to', $user->id)
+                ->join('users', 'votes.to', '=', 'users.id') // Get voter details
+                ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+                ->whereMonth('votes.created_at', $latestMonth)
+                ->whereYear('votes.created_at', $latestYear)
+                ->orderBy('votes.created_at', 'desc')
+                ->get(); // **All votes of the winner**
 
-$winner->user = $user;
-$winner->uservotes = $winnerVotes;
-}
+            $winner->user = $user;
+            $winner->uservotes = $winnerVotes;
+        }
 
 
 
@@ -305,19 +315,23 @@ $winner->uservotes = $winnerVotes;
 
 
         $allVotes = Votes::where('month', $previousMonth)
-    ->where('year', $previousYear)
-    ->whereNotIn('to', $userIds)
-    ->orderBy('to')
-    ->join('users', 'votes.to', '=', 'users.id') // Ensure user details are included
-    ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
-    ->get();
+            ->where('year', $previousYear)
+            ->whereNotIn('to', $userIds)
+            ->orderBy('to')
+            ->join('users', 'votes.to', '=', 'users.id') // Ensure user details are included
+            ->select('votes.*', 'users.first_name', 'users.last_name', 'users.profile_picture')
+            ->get();
 
 
-    $todolist = TodoList:: where('user_id', $userId)
-    ->select(['title', 'completed_at', 'user_id', 'status', 'created_at'])
-    ->get();
-    
+        $todolist = TodoList::where('user_id', $userId)
+            ->select(['title', 'completed_at', 'user_id', 'status', 'created_at'])
+            ->get();
 
+            $currentDateTime = Carbon::now();
+            $activeReminders = Reminder::where('is_active', 1)
+                ->whereDate('reminder_date', $currentDateTime->toDateString())
+                ->whereNull('clicked_at')
+                ->get();
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
         return view('dashboard.index', compact(
             'userCount',
@@ -344,6 +358,7 @@ $winner->uservotes = $winnerVotes;
             'todolist',
             'tasks',
             'countsprints',
+            'activeReminders'
             'projects',
             'notifications',
             'projectMap'
