@@ -287,11 +287,11 @@ Route::middleware(['role_permission'])->group(function () {
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
 
-    Route::get('/reminder/create', [ReminderController::class, 'create'])->name('reminder.create');
-    Route::post('/reminder', [ReminderController::class, 'store'])->name('reminders.store');
+    Route::get('/reminder', [ReminderController::class, 'create'])->name('reminder.create');
+    Route::post('/reminder/store', [ReminderController::class, 'store'])->name('reminders.store');
     Route::post('/reminder/mark-as-read', [ReminderController::class, 'markAsRead'])->name('reminder.markAsRead');
-    Route::get('/reminder/index', [ReminderController::class, 'indexing'])->name('reminder.index');
-    Route::get('/reminder/{reminder}/edit', [ReminderController::class, 'edit'])->name('reminders.edit');
+    Route::get('/reminder/create', [ReminderController::class, 'indexing'])->name('reminder.index');
+    Route::get('/reminder/edit/{reminder}', [ReminderController::class, 'edit'])->name('reminders.edit');
     Route::put('/reminder/{reminder}', [ReminderController::class, 'update'])->name('reminders.update'); // Add this line
     Route::delete('/reminder/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
 
