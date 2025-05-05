@@ -158,8 +158,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
-                    href="{{ route('reminders.create') }}">
+                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
+                    href="{{ route('reminder.create') }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Reminders</span>
                 </a>
@@ -190,8 +190,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
-                        href="{{ route('reminders.create') }}">
+                    <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
+                        href="{{ route('reminder.create') }}">
                         <i class="bi bi-calendar-check"></i>
                         <span>Reminders</span>
                     </a>
@@ -272,8 +272,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
-                    href="{{ route('reminders.create') }}">
+                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
+                    href="{{ route('reminder.create') }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Reminders</span>
                 </a>
@@ -301,8 +301,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
-                    href="{{ route('reminders.create') }}">
+                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
+                    href="{{ route('reminder.create') }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Reminders</span>
                 </a>

@@ -287,7 +287,7 @@ Route::middleware(['role_permission'])->group(function () {
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
 
-    Route::get('/reminder/create', [ReminderController::class, 'create'])->name('reminders.create');
+    Route::get('/reminder/create', [ReminderController::class, 'create'])->name('reminder.create');
     Route::post('/reminder', [ReminderController::class, 'store'])->name('reminders.store');
     Route::post('/reminder/mark-as-read', [ReminderController::class, 'markAsRead'])->name('reminder.markAsRead');
     Route::get('/reminder/index', [ReminderController::class, 'indexing'])->name('reminder.index');

@@ -147,9 +147,6 @@ public function update(Request $request, $id)
 
     $reminder->update($data);
 
-    return redirect()->route('Reminders.create')->with('success', 'Reminder updated successfully');
+    return redirect()->route('reminder.create')->with('success', 'Reminder updated successfully');
 }
-
-
-
 }
