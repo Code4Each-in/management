@@ -358,7 +358,7 @@ class DashboardController extends Controller
             'todolist',
             'tasks',
             'countsprints',
-            'activeReminders'
+            'activeReminders',
             'projects',
             'notifications',
             'projectMap'
