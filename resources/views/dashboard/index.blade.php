@@ -1245,7 +1245,54 @@ use App\Models\Votes;
                     alert('Failed to save the click time');
                 }
             });
+
+        }
+
+        function getTaskId(element) {
+            return $(element).closest('.list-group-item').attr('id').split('_')[1];
+        }
+
+         // Fetch the sticky notes
+         $.ajax({
+            url: '{{ route('sticky.notes') }}',
+            method: 'GET',
+            success: function(response) {
+                const notes = response;
+                notes.forEach(function(note) {
+                    const title = note.title ? note.title : undefined;
+                    const body = note.notes ? note.notes : undefined;
+                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
+                });
+            },
+            error: function() {
+                console.error('Could not load sticky notes.');
+            }
         });
+    });
+    // jQuery for handling the cross button click
+    $(document).on('click', '.close', function() {
+    var reminderId = $(this).data('id');  // Get the reminder ID
+    var currentTime = new Date().toISOString();  // Get current time in ISO format
+
+    // Send the AJAX request to the route defined above
+    $.ajax({
+        url: '/reminder/mark-as-read',  // The URL of the route you defined
+        method: 'POST',
+        data: {
+            id: reminderId,  // Pass the reminder ID
+            clicked_at: currentTime,  // Pass the current time as clicked_at
+            _token: '{{ csrf_token() }}'  // CSRF token for security
+        },
+        success: function(response) {
+            console.log(response); // Log the response to check success
+            $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
+        },
+        error: function(xhr, status, error) {
+            console.log(xhr.responseText); // Log the error details
+            alert('Failed to save the click time');
+        }
+    });
+});
 
         // sticky notes js started //
         let updateTimeout;
