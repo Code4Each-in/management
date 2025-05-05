@@ -881,7 +881,7 @@ use App\Models\Votes;
                     <tbody>
                         @foreach($notifications as $notification)
                             @php
-                                $ticket = \App\Models\Tickets::find($notification->ticket_id); 
+                                $ticket = \App\Models\Tickets::find($notification->ticket_id);
                                 $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
                                 $creatorName = $notification->user->first_name ?? 'Unknown User';
                             @endphp
@@ -898,17 +898,17 @@ use App\Models\Votes;
                                 </td>
                             </tr>
                         @endforeach
-                    </tbody>                                                    
-                </table> 
+                    </tbody>
+                </table>
                 </div>
                 <div class="text-center mt-3">
                     <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
-                </div>                
+                </div>
         </div>
             </div>
         </div>
                     <div class="col-lg-4">
-                                
+
                                     @if ($userBirthdateEvent->isNotEmpty())
                                         @php
                                             $hasUpcomingEvents = false;
@@ -943,7 +943,7 @@ use App\Models\Votes;
                                             @endphp
                                         @endforeach
                         @endif
-                        
+
 
                         <div class="card upcoming-holidays">
                             <div class="card-body">
@@ -1199,23 +1199,6 @@ use App\Models\Votes;
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
-
-    // Fetch the sticky notes
-        $.ajax({
-            url: '{{ route('sticky.notes') }}',
-            method: 'GET',
-            success: function(response) {
-                const notes = response;
-                notes.forEach(function(note) {
-                    const title = note.title ? note.title : undefined;
-                    const body = note.notes ? note.notes : undefined;
-                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
-                });
-            },
-            error: function() {
-                console.error('Could not load sticky notes.');
-            }
-        });
     });
     // jQuery for handling the cross button click
     $(document).on('click', '.close', function() {
@@ -1312,7 +1295,7 @@ use App\Models\Votes;
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            note.remove(); 
+                            note.remove();
                         } else {
                             alert('Failed to delete note.');
                         }
@@ -1332,7 +1315,7 @@ use App\Models\Votes;
             addBtn.id = 'addBtn';
             addBtn.className = 'add-note';
             addBtn.innerHTML = '<i class="bi bi-plus-circle-dotted"></i>';
-            
+
             addBtn.onclick = () => {
                 const notes = document.querySelectorAll('.note');
 
@@ -1391,7 +1374,7 @@ use App\Models\Votes;
                     setTimeout(() => {
                         savedMsg.classList.remove('show');
                         savedMsg.style.display = 'none';
-                    }, 3000); 
+                    }, 3000);
                 });
             }, 1000);
         }

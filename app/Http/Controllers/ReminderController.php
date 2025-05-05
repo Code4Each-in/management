@@ -13,7 +13,7 @@ class ReminderController extends Controller
     public function create()
     {
         $reminders = Reminder::all();
-        return view('Reminder.create', compact('reminders'));
+        return view('reminder.create', compact('reminders'));
     }
 
 
@@ -147,9 +147,6 @@ public function update(Request $request, $id)
 
     $reminder->update($data);
 
-    return redirect()->route('reminders.create')->with('success', 'Reminder updated successfully');
+    return redirect()->route('reminder.create')->with('success', 'Reminder updated successfully');
 }
-
-
-
 }

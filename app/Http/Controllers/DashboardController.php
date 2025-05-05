@@ -34,30 +34,29 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
-
-        ->whereRaw("LOWER(status) != 'completed'") 
+        ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
         ->get();
         $notifications  = 0;
         $projectMap = '';
         if ($user->role_id == 6) {
             $clientId = $user->client_id;
-        
+
             $projectMap = Projects::where('client_id', $clientId)
-            ->pluck('project_name', 'id'); 
-        
-        $projectIds = $projectMap->keys(); 
-        
+            ->pluck('project_name', 'id');
+
+        $projectIds = $projectMap->keys();
+
         $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
-        
+
         $notifications = Notification::whereIn('ticket_id', $ticketIds)
         ->where('message', 'not like', '%assigned%')
-        ->with('user') 
+        ->with('user')
         ->orderBy('created_at', 'desc')
         ->get()
         ->unique('created_at')
         ->take(5);
-        }        
+        }
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
@@ -82,7 +81,7 @@ class DashboardController extends Controller
         ->where('status', 1)
         ->where('role_id', '!=', 6)
         ->get();
-    
+
 
         $dayMonthEvent = date('m');
         $userBirthdateEvent = Users::where(function ($query) use ($dayMonthEvent) {
@@ -92,8 +91,8 @@ class DashboardController extends Controller
         ->where('status', '=', 1)
         ->where('role_id', '!=', 6)
         ->get();
-    
-            
+
+
             $clientId = $user->client_id;
             $countsprints = 0;
             $projects = 0;
@@ -101,7 +100,7 @@ class DashboardController extends Controller
 
                 $projects = Projects::where('client_id', $clientId)->get();
                 $sprints = Sprint::whereIn('project', $projects->pluck('id'))
-                                ->where('status', 1)  
+                                ->where('status', 1)
                                 ->get();
 
             }
@@ -109,10 +108,10 @@ class DashboardController extends Controller
         $countsprints = 0;
         if ($clientId !== null) {
 
-            $countsprints = Sprint::where('client', $clientId)
-                ->where('status', 1)
-                ->count();
-        }
+                $countsprints = Sprint::where('client', $clientId)
+                    ->where('status', 1)
+                    ->count();
+            }
 
 
         if (auth()->user()->role->name == 'Super Admin') {
