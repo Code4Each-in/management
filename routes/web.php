@@ -89,7 +89,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
-   
+
 
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
@@ -287,15 +287,15 @@ Route::middleware(['role_permission'])->group(function () {
         Route::post('/emailtoall/send', 'sendMail')->name('emailall.send');
     });
 
-    Route::get('/reminders/create', [ReminderController::class, 'create'])->name('reminders.create');
-    Route::post('/reminders', [ReminderController::class, 'store'])->name('reminders.store');
+    Route::get('/reminder', [ReminderController::class, 'create'])->name('reminder.create');
+    Route::post('/reminder/store', [ReminderController::class, 'store'])->name('reminders.store');
     Route::post('/reminder/mark-as-read', [ReminderController::class, 'markAsRead'])->name('reminder.markAsRead');
-    Route::get('/reminder/indexing', [ReminderController::class, 'indexing'])->name('reminder.indexing');
-    Route::get('/reminder/{reminder}/edit', [ReminderController::class, 'edit'])->name('reminders.edit');
+    Route::get('/reminder/create', [ReminderController::class, 'indexing'])->name('reminder.index');
+    Route::get('/reminder/edit/{reminder}', [ReminderController::class, 'edit'])->name('reminders.edit');
     Route::put('/reminder/{reminder}', [ReminderController::class, 'update'])->name('reminders.update'); // Add this line
     Route::delete('/reminder/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
 
-	//developer related listing 
+	//developer related listing
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
     Route::delete('/delete/sprint/file', [SprintController::class, 'deleteSprintFile']);
