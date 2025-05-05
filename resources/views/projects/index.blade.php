@@ -82,8 +82,9 @@ use App\Models\Projects;?>
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        
-                                        <!-- <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->
+                                        @if (auth()->user()->role['name'] == 'Super Admin')
+                                        <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        @endif
                                     </td>
                                     @endif
                                 </tr>
@@ -435,24 +436,31 @@ use App\Models\Projects;?>
                 });
             }
 
-            // function deleteProjects(id) {
-            //     $('#ticket_id').val(id);
-            //     // var id = $('#department_name').val();
+            function deleteProjects(id) {
+    if (confirm("Are you sure?")) {
+        $.ajax({
+            type: "DELETE",
+            url: "{{ url('/delete/projects') }}",
+            data: {
+                id: id,
+                _token: "{{ csrf_token() }}" 
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 200) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + res.message);
+                }
+            },
+            error: function(xhr) {
+                alert('Something went wrong.');
+                console.log(xhr.responseText);
+            }
+        });
+    }
+}
 
-            //     if (confirm("Are you sure ?") == true) {
-            //         $.ajax({
-            //             type: "DELETE",
-            //             url: "{{ url('/delete/projects') }}",
-            //             data: {
-            //                 id: id
-            //             },
-            //             dataType: 'json',
-            //             success: function(res) {
-            //                 location.reload();
-            //             }
-            //         });
-            //     }
-            // }
 
             $('.readMoreLink').click(function(event) {
                 event.preventDefault();

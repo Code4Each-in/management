@@ -99,17 +99,17 @@
         </nav><!-- End Icons Navigation -->
 
         @if(session()->has('message'))
-        <div class="alert alert-success header-alert fade show" role="alert" id="header-alert">
-            <i class="bi bi-check-circle me-1"></i>
-            {{ session()->get('message') }}
-        </div>
+            <div class="alert alert-success header-alert fade show" role="alert" id="header-alert">
+                        <i class="bi bi-check-circle me-1"></i>
+                        {{ session()->get('message') }}
+            </div>
         @endif
 
         @if(session()->has('error'))
 
         <div class="alert alert-danger header-alert fade show" role="alert" id="header-alert">
-            <i class="bi bi-exclamation-octagon me-1"></i>
-            {{ session()->get('error') }}
+                        <i class="bi bi-exclamation-octagon me-1"></i>
+                        {{ session()->get('error') }}
         </div>
         @endif
 
@@ -151,6 +151,19 @@
                     <i class="bi bi-bell"></i> <span>All Notifications</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
+                    href="{{ route('reminders.create') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Reminders</span>
+                </a>
+            </li>
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -169,23 +182,30 @@
             </li>
 
             @if(in_array(auth()->user()->role_id, [2, 3]))
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                        href="{{ route('sprint.index') }}">
+                        <i class="bi bi-clipboard"></i>
+                        <span>Sprint</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
+                        href="{{ route('reminders.create') }}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Reminders</span>
+                    </a>
+                </li>
             @endif
 
-            @if(auth()->user()->role->name == 'Super Admin')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
+          @if(auth()->user()->role->name == 'Super Admin')
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
+                href="{{ route('sprint.index') }}">
+                <i class="bi bi-clipboard"></i>
+                <span>Sprint</span>
+            </a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -223,6 +243,12 @@
                     <span>Roles</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
           @endif
           @if (auth()->user()->role->name == 'HR Manager')
           <li class="nav-item">
@@ -245,8 +271,14 @@
                     <span>Sprint</span>
                 </a>
             </li>
-
-            @endif
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
+                    href="{{ route('reminders.create') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Reminders</span>
+                </a>
+            </li>
+          @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
                     <i class="bi bi-person-square"></i>
@@ -260,6 +292,19 @@
                     href="{{ route('attendance.team.index') }}">
                     <i class="bi bi-person-vcard-fill"></i>
                     <span>Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
+                    <i class="bi bi-people"></i>
+                    <span>Feedbacks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
+                    href="{{ route('reminders.create') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Reminders</span>
                 </a>
             </li>
             @else
@@ -328,12 +373,12 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}"
-                    href="{{ route('todo_list.index') }}">
-                    <i class="bi bi-journal-code"></i> <span>ToDo</span>
-                </a>
-            </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}"
+             href="{{ route('todo_list.index') }}">
+             <i class="bi bi-journal-code"></i> <span>ToDo</span>
+            </a>
+        </li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
@@ -348,13 +393,6 @@
                     <!-- <i class="bi bi-buildings"></i> -->
                     <i class="bi bi-calendar-check"></i>
                     <span>Holidays</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminders') ? '' : 'collapsed' }}"
-                    href="{{ route('reminders.create') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Reminders</span>
                 </a>
             </li>
 

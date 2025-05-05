@@ -1200,6 +1200,186 @@ use App\Models\Votes;
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
     });
+    // jQuery for handling the cross button click
+    $(document).on('click', '.close', function() {
+    var reminderId = $(this).data('id');  // Get the reminder ID
+    var currentTime = new Date().toISOString();  // Get current time in ISO format
+
+    // Send the AJAX request to the route defined above
+    $.ajax({
+        url: '/reminder/mark-as-read',  // The URL of the route you defined
+        method: 'POST',
+        data: {
+            id: reminderId,  // Pass the reminder ID
+            clicked_at: currentTime,  // Pass the current time as clicked_at
+            _token: '{{ csrf_token() }}'  // CSRF token for security
+        },
+        success: function(response) {
+            console.log(response); // Log the response to check success
+            $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
+        },
+        error: function(xhr, status, error) {
+            console.log(xhr.responseText); // Log the error details
+            alert('Failed to save the click time');
+        }
+    });
+});
+
+        // sticky notes js started //
+        let updateTimeout;
+        const colors = ['color-yellow', 'color-green', 'color-blue', 'color-pink', 'color-purple'];
+        const noteGrid = document.getElementById('noteGrid');
+        let lastColorIndex = -1;
+
+        function getRandomColorClass() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * colors.length);
+            } while (newIndex === lastColorIndex && colors.length > 1);
+            lastColorIndex = newIndex;
+            return colors[newIndex];
+        }
+
+        function createNote(id, userid, title = false, body= false, created = '', first_name = '', last_name = '') {
+            const createdDate = new Date(created);
+            const formattedDate = createdDate.toLocaleDateString();
+            const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const formattedDateTime = `${formattedDate} ${formattedTime}`;
+            const fullName = first_name + ' ' + last_name;
+
+            const colorClass = getRandomColorClass();
+            const note = document.createElement('div');
+            note.className = `note ${colorClass}`;
+
+            if (title === false) {
+                title = 'Title';
+            }
+            if (body === false) {
+                body = 'Type here...';
+            }
+            note.innerHTML = `
+                <input type="hidden" class="note-id" value="${id}">
+                <input type="hidden" class="user-id" value="${userid}">
+                <div class="note-inner-container">
+                    <div class="delete-btn"><i class="fas fa-trash"></i></div>
+                    <div class="note-content">
+                        <div class="note-saved-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Saved
+                        </div>
+                        <div class="note-title" contenteditable="true">${title}</div>
+                        <div class="note-body" contenteditable="true">${body}</div>
+                    </div>
+                    <div class="vbo-sticky-note-sign">
+                        <span class="vbo-sticky-note-sign-dt">${formattedDateTime}</span>
+                        <span class="vbo-sticky-note-sign-user">${fullName}</span>
+                    </div>
+                </div>
+            `;
+
+            note.querySelector('.note-title').addEventListener('blur', updateNote);
+            note.querySelector('.note-body').addEventListener('blur', updateNote);
+
+            // Add delete button functionality
+            note.querySelector('.delete-btn').onclick = function() {
+                const noteId = note.querySelector('.note-id').value;
+
+                if (confirm('Are you sure you want to delete this note?')) {
+                    fetch('/sticky-notes/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ id: noteId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            note.remove();
+                        } else {
+                            alert('Failed to delete note.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            };
+
+            // Insert the note before the add button
+            noteGrid.insertBefore(note, document.getElementById('addBtn'));
+        }
+
+        function createAddBtn() {
+            const addBtn = document.createElement('div');
+            addBtn.id = 'addBtn';
+            addBtn.className = 'add-note';
+            addBtn.innerHTML = '<i class="bi bi-plus-circle-dotted"></i>';
+
+            addBtn.onclick = () => {
+                const notes = document.querySelectorAll('.note');
+
+                for (let note of notes) {
+                    const title = note.querySelector('.note-title').innerText.trim();
+                    const body = note.querySelector('.note-body').innerText.trim();
+
+                    // Check if note is still default (incomplete)
+                    if ((title === 'Title' || title === '') && (body === 'Type here...' || body === '')) {
+                        note.classList.add('shake');
+                        setTimeout(() => note.classList.remove('shake'), 500);
+                        return;
+                    }
+                }
+
+                // If all notes are complete, proceed to create a new note
+                fetch('/sticky-notes/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const note = data.note;
+                    createNote(note.id, note.userid, false, false, note.created_at, note.first_name, note.last_name);
+                });
+            };
+
+            noteGrid.appendChild(addBtn);
+        }
+
+        function updateNote(event) {
+            clearTimeout(updateTimeout);
+
+            updateTimeout = setTimeout(() => {
+                const noteElement = event.target.closest('.note');
+                const noteId = noteElement.querySelector('.note-id').value;
+                const title = noteElement.querySelector('.note-title').innerText.trim();
+                const body = noteElement.querySelector('.note-body').innerText.trim();
+
+                fetch(`/sticky-notes/update/${noteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ title: title, notes: body })
+                })
+                .then(() => {
+                    const savedMsg = noteElement.querySelector('.note-saved-message');
+                    savedMsg.style.display = 'block';
+                    savedMsg.classList.add('show');
+                    setTimeout(() => {
+                        savedMsg.classList.remove('show');
+                        savedMsg.style.display = 'none';
+                    }, 3000);
+                });
+            }, 1000);
+        }
+
+        createAddBtn();
 </script>
 
 @endsection

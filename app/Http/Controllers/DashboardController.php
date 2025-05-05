@@ -34,14 +34,29 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $tasks = TodoList::where('user_id', Auth::id())
-        ->whereRaw("LOWER(status) != 'completed'") // Case-insensitive check
-        ->orderBy('created_at', 'desc') // Sorting in descending order
+        ->whereRaw("LOWER(status) != 'completed'")
+        ->orderBy('created_at', 'desc')
         ->get();
+        $notifications  = 0;
+        $projectMap = '';
+        if ($user->role_id == 6) {
+            $clientId = $user->client_id;
 
-        //dd($tasks->toArray());
-        // Debug output
-        // Get the authenticated user
-        // $user = auth()->user();
+            $projectMap = Projects::where('client_id', $clientId)
+            ->pluck('project_name', 'id');
+
+        $projectIds = $projectMap->keys();
+
+        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+
+        $notifications = Notification::whereIn('ticket_id', $ticketIds)
+        ->where('message', 'not like', '%assigned%')
+        ->with('user')
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('created_at')
+        ->take(5);
+        }
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
@@ -69,13 +84,29 @@ class DashboardController extends Controller
 
 
         $dayMonthEvent = date('m');
-        $userBirthdateEvent = Users::whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
-            ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent])
-            ->where('status', 1)->get();
+        $userBirthdateEvent = Users::where(function ($query) use ($dayMonthEvent) {
+            $query->whereRaw("DATE_FORMAT(joining_date, '%m') = ?", [$dayMonthEvent])
+                  ->orWhereRaw("DATE_FORMAT(birth_date, '%m') = ?", [$dayMonthEvent]);
+        })
+        ->where('status', '=', 1)
+        ->where('role_id', '!=', 6)
+        ->get();
+
 
             $clientId = $user->client_id;
             $countsprints = 0;
+            $projects = 0;
             if ($clientId !== null) {
+
+                $projects = Projects::where('client_id', $clientId)->get();
+                $sprints = Sprint::whereIn('project', $projects->pluck('id'))
+                                ->where('status', 1)
+                                ->get();
+
+            }
+        $clientId = $user->client_id;
+        $countsprints = 0;
+        if ($clientId !== null) {
 
                 $countsprints = Sprint::where('client', $clientId)
                     ->where('status', 1)
@@ -325,7 +356,11 @@ class DashboardController extends Controller
             'allVotes',
             'todolist',
             'tasks',
-            'countsprints'
+            'countsprints',
+            'activeReminders',
+            'projects',
+            'notifications',
+            'projectMap'
         ));
     }
 
