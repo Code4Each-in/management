@@ -27,7 +27,7 @@
     }
 
     .chatsidebar {
-      width: 300px;
+      width: 360px;
       border-right: 1px solid #ddd;
       background-color: #fff;
       display: flex;
@@ -35,13 +35,14 @@
     }
 
     .sidebar-header {
-      padding: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      color: #297bab;
-      background-color: #f8f9fa;
-    }
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    color: #297bab;
+    background-color: #f8f9fa;
+    border-radius: 10px 0px 0 0;
+}
 
     .contact-list {
       flex: 1;
@@ -97,16 +98,21 @@
       top: 10px;
       right: 15px;
     }
-
-    .contact .badge {
-      background-color: #297bab;
-      color: white;
-      font-size: 12px;
-      padding: 4px 6px;
-      border-radius: 50%;
-      position: absolute;
-      right: 15px;
-      bottom: 10px;
+    .main-section {
+        width: 87%;
+        /* max-width: 850px; */
+        margin: auto;
+    }
+    .chat-wrapper .contact .badge {
+        background-color: #297bab;
+        color: white;
+        font-size: 12px;
+        padding: 4px 6px;
+        border-radius: 50%;
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        min-width: auto;
     }
 
     .chat-area {
@@ -115,7 +121,6 @@
       flex-direction: column;
       background-color: #fff;
     }
-
     .msger-header {
       display: flex;
       justify-content: space-between;
@@ -124,7 +129,8 @@
       border-bottom: 1px solid #ccc;
       background-color: #297bab;
       color: #fff;
-    }
+      border-radius: 0px 10px 0 0;
+  }
 
     .chat-messages {
       flex: 1;
@@ -221,7 +227,7 @@
     .msg-input button:hover {
       background-color: #0056b3;
     }
-
+    
     @media (max-width: 768px) {
       .chat-wrapper {
         flex-direction: column;
@@ -233,6 +239,17 @@
         max-height: 250px;
       }
     }
+    @media (max-width: 767px) {
+    .main-section {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+
+.chat-wrapper .card.mt-3.card-designform {
+    margin-bottom: 0;
+}
   </style>
 
 <div class="container chat-wrapper">

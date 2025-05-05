@@ -400,6 +400,7 @@ h6 {
   box-shadow: 0px 2px 20px rgba(1, 41, 112, 0.1);
   background-color: #fff;
   padding-left: 20px;
+  z-index: 99999;
   /* Toggle Sidebar Button */
   /* Search Bar */
 }
@@ -3089,13 +3090,16 @@ font-weight: 500;
 }
 
 @media (max-width: 767px) {
+  .task-card {
+        margin-top: 10px;
+    }
   .sprint-header {
     padding: 10px;
   }
-.table-resposnive {
-width: 100%;
-overflow: scroll;
-}
+    .table-resposnive {
+    width: 100%;
+    overflow: scroll;
+    }
   .section-title {
     font-size: 14px !important;
   }
@@ -3974,6 +3978,8 @@ card.upcoming-holidays {
 }
 
 .ql-container {   
-   font-size: 16px !important;
-  }
- 
+  font-size: 16px !important;
+}
+div#dev-listing_filter {
+    margin-bottom: 15px;
+}
