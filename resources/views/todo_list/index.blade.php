@@ -12,7 +12,7 @@
                     <div class="col-md-12">
                         <div class="input-text-group mb-3">
                             <input type="text" class="form-control-text py-2" placeholder="WHAT NEEDS TO BE DONE?" style="width: 100%;" name="title" id="taskTitle" required>
-                            <button type="submit" class="btn bg-primary text-white px-3">Add</button>
+                            <button type="submit" class="btn bg-primary text-white px-3" style="background-color: #4154f1 !important;">Add</button>
                         </div>
                     </div>
                 </form>
@@ -70,7 +70,7 @@
                                 @endforeach
                             </select>
 
-                            <button type="submit" class="btn bg-primary text-white px-3">Add</button>
+                            <button type="submit" class="btn bg-primary text-white px-3" style="background-color: #4154f1 !important;">Add</button>
                         </div>
                     </div>
                 </form>

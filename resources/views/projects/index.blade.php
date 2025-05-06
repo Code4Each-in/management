@@ -6,7 +6,7 @@ use App\Models\Projects;?>
 @section('subtitle', 'Projects')
 @section('content')
 <div class="row">
-    <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)">Add
+    <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)" style="background-color: #4154f1;">Add
         Project</button>
 </div>
 <div class="row">

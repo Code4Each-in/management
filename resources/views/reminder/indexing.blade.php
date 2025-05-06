@@ -134,7 +134,7 @@
             </div>
         </div>
         <div class="text-center">
-            <button type="submit" class="btn btn-primary ">Create Reminder</button>
+            <button type="submit" class="btn btn-primary " style="background: #4154f1;">Create Reminder</button>
         </div>
 
     </form>

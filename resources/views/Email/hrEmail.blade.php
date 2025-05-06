@@ -112,7 +112,7 @@
 </div>
 
         <div class="text-center">
-            <button type="submit" class="btn btn-primary mt-2">Send Emails</button>
+            <button type="submit" class="btn btn-primary mt-2" style="background-color: #4154f1;">Send Emails</button>
         </div>
     </form>
 </div>
