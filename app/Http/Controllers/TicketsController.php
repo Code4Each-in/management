@@ -87,6 +87,7 @@ class TicketsController extends Controller
 
         public function create()
         {
+            $auth_user = auth()->user();
             $user = Users::whereHas('role', function($q) {
                     $q->where('name', '!=', 'Super Admin');
                 })
@@ -95,7 +96,12 @@ class TicketsController extends Controller
                 ->orderBy('first_name', 'asc')
                 ->get();
             $sprints = Sprint::where('status', 1)->get();
-            $projects = Projects::all();
+            if ($auth_user->role_id == 6) {
+                // Assuming there is a `user_id` or similar column in the `projects` table
+                $projects = Projects::where('client_id', $auth_user->client_id)->get(); // adjust column name if needed
+            } else {
+                $projects = Projects::all();
+            }
             $auth_user = auth()->user();
             $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
                 ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')

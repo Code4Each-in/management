@@ -37,9 +37,7 @@ use App\Models\Client;
                         </select>  
                     </div>
                 </div>
-                @endif
 
-                @if(auth()->user()->role_id != 6)
                 <div class="row mb-5">
                     <label for="edit_assign" class="col-sm-3 col-form-label required">Project Assigned</label>
                     <div class="col-sm-9" id="Projectsdata">
@@ -55,7 +53,24 @@ use App\Models\Client;
                         @endif
                     </div>
                 </div>      
-                @endif                         
+
+                <div class="row mb-5">
+                    <label for="edit_assign" class="col-sm-3 col-form-label required ">Add More Assign</label>
+                    <div class="col-sm-9">
+                        <select name="edit_assign[]" class="form-select" id="edit_assign" multiple size="1">
+                            <option>Select User</option>
+                            @foreach ($users as $data)
+                            <option value="{{$data['id']}}">
+                                {{$data['first_name']}}-{{$data['designation']}} 
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @if ($errors->has('edit_assign'))
+                    <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_assign') }}</span>
+                    @endif
+                </div>         
+                @endif                
                 <div class="row mb-5 mt-4">
                     <label for="edit_liveurl" class="col-sm-3 col-form-label ">Live Url</label>
                     <div class="col-sm-9">
@@ -152,22 +167,6 @@ use App\Models\Client;
                     </div>
                 </div>                
                
-                <div class="row mb-5">
-                    <label for="edit_assign" class="col-sm-3 col-form-label required ">Add More Assign</label>
-                    <div class="col-sm-9">
-                        <select name="edit_assign[]" class="form-select" id="edit_assign" multiple size="1">
-                            <option>Select User</option>
-                            @foreach ($users as $data)
-                            <option value="{{$data['id']}}">
-                                {{$data['first_name']}}-{{$data['designation']}} 
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @if ($errors->has('edit_assign'))
-                    <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_assign') }}</span>
-                    @endif
-                </div>
                 <div class="row mb-3">
                                 <label for="edit_startdate" class="col-sm-3 col-form-label required">Start Date</label>
                                 <div class="col-sm-9">

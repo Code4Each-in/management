@@ -9,14 +9,14 @@
             @csrf
             <input type="hidden" id="sprint_id" name="sprint_id" value="{{ $sprint->id }}">
             <div class="form-group mb-3 mt-0">
-                <label for="name">Sprint Name</label>
+                <label for="name" class="col-sm-3 col-form-label required">Sprint Name</label>
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $sprint->name) }}" required>
                 @error('name')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div> 
             <div class="form-group mb-3">
-                <label for="project">Project</label>
+                <label for="project" class="col-sm-3 col-form-label required">Project</label>
                 <select name="project" class="form-select form-control" id="project" required>
                     <option value="" disabled selected>Select your project</option>
                     @foreach ($projects as $data)
@@ -27,7 +27,7 @@
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div> 
-            <div class="form-group mb-3">
+            <!-- <div class="form-group mb-3">
                 <label for="client">Client</label>
                 <select name="client" class="form-select form-control" id="client" required>
                     <option value="" disabled selected>Select Clients</option>
@@ -38,17 +38,17 @@
                 @error('client')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
-            </div>        
+            </div>         -->
             <div class="form-group mb-3">
-                <label for="start_date">Start Date</label>
+                <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
                 <input type="datetime-local" class="form-control" name="start_date" id="start_date" value="{{ old('start_date', \Carbon\Carbon::parse($sprint->start_date)->format('Y-m-d\TH:i')) }}" required>
                 @error('start_date')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
             <div class="form-group mb-3">
-                <label for="eta">End Date</label>
-                <input type="datetime-local" class="form-control" name="eta" id="eta" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
+                <label for="eta" class="col-sm-3 col-form-label required">End Date</label>
+                <input type="datetime-local" class="form-control" name="end_date" id="end_date" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
                 @error('eta')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
@@ -62,7 +62,7 @@
                     </select>                
             </div> 
             <div class="form-group mb-3">
-                <label for="tinymce_textarea" class="col-sm-3 col-form-label">Description</label>
+                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
                     <div id="toolbar-container">
                         <span class="ql-formats">
                             <select class="ql-font"></select>
@@ -118,49 +118,57 @@
                     @endif
                 
             </div>     
-            <div class="row mb-5">
-                <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
-                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
-                    @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
-                    No Uploaded Document Found
-                    @else  
-                    @foreach ($ProjectDocuments as $data)
-                    @if (!empty($data->document))
-                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
-                        @php
-                            $extension = pathinfo($data->document, PATHINFO_EXTENSION);
-                            $iconClass = '';
-    
-                            switch ($extension) {
-                                case 'pdf':
-                                    $iconClass = 'bi-file-earmark-pdf';
-                                    break;
-                                case 'doc':
-                                case 'docx':
-                                    $iconClass = 'bi-file-earmark-word';
-                                    break;
-                                case 'xls':
-                                case 'xlsx':
-                                    $iconClass = 'bi-file-earmark-excel';
-                                    break;
-                                case 'jpg':
-                                case 'jpeg':
-                                case 'png':
-                                    $iconClass = 'bi-file-earmark-image';
-                                    break;
-                                default:
-                                    $iconClass = 'bi-file-earmark';
-                                    break;
-                            }
-                        @endphp
-                         <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
-                         <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
-                    </button>
-                    @endif
-                @endforeach
-                    @endif
-                </div>
-            </div>   
+            @php
+                $validDocuments = collect($ProjectDocuments)->filter(function($doc) {
+                    return !empty($doc->document);
+                });
+            @endphp
+
+            @if ($validDocuments->isNotEmpty())
+                <div class="row">
+                    <label for="edit_document" class="col-form-label">Uploaded Documents</label>
+                    <div class="col-sm-9" id="Projectsdata">
+                        @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
+                        No Uploaded Document Found
+                        @else  
+                        @foreach ($ProjectDocuments as $data)
+                        @if (!empty($data->document))
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                            @php
+                                $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                                $iconClass = '';
+        
+                                switch ($extension) {
+                                    case 'pdf':
+                                        $iconClass = 'bi-file-earmark-pdf';
+                                        break;
+                                    case 'doc':
+                                    case 'docx':
+                                        $iconClass = 'bi-file-earmark-word';
+                                        break;
+                                    case 'xls':
+                                    case 'xlsx':
+                                        $iconClass = 'bi-file-earmark-excel';
+                                        break;
+                                    case 'jpg':
+                                    case 'jpeg':
+                                    case 'png':
+                                        $iconClass = 'bi-file-earmark-image';
+                                        break;
+                                    default:
+                                        $iconClass = 'bi-file-earmark';
+                                        break;
+                                }
+                            @endphp
+                            <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/'.$data->document) }}', '_blank')"></i>
+                            <i class="bi bi-x pointer ticketfile text-danger" onClick="deleteSprintFile('{{ $data->id }}')"></i>
+                        </button>
+                        @endif
+                    @endforeach
+                        @endif
+                    </div>
+                </div>   
+            @endif
             <div class="form-group mb-3">
                 <label for="edit_document" class="col-sm-3 col-form-label">Upload Documents</label>
                 <div>
@@ -220,7 +228,7 @@
     
     document.addEventListener('DOMContentLoaded', function () {
         const startDateInput = document.getElementById('start_date');
-        const etaInput = document.getElementById('eta');
+        const etaInput = document.getElementById('end_date');
 
         startDateInput.addEventListener('change', function () {
             const startDate = new Date(this.value);
