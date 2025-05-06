@@ -26,7 +26,7 @@
       /* height: 80vh; */
     }
 
-    .chatsidebar-client {
+    .chatsidebar {
       width: 360px;
       border-right: 1px solid #ddd;
       background-color: #fff;
@@ -34,7 +34,7 @@
       flex-direction: column;
     }
 
-    .sidebar-header-client  {
+    .sidebar-header  {
     padding: 15px;
     font-size: 18px;
     font-weight: bold;
@@ -49,7 +49,7 @@
       overflow-y: auto;
     }
 
-    .contact-client {
+    .contact {
         display: flex;
         align-items: center;
         padding: 10px 15px;
@@ -60,38 +60,38 @@
         margin: 10px 8px 10px;
     }
 
-    .contact-client:hover {
+    .contact:hover {
         background-color: #f0f0f0;
         border-radius: 11px;
         box-shadow: 0 0 40px rgb(0 0 0 / 12%);
         background: #d5efff;
         /* margin: 15px 5px 5px; */
      }
-    .contact-client img {
+    .contact img {
       width: 50px;
       height: 50px;
       border-radius: 50%;
       margin-right: 10px;
     }
 
-    .contact-client .details-clent {
+    .contact .details-clent {
         flex: 1;
         display: flex;
         flex-direction: column;
         row-gap: 1px;
     }
 
-    .contact-client.name-client {
+    .contact.name {
       font-weight: bold;
       font-size: 14px;
     }
 
-    .contact-client.last-message-client {
+    .contact.last-message {
       font-size: 12px;
       color: #666;
     }
 
-    .contact-client .time-client {
+    .contact .time {
       font-size: 11px;
       color: #999;
       position: absolute;
@@ -101,9 +101,9 @@
     .message-section {
         width: 87%;
         /* max-width: 850px; */
-        margin: auto;
+   
     }
-    .chat-wrapper .contact-client .badge-client {
+    .chat-wrapper .contact .badge {
         background-color: #297bab;
         color: white;
         font-size: 12px;
@@ -139,23 +139,23 @@
       background-color: #f7f9fb;
     }
 
-    .msg-client {
+    .msg {
       margin-bottom: 20px;
     }
 
-    .msg-client .meta {
+    .msg.meta {
       font-size: 12px;
       color: #999;
       margin-bottom: 4px;
     }
 
-    .msg-client .author {
+    .msg .author {
       display: flex;
       align-items: center;
       margin-bottom: 5px;
     }
 
-    .msg-client .avatar {
+    .msg .avatar {
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -169,13 +169,13 @@
       margin-right: 10px;
     }
 
-    .msg-client .name-client {
+    .msg .name {
       font-weight: bold;
       font-size: 14px;
       margin-right: 8px;
     }
 
-    .msg-client .role {
+    .msg .role {
       font-size: 12px;
       color: #666;
       background-color: #e1e1e1;
@@ -183,16 +183,16 @@
       border-radius: 4px;
     }
 
-    .msg-client .text {
+    .msg .text {
       margin-left: 46px;
       font-size: 14px;
       background-color: #e9ecef;
       padding: 10px;
       border-radius: 10px;
     }
-    .contact-client.active {border-radius: 11px;box-shadow: 0 0 40px rgb(0 0 0 / 12%);background: #d5efff;}
+    .contact.active {border-radius: 11px;box-shadow: 0 0 40px rgb(0 0 0 / 12%);background: #d5efff;}
 
-    .project-client {
+    .project {
         color: #297bab;
         font-weight: 600;
         font-size: 14px;
@@ -234,7 +234,7 @@
         height: auto;
       }
 
-      .chatsidebar-client {
+      .chatsidebar {
         width: 100%;
         max-height: 250px;
       }
@@ -253,8 +253,8 @@
   </style>
 <div class="container chat-wrapper">
     <!-- Sidebar -->
-    <div class="chatsidebar-client">
-        <div class="sidebar-header-client ">Messages</div>
+    <div class="chatsidebar">
+        <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
           <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
@@ -279,7 +279,7 @@
       </div>      
     </div>          
     <div class="message-section">
-        <div class="msgers-header">
+        <div class="msger-header">
             <h1>Comments</h1>
             <i class="fas fa-comment icon"></i> 
         </div>
