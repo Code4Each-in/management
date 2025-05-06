@@ -262,7 +262,9 @@
         <div class="contact-list">
           @forelse($projects as $project)
           <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
-            <img src="" alt="avatar">
+          <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+            {{ strtoupper(substr($project->project_name, 0, 2)) }}
+        </div>
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
                       <div class="project">{{ $client->name ?? 'N/A' }}</div>
