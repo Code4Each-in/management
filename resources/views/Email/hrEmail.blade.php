@@ -23,7 +23,7 @@
     </div>
     @endif
 
-    <form id="emailForm" action="{{ route('emailall.send') }}" method="POST">
+    <form id="emailForm" action="{{ route('emailall.send') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row mb-5 mt-4">
@@ -93,23 +93,29 @@
                 @endif
             </div>
         </div>
-        <div class="row mb-5 mt-4">
-    <label class="col-sm-3 col-form-label">Select Employees to Email</label>
-    <div class="col-sm-9">
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="select_all">
-            <label class="form-check-label" for="select_all">Select All</label>
-        </div>
-        @foreach($employees as $employee)
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="emails[]" value="{{ $employee->email }}" id="email_{{ $employee->id }}">
-                <label class="form-check-label" for="email_{{ $employee->id }}">
-                    {{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->email }})
-                </label>
+        <div class="row mb-5">
+            <label class="col-sm-3 col-form-label">Attachments</label>
+            <div class="col-sm-9">
+                <input type="file" name="attachments[]" multiple class="form-control">
             </div>
-        @endforeach
-    </div>
-</div>
+        </div>
+        <div class="row mb-5 mt-4">
+            <label class="col-sm-3 col-form-label">Select Employees to Email</label>
+            <div class="col-sm-9">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="select_all">
+                    <label class="form-check-label" for="select_all">Select All</label>
+                </div>
+                @foreach($employees as $employee)
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="emails[]" value="{{ $employee->email }}" id="email_{{ $employee->id }}">
+                        <label class="form-check-label" for="email_{{ $employee->id }}">
+                            {{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->email }})
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
         <div class="text-center">
             <button type="submit" class="btn btn-primary mt-2">Send Emails</button>
