@@ -149,8 +149,8 @@ public function addMessage(Request $request)
                 "body-text" => "Message: \"" . $request->input('message') . "\"",
             ];
     
-            $assignedUser = $to_id; 
-    
+            
+            $assignedUser = Users::find($to_id);
             if ($assignedUser) {
                 $assignedUser->notify(new EmailNotification($messages));
             }
