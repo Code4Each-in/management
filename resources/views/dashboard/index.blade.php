@@ -6,6 +6,28 @@
 use App\Models\Users;
 use App\Models\Votes;
 @endphp -->
+<style>
+    .reminder-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #0c5460; /* Adjust based on alert color */
+    cursor: pointer;
+    float: right;
+    padding: 0 0.5rem;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.reminder-close-btn:hover {
+    color: #721c24; /* Slightly darker or alert-danger tone on hover */
+    transform: scale(1.2);
+}
+.alert.alert-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+</style>
 @if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
 
@@ -24,12 +46,14 @@ use App\Models\Votes;
 
 @if($activeReminders->isNotEmpty())
     @foreach($activeReminders as $reminder)
-        <div class="alert alert-info">
-            {{ $reminder->description }}
-            <button class="close" data-id="{{ $reminder->id }}" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+        @if($reminder->user_id == auth()->user()->id) <!-- Assuming 'user_id' indicates who created the reminder -->
+            <div class="alert alert-info">
+                {{ $reminder->description }}
+                <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
     @endforeach
 @endif
 
@@ -259,80 +283,80 @@ use App\Models\Votes;
 
 <!-- Sticky Notes Started -->
 <div class="col-lg-12 stickyNotes">
-  <div class="card">
-    <div class="sticky-card">
-      <div class="row">
-        <!-- <div class="container"> -->
-            <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-            <div class="notes-wrapper" id="noteGrid"></div>
-        </div>
-      <!-- </div> -->
-    </div>
-  </div>
-<!-- Sticky Notes Ended -->
-
-<!-- ---------- ToDo List Started ---------------- -->
-<div class="col-lg-12">
     <div class="card">
-        <div class="card-body">
+        <div class="sticky-card">
             <div class="row">
-                <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h5 class="card-title">Your Tasks</h5>
-                    <a href="/todo_list" class="btn btn-primary" style="
+                <!-- <div class="container"> -->
+                <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+                <div class="notes-wrapper" id="noteGrid"></div>
+            </div>
+            <!-- </div> -->
+        </div>
+    </div>
+    <!-- Sticky Notes Ended -->
+
+    <!-- ---------- ToDo List Started ---------------- -->
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h5 class="card-title">Your Tasks</h5>
+                        <a href="/todo_list" class="btn btn-primary" style="
     font-weight: 600;
     font-size: 15px;
     background-color: #4154f1;
 ">View All Tasks</a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    @if($tasks->isEmpty())
-                    <p>No tasks found.</p>
-                    @else
-                    <table class="table table-bordered teamstasks">
-                        <thead class="table-light">
-                            <tr>
-                                <th>All Tasks</th>
-                                <th>Created At</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($tasks as $task)
-                            <tr>
-                                <td>{{ $task->title }}</td>
-                                <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
-                                <td>
-                                    @php
-                                    $statusClass = match($task->status) {
-                                    'open' => 'primary', // Blue
-                                    'hold' => 'warning', // Yellow
-                                    'completed' => 'success', // Green
-                                    'canceled' => 'danger', // Red
-                                    default => 'secondary' // Gray for unknown statuses
-                                    };
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        @if($tasks->isEmpty())
+                        <p>No tasks found.</p>
+                        @else
+                        <table class="table table-bordered teamstasks">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>All Tasks</th>
+                                    <th>Created At</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tasks as $task)
+                                <tr>
+                                    <td>{{ $task->title }}</td>
+                                    <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
+                                    <td>
+                                        @php
+                                        $statusClass = match($task->status) {
+                                        'open' => 'primary', // Blue
+                                        'hold' => 'warning', // Yellow
+                                        'completed' => 'success', // Green
+                                        'canceled' => 'danger', // Red
+                                        default => 'secondary' // Gray for unknown statuses
+                                        };
 
-                                    // Apply custom color only if status is not "hold"
-                                    $customColor = $task->status === 'hold' ? '' : 'background-color: #4154f1 !important;';
-                                    @endphp
-                                    <span class="badge bg-{{ $statusClass }}"
-                                        style="{{ $customColor }} border-radius: 20px;">
-                                        {{ ucfirst($task->status) }}
-                                    </span>
-                                </td>
+                                        // Apply custom color only if status is not "hold"
+                                        $customColor = $task->status === 'hold' ? '' : 'background-color: #4154f1 !important;';
+                                        @endphp
+                                        <span class="badge bg-{{ $statusClass }}"
+                                            style="{{ $customColor }} border-radius: 20px;">
+                                            {{ ucfirst($task->status) }}
+                                        </span>
+                                    </td>
 
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    @endif
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -341,25 +365,25 @@ use App\Models\Votes;
 
 
 
-<!-- ---------- To Do List Ended ---------------- -->
+    <!-- ---------- To Do List Ended ---------------- -->
 
 
 
-<!-- Employee Of The Month Section -->
-@include('votes.index', ['winners' => $winners])
-<!-- End of Employee Of The Month Section -->
+    <!-- Employee Of The Month Section -->
+    @include('votes.index', ['winners' => $winners])
+    <!-- End of Employee Of The Month Section -->
 
 
 
 
-<!-- Recent Sales -->
+    <!-- Recent Sales -->
 
-<div class="row">
-    <div class="col-md-8 dashboard">
-        <div class="card recent-sales overflow-auto">
-            <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+    <div class="row">
+        <div class="col-md-8 dashboard">
+            <div class="card recent-sales overflow-auto">
+                <div class="filter">
+                    <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                    <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
                     <h6>Filter</h6>
                 </li>
@@ -368,62 +392,62 @@ use App\Models\Votes;
                 <li><a class="dropdown-item" href="#">This Month</a></li>
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul> -->
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Teams Leave</h5>
-                <table class="table table-borderless datatable" id="leavesss">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">From</th>
-                            <th scope="col">To</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Status</th>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Teams Leave</h5>
+                    <table class="table table-borderless datatable" id="leavesss">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Status</th>
 
-                        </tr>
-                        <!-- <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5> -->
-                    </thead>
-                    <tbody>
-                        @forelse($userLeaves as $data)
-                        @if($data->status == 1)
-                        <tr>
-                            <td>{{ $data->first_name}}</td>
-                            <td>{{date("d-M-Y", strtotime($data->from));}}</td>
-                            <td>{{date("d-M-Y", strtotime($data->to));}}</td>
-                            <td>{{$data->type }}</td>
-                            <td>
-                                @php
-                                $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
-                                @endphp
-                                @if($data->leave_status == 'approved')
-                                <span class="badge rounded-pill approved">Approved</span>
-                                @elseif($data->leave_status == 'declined')
-                                <span class="badge rounded-pill denied">Declined</span>
-                                @else
-                                <span class="badge rounded-pill requested">Requested</span>
-                                @endif
-                                @if (!empty($leaveStatusData))
-                                <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
-                                    {{ $leaveStatusData->first_name ?? '' }}
-                                </p>
-                                @endif
-                            </td>
-                        </tr>
-                        @endif
-                        @empty
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                            </tr>
+                            <!-- <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5> -->
+                        </thead>
+                        <tbody>
+                            @forelse($userLeaves as $data)
+                            @if($data->status == 1)
+                            <tr>
+                                <td>{{ $data->first_name}}</td>
+                                <td>{{date("d-M-Y", strtotime($data->from));}}</td>
+                                <td>{{date("d-M-Y", strtotime($data->to));}}</td>
+                                <td>{{$data->type }}</td>
+                                <td>
+                                    @php
+                                    $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
+                                    @endphp
+                                    @if($data->leave_status == 'approved')
+                                    <span class="badge rounded-pill approved">Approved</span>
+                                    @elseif($data->leave_status == 'declined')
+                                    <span class="badge rounded-pill denied">Declined</span>
+                                    @else
+                                    <span class="badge rounded-pill requested">Requested</span>
+                                    @endif
+                                    @if (!empty($leaveStatusData))
+                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
+                                        {{ $leaveStatusData->first_name ?? '' }}
+                                    </p>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-        </div>
-        <div class="row">
-            @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
-            <div class="col-md-12 dashboard">
-                <div class="card recent-sales overflow-auto">
-                    <div class="filter">
-                        <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                        <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+            </div>
+            <div class="row">
+                @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
+                <div class="col-md-12 dashboard">
+                    <div class="card recent-sales overflow-auto">
+                        <div class="filter">
+                            <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
+                            <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                     <li class="dropdown-header text-start">
                         <h6>Filter</h6>
                     </li>
@@ -432,103 +456,103 @@ use App\Models\Votes;
                     <li><a class="dropdown-item" href="#">This Month</a></li>
                     <li><a class="dropdown-item" href="#">This Year</a></li>
                 </ul> -->
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Assigned Devices</h5>
-                        <table class="table table-borderless datatable" id="devices">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Device Name</th>
-                                    <th scope="col">Model Name</th>
-                                    <th scope="col">Serial Number</th>
-                                    <th scope="col">From</th>
-                                    <!-- <th scope="col">To</th> -->
-                                    <th scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($assignedDevices as $data)
-                                <tr>
-                                    <td>{{ $data->device->name ?? ''}}</td>
-                                    <td>{{ $data->device->device_model ?? ''}}</td>
-                                    <td>{{ $data->device->serial_number ?? '---'}}</td>
-                                    <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                                    <!-- <td> @if ($data->to)
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Assigned Devices</h5>
+                            <table class="table table-borderless datatable" id="devices">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Device Name</th>
+                                        <th scope="col">Model Name</th>
+                                        <th scope="col">Serial Number</th>
+                                        <th scope="col">From</th>
+                                        <!-- <th scope="col">To</th> -->
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($assignedDevices as $data)
+                                    <tr>
+                                        <td>{{ $data->device->name ?? ''}}</td>
+                                        <td>{{ $data->device->device_model ?? ''}}</td>
+                                        <td>{{ $data->device->serial_number ?? '---'}}</td>
+                                        <td>{{date("d-m-Y", strtotime($data->from));}}</td>
+                                        <!-- <td> @if ($data->to)
                                                 {{date("d-m-Y", strtotime($data->to)) }}
                                             @endif
                                 </td> -->
-                                    <td> @if ($data->status == 0)
-                                        <span class="badge rounded-pill bg-success">Recovered</span>
-                                        @else
-                                        <span class="badge rounded-pill bg-primary">Assigned</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @empty
-                                @endforelse
-                            </tbody>
-                        </table>
+                                        <td> @if ($data->status == 0)
+                                            <span class="badge rounded-pill bg-success">Recovered</span>
+                                            @else
+                                            <span class="badge rounded-pill bg-primary">Assigned</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!------Vote Section-------->
+
+        <div class="col-md-4 dashboard">
+            @php
+            $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
+            @endphp
+            @if ($last7Days)
+            <div class="card vote-section">
+                <div class="card-body">
+                    <div class="main-div">
+                        <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+                        <div class="vote" style="max-height: 300px; overflow-y: auto;">
+                            @if ($uservote->isNotEmpty())
+                            <table class="table" id="voter">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Employee Name</th>
+                                        <th scope="col">Vote</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($uservote as $user)
+                                    <!-- @if($user->status == 1 && $user->role_id != 1) -->
+                                    <tr>
+                                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                                        </td>
+                                    </tr>
+                                    <!-- @endif -->
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @else
+                            <p>Your vote has been recorded. Results will be announced shortly.</p>
+                            <div class="img-wrapper ">
+                                <img src="/assets/img/votingresult.png">
+                            </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
             @endif
-        </div>
-    </div>
-
-    <!------Vote Section-------->
-
-    <div class="col-md-4 dashboard">
-        @php
-        $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
-        @endphp
-        @if ($last7Days)
-        <div class="card vote-section">
-            <div class="card-body">
-                <div class="main-div">
-                    <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
-                    <div class="vote" style="max-height: 300px; overflow-y: auto;">
-                        @if ($uservote->isNotEmpty())
-                        <table class="table" id="voter">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Employee Name</th>
-                                    <th scope="col">Vote</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($uservote as $user)
-                                <!-- @if($user->status == 1 && $user->role_id != 1) -->
-                                <tr>
-                                    <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
-                                    </td>
-                                </tr>
-                                <!-- @endif -->
-                                @endforeach
-                            </tbody>
-                        </table>
-                        @else
-                        <p>Your vote has been recorded. Results will be announced shortly.</p>
-                        <div class="img-wrapper ">
-                            <img src="/assets/img/votingresult.png">
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
-        <!------ End Vote Section-------->
+            <!------ End Vote Section-------->
 
 
-        @if ($userBirthdateEvent->isNotEmpty())
-    @php
-        $hasUpcomingEvents = false; // Flag to track if there are upcoming events
-    @endphp
+            @if ($userBirthdateEvent->isNotEmpty())
+            @php
+            $hasUpcomingEvents = false; // Flag to track if there are upcoming events
+            @endphp
 
-    @foreach ($userBirthdateEvent as $user)
-        @php
+            @foreach ($userBirthdateEvent as $user)
+            @php
             $birthMonth = date('m', strtotime($user->birth_date));
             $birthDay = date('d', strtotime($user->birth_date));
             $joinMonth = date('m', strtotime($user->joining_date));
@@ -547,79 +571,79 @@ use App\Models\Votes;
 
             $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
             if ($interval->y > 1) {
-                $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+            $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
             } else {
-                $isAnniversaryUpcoming = false;
+            $isAnniversaryUpcoming = false;
             }
 
             if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
-                $hasUpcomingEvents = true; // Update the flag if any upcoming event is found
+            $hasUpcomingEvents = true; // Update the flag if any upcoming event is found
             }
-        @endphp
-    @endforeach
+            @endphp
+            @endforeach
 
-    @if ($hasUpcomingEvents)
-        <div class="card upcoming-events">
-            <div class="card-body pb-4">
-                <h5 class="card-title">Upcoming Events</h5>
+            @if ($hasUpcomingEvents)
+            <div class="card upcoming-events">
+                <div class="card-body pb-4">
+                    <h5 class="card-title">Upcoming Events</h5>
 
-                <div class="news">
-                    @foreach ($userBirthdateEvent as $user)
+                    <div class="news">
+                        @foreach ($userBirthdateEvent as $user)
                         @php
-                            $birthMonth = date('m', strtotime($user->birth_date));
-                            $birthDay = date('d', strtotime($user->birth_date));
-                            $joinMonth = date('m', strtotime($user->joining_date));
-                            $joinDay = date('d', strtotime($user->joining_date));
-                            $currentMonth = date('m');
-                            $currentDay = date('d');
+                        $birthMonth = date('m', strtotime($user->birth_date));
+                        $birthDay = date('d', strtotime($user->birth_date));
+                        $joinMonth = date('m', strtotime($user->joining_date));
+                        $joinDay = date('d', strtotime($user->joining_date));
+                        $currentMonth = date('m');
+                        $currentDay = date('d');
 
-                            // Check if person completed one year or not
-                            $joiningDate = new DateTime($user->joining_date);
-                            $currentDate = new DateTime(date('Y-m-d'));
-                            $interval = $joiningDate->diff($currentDate);
+                        // Check if person completed one year or not
+                        $joiningDate = new DateTime($user->joining_date);
+                        $currentDate = new DateTime(date('Y-m-d'));
+                        $interval = $joiningDate->diff($currentDate);
 
-                            // Check if events are in the current month and in the future
-                            $isBirthdayThisMonth = $currentMonth == $birthMonth;
-                            $isAnniversaryThisMonth = $currentMonth == $joinMonth;
+                        // Check if events are in the current month and in the future
+                        $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                        $isAnniversaryThisMonth = $currentMonth == $joinMonth;
 
-                            $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
-                            if ($interval->y > 1) {
-                                $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
-                            } else {
-                                $isAnniversaryUpcoming = false;
-                            }
+                        $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                        if ($interval->y > 1) {
+                        $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
+                        } else {
+                        $isAnniversaryUpcoming = false;
+                        }
                         @endphp
 
                         @if ($isBirthdayUpcoming && $isAnniversaryUpcoming)
-                            <div class="post-item clearfix">
-                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span> <span> & </span>
-                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
-                            </div>
+                        <div class="post-item clearfix">
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span> <span> & </span>
+                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                        </div>
                         @elseif ($isBirthdayUpcoming)
-                            <div class="post-item clearfix">
-                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
-                                <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
-                            </div>
+                        <div class="post-item clearfix">
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-birthday-cake" style="color:red" aria-hidden="true"></i>
+                            <span>Birthday on {{ date("d F", strtotime($user->birth_date)) }}</span>
+                        </div>
                         @elseif ($isAnniversaryUpcoming)
-                            <div class="post-item clearfix">
-                                <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
-                                <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
-                                <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
-                            </div>
+                        <div class="post-item clearfix">
+                            <h4>{{ $user->first_name . " " . $user->last_name }}</h4>
+                            <i class="fa fa-gift" style="color:green" aria-hidden="true"></i>
+                            <span>Anniversary on {{ date("d F", strtotime($user->joining_date)) }}</span>
+                        </div>
                         @endif
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
-        </div>
-    @endif
-@endif
+            @endif
+            @endif
 
-        <div class="card upcoming-holidays">
-            <!-- <div class="filter">
+            <div class="card upcoming-holidays">
+                <!-- <div class="filter">
               <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
               <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 <li class="dropdown-header text-start">
@@ -632,40 +656,40 @@ use App\Models\Votes;
               </ul>
             </div> -->
 
-            <div class="card-body">
-                <h5 class="card-title"> Upcoming Holidays</h5>
+                <div class="card-body">
+                    <h5 class="card-title"> Upcoming Holidays</h5>
 
-                <div class="news">
-                    @if ($upcomingFourHolidays)
-                    @foreach ($upcomingFourHolidays as $holiday)
-                    <div class="post-item clearfix">
-                        <h4>{{$holiday->name}} <span>| @if ($holiday->from === $holiday->to)
-                                {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
-                                @else
-                                {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
-                                {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
-                                @endif</span></h4>
-                        <p>Holiday @if ($holiday->from === $holiday->to) On
-                            {{date("d-M-Y", strtotime($holiday->from));}} @else From
-                            {{date("d-M-Y", strtotime($holiday->from));}} to {{date("d-M-Y", strtotime($holiday->to));}}
-                            @endif
-                        </p>
+                    <div class="news">
+                        @if ($upcomingFourHolidays)
+                        @foreach ($upcomingFourHolidays as $holiday)
+                        <div class="post-item clearfix">
+                            <h4>{{$holiday->name}} <span>| @if ($holiday->from === $holiday->to)
+                                    {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                    @else
+                                    {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
+                                    {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                    @endif</span></h4>
+                            <p>Holiday @if ($holiday->from === $holiday->to) On
+                                {{date("d-M-Y", strtotime($holiday->from));}} @else From
+                                {{date("d-M-Y", strtotime($holiday->from));}} to {{date("d-M-Y", strtotime($holiday->to));}}
+                                @endif
+                            </p>
+                        </div>
+                        @endforeach
+                    </div><!-- End sidebar recent posts-->
+                    @else
+                    <div class="alert" role="alert">
+                        No upcoming holidays found.
                     </div>
-                    @endforeach
-                </div><!-- End sidebar recent posts-->
-                @else
-                <div class="alert" role="alert">
-                    No upcoming holidays found.
+                    @endif
                 </div>
-                @endif
             </div>
-        </div>
 
-        {{-- For Missing attendance --}}
-        @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
-        <div class="col-md-12 dashboard">
-            <div class="card recent-sales overflow-auto">
-                <!-- <div class="filter">
+            {{-- For Missing attendance --}}
+            @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
+            <div class="col-md-12 dashboard">
+                <div class="card recent-sales overflow-auto">
+                    <!-- <div class="filter">
                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                        <li class="dropdown-header text-start">
@@ -677,40 +701,40 @@ use App\Models\Votes;
                      <li><a class="dropdown-item" href="#">This Year</a></li>
                      </ul>
                     </div> -->
-                <div class="card-body">
-                    <h5 class="card-title">Missing Attendance</h5>
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-borderless datatable" id="leavesss">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Employee Name</th>
-                                    <th scope="col">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($userAttendances as $attendance)
-                                <tr>
-                                    <td>{{ $attendance['name'] }}</td>
-                                    <!-- <td>{{ implode(', ', $attendance['dates']) }}</td> -->
-                                    <td>{{ implode(', ', array_map(function($date) {
+                    <div class="card-body">
+                        <h5 class="card-title">Missing Attendance</h5>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-borderless datatable" id="leavesss">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Employee Name</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($userAttendances as $attendance)
+                                    <tr>
+                                        <td>{{ $attendance['name'] }}</td>
+                                        <!-- <td>{{ implode(', ', $attendance['dates']) }}</td> -->
+                                        <td>{{ implode(', ', array_map(function($date) {
                                         return date('d-M-Y', strtotime($date));
                                              }, $attendance['dates'])) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        @if (empty($userAttendances))
-                        <div class="alert" role="alert">
-                            No results found.
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @if (empty($userAttendances))
+                            <div class="alert" role="alert">
+                                No results found.
+                            </div>
+                            @endif
                         </div>
-                        @endif
                     </div>
                 </div>
             </div>
-        </div>
-        @endif
+            @endif
 
-        <!-- <div class="row">
+            <!-- <div class="row">
             @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
             <div class="col-md-8 dashboard">
                 <div class="card recent-sales overflow-auto">
@@ -754,469 +778,492 @@ use App\Models\Votes;
             </div>
             @endif
         </div> -->
-    </div>
-</div>
-
-
-<div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">List of members on leave today</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger" style="display:none"></div>
-                @foreach ($validLeaves as $data)
-                <div class="row leaveUserContainer mt-2 ">
-                    <div class="col-md-2">
-                        <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
-                    </div>
-                    <div class="col-md-10 ">
-                        <p><b>{{$data->first_name}} <b></p>
-                    </div>
-                </div>
-
-                @endforeach
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
     </div>
-</div>
-<div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-labelledby="voteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="voteModalLabel">Vote Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Employee: <span class="toVoteUserName"> </span></p>
-                <div class="form-group">
-                    <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
-                    <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
-                    <div id="reasonError" class="text-danger"></div>
-                    <div id="successMessage" class="text-success"></div>
-                    <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} " />
-                    <input type="hidden" class="form-control" id="touser" />
 
+
+    <div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">List of members on leave today</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" style="display:none"></div>
+                    @foreach ($validLeaves as $data)
+                    <div class="row leaveUserContainer mt-2 ">
+                        <div class="col-md-2">
+                            <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
+                        </div>
+                        <div class="col-md-10 ">
+                            <p><b>{{$data->first_name}} <b></p>
+                        </div>
+                    </div>
+
+                    @endforeach
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearErrorMessage()">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
+        </div>
+    </div>
+    <div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-labelledby="voteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="voteModalLabel">Vote Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Employee: <span class="toVoteUserName"> </span></p>
+                    <div class="form-group">
+                        <label for="reason" class="col-sm-3 col-form-label required">Reason</label>
+                        <textarea class="form-control" id="reason" placeholder="Enter reason"></textarea>
+                        <div id="reasonError" class="text-danger"></div>
+                        <div id="successMessage" class="text-success"></div>
+                        <input type="hidden" class="form-control" id="fromuser" value="{{ auth()->user()->id }} " />
+                        <input type="hidden" class="form-control" id="touser" />
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearErrorMessage()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitVote()">Submit</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-@endif
-@if (auth()->user()->role_id == 6)
-   <!-- Sticky Notes Started -->
-   <div class="col-lg-12 stickyNotes">
-    <div class="card">
-      <div class="sticky-card">
-        <div class="row">
-          <!-- <div class="container"> -->
-              <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-              <div class="notes-wrapper" id="noteGrid"></div>
-          </div>
-        <!-- </div> -->
-      </div>
-    </div>
-  <!-- Sticky Notes Ended -->
-<div class="row">
-    <!-- Left 8-column block for both tables -->
-    <div class="col-lg-8">
-      <!-- First Card -->
-      <div class="card mb-3">
-        <div class="card-body pb-4">
-          <h4 class="mb-3">Projects List</h4>
-          <div class="table-responsive">
-          <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Sr No</th>
-                            <th>Project Name</th>
-                            <th>Start Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($projects as $project)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $project->project_name }}</td>
-                                <td>{{ $project->start_date }}</td>
-                                <td>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    <a href="{{ url('/edit/project/'.$project->id)}}">
-                                        <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
-                                        </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-          </div>
-            </div>
-        </div>
+    @endif
+    @if (auth()->user()->role_id == 6)
+    <!-- Sticky Notes Started -->
+    <div class="col-lg-12 stickyNotes">
         <div class="card">
-            <div class="card-body pb-4">
-                <h4 class="mb-3">Recent Notifications</h4>
-                <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Notification</th>
-                            <th>Project Name</th>
-                            <th>Ticket</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($notifications as $notification)
-                            @php
-                                $ticket = \App\Models\Tickets::find($notification->ticket_id);
-                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
-                                $creatorName = $notification->user->first_name ?? 'Unknown User';
-                            @endphp
-                            <tr>
-                                <td>
-                                    {{ $notification->message }} <br>
-                                    <small>By: {{ $creatorName }}</small>
-                                </td>
-                                <td>{{ $projectName }}</td>
-                                <td>
-                                    <a href="{{ url('/view/ticket/' . $notification->ticket_id) }}" target="_blank">
-                                        <i class="fa fa-eye text-primary"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="sticky-card">
+                <div class="row">
+                    <!-- <div class="container"> -->
+                    <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+                    <div class="notes-wrapper" id="noteGrid"></div>
                 </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
-                </div>
-        </div>
+                <!-- </div> -->
             </div>
         </div>
-                    <div class="col-lg-4">
-
-                                    @if ($userBirthdateEvent->isNotEmpty())
-                                        @php
-                                            $hasUpcomingEvents = false;
-                                        @endphp
-
-                                        @foreach ($userBirthdateEvent as $user)
-                                            @php
-                                                $birthMonth = date('m', strtotime($user->birth_date));
-                                                $birthDay = date('d', strtotime($user->birth_date));
-                                                $joinMonth = date('m', strtotime($user->joining_date));
-                                                $joinDay = date('d', strtotime($user->joining_date));
-                                                $currentMonth = date('m');
-                                                $currentDay = date('d');
-
-                                                $joiningDate = new DateTime($user->joining_date);
-                                                $currentDate = new DateTime(date('Y-m-d'));
-                                                $interval = $joiningDate->diff($currentDate);
-
-                                                $isBirthdayThisMonth = $currentMonth == $birthMonth;
-                                                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
-
-                                                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
-                                                if ($interval->y > 1) {
-                                                    $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
-                                                } else {
-                                                    $isAnniversaryUpcoming = false;
-                                                }
-
-                                                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
-                                                    $hasUpcomingEvents = true;
-                                                }
-                                            @endphp
-                                        @endforeach
-                        @endif
-
-
-                        <div class="card upcoming-holidays">
-                            <div class="card-body">
-                                <h5 class="card-title"> Upcoming Holidays</h5>
-
-                                <div class="news">
-                                    @if ($upcomingFourHolidays)
-                                        @foreach ($upcomingFourHolidays as $holiday)
-                                            <div class="post-item clearfix">
-                                                <h4>
-                                                    {{ $holiday->name }}
-                                                    <span> |
-                                                        @if ($holiday->from === $holiday->to)
-                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
-                                                        @else
-                                                            {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
-                                                            {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
-                                                        @endif
-                                                    </span>
-                                                </h4>
-                                                <p>
-                                                    Holiday
-                                                    @if ($holiday->from === $holiday->to)
-                                                        On {{ date("d-M-Y", strtotime($holiday->from)) }}
-                                                    @else
-                                                        From {{ date("d-M-Y", strtotime($holiday->from)) }}
-                                                        to {{ date("d-M-Y", strtotime($holiday->to)) }}
-                                                    @endif
-                                                </p>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <div class="alert" role="alert">
-                                            No upcoming holidays found.
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
+        <!-- Sticky Notes Ended -->
+        <div class="row">
+            <!-- Left 8-column block for both tables -->
+            <div class="col-lg-8">
+                <!-- First Card -->
+                <div class="card mb-3">
+                    <div class="card-body pb-4">
+                        <h4 class="mb-3">Projects List</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sr No</th>
+                                        <th>Project Name</th>
+                                        <th>Start Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($projects as $project)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $project->project_name }}</td>
+                                        <td>{{ $project->start_date }}</td>
+                                        <td>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <a href="{{ route('sprint.index', ['project_filter' => $project->id]) }}">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url('/edit/project/'.$project->id)}}">
+                                                <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body pb-4">
+                        <h4 class="mb-3">Recent Notifications</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Notification</th>
+                                        <th>Project Name</th>
+                                        <th>Ticket</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($notifications as $notification)
+                                    @php
+                                    $ticket = \App\Models\Tickets::find($notification->ticket_id);
+                                    $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
+                                    $creatorName = $notification->user->first_name ?? 'Unknown User';
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            {{ $notification->message }} <br>
+                                            <small>By: {{ $creatorName }}</small>
+                                        </td>
+                                        <td>{{ $projectName }}</td>
+                                        <td>
+                                            <a href="{{ url('/view/ticket/' . $notification->ticket_id) }}" target="_blank">
+                                                <i class="fa fa-eye text-primary"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
                         </div>
                     </div>
                 </div>
             </div>
-@endif
-@endsection
-@section('js_scripts')
-<script>
-    $(document).ready(function() {
+            <div class="col-lg-4">
 
+                @if ($userBirthdateEvent->isNotEmpty())
+                @php
+                $hasUpcomingEvents = false;
+                @endphp
 
-        $('#leavesss').DataTable({
-            "order": []
-        });
+                @foreach ($userBirthdateEvent as $user)
+                @php
+                $birthMonth = date('m', strtotime($user->birth_date));
+                $birthDay = date('d', strtotime($user->birth_date));
+                $joinMonth = date('m', strtotime($user->joining_date));
+                $joinDay = date('d', strtotime($user->joining_date));
+                $currentMonth = date('m');
+                $currentDay = date('d');
 
-        $('#devices').DataTable({
-            "order": []
-        });
+                $joiningDate = new DateTime($user->joining_date);
+                $currentDate = new DateTime(date('Y-m-d'));
+                $interval = $joiningDate->diff($currentDate);
 
-        $("#viewAll").click(function() {
+                $isBirthdayThisMonth = $currentMonth == $birthMonth;
+                $isAnniversaryThisMonth = $currentMonth == $joinMonth;
 
-        });
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-    });
-
-    function vote(first_name, last_name, id) {
-        $(".toVoteUserName").text(first_name + ' ' + last_name);
-        $('#voteModal').modal('show');
-        $('#touser').val(id);
-        console.log(id);
-        $('#voteModal').on('hidden.bs.modal', function() {
-            $('#reason').val('');
-
-
-        });
-    }
-
-    function submitVote() {
-        var reason = document.getElementById('reason').value.trim();
-        var reasonWithoutSpaces = reason.replace(/\s/g, '');
-        var charCount = reasonWithoutSpaces.length;
-
-        var reasonError = document.getElementById('reasonError'); // Get the error message container
-
-        if (charCount < 150) {
-            reasonError.textContent = "Reason must be at least 150 characters.";
-            return;
-        } else {
-            reasonError.textContent = "";
-        }
-
-        // Clear the error message if validation passes
-        reasonError.textContent = "";
-        var fromUserId = $("#fromuser").val();
-        var toUserId = $("#touser").val();
-        console.log(toUserId);
-        var currentDate = new Date();
-        var month = currentDate.getMonth() + 1;
-        var year = currentDate.getFullYear();
-        var notes = $("#reason").val();
-
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('/submit-vote')}} ",
-            data: {
-                from: fromUserId,
-                to: toUserId,
-                month: month,
-                year: year,
-                notes: notes
-            },
-            success: function(response) {
-                //     if (response.success) {
-                //     $('#successMessage').text("Vote submitted successfully!");
-                //     // You can also clear the textarea or perform any other actions as needed
-                // } else
-                if (response.success) {
-                    $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
-                    $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
+                $isBirthdayUpcoming = $isBirthdayThisMonth && ($birthDay > $currentDay);
+                if ($interval->y > 1) {
+                $isAnniversaryUpcoming = $isAnniversaryThisMonth && ($joinDay > $currentDay);
                 } else {
-                    $('.alert-danger').html('');
-                    $("#voteModal").modal('hide');
-                    location.reload();
+                $isAnniversaryUpcoming = false;
                 }
-            },
-            error: function(data) {
-                console.log(data);
+
+                if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
+                $hasUpcomingEvents = true;
+                }
+                @endphp
+                @endforeach
+                @endif
+
+
+                <div class="card upcoming-holidays">
+                    <div class="card-body">
+                        <h5 class="card-title"> Upcoming Holidays</h5>
+
+                        <div class="news">
+                            @if ($upcomingFourHolidays)
+                            @foreach ($upcomingFourHolidays as $holiday)
+                            <div class="post-item clearfix">
+                                <h4>
+                                    {{ $holiday->name }}
+                                    <span> |
+                                        @if ($holiday->from === $holiday->to)
+                                        {{ \Carbon\Carbon::parse($holiday->from)->format('l') }}
+                                        @else
+                                        {{ \Carbon\Carbon::parse($holiday->from)->format('l') }} To
+                                        {{ \Carbon\Carbon::parse($holiday->to)->format('l') }}
+                                        @endif
+                                    </span>
+                                </h4>
+                                <p>
+                                    Holiday
+                                    @if ($holiday->from === $holiday->to)
+                                    On {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                    @else
+                                    From {{ date("d-M-Y", strtotime($holiday->from)) }}
+                                    to {{ date("d-M-Y", strtotime($holiday->to)) }}
+                                    @endif
+                                </p>
+                            </div>
+                            @endforeach
+                            @else
+                            <div class="alert" role="alert">
+                                No upcoming holidays found.
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endsection
+    @section('js_scripts')
+    <script>
+        $(document).ready(function() {
+
+
+            $('#leavesss').DataTable({
+                "order": []
+            });
+
+            $('#devices').DataTable({
+                "order": []
+            });
+
+            $("#viewAll").click(function() {
+
+            });
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        });
+
+        function vote(first_name, last_name, id) {
+            $(".toVoteUserName").text(first_name + ' ' + last_name);
+            $('#voteModal').modal('show');
+            $('#touser').val(id);
+            console.log(id);
+            $('#voteModal').on('hidden.bs.modal', function() {
+                $('#reason').val('');
+
+
+            });
+        }
+
+        function submitVote() {
+            var reason = document.getElementById('reason').value.trim();
+            var reasonWithoutSpaces = reason.replace(/\s/g, '');
+            var charCount = reasonWithoutSpaces.length;
+
+            var reasonError = document.getElementById('reasonError'); // Get the error message container
+
+            if (charCount < 150) {
+                reasonError.textContent = "Reason must be at least 150 characters.";
+                return;
+            } else {
+                reasonError.textContent = "";
             }
-        });
-    }
 
-    function clearErrorMessage() {
-        document.getElementById('reasonError').textContent = ""; // Clear the error message
-    }
-
-    function ShowLeavesModal() {
-
-        $('#ShowLeaves').modal('show');
-    }
-
-
-
-    $(document).ready(function() {
-        updateTaskUI();
-
-        $('.list-group').on('click', '.btn-hold', function() {
-            let taskId = getTaskId(this);
-            holdTask(taskId);
-        });
-
-        $('.list-group').on('click', '.btn-reopen', function() {
-            let taskId = getTaskId(this);
-            reopenTask(taskId);
-        });
-
-        $('.list-group').on('change', '.task-checkbox', function() {
-            toggleCompleted(this);
-        });
-
-        function updateTaskUI() {
-            $('.list-group-item').each(function() {
-                let taskItem = $(this);
-                let status = taskItem.attr('class').split(' ').pop();
-                let checkbox = taskItem.find('.task-checkbox');
-                let holdButton = taskItem.find('.btn-hold');
-                let reopenButton = taskItem.find('.btn-reopen');
-                let editIcon = taskItem.find('.edit-task');
-                let deleteIcon = taskItem.find('.delete-task');
-
-                // Reset button visibility
-                holdButton.hide();
-                reopenButton.hide();
-                editIcon.show();
-                deleteIcon.show();
-                checkbox.prop('disabled', false);
-
-                if (status === 'pending') {
-                    holdButton.show();
-                } else if (status === 'hold') {
-                    checkbox.prop('disabled', true);
-                    reopenButton.show();
-                    editIcon.hide();
-                    deleteIcon.hide();
-                } else if (status === 'completed') {
-                    checkbox.prop('disabled', false).prop('checked', true);
-                    reopenButton.show();
-                    editIcon.hide();
-                    deleteIcon.hide();
-                }
-            });
-        }
-
-        function toggleCompleted(checkbox) {
-            let taskId = $(checkbox).val();
-            let taskItem = $('#task_' + taskId);
-            let newStatus = $(checkbox).is(':checked') ? 'completed' : 'pending';
+            // Clear the error message if validation passes
+            reasonError.textContent = "";
+            var fromUserId = $("#fromuser").val();
+            var toUserId = $("#touser").val();
+            console.log(toUserId);
+            var currentDate = new Date();
+            var month = currentDate.getMonth() + 1;
+            var year = currentDate.getFullYear();
+            var notes = $("#reason").val();
 
             $.ajax({
-                type: 'PUT',
-                url: "/todo_list/" + taskId + "/status",
+                type: 'POST',
+                url: "{{ url('/submit-vote')}} ",
                 data: {
-                    status: newStatus,
-                    _token: $('meta[name="csrf-token"]').attr('content')
+                    from: fromUserId,
+                    to: toUserId,
+                    month: month,
+                    year: year,
+                    notes: notes
                 },
-                success: function() {
-                    taskItem.removeClass('pending completed hold').addClass(newStatus);
-                    updateTaskUI();
+                success: function(response) {
+                    //     if (response.success) {
+                    //     $('#successMessage').text("Vote submitted successfully!");
+                    //     // You can also clear the textarea or perform any other actions as needed
+                    // } else
+                    if (response.success) {
+                        $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
+                        $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
+                    } else {
+                        $('.alert-danger').html('');
+                        $("#voteModal").modal('hide');
+                        location.reload();
+                    }
                 },
-                error: function(xhr, status, error) {
-                    console.log("Error updating task status:", error);
+                error: function(data) {
+                    console.log(data);
                 }
             });
         }
 
-        function holdTask(taskId) {
+        function clearErrorMessage() {
+            document.getElementById('reasonError').textContent = ""; // Clear the error message
+        }
+
+        function ShowLeavesModal() {
+
+            $('#ShowLeaves').modal('show');
+        }
+
+
+
+        $(document).ready(function() {
+            updateTaskUI();
+
+            $('.list-group').on('click', '.btn-hold', function() {
+                let taskId = getTaskId(this);
+                holdTask(taskId);
+            });
+
+            $('.list-group').on('click', '.btn-reopen', function() {
+                let taskId = getTaskId(this);
+                reopenTask(taskId);
+            });
+
+            $('.list-group').on('change', '.task-checkbox', function() {
+                toggleCompleted(this);
+            });
+
+            function updateTaskUI() {
+                $('.list-group-item').each(function() {
+                    let taskItem = $(this);
+                    let status = taskItem.attr('class').split(' ').pop();
+                    let checkbox = taskItem.find('.task-checkbox');
+                    let holdButton = taskItem.find('.btn-hold');
+                    let reopenButton = taskItem.find('.btn-reopen');
+                    let editIcon = taskItem.find('.edit-task');
+                    let deleteIcon = taskItem.find('.delete-task');
+
+                    // Reset button visibility
+                    holdButton.hide();
+                    reopenButton.hide();
+                    editIcon.show();
+                    deleteIcon.show();
+                    checkbox.prop('disabled', false);
+
+                    if (status === 'pending') {
+                        holdButton.show();
+                    } else if (status === 'hold') {
+                        checkbox.prop('disabled', true);
+                        reopenButton.show();
+                        editIcon.hide();
+                        deleteIcon.hide();
+                    } else if (status === 'completed') {
+                        checkbox.prop('disabled', false).prop('checked', true);
+                        reopenButton.show();
+                        editIcon.hide();
+                        deleteIcon.hide();
+                    }
+                });
+            }
+
+            function toggleCompleted(checkbox) {
+                let taskId = $(checkbox).val();
+                let taskItem = $('#task_' + taskId);
+                let newStatus = $(checkbox).is(':checked') ? 'completed' : 'pending';
+
+                $.ajax({
+                    type: 'PUT',
+                    url: "/todo_list/" + taskId + "/status",
+                    data: {
+                        status: newStatus,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function() {
+                        taskItem.removeClass('pending completed hold').addClass(newStatus);
+                        updateTaskUI();
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error updating task status:", error);
+                    }
+                });
+            }
+
+            function holdTask(taskId) {
+                $.ajax({
+                    type: 'PUT',
+                    url: "/todo_list/" + taskId + "/hold",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function() {
+                        $('#task_' + taskId).removeClass('pending').addClass('hold');
+                        updateTaskUI();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error holding task:", error);
+                    }
+                });
+            }
+
+            function reopenTask(taskId) {
+                $.ajax({
+                    type: 'PUT',
+                    url: "/todo_list/" + taskId + "/status",
+                    data: {
+                        status: 'pending',
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function() {
+                        $('#task_' + taskId).removeClass('completed hold').addClass('pending');
+                        updateTaskUI();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error reopening task:", error);
+                    }
+                });
+            }
+
+            // Fetch the sticky notes
             $.ajax({
-                type: 'PUT',
-                url: "/todo_list/" + taskId + "/hold",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
+                url: '{{ route('sticky.notes') }}',
+                method: 'GET',
+                success: function(response) {
+                    const notes = response;
+                    notes.forEach(function(note) {
+                        const title = note.title ? note.title : undefined;
+                        const body = note.notes ? note.notes : undefined;
+                        createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
+                    });
                 },
-                success: function() {
-                    $('#task_' + taskId).removeClass('pending').addClass('hold');
-                    updateTaskUI();
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error holding task:", error);
+                error: function() {
+                    console.error('Could not load sticky notes.');
                 }
             });
-        }
+        });
+        // jQuery for handling the cross button click
+        $(document).on('click', '.close', function() {
+            var reminderId = $(this).data('id');  // Get the reminder ID
+            var currentTime = new Date().toISOString();  // Get current time in ISO format
 
-        function reopenTask(taskId) {
+            // Send the AJAX request to the route defined above
             $.ajax({
-                type: 'PUT',
-                url: "/todo_list/" + taskId + "/status",
+                url: '/reminder/mark-as-read',  // The URL of the route you defined
+                method: 'POST',
                 data: {
-                    status: 'pending',
-                    _token: $('meta[name="csrf-token"]').attr('content')
+                    id: reminderId,  // Pass the reminder ID
+                    clicked_at: currentTime,  // Pass the current time as clicked_at
+                    _token: '{{ csrf_token() }}'  // CSRF token for security
                 },
-                success: function() {
-                    $('#task_' + taskId).removeClass('completed hold').addClass('pending');
-                    updateTaskUI();
+                success: function(response) {
+                    console.log(response); // Log the response to check success
+                    $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
                 },
                 error: function(xhr, status, error) {
-                    console.error("Error reopening task:", error);
+                    console.log(xhr.responseText); // Log the error details
+                    alert('Failed to save the click time');
                 }
             });
-        }
-
+        });
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
-
-         // Fetch the sticky notes
-         $.ajax({
-            url: '{{ route('sticky.notes') }}',
-            method: 'GET',
-            success: function(response) {
-                const notes = response;
-                notes.forEach(function(note) {
-                    const title = note.title ? note.title : undefined;
-                    const body = note.notes ? note.notes : undefined;
-                    createNote(note.id, note.userid, title, body, note.created_at, note.first_name, note.last_name);
-                });
-            },
-            error: function() {
-                console.error('Could not load sticky notes.');
-            }
-        });
-    });
     // jQuery for handling the cross button click
     $(document).on('click', '.close', function() {
     var reminderId = $(this).data('id');  // Get the reminder ID
@@ -1257,10 +1304,13 @@ use App\Models\Votes;
             return colors[newIndex];
         }
 
-        function createNote(id, userid, title = false, body= false, created = '', first_name = '', last_name = '') {
+        function createNote(id, userid, title = false, body = false, created = '', first_name = '', last_name = '') {
             const createdDate = new Date(created);
             const formattedDate = createdDate.toLocaleDateString();
-            const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const formattedTime = createdDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
             const formattedDateTime = `${formattedDate} ${formattedTime}`;
             const fullName = first_name + ' ' + last_name;
 
@@ -1302,24 +1352,26 @@ use App\Models\Votes;
 
                 if (confirm('Are you sure you want to delete this note?')) {
                     fetch('/sticky-notes/delete', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ id: noteId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            note.remove();
-                        } else {
-                            alert('Failed to delete note.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                id: noteId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                note.remove();
+                            } else {
+                                alert('Failed to delete note.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 }
             };
 
@@ -1350,18 +1402,18 @@ use App\Models\Votes;
 
                 // If all notes are complete, proceed to create a new note
                 fetch('/sticky-notes/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const note = data.note;
-                    createNote(note.id, note.userid, false, false, note.created_at, note.first_name, note.last_name);
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const note = data.note;
+                        createNote(note.id, note.userid, false, false, note.created_at, note.first_name, note.last_name);
+                    });
             };
 
             noteGrid.appendChild(addBtn);
@@ -1377,26 +1429,29 @@ use App\Models\Votes;
                 const body = noteElement.querySelector('.note-body').innerText.trim();
 
                 fetch(`/sticky-notes/update/${noteId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ title: title, notes: body })
-                })
-                .then(() => {
-                    const savedMsg = noteElement.querySelector('.note-saved-message');
-                    savedMsg.style.display = 'block';
-                    savedMsg.classList.add('show');
-                    setTimeout(() => {
-                        savedMsg.classList.remove('show');
-                        savedMsg.style.display = 'none';
-                    }, 3000);
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            title: title,
+                            notes: body
+                        })
+                    })
+                    .then(() => {
+                        const savedMsg = noteElement.querySelector('.note-saved-message');
+                        savedMsg.style.display = 'block';
+                        savedMsg.classList.add('show');
+                        setTimeout(() => {
+                            savedMsg.classList.remove('show');
+                            savedMsg.style.display = 'none';
+                        }, 3000);
+                    });
             }, 1000);
         }
 
         createAddBtn();
-</script>
+    </script>
 
-@endsection
+    @endsection

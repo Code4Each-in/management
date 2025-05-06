@@ -27,7 +27,7 @@ class EmailAll extends Controller
     {
         $request->validate([
             'subject'   => 'required|string|max:255',
-            'message'   => 'required|string',
+            'message' => 'required|string',
             'footer'    => 'nullable|string',
             'emails'    => 'required|array',
             'emails.*'  => 'email'
