@@ -81,15 +81,31 @@ public function addMessage(Request $request)
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()->all()]);
     }
+    $user = Auth::user();
+
+    if ($user->role_id == 6) {
+        $to_id = 1;
+    }else{
+        $projectId = $request->input('project_id');
+        $project = Projects::find($projectId);
+
+        $toUser = Users::where('client_id', $project->client_id)->first();
+
+        if (!$toUser) {
+            return response()->json(['errors' => ['User with matching client ID not found.']]);
+        }
+    
+        $to_id = $toUser->id;
+    }
+ 
 
     $documentPaths = [];
     $maxTotalSize = 5 * 1024 * 1024;  // 5MB limit
     $totalSize = 0;
-    $user = Auth::user();
     $messageData = [
         'message' => $request->input('message'),
         'project_id' => $request->input('project_id'),
-        'to' => $request->input('to'),
+        'to' => $to_id,
         'from' => auth()->id(),
     ];
 
