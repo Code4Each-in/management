@@ -1,6 +1,7 @@
 @extends('layout')
-{{-- @section('title', 'Chat Section') --}}
+@section('title', 'Messages')
 @section('subtitle', 'Chat')
+@section('show_title', 'false')
 @section('content')
 <style>
     /* body {
@@ -270,15 +271,17 @@
                       <div class="name">{{ $project->project_name }}</div>
                       <div class="project">{{ $client->name ?? 'N/A' }}</div>
                       <div class="last-message">
-                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : 'No messages yet')), 15) }}
+                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
                       </div>
                   </div>
                   <div class="time">
-                      {{ $project->last_message ? $project->last_message->created_at->format('H:i') : '--:--' }}
+                    {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                   </div>
-                  <div class="badge">
-                      {{ $project->unread_count > 0 ? $project->unread_count : '' }}
-                  </div>
+                  @if($project->unread_count > 0)
+                    <div class="badge">
+                        {{ $project->unread_count }}
+                    </div>
+                @endif
               </div>
           @empty
               <p class="text-muted p-2">No projects available.</p>

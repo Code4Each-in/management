@@ -9,6 +9,7 @@ use App\Models\Users;
 use App\Models\Message;
 use App\Models\Projects;
 use App\Models\Client;
+use App\Notifications\EmailNotification;
 class MessageController extends Controller
 {
     /**
@@ -45,6 +46,9 @@ class MessageController extends Controller
             ->where('is_read', 0)
             ->count();
     }
+    $projects = $projects->sortByDesc(function ($project) {
+        return optional($project->last_message)->created_at;
+    })->values(); 
 
     return view('developer.chat', compact('projects', 'client'));
 }
@@ -131,10 +135,29 @@ public function addMessage(Request $request)
 
     // Create message
     $message = Message::create($messageData);
-
+    
     // Retrieve the full message including user data
     $message = Message::with('user')->find($message->id);
+    $user = auth()->user();
+    $name = $user->first_name;
 
+    if ($message) {
+        try {
+            $messages = [
+                "subject" => "New Message  received from - {$name}",
+                "title" => "You've received new Message from {$name}.",
+                "body-text" => "Message: \"" . $request->input('message') . "\"",
+            ];
+    
+            
+            $assignedUser = Users::find($to_id);
+            if ($assignedUser) {
+                $assignedUser->notify(new EmailNotification($messages));
+            }
+        } catch (\Exception $e) {
+            \Log::error("Error sending notification for feedback: " . $e->getMessage());
+        }
+    } 
     return response()->json([
         'status' => 200,
         'message' => $message, // Return the message object
