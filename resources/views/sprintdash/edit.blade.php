@@ -8,7 +8,7 @@
         <form id="editSprintsForm" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" id="sprint_id" name="sprint_id" value="{{ $sprint->id }}">
-            <div class="form-group mb-3 mt-4">
+            <div class="form-group mb-3 mt-0">
                 <label for="name">Sprint Name</label>
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $sprint->name) }}" required>
                 @error('name')
@@ -167,7 +167,7 @@
                     <input type="file" class="form-control" name="edit_document[]" id="edit_document" multiple>
                 </div>
             </div>                                        
-            <button type="submit" class="btn btn-primary mt-3">Update Sprint</button>
+            <button type="submit" class="btn btn-primary mt-3" style="background: #4154f1;">Update Sprint</button>
         </form>
     </div>
    </div>
