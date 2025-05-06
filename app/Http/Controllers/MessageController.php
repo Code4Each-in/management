@@ -55,7 +55,7 @@ class MessageController extends Controller
         ->with('user', 'project')
         ->orderBy('created_at', 'desc')
         ->get();
-    return response()->json(['messages' => $messages]);
+        return response()->json(['messages' => $messages]);
 }
 
 public function addMessage(Request $request)
