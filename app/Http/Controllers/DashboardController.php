@@ -327,8 +327,7 @@ class DashboardController extends Controller
             ->get();
 
             $currentDateTime = Carbon::now();
-            $activeReminders = Reminder::where('is_active', 1)
-                ->whereDate('reminder_date', $currentDateTime->toDateString())
+            $activeReminders = Reminder::whereDate('reminder_date', $currentDateTime->toDateString())
                 ->whereNull('clicked_at')
                 ->get();
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
