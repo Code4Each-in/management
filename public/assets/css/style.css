@@ -2258,7 +2258,7 @@ input.form-control-text {
     }
 
     .btn {
-        width: 100%;
+        width:auto;
     }
 }
 /* Table Styling */
@@ -3089,13 +3089,16 @@ font-weight: 500;
 }
 
 @media (max-width: 767px) {
+  .task-card {
+        margin-top: 10px;
+    }
   .sprint-header {
     padding: 10px;
   }
-.table-resposnive {
-width: 100%;
-overflow: scroll;
-}
+    .table-resposnive {
+    width: 100%;
+    overflow: scroll;
+    }
   .section-title {
     font-size: 14px !important;
   }
@@ -3781,7 +3784,7 @@ div#notification_length {
     padding: 1.5rem;
     background: #fff9a0;
     border-radius: 10px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 10px 10px rgb(0 0 0 / 7%);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -3974,6 +3977,18 @@ card.upcoming-holidays {
 }
 
 .ql-container {   
-   font-size: 16px !important;
-  }
- 
+  font-size: 16px !important;
+}
+div#dev-listing_filter {
+    margin-bottom: 15px;
+}
+
+/* Container */
+/* new css  */
+div#remindersTable_filter {
+  margin-bottom: 10px;
+}
+
+div#remindersTable_wrapper {
+  padding-bottom: 10px;
+}

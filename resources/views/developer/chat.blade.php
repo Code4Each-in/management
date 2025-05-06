@@ -27,26 +27,31 @@
     }
 
     .chatsidebar {
-      width: 300px;
+      width: 360px;
       border-right: 1px solid #ddd;
       background-color: #fff;
       display: flex;
       flex-direction: column;
     }
 
-    .sidebar-header {
-      padding: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      color: #297bab;
-      background-color: #f8f9fa;
-    }
+    .sidebar-header  {
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    color: #297bab;
+    background-color: #f8f9fa;
+    border-radius: 10px 0px 0 0;
+}
 
-    .contact-list {
-      flex: 1;
-      overflow-y: auto;
-    }
+.contact-list {
+    flex: 1;
+    /* overflow: scroll; */
+    /* height: 22vh; */
+    max-height: 715px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
 
     .contact {
         display: flex;
@@ -67,25 +72,25 @@
         /* margin: 15px 5px 5px; */
      }
     .contact img {
-      width: 42px;
-      height: 42px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       margin-right: 10px;
     }
 
-    .contact .details {
+    .contact .details-clent {
         flex: 1;
         display: flex;
         flex-direction: column;
         row-gap: 1px;
     }
 
-    .contact .name {
+    .contact.name {
       font-weight: bold;
       font-size: 14px;
     }
 
-    .contact .last-message {
+    .contact.last-message {
       font-size: 12px;
       color: #666;
     }
@@ -97,16 +102,21 @@
       top: 10px;
       right: 15px;
     }
-
-    .contact .badge {
-      background-color: #297bab;
-      color: white;
-      font-size: 12px;
-      padding: 4px 6px;
-      border-radius: 50%;
-      position: absolute;
-      right: 15px;
-      bottom: 10px;
+    .message-section {
+        width: 87%;
+        /* max-width: 850px; */
+   
+    }
+    .chat-wrapper .contact .badge {
+        background-color: #297bab;
+        color: white;
+        font-size: 12px;
+        padding: 4px 6px;
+        border-radius: 50%;
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        min-width: auto;
     }
 
     .chat-area {
@@ -115,8 +125,7 @@
       flex-direction: column;
       background-color: #fff;
     }
-
-    .msger-header {
+    .msgers-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -124,7 +133,8 @@
       border-bottom: 1px solid #ccc;
       background-color: #297bab;
       color: #fff;
-    }
+      border-radius: 0px 10px 0 0;
+  }
 
     .chat-messages {
       flex: 1;
@@ -137,7 +147,7 @@
       margin-bottom: 20px;
     }
 
-    .msg .meta {
+    .msg.meta {
       font-size: 12px;
       color: #999;
       margin-bottom: 4px;
@@ -221,7 +231,7 @@
     .msg-input button:hover {
       background-color: #0056b3;
     }
-
+    
     @media (max-width: 768px) {
       .chat-wrapper {
         flex-direction: column;
@@ -233,6 +243,17 @@
         max-height: 250px;
       }
     }
+    @media (max-width: 767px) {
+    .message-section {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+
+.chat-wrapper .card.mt-3.card-designform {
+    margin-bottom: 0;
+}
   </style>
 <div class="container chat-wrapper">
     <!-- Sidebar -->
@@ -261,7 +282,7 @@
           @endforelse
       </div>      
     </div>          
-    <div class="main-section">
+    <div class="message-section">
         <div class="msger-header">
             <h1>Comments</h1>
             <i class="fas fa-comment icon"></i> 

@@ -5,7 +5,7 @@
 <style>
     .desc_class {
         display: flex;
-        align-items: center;
+        align-items: left;
     }
     .hidden {
         display: none;
@@ -15,7 +15,7 @@
     }
 </style>
 
-<div class="max-w-xl mx-auto bg-white p-6 rounded shadow ">
+<div class="max-w-xl  bg-white  reminder-design">
     <form action="{{ route('reminders.update', $reminder->id) }}" method="POST" class="margin-up">
         @csrf
         @method('PUT')
