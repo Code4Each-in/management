@@ -262,7 +262,7 @@
         <div class="contact-list">
           @forelse($projects as $project)
           <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
-                  <img src="https://i.pravatar.cc/42?u={{ $project->id }}" alt="avatar">
+            <img src="" alt="avatar">
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
                       <div class="project">{{ $client->name ?? 'N/A' }}</div>
@@ -344,7 +344,7 @@
                   <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
                   <input type="hidden" name="message" id="comment_input">
                   <input type="hidden" name="project_id" id="project_id">
-                  <input type="hidden" name="to" id="to" value="{{ isset($client) ? $client->id : '' }}">
+                  <input type="hidden" name="to" id="to" value="">
                   @if ($errors->has('comment'))
                       <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                   @endif
@@ -366,6 +366,7 @@
         </div>
   </div>
   <script>  
+  const csrfToken = '{{ csrf_token() }}';
     function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
@@ -379,8 +380,8 @@
             url: '/comments/' + commentId + '/delete',
             type: 'DELETE',
             data: {
-                _token: 'eWlS2tJP9gtD1M1rhxB3ga3tiQWODH8pNlmgZVwW'
-            },
+              _token: csrfToken
+          },
             success: function(response) {
                 if (response.status === 200) {
                     commentItem.fadeOut(300, function() {
@@ -398,6 +399,11 @@
         });
     }
     });
+    $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
     
     </script> 
         <script>
@@ -454,6 +460,8 @@
       });
       </script>      
                 <script>
+                  let currentProjectId = null;
+                  currentProjectId = projectId;
                   function loadMessages(projectId) {
                     const $chatContainer = $(".chat-container");
                     $chatContainer.empty(); // Clear messages
@@ -469,13 +477,18 @@
                         success: function(data) {
                             displayMessages(data.messages); 
                             $('#project_id').val(projectId);
+                            document.getElementById('to').value = data.messages[0].user?.id ?? '';
                         },
                         error: function(error) {
                             console.error("Error loading messages:", error);
                         }
                     });
                 }
-
+                setInterval(function() {
+                if (currentProjectId) {
+                    loadMessages(currentProjectId);
+                }
+            }, 1000); 
                 function displayMessages(messages, clearMessages = true) {
                   console.log('dfdfd', messages);
                   const $chatContainer = $(".chat-container");
@@ -518,7 +531,7 @@
                                   ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
                             </div>`;
 
-                      const role = message.user?.role_id === 6 ? clientName : clientName;
+                            const role = message.user?.first_name || 'Unknown User';
 
                       const deleteBtn = message.from === currentUserId
                           ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">

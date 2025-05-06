@@ -21,24 +21,28 @@ class MessageController extends Controller
     $user = Auth::user();
 
     if ($user->role_id == 1) {
-        $projects = Projects::orderBy('id', 'desc')->get();
-        $client = null; 
+        $projects = Projects::whereHas('messages')
+        ->orderBy('id', 'desc')
+        ->get();
+        if ($projects->isNotEmpty()) {
+            $clientId = $projects->first()->client_id; 
+            $client = Client::find($clientId);
+        }
     } else {
         $clientId = $user->client_id;
         $projectIds = Projects::where('client_id', $clientId)->pluck('id')->toArray();
 
         $projects = Projects::whereIn('id', $projectIds)
-            ->orderBy('id', 'desc')
-            ->get();
-
+        ->whereHas('messages')
+        ->orderBy('id', 'desc')
+        ->get();
         $client = Client::find($clientId);
     }
-
+        
     foreach ($projects as $project) {
         $project->last_message = Message::where('project_id', $project->id)
             ->orderBy('created_at', 'desc')
             ->first();
-
         $project->unread_count = Message::where('project_id', $project->id)
             ->where('is_read', 0)
             ->count();
@@ -122,6 +126,12 @@ public function addMessage(Request $request)
         'message' => $message, // Return the message object
         'Commentmessage' => 'Message added successfully.'
     ]);
+}
+public function destroy($id)
+{
+    $comment = Message::findOrFail($id);
+    $comment->delete();
+    return response()->json(['status' => 200, 'message' => 'Comment deleted']);
 }
 
 

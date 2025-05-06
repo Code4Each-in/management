@@ -44,5 +44,11 @@ class Projects extends Model
             return $getName->client_name;
         }
     }
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'project_id');
+    }
+
+
     
 }
