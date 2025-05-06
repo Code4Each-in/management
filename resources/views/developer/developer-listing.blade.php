@@ -5,6 +5,7 @@
 <div class="col-lg-12 mx-auto">
     <div class="card">
         <div class="card-body mt-3">
+            <div class="table-resposnive">
             <table class="table table-borderless dashboard" id="dev-listing">
                 <thead class="table-light">
                     <tr>

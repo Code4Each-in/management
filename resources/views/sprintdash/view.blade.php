@@ -5,7 +5,7 @@
 <div class="row">
     <div class="row mb-2">
         <div class="col-md-2">
-            <a class="btn btn-primary mt-3" href="{{ route('tickets.create') }}">Add Ticket</a>
+            <a class="btn btn-primary mt-3" href="{{ route('tickets.create') }}" style="background: #4154f1;">Add Ticket</a>
         </div>
     </div>
     @php
@@ -42,7 +42,7 @@
 <div class="col-md-8">
 <div class="text-center">
     <div id="pieChart" style="min-height: 300px;"></div>
-    <dfiv class="row mt-0 justify-content-center">
+    <dfiv class="row mt-0 justify-content-center gap-2">
         <div class="col-auto">
             <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
         </div>

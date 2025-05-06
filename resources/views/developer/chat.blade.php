@@ -26,29 +26,30 @@
       /* height: 80vh; */
     }
 
-    .chatsidebar {
-      width: 300px;
+    .chatsidebar-client {
+      width: 360px;
       border-right: 1px solid #ddd;
       background-color: #fff;
       display: flex;
       flex-direction: column;
     }
 
-    .sidebar-header {
-      padding: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      color: #297bab;
-      background-color: #f8f9fa;
-    }
+    .sidebar-header-client  {
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    color: #297bab;
+    background-color: #f8f9fa;
+    border-radius: 10px 0px 0 0;
+}
 
     .contact-list {
       flex: 1;
       overflow-y: auto;
     }
 
-    .contact {
+    .contact-client {
         display: flex;
         align-items: center;
         padding: 10px 15px;
@@ -59,54 +60,59 @@
         margin: 10px 8px 10px;
     }
 
-    .contact:hover {
+    .contact-client:hover {
         background-color: #f0f0f0;
         border-radius: 11px;
         box-shadow: 0 0 40px rgb(0 0 0 / 12%);
         background: #d5efff;
         /* margin: 15px 5px 5px; */
      }
-    .contact img {
-      width: 42px;
-      height: 42px;
+    .contact-client img {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       margin-right: 10px;
     }
 
-    .contact .details {
+    .contact-client .details-clent {
         flex: 1;
         display: flex;
         flex-direction: column;
         row-gap: 1px;
     }
 
-    .contact .name {
+    .contact-client.name-client {
       font-weight: bold;
       font-size: 14px;
     }
 
-    .contact .last-message {
+    .contact-client.last-message-client {
       font-size: 12px;
       color: #666;
     }
 
-    .contact .time {
+    .contact-client .time-client {
       font-size: 11px;
       color: #999;
       position: absolute;
       top: 10px;
       right: 15px;
     }
-
-    .contact .badge {
-      background-color: #297bab;
-      color: white;
-      font-size: 12px;
-      padding: 4px 6px;
-      border-radius: 50%;
-      position: absolute;
-      right: 15px;
-      bottom: 10px;
+    .message-section {
+        width: 87%;
+        /* max-width: 850px; */
+        margin: auto;
+    }
+    .chat-wrapper .contact-client .badge-client {
+        background-color: #297bab;
+        color: white;
+        font-size: 12px;
+        padding: 4px 6px;
+        border-radius: 50%;
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        min-width: auto;
     }
 
     .chat-area {
@@ -115,8 +121,7 @@
       flex-direction: column;
       background-color: #fff;
     }
-
-    .msger-header {
+    .msgers-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -124,7 +129,8 @@
       border-bottom: 1px solid #ccc;
       background-color: #297bab;
       color: #fff;
-    }
+      border-radius: 0px 10px 0 0;
+  }
 
     .chat-messages {
       flex: 1;
@@ -133,23 +139,23 @@
       background-color: #f7f9fb;
     }
 
-    .msg {
+    .msg-client {
       margin-bottom: 20px;
     }
 
-    .msg .meta {
+    .msg-client .meta {
       font-size: 12px;
       color: #999;
       margin-bottom: 4px;
     }
 
-    .msg .author {
+    .msg-client .author {
       display: flex;
       align-items: center;
       margin-bottom: 5px;
     }
 
-    .msg .avatar {
+    .msg-client .avatar {
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -163,13 +169,13 @@
       margin-right: 10px;
     }
 
-    .msg .name {
+    .msg-client .name-client {
       font-weight: bold;
       font-size: 14px;
       margin-right: 8px;
     }
 
-    .msg .role {
+    .msg-client .role {
       font-size: 12px;
       color: #666;
       background-color: #e1e1e1;
@@ -177,16 +183,16 @@
       border-radius: 4px;
     }
 
-    .msg .text {
+    .msg-client .text {
       margin-left: 46px;
       font-size: 14px;
       background-color: #e9ecef;
       padding: 10px;
       border-radius: 10px;
     }
-    .contact.active {border-radius: 11px;box-shadow: 0 0 40px rgb(0 0 0 / 12%);background: #d5efff;}
+    .contact-client.active {border-radius: 11px;box-shadow: 0 0 40px rgb(0 0 0 / 12%);background: #d5efff;}
 
-    .project {
+    .project-client {
         color: #297bab;
         font-weight: 600;
         font-size: 14px;
@@ -221,23 +227,34 @@
     .msg-input button:hover {
       background-color: #0056b3;
     }
-
+    
     @media (max-width: 768px) {
       .chat-wrapper {
         flex-direction: column;
         height: auto;
       }
 
-      .chatsidebar {
+      .chatsidebar-client {
         width: 100%;
         max-height: 250px;
       }
     }
+    @media (max-width: 767px) {
+    .message-section {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+
+.chat-wrapper .card.mt-3.card-designform {
+    margin-bottom: 0;
+}
   </style>
 <div class="container chat-wrapper">
     <!-- Sidebar -->
-    <div class="chatsidebar">
-        <div class="sidebar-header">Messages</div>
+    <div class="chatsidebar-client">
+        <div class="sidebar-header-client ">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
           <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
@@ -261,8 +278,8 @@
           @endforelse
       </div>      
     </div>          
-    <div class="main-section">
-        <div class="msger-header">
+    <div class="message-section">
+        <div class="msgers-header">
             <h1>Comments</h1>
             <i class="fas fa-comment icon"></i> 
         </div>

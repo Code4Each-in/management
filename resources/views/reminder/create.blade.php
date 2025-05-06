@@ -27,10 +27,11 @@
 <div class="max-w-6xl mx-auto bg-white p-6 rounded shadow">
 
     <div class="max-w-6xl mx-auto mb-6">
-        <a href="{{ route('reminder.index') }}" class="btn btn-primary mt-3" style="margin-bottom: 18px;">
+        <a href="{{ route('reminder.index') }}" class="btn btn-primary mt-3" style="margin-bottom: 18px; background: #4154f1;">
             Add Reminder
         </a>
     </div>
+
     <div class="box-header with-border" id="filter-box">
         <br>
         <div class="box-body table-responsive" style="margin-bottom: 5%">
