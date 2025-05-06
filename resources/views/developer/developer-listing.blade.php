@@ -6,7 +6,7 @@
     <div class="card">
         <div class="card-body mt-3">
             <div class="table-resposnive">
-            <table class="table table-borderless dashboard" id="dev-listing">
+            <table class="table table-striped table-borderless dashboard" id="dev-listing">
                 <thead class="table-light">
                     <tr>
                         <th style="width: 60px;">Sr No</th>

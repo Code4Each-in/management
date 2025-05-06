@@ -400,7 +400,6 @@ h6 {
   box-shadow: 0px 2px 20px rgba(1, 41, 112, 0.1);
   background-color: #fff;
   padding-left: 20px;
-  z-index: 99999;
   /* Toggle Sidebar Button */
   /* Search Bar */
 }
@@ -2259,7 +2258,7 @@ input.form-control-text {
     }
 
     .btn {
-        width: 100%;
+        width:auto;
     }
 }
 /* Table Styling */
@@ -3785,7 +3784,7 @@ div#notification_length {
     padding: 1.5rem;
     background: #fff9a0;
     border-radius: 10px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 10px 10px rgb(0 0 0 / 7%);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -3982,4 +3981,14 @@ card.upcoming-holidays {
 }
 div#dev-listing_filter {
     margin-bottom: 15px;
+}
+
+/* Container */
+/* new css  */
+div#remindersTable_filter {
+  margin-bottom: 10px;
+}
+
+div#remindersTable_wrapper {
+  padding-bottom: 10px;
 }
