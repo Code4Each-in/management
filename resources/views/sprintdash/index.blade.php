@@ -345,7 +345,7 @@
                             <div class="row mb-3">
                                 <label for="etaDateTime" class="col-sm-3 col-form-label required">End Date</label>
                                 <div class="col-sm-9">
-                                    <input type="datetime-local" class="form-control" id="eta" name="eta">
+                                    <input type="datetime-local" class="form-control" id="end_date" name="end_date">
                                     <input type="hidden" class="form-control" name="sprint_id" id="sprint_id" value="{{ $sprint->id ?? '' }}">
                                 </div>
                             </div>
@@ -364,7 +364,7 @@
                                 </div>
                             </div>  
                             
-                            <div class="row mb-3">
+                            <!-- <div class="row mb-3">
                                 <label for="client" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
                                     <select name="client" class="form-select form-control" id="client">
@@ -376,11 +376,12 @@
                                         @endforeach
                                     </select>  
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="row mb-3">
                                 <label for="status" class="col-sm-3 col-form-label required">Status</label>
                                 <div class="col-sm-9">
-                                    <select name="status" class="form-select form-control" id="status">
+                                    <select name="status" class="form-select form-control" id="status" name="status">
+                                        <option value="" disabled selected>Select Status</option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
                                     </select>
@@ -436,7 +437,7 @@
                                       </span>
                                   </div>
                           
-                                  <div id="editor" style="height: 300px;"></div>
+                                  <div id="editor" name="description" style="height: 300px;"></div>
                                   <input type="hidden" name="description" id="description_input">
                                   
                                   @if ($errors->has('description'))
@@ -467,7 +468,7 @@
 <script>
      document.addEventListener('DOMContentLoaded', function () {
         const startDateInput = document.getElementById('start_date');
-        const etaInput = document.getElementById('eta');
+        const etaInput = document.getElementById('end_date');
 
         startDateInput.addEventListener('change', function () {
             const startDate = new Date(this.value);

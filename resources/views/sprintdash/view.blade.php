@@ -60,90 +60,98 @@
         </div>
     </dfiv>
 </div>    
-            <div class="row mb-5 mt-3">
-                <label class="col-sm-4 col-form-label fw-bold">Uploaded Documents:</label>
-                <div class="col-sm-9" id="Projectsdata" style="margin:auto;">
-                    @if ($ProjectDocuments->isEmpty())
-                    No Uploaded Document Found
-                    @else  
-                    @foreach ($ProjectDocuments as $data)
-                    @if (!empty($data->document))
-                        <button type="button" class="btn btn-outline-primary btn-sm mb-2">
-                            @php
-                                $extension = pathinfo($data->document, PATHINFO_EXTENSION);
-                                $iconClass = '';
-                
-                                switch ($extension) {
-                                    case 'pdf':
-                                        $iconClass = 'bi-file-earmark-pdf';
-                                        break;
-                                    case 'doc':
-                                    case 'docx':
-                                        $iconClass = 'bi-file-earmark-word';
-                                        break;
-                                    case 'xls':
-                                    case 'xlsx':
-                                        $iconClass = 'bi-file-earmark-excel';
-                                        break;
-                                    case 'jpg':
-                                    case 'jpeg':
-                                    case 'png':
-                                        $iconClass = 'bi-file-earmark-image';
-                                        break;
-                                    default:
-                                        $iconClass = 'bi-file-earmark';
-                                        break;
-                                }
-                            @endphp
-                            <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
-                            <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
-                        </button>
-                    @endif
-                @endforeach
-                    @endif
+            <div class="row mb-2 mt-5">
+                <div class="col-auto">
+                    <label class="col-form-label fw-bold mb-0">Uploaded Documents:</label>
                 </div>
-            </div>   
+                    <div class="col d-flex align-items-center flex-wrap gap-2" id="Projectsdata">
+                        @if ($ProjectDocuments->isEmpty())
+                        No Uploaded Document Found
+                        @else  
+                            @foreach ($ProjectDocuments as $data)
+                                @if (!empty($data->document))
+                                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                                        @php
+                                            $extension = pathinfo($data->document, PATHINFO_EXTENSION);
+                                            $iconClass = '';
+                            
+                                            switch ($extension) {
+                                                case 'pdf':
+                                                    $iconClass = 'bi-file-earmark-pdf';
+                                                    break;
+                                                case 'doc':
+                                                case 'docx':
+                                                    $iconClass = 'bi-file-earmark-word';
+                                                    break;
+                                                case 'xls':
+                                                case 'xlsx':
+                                                    $iconClass = 'bi-file-earmark-excel';
+                                                    break;
+                                                case 'jpg':
+                                                case 'jpeg':
+                                                case 'png':
+                                                    $iconClass = 'bi-file-earmark-image';
+                                                    break;
+                                                default:
+                                                    $iconClass = 'bi-file-earmark';
+                                                    break;
+                                            }
+                                        @endphp
+                                        <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
+                                        <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
+                    </div>
+                </div>   
             </div>       
                     <div class="col-md-4">
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ $sprint->name }}</p>
+                                <p class="mb-1">{{ $sprint->name ?? '----' }}</p>
                             </div>
                         </div>
 
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Project</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ $sprints->project_name }}</p>
+                                <p class="mb-1">{{ $sprints->project_name ?? '----' }}</p>
                             </div>
                         </div>
 
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Description</label>
                             <div class="col-sm-8">
-                        <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">{{ strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) }}</p>
+                                <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">
+                                    {{ $sprints->description ? strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) : '----' }}
+                                </p>
                             </div>
                         </div>
 
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Client</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ $clients->client_name }}</p>
+                                <p class="mb-1">{{ $clients->client_name ?? '----' }}</p>
                             </div>
                         </div>
                         @if ($role_id != 6)
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Start Date</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->start_date)->format('M d, Y h:i A') }}</p>
+                                <p class="mb-1">
+                                    {{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('M d, Y h:i A') : '----' }}
+                                </p>
                             </div>
                         </div>
 
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">End Date</label>
                             <div class="col-sm-8">
-                                <p class="mb-1">{{ \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') }}</p>
+                                <p class="mb-1">
+                                    {{ $sprint->eta ? \Carbon\Carbon::parse($sprint->eta)->format('M d, Y h:i A') : '----' }}
+                                </p>
                             </div>
                         </div>
                         @endif
