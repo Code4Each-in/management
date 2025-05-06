@@ -44,10 +44,14 @@
     border-radius: 10px 0px 0 0;
 }
 
-    .contact-list {
-      flex: 1;
-      overflow-y: auto;
-    }
+.contact-list {
+    flex: 1;
+    /* overflow: scroll; */
+    /* height: 22vh; */
+    max-height: 715px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
 
     .contact {
         display: flex;
