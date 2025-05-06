@@ -138,11 +138,14 @@ public function addMessage(Request $request)
     
     // Retrieve the full message including user data
     $message = Message::with('user')->find($message->id);
+    $user = auth()->user();
+    $name = $user->first_name;
+
     if ($message) {
         try {
             $messages = [
-                "subject" => "New Message  received from - {auth()->id()}",
-                "title" => "You've received new Message from {auth()->id()}.",
+                "subject" => "New Message  received from - {$name}",
+                "title" => "You've received new Message from {$name}.",
                 "body-text" => "Message: \"" . $request->input('message') . "\"",
             ];
     
