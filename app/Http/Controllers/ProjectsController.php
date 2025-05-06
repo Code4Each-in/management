@@ -46,8 +46,9 @@ class ProjectsController extends Controller
             })->orderBy('id', 'desc')->get();
             $projectCount = $projects->count();
             $clients = Client::where('id', $clientId)
-            ->orderBy('name', 'asc')
-            ->get();
+                        ->where('status', 1)
+                        ->orderBy('name', 'asc')
+                        ->get();
         } else {
             $projectsQuery = Projects::query();
             if (!is_null($clientId)) {
@@ -55,7 +56,9 @@ class ProjectsController extends Controller
             }
             $projects = $projectsQuery->orderBy('id', 'desc')->get();
             $projectCount = $projects->count();
-            $clients = Client::orderBy('name', 'asc')->get();
+            $clients = Client::where('status', 1)
+                        ->orderBy('name', 'asc')
+                        ->get();
         }
 
         foreach ($projects as $key => $data) {
@@ -81,6 +84,10 @@ class ProjectsController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        if ($user->role_id == 6) {
+            $request->merge(['client_id' => $user->client_id]);
+        }
         $validator = Validator::make($request->all(),[
             'project_name' => 'required',
             'client_id' => 'required',
@@ -104,29 +111,50 @@ class ProjectsController extends Controller
                 'add_document.*' => 'document',
             ]);
 
-            if ($validator->fails())
-            {
-                return response()->json(['errors'=>$validator->errors()->all()]);
+            if ($validator->fails()) {
+                $user = auth()->user();
+
+                $errors = $validator->errors();
+
+                if ($user->role_id == 6) {
+                    $filteredErrors = [];
+            
+                    foreach (['project_name', 'start_date', 'status'] as $field) {
+                        if ($errors->has($field)) {
+                            foreach ($errors->get($field) as $message) {
+                                $filteredErrors[] = $message;
+                            }
+                        }
+                    }
+                    if (!empty($filteredErrors)) {
+                        return response()->json(['errors' => $filteredErrors]);
+                    }
+                }
+
+                return response()->json(['errors' => $errors->all()]);
             }
             
+        
     		$validate = $validator->valid();
-        $projects =Projects::create([
-            'project_name' => $validate['project_name'],
-            'client_id' => $validate['client_id'],
-            'live_url' => $validate['live_url'],
-            'dev_url' => $validate['dev_url'], 
-            'git_repo' => $validate['git_repo'], 
-            'tech_stacks' => $validate['tech_stacks'], 
-            'start_date' => $validate['start_date'], 
-            'end_date' => $validate['end_date'], 
-            'description' => $validate['description'], 
-            'credentials' => $validate['credentials'], 
-            'status'=>$validate ['status'],
-            'status_updated_by'=> auth()->user()->id,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-            'user_id'=> auth()->user()->id,     
-        ]);
+             // dd($projects->client_id);
+            $projects =Projects::create([
+                'project_name' => $validate['project_name'],
+                'client_id' => $validate['client_id'],
+                'live_url' => $validate['live_url'],
+                'dev_url' => $validate['dev_url'], 
+                'git_repo' => $validate['git_repo'], 
+                'tech_stacks' => $validate['tech_stacks'], 
+                'start_date' => $validate['start_date'], 
+                'end_date' => $validate['end_date'], 
+                'description' => $validate['description'], 
+                'credentials' => $validate['credentials'], 
+                'status'=>$validate ['status'],
+                'status_updated_by'=> auth()->user()->id,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'user_id'=> auth()->user()->id,     
+            ]);
+            // dd($projects->client_id);
         if (isset($validate['assign_to']))
         {				
             foreach($validate['assign_to'] as $manager)
@@ -134,7 +162,7 @@ class ProjectsController extends Controller
                 $manager =ProjectAssigns::create([					
                     'project_id' => $projects->id,
                     'user_id' => $manager,
-                     'client_id' => $projects->client_id
+                    'client_id' => $projects->client_id
                 ]);
             }		
         }
@@ -181,12 +209,15 @@ class ProjectsController extends Controller
         $user = Auth::user();
         $clientId = $user->client_id;
         if ($user->role_id == 6) {
-        $clients = Client::where('id', $clientId)
-        ->orderBy('name', 'asc')
-        ->get();
+            $clients = Client::where('id', $clientId)
+                        ->where('status', 1)
+                        ->orderBy('name', 'asc')
+                        ->get();
         }
         else{
-            $clients = Client::all();
+            $clients = Client::where('status', 1)
+                        ->orderBy('name', 'asc')
+                        ->get();
         }
         $projects = Projects::where(['id' => $projectId])->first();
         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
@@ -197,6 +228,10 @@ class ProjectsController extends Controller
     }
     public function updateProject(Request $request ,$projectId)
     {
+        $user = auth()->user();
+        if ($user->role_id == 6) {
+            $request->merge(['edit_client_id' => $user->client_id]);
+        }
         // dd($request);
         $validator = Validator::make($request->all(),[
             'edit_projectname' => 'required',

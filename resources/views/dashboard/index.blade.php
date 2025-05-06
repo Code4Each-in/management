@@ -869,6 +869,11 @@ use App\Models\Votes;
                                     </tr>
                                 </thead>
                                 <tbody>
+                                @if($projects->isEmpty())
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No projects found</td>
+                                    </tr>
+                                @else
                                     @foreach ($projects as $project)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
@@ -885,6 +890,7 @@ use App\Models\Votes;
                                         </td>
                                     </tr>
                                     @endforeach
+                                @endif
                                 </tbody>
                             </table>
                         </div>
@@ -903,6 +909,11 @@ use App\Models\Votes;
                                     </tr>
                                 </thead>
                                 <tbody>
+                                @if($notifications->isEmpty())
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No notifications found</td>
+                                    </tr>   
+                                @else
                                     @foreach($notifications as $notification)
                                     @php
                                     $ticket = \App\Models\Tickets::find($notification->ticket_id);
@@ -922,6 +933,7 @@ use App\Models\Votes;
                                         </td>
                                     </tr>
                                     @endforeach
+                                @endif
                                 </tbody>
                             </table>
                         </div>
@@ -971,7 +983,7 @@ use App\Models\Votes;
 
                 <div class="card upcoming-holidays">
                     <div class="card-body">
-                        <h5 class="card-title"> Upcoming Holidays</h5>
+                        <h5 class="card-title">Code4each Upcoming Holidays</h5>
 
                         <div class="news">
                             @if ($upcomingFourHolidays)

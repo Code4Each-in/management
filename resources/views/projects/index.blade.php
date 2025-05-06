@@ -125,20 +125,21 @@ use App\Models\Projects;?>
                                 </div>
                             </div>
 
+                            @if(auth()->user()->role_id != 6)
                             <div class="row mb-3">
                                 <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
                                     <select name="client_id" class="form-select form-control" id="client_id">
-                                        @if(auth()->user()->role_id != 6)
                                         <option value="" disabled selected>Select Clients</option>
-                                        @endif
                                         @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                            <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
                                     </select>  
                                 </div>
                             </div>
+                            @endif
 
+                            @if(auth()->user()->role_id != 6)
                             <div class="row mb-3">
                                 <label for="" class="col-sm-3 col-form-label required">Assign To</label>     
                                 <div class="col-sm-9">
@@ -152,6 +153,8 @@ use App\Models\Projects;?>
                                 </select>
                                 </div>
                             </div>
+                            @endif
+                            
                             <div class="row mb-3">
                                 <label for="title" class="col-sm-3 col-form-label ">Live Url</label>
                                 <div class="col-sm-9">
@@ -256,7 +259,8 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="status" class="col-sm-3 col-form-label required">Status</label>
                                 <div class="col-sm-9">
-                                    <select name="status" class="form-select" id="status">
+                                    <select name="status" class="form-select" id="status" name="status">
+                                        <option value="" disabled selected>Select Status</option>
                                         <option value="not_started">Not Started</option>
                                         <option value="active">Active</option>
                                         <option value="deactivated">Deactivated</option>
@@ -355,6 +359,11 @@ use App\Models\Projects;?>
                 $( '#user' ).select2( {
                     dropdownParent: $('#addProjects')
                 } );
+            });
+
+            $('#addProjects').on('hidden.bs.modal', function () {
+                $('.alert-danger').html('').hide();
+                $('#addProjectsForm')[0].reset();
             });
 
             function ShowAssignModal(id) {
