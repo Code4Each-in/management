@@ -8,6 +8,7 @@
         <thead>
             <tr>
                 <th>Notification</th>
+                <th>Project Name</th>
                 <th>Ticket</th>
             </tr>
         </thead>
@@ -15,6 +16,7 @@
             @foreach($notifications as $index => $notification)
                 <tr>
                     <td>{{ $notification->message }}</td>
+                    <td>{{ $notification->ticket->project->project_name }}</td>
                     <td>
                         <a href="{{ url('/view/ticket/'.$notification->ticket_id) }}" target="_blank">
                             <i class="fa fa-eye text-primary"></i> 
