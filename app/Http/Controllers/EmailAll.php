@@ -27,14 +27,14 @@ class EmailAll extends Controller
     {
         $request->validate([
             'subject'   => 'required|string|max:255',
-            'message'   => 'required|string',
+            'description' => 'required|string',
             'footer'    => 'nullable|string',
             'emails'    => 'required|array',
             'emails.*'  => 'email'
         ]);
 
         $subject = $request->input('subject');
-        $message = $request->input('message');
+        $message = $request->input('description');
         foreach ($request->emails as $email) {
             Mail::send('Email.employee_mail', [
                 'mailSubject' => $subject,
