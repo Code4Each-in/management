@@ -37,7 +37,7 @@ class MessageController extends Controller
         ->get();
         $client = Client::find($clientId);
     }
-        
+    $projects = $projects->unique('project_name')->values();
     foreach ($projects as $project) {
         $project->last_message = Message::where('project_id', $project->id)
             ->orderBy('created_at', 'desc')
