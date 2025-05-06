@@ -19,11 +19,10 @@ class MessageController extends Controller
     public function index()
 {
     $user = Auth::user();
-
+    $client = '';
     if ($user->role_id == 1) {
-        $projects = Projects::whereHas('messages')
-        ->orderBy('id', 'desc')
-        ->get();
+        $projects = Projects::orderBy('id', 'desc')->get();
+
         if ($projects->isNotEmpty()) {
             $clientId = $projects->first()->client_id; 
             $client = Client::find($clientId);
@@ -33,7 +32,6 @@ class MessageController extends Controller
         $projectIds = Projects::where('client_id', $clientId)->pluck('id')->toArray();
 
         $projects = Projects::whereIn('id', $projectIds)
-        ->whereHas('messages')
         ->orderBy('id', 'desc')
         ->get();
         $client = Client::find($clientId);
