@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)">Add User</button>
+            <button class="btn btn-primary mt-3" onClick="openusersModal()" href="javascript:void(0)" style="background-color: #4154f1;">Add User</button>
 
             <form id="filter-data" method="GET" action="{{ route('users.index') }}">
                 <div class="row mt-3 mx-auto">
@@ -25,120 +25,122 @@
 
             <div class="box-header with-border" id="filter-box">
                 <br>
-                <div class="box-body table-responsive" style="margin-bottom: 5%">
-                    <table class="table table-borderless dashboard" id="users_table">
-                        <thead>
-                            <tr>
-                                <th>Employee Id</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email</th>
-                                <!-- <th>Salary</th> -->
-                                <th>Role</th>
-                                <th>Designation</th>
-                                <th>Department</th>                                
-                                <th>Address</th>
-                                <th>Phone</th>
-                                @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
-                                <th>Documents</th>
-                                <th>Leaves</th>
-                                @endif
-                                <th>Tshirt Size</th>
-                                <th>Active</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($usersData as $data)
-                            <tr>
-                                <td>{{ $data->employee_id ?? '---' }}</td>
-                                <td>{{ $data->first_name }}</td>
-                                <td>{{ $data->last_name }}</td>
-                                <td>{{ $data->email }}</td>
-                                <!-- <td>{{ $data->salary }}</td> -->
-                                <td>{{$data->role->name ?? ''}}</td>
-                                <td>{{ $data->designation ?: '---' }}</td>
-                                <td>{{$data->department->name ?? ''}}</td>                              
-                                <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
-                                <td>{{ $data->phone }}</td>
-                                @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
-                                <td>
-                                    @if (count($data->documents) > 0)
-                                    <a href="{{ route('users.documents.show',$data->id)}}">Show Documents</a>
-                                    @else
-                                    <p>No Documents</p>
+                <div class="box-body " style="margin-bottom: 5%">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-borderless dashboard" id="users_table">
+                            <thead>
+                                <tr>
+                                    <th>Employee Id</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <!-- <th>Salary</th> -->
+                                    <th>Role</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>                                
+                                    <th>Address</th>
+                                    <th>Phone</th>
+                                    @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
+                                    <th>Documents</th>
+                                    <th>Leaves</th>
                                     @endif
-
-                                </td>
-                                <td>
-                                    @php
-                                    // Calculate the total leaves count for a specific user (data->id)
-                                    $totalLeavesCount = $totalLeaves->where('id', $data->id)->sum('leaves_count');
-
-                                    // Calculate the approved leaves count for the same user (data->id)
-                                    $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
-
-                                    $joiningDate = $data->joining_date;
-                                    // Calculate the date 3 months ago from the current date
-                                    $threeMonthsAgo = now()->subMonths(3);
-
-                                    @endphp
-                                    @if ($joiningDate >= $threeMonthsAgo)
-                                    @if ($approvedLeavesCount > 0)
-                                    <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
-                                    @else
-                                    <span title="Your leaves">{{$approvedLeavesCount}}</span>
-                                    @endif
-                                    @else
-                                    @if ($approvedLeavesCount > $totalLeavesCount)
-                                    <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
-                                    @else
-                                    <span title="Your leaves">{{$approvedLeavesCount}}</span>
-                                    @endif
-                                    @endif
-                                    / @if ($joiningDate < $threeMonthsAgo)
-                                        <span title="Total Leaves">{{$totalLeavesCount}}</span>
+                                    <th>Tshirt Size</th>
+                                    <th>Active</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($usersData as $data)
+                                <tr>
+                                    <td>{{ $data->employee_id ?? '---' }}</td>
+                                    <td>{{ $data->first_name }}</td>
+                                    <td>{{ $data->last_name }}</td>
+                                    <td>{{ $data->email }}</td>
+                                    <!-- <td>{{ $data->salary }}</td> -->
+                                    <td>{{$data->role->name ?? ''}}</td>
+                                    <td>{{ $data->designation ?: '---' }}</td>
+                                    <td>{{$data->department->name ?? ''}}</td>                              
+                                    <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
+                                    <td>{{ $data->phone }}</td>
+                                    @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
+                                    <td>
+                                        @if (count($data->documents) > 0)
+                                        <a href="{{ route('users.documents.show',$data->id)}}">Show Documents</a>
                                         @else
-                                        <span title="Total Leaves">0</span>
+                                        <p>No Documents</p>
                                         @endif
-                                </td>
-                                @endif
-                                <td>{{ $data->tshirt_size ?? '---' }}</td>
-                                <td>
-                                    <div class="form-group form-check active_user">
-                                        @if ($data->assignedDevices > 0)
-                                        <input type="checkbox" onClick="ShowDeviceRecoveryMessage(this)" data-user-id="{{ $data->id }}"
-                                            class="form-check-input" id="{{ 'active_user_'.$data->id }}"
-                                            {{ $data->status == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="{{ 'active_user_'.$data->id }}"></label>
-                                        @else
-                                        <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
-                                            class="form-check-input" id="{{'active_user_'.$data->id}}"
-                                            {{$data->status == 1 ? 'checked' : ''}}>
-                                        <label class="form-check-label" for="active_user"></label>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="active_user_data">
-                                        <a href="{{ route('users.view', ['id' => $data->id]) }}" title="View User Details" style="padding-right: 11px; ">
-                                            <i class="fa-solid fa-eye" style="color:#4154f1; margin-left: 10px; cursor: pointer;"></i>
-                                        </a>
-                                        <i style="color:#4154f1;padding-right: 25px;" onClick="editUsers('{{ $data->id }}')"
-                                            href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
 
-                                        <i style="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')"
-                                            href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                        // Calculate the total leaves count for a specific user (data->id)
+                                        $totalLeavesCount = $totalLeaves->where('id', $data->id)->sum('leaves_count');
+
+                                        // Calculate the approved leaves count for the same user (data->id)
+                                        $approvedLeavesCount = $approvedLeaves->where('id', $data->id)->sum('leave_day_count');
+
+                                        $joiningDate = $data->joining_date;
+                                        // Calculate the date 3 months ago from the current date
+                                        $threeMonthsAgo = now()->subMonths(3);
+
+                                        @endphp
+                                        @if ($joiningDate >= $threeMonthsAgo)
+                                        @if ($approvedLeavesCount > 0)
+                                        <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
+                                        @else
+                                        <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                        @endif
+                                        @else
+                                        @if ($approvedLeavesCount > $totalLeavesCount)
+                                        <span class="text-danger" title="User leaves exceeded from total available leaves">{{$approvedLeavesCount}}</span>
+                                        @else
+                                        <span title="Your leaves">{{$approvedLeavesCount}}</span>
+                                        @endif
+                                        @endif
+                                        / @if ($joiningDate < $threeMonthsAgo)
+                                            <span title="Total Leaves">{{$totalLeavesCount}}</span>
+                                            @else
+                                            <span title="Total Leaves">0</span>
+                                            @endif
+                                    </td>
+                                    @endif
+                                    <td>{{ $data->tshirt_size ?? '---' }}</td>
+                                    <td>
+                                        <div class="form-group form-check active_user">
+                                            @if ($data->assignedDevices > 0)
+                                            <input type="checkbox" onClick="ShowDeviceRecoveryMessage(this)" data-user-id="{{ $data->id }}"
+                                                class="form-check-input" id="{{ 'active_user_'.$data->id }}"
+                                                {{ $data->status == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="{{ 'active_user_'.$data->id }}"></label>
+                                            @else
+                                            <input type="checkbox" onClick="Showdata(this)" data-user-id="{{ $data->id}}"
+                                                class="form-check-input" id="{{'active_user_'.$data->id}}"
+                                                {{$data->status == 1 ? 'checked' : ''}}>
+                                            <label class="form-check-label" for="active_user"></label>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="active_user_data">
+                                            <a href="{{ route('users.view', ['id' => $data->id]) }}" title="View User Details" style="padding-right: 11px; ">
+                                                <i class="fa-solid fa-eye" style="color:#4154f1; margin-left: 10px; cursor: pointer;"></i>
+                                            </a>
+                                            <i style="color:#4154f1;padding-right: 25px;" onClick="editUsers('{{ $data->id }}')"
+                                                href="javascript:void(0)" class="fa fa-edit fa-fw pointer"></i>
+
+                                            <i style="color:#4154f1;" onClick="deleteUsers('{{ $data->id }}')"
+                                                href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                @endforelse
+                            </tbody>
+                      </table>
+</div>
+                  </div>
+              </div>
             </div>
-        </div>
     </div>
 </div>
 

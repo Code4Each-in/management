@@ -13,85 +13,88 @@ use App\Models\Client;?>
                 <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()">Add
                     Client
                 </button>
-                <table class="table table-borderless dashboard" id="clients">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Client Name</th>
-                            <th>Email</th>
-                            <th>Phone number</th>
-                            <th>Birth date</th>
-                            <th>Status</th>
-                            <th>Company</th>
-                            <th>Country</th>
-                            @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
-                                <th>Actions</th>
-                            @endif
-                        </tr>
-                    </thead>
+                        <div class="table-resposnive">
 
-                    <tbody>
-                    @forelse($clients as $client)
-                        <tr>
-                            <td>{{ $client->id }}</td>
-                            <td>{{ $client->name }}</td>
-                            <td>
-                                @if (!empty($client->email ))
-                                   {{  $client->email }}
-                                @else
-                                  ---
-                                @endif
-                            </td>
-                            <td>
-                                @if (!empty($client->phone ))
-                                   {{  $client->phone }}
-                                @else
-                                  ---
-                                @endif
-                            </td>
-                            <td> 
-                                @if (!empty($client->birth_date ))
-                                    {{  $client->birth_date }}
-                                @else
-                                  ---
-                                @endif
-                            </td>
-                            <td>{{ Client::getStatus($client->status) }}</td>
-                            <td>
-                                @if(!empty($client->company))
-                                   {{ $client->company}}
-                                @else
-                                     ---
-                                @endif
-                            </td>
-                            <td>
-                                @if (!empty($client->country))
-                                    {{ Client::getCountry($client->country) }}
-                                @else
-                                    ---
-                                @endif
-                            </td>
-                            @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
-                                <td>  
-                                    <a href="{{ route('clients.show', ['id' => $client->id]) }}">
-                                        <i class="fas fa-eye" style="color: #007bff;"></i>
-                                    </a>
+                            <table class="table table-striped table-borderless dashboard" id="clients">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Client Name</th>
+                                        <th>Email</th>
+                                        <th>Phone number</th>
+                                        <th>Birth date</th>
+                                        <th>Status</th>
+                                        <th>Company</th>
+                                        <th>Country</th>
+                                        @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
+                                            <th>Actions</th>
+                                        @endif
+                                    </tr>
+                                </thead>
 
-                                    <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
-                                         <i class="fas fa-edit" style="color: #007bff;"></i>                                       
-                                    </a>
-                                    {{-- <a href="javascript:void(0)" onclick="deleteClient('{{ $client->id }}')"> --}}
-                                        <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: #007bff;"></i>
-                                    {{-- </a> --}}
-                                    
-                                </td>
-                            @endif
-                        </tr>
-                        @empty
-                        @endforelse
-                    </tbody>
-                </table>
+                                <tbody>
+                                @forelse($clients as $client)
+                                    <tr>
+                                        <td>{{ $client->id }}</td>
+                                        <td>{{ $client->name }}</td>
+                                        <td>
+                                            @if (!empty($client->email ))
+                                            {{  $client->email }}
+                                            @else
+                                            ---
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (!empty($client->phone ))
+                                            {{  $client->phone }}
+                                            @else
+                                            ---
+                                            @endif
+                                        </td>
+                                        <td> 
+                                            @if (!empty($client->birth_date ))
+                                                {{  $client->birth_date }}
+                                            @else
+                                            ---
+                                            @endif
+                                        </td>
+                                        <td>{{ Client::getStatus($client->status) }}</td>
+                                        <td>
+                                            @if(!empty($client->company))
+                                            {{ $client->company}}
+                                            @else
+                                                ---
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (!empty($client->country))
+                                                {{ Client::getCountry($client->country) }}
+                                            @else
+                                                ---
+                                            @endif
+                                        </td>
+                                        @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
+                                            <td>  
+                                                <a href="{{ route('clients.show', ['id' => $client->id]) }}">
+                                                    <i class="fas fa-eye" style="color: #007bff;"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
+                                                    <i class="fas fa-edit" style="color: #007bff;"></i>                                       
+                                                </a>
+                                                {{-- <a href="javascript:void(0)" onclick="deleteClient('{{ $client->id }}')"> --}}
+                                                    <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: #007bff;"></i>
+                                                {{-- </a> --}}
+                                                
+                                            </td>
+                                        @endif
+                                    </tr>
+                                    @empty
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
+</div>
                     </div>
                 </div>
         <!---Add Client-->

@@ -9,11 +9,12 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-        <button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)">Add Team's
+        <button class="btn btn-primary mt-3" onClick="openleavesModal()" href="javascript:void(0)" style="background-color: #4154f1;">Add Team's
                 Leave</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
-                <div class="box-body table-responsive" style="margin-bottom: 5%">
+                <div class="box-body " style="margin-bottom: 5%">
+                    <div class="table-resposnive">
                     <table class="table table-borderless" id="leavestable">
                         <thead>
                             <tr>
@@ -69,6 +70,7 @@
                             @endforelse
                         </tbody>
                     </table>
+</div>
                 </div>
             </div>
         </div>

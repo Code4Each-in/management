@@ -5,7 +5,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openprojectModal()" href="javascript:void(0)">Add
+            <button class="btn btn-primary mt-3" onClick="openprojectModal()" href="javascript:void(0)" style="background-color: #4154f1;">Add
                 Policy</button>
             <div class="box-header with-border" id="filter-box">
                 <br>

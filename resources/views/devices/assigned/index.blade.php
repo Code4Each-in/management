@@ -7,7 +7,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-2">
-                    <button class="btn btn-primary mt-3" onClick="openassignDeviceModel()" href="javascript:void(0)">Assign Device</button>
+                    <button class="btn btn-primary mt-3" onClick="openassignDeviceModel()" href="javascript:void(0)" style="background-color: #4154f1;">Assign Device</button>
                 </div>
             </div>
 

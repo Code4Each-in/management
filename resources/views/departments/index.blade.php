@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3 mb-4" onClick="openDepartmentModal()" href="javascript:void(0)">Add
+            <button class="btn btn-primary mt-3 mb-4" style="background-color: #4154f1;" onClick="openDepartmentModal()" href="javascript:void(0)">Add
                 Department</button>
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">

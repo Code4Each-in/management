@@ -246,7 +246,7 @@
     @media (max-width: 767px) {
     .message-section {
         width: 100%;
-        margin: auto;
+       
     }
 }
 
