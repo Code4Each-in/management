@@ -86,7 +86,7 @@
 
                 <!-- Quill Editor -->
                 <div id="message" style="height: 300px; border: 1px solid #ccc; border-radius: 5px; background-color: #fff;"></div>
-                <input type="hidden" name="description" id="description-hidden">
+                <input type="hidden" name="message" id="description-hidden">
                 <!-- Error message -->
                 @if ($errors->has('description'))
                 <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
