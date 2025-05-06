@@ -112,7 +112,7 @@ $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
                ->whereDate('end_date', $dateOnly)
                ->get();
                $projects = Projects::all();
-        $clients = Client::orderBy('name', 'asc')  
+        $clients = Client::where('status',1)->orderBy('name', 'asc')  
         ->get();
        $sprints = Sprint::with('projectDetails')
     ->withCount([
