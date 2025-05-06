@@ -561,7 +561,6 @@
                                   ${avatarHtml}
                                   <div style="display: inline-block; vertical-align: middle;">
                                       <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
-                                      <span class="role">${role}</span>
                                   </div>
                               </div>
                               <div class="text">
