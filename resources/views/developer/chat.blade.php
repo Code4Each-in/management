@@ -62,6 +62,7 @@
         position: relative;
         transition: background-color 0.2s ease-in-out;
         margin: 10px 8px 10px;
+        gap: 10px;
     }
 
     .contact:hover {
