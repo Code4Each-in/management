@@ -246,7 +246,7 @@
     @media (max-width: 767px) {
     .message-section {
         width: 100%;
-        margin: auto;
+       
     }
 }
 
@@ -344,7 +344,6 @@
                   <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
                   <input type="hidden" name="message" id="comment_input">
                   <input type="hidden" name="project_id" id="project_id">
-                  <input type="hidden" name="to" id="to" value="">
                   @if ($errors->has('comment'))
                       <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                   @endif
@@ -460,9 +459,10 @@
       });
       </script>      
                 <script>
-                  let currentProjectId = null;
-                  currentProjectId = projectId;
+                  // let currentProjectId = null;
+                  
                   function loadMessages(projectId) {
+                    // currentProjectId = projectId;
                     const $chatContainer = $(".chat-container");
                     $chatContainer.empty(); // Clear messages
 
@@ -484,11 +484,11 @@
                         }
                     });
                 }
-                setInterval(function() {
-                if (currentProjectId) {
-                    loadMessages(currentProjectId);
-                }
-            }, 1000); 
+              //   setInterval(function() {
+              //     if (currentProjectId) {
+              //         loadMessages(currentProjectId);
+              //     }
+              // }, 1000); 
                 function displayMessages(messages, clearMessages = true) {
                   console.log('dfdfd', messages);
                   const $chatContainer = $(".chat-container");
