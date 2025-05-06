@@ -81,7 +81,7 @@ public function addMessage(Request $request)
     }
 
     $documentPaths = [];
-    $maxTotalSize = 5 * 1024 * 1024;  
+    $maxTotalSize = 5 * 1024 * 1024;  // 5MB limit
     $totalSize = 0;
     $user = Auth::user();
     $messageData = [
@@ -90,6 +90,8 @@ public function addMessage(Request $request)
         'to' => $request->input('to'),
         'from' => auth()->id(),
     ];
+
+    // Handle file uploads
     if ($request->hasFile('comment_file')) {
         foreach ($request->file('comment_file') as $file) {
             $totalSize += $file->getSize();
@@ -109,10 +111,15 @@ public function addMessage(Request $request)
         $messageData['document'] = $documentString; 
     }
 
+    // Create message
     $message = Message::create($messageData);
+
+    // Retrieve the full message including user data
+    $message = Message::with('user')->find($message->id);
 
     return response()->json([
         'status' => 200,
+        'message' => $message, // Return the message object
         'Commentmessage' => 'Message added successfully.'
     ]);
 }

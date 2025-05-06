@@ -240,7 +240,7 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
-              <div class="contact" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
+          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
                   <img src="https://i.pravatar.cc/42?u={{ $project->id }}" alt="avatar">
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
@@ -336,7 +336,7 @@
             </div>
             <div class="alert alert-danger" style="display:none;"></div>
             <div class="button-design">
-                <button type="submit" class="btn  btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
+                <button type="submit" class="btn btncomment btn-primary float-right" style="padding: 8px 15px;font-size: 1rem; border: none;border-radius: 5px;/ margin: 0px auto; /display: flex;justify-content: flex-start;">
                                 <i class="bi bi-send-fill"></i> Comment
                 </button>
             </div>
@@ -381,133 +381,161 @@
     </script> 
         <script>
           $(document).ready(function() {
+            // Find any chat with the 'active' class
+          const $activeChat = $(".contact.active");
+
+          if ($activeChat.length > 0) {
+              const projectId = $activeChat.attr("id").replace("contact-", "");
+              loadMessages(projectId); // Call the function to load its messages
+          }
+
+
           $('#commentsData').on('submit', function(e) {
-              e.preventDefault();
-              document.getElementById('comment_input').value = quill.root.innerHTML;
-              $('.alert-danger').hide().html('');
-              var formData = new FormData(this);
-              $('#loader').show(); 
-              $.ajax({
-                  url: '{{ route('message.add') }}',
-                  type: 'POST',
-                  data: formData,
-                  contentType: false, 
-                  processData: false, 
-                  success: function(response) {
-                      if (response.status === 200) {
-                          $('#comment').val('');
-                          $('#comment_file').val('');
-                          location.reload();
-                      } else {
-                          $('.alert-danger').show().html(response.message || 'Something went wrong.');
-                      }
-                  },
-                  error: function(xhr) {
-                      $('.alert-danger').show().html('An error occurred while submitting the comment.');
-                  },
-                  complete: function() {
-                      $('#loader').hide(); 
+            e.preventDefault();
+
+            document.getElementById('comment_input').value = quill.root.innerHTML;
+
+            $('.alert-danger').hide().html('');
+            const formData = new FormData(this);
+            const currentUserId = {{ Auth::id() }};
+            const clientName = @json($client->name ?? 'Project Not Assigned');
+
+            $('#loader').show(); 
+
+            $.ajax({
+                url: '{{ route('message.add') }}',
+                type: 'POST',
+                data: formData,
+                contentType: false, 
+                processData: false, 
+                success: function(response) {
+                  console.log('fg', response);
+                  if (response.status === 200) {
+                      // Clear inputs
+                      $('#comment').val('');
+                      $('#comment_file').val('');
+                      quill.root.innerHTML = "";
+
+                      const message = response.message; // assuming `message` is returned from the controller
+                      displayMessages(message, false); // Use the new function to append the message
+                  } else {
+                      $('.alert-danger').show().html(response.message || 'Something went wrong.');
                   }
-              });
+              },
+              error: function(xhr) {
+                  $('.alert-danger').show().html('An error occurred while submitting the comment.');
+              },
+              complete: function() {
+                  $('#loader').hide(); 
+              }
           });
+        });
       });
       </script>      
                 <script>
-                    function loadMessages(projectId) {
-                const chatContainer = document.querySelector(".chat-container");
-                chatContainer.innerHTML = "";  
-                const previousActiveChat = document.querySelector(".contact.active");
-                if (previousActiveChat) {
-                    previousActiveChat.classList.remove("active");
-                }
-                const clickedChat = document.getElementById("contact-" + projectId);
-                clickedChat.classList.add("active");
-                $.ajax({
-                    url: "{{ url('/get/project/messages') }}/" + projectId,
-                    type: "GET",
-                    success: function(data) {
-                        displayMessages(data.messages); 
-                        $('#project_id').val(projectId);
-                    },
-                    error: function(error) {
-                        console.error("Error loading messages:", error);
-                    }
-                });
-            }
-                    function displayMessages(messages) {
-                const chatContainer = document.querySelector(".chat-container");
-                chatContainer.innerHTML = "";
-                if (messages.length === 0) {
-                    const noMessagesMessage = document.createElement("div");
-                    noMessagesMessage.classList.add("center", "text-center", "mt-2");
-                    noMessagesMessage.innerHTML = `<span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>`;
-                    chatContainer.appendChild(noMessagesMessage);
-                    return;
-                }
+                  function loadMessages(projectId) {
+                    const $chatContainer = $(".chat-container");
+                    $chatContainer.empty(); // Clear messages
 
-                const currentUserId = {{ Auth::id() }}; 
-                messages.reverse().forEach(function(message) {
-                    const messageElement = document.createElement("div");
-                    messageElement.classList.add("message");
-                    const clientName = @json($client->name ?? 'Project Not Assigned');
-                    const createdAt = new Date(message.created_at).toLocaleString("en-IN", {
-                        timeZone: "Asia/Kolkata",
-                        year: "numeric", month: "short", day: "numeric",
-                        hour: "numeric", minute: "numeric", hour12: true
+                    // Remove 'active' from all contacts and add to clicked one
+                    $(".contact").removeClass("active");
+                    $("#contact-" + projectId).addClass("active");
+
+                    // AJAX call to fetch messages
+                    $.ajax({
+                        url: "{{ url('/get/project/messages') }}/" + projectId,
+                        type: "GET",
+                        success: function(data) {
+                            displayMessages(data.messages); 
+                            $('#project_id').val(projectId);
+                        },
+                        error: function(error) {
+                            console.error("Error loading messages:", error);
+                        }
                     });
+                }
 
-                const avatarHtml = message.user?.profile_picture
-                    ? `<div class="avatar" style="background-color: #27ae60;">
-                          <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
-                      </div>`
-                    : `<div class="avatar" style="background-color: #27ae60;">
-                          ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
-                      </div>`;
+                function displayMessages(messages, clearMessages = true) {
+                  console.log('dfdfd', messages);
+                  const $chatContainer = $(".chat-container");
 
-                const roleId = message.user?.role_id;
-                const role = roleId === 6 ? clientName : clientName; 
- 
+                  // If clearMessages is true, clear the chat container before adding new messages
+                  if (clearMessages) {
+                      $chatContainer.empty(); // Clear container
+                  }
 
+                  if (messages.length === 0) {
+                      const noMessagesHTML = `
+                          <div class="center text-center mt-2">
+                              <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+                          </div>`;
+                      $chatContainer.append(noMessagesHTML);
+                      return;
+                  }
 
-                    const deleteBtn = message.from === currentUserId
-                        ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
-                                <i class="fa-solid fa-trash"></i>
-                          </button>`
-                        : '';
+                  const currentUserId = {{ Auth::id() }};
+                  const clientName = @json($client->name ?? 'Project Not Assigned');
+                  
+                  // Ensure that we are working with an array of messages
+                  if (!Array.isArray(messages)) {
+                      messages = [messages];  // Convert to array if it's a single message
+                  }
 
-                    // Handle optional attachments (comma-separated)
-                    const documentLinks = (message.document ?? '')
-                        .split(',')
-                        .filter(doc => doc.trim() !== '')
-                        .map(doc => `
-                            <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
-                            </p>
-                        `).join('');
+                  // Loop through the messages and append each message
+                  messages.reverse().forEach(function(message) {
+                      const createdAt = new Date(message.created_at).toLocaleString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          year: "numeric", month: "short", day: "numeric",
+                          hour: "numeric", minute: "numeric", hour12: true
+                      });
 
-                    const userInfo = `
-                        <div class="info">${createdAt}</div>
-                        <div class="user">
-                            ${avatarHtml}
-                            <div style="display: inline-block; vertical-align: middle;">
-                                <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
-                                <span class="role">${role}</span>
-                            </div>
-                        </div>`;
+                      const avatarHtml = message.user?.profile_picture
+                          ? `<div class="avatar" style="background-color: #27ae60;">
+                                  <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
+                            </div>`
+                          : `<div class="avatar" style="background-color: #27ae60;">
+                                  ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
+                            </div>`;
 
-                    const messageText = `
-                        <div class="text">
-                            ${deleteBtn}
-                            <p>${message.message}</p>
-                            ${documentLinks}
-                        </div>`;
+                      const role = message.user?.role_id === 6 ? clientName : clientName;
 
-                    messageElement.innerHTML = userInfo + messageText;
-                    chatContainer.appendChild(messageElement);
-                });
+                      const deleteBtn = message.from === currentUserId
+                          ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
+                                  <i class="fa-solid fa-trash"></i>
+                            </button>`
+                          : '';
 
-                chatContainer.scrollTop = chatContainer.scrollHeight; 
-            }
+                      const documentLinks = (message.document ?? '')
+                          .split(',')
+                          .filter(doc => doc.trim() !== '')
+                          .map(doc => `
+                              <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                                  <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
+                              </p>
+                          `).join('');
+
+                      const messageHTML = `
+                          <div class="message">
+                              <div class="info">${createdAt}</div>
+                              <div class="user">
+                                  ${avatarHtml}
+                                  <div style="display: inline-block; vertical-align: middle;">
+                                      <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
+                                      <span class="role">${role}</span>
+                                  </div>
+                              </div>
+                              <div class="text">
+                                  ${deleteBtn}
+                                  <p>${message.message}</p>
+                                  ${documentLinks}
+                              </div>
+                          </div>`;
+
+                      $chatContainer.append(messageHTML);
+                  });
+
+                  $chatContainer.scrollTop($chatContainer.prop("scrollHeight"));
+              }
     </script>    
 @endsection
 @section('js_scripts')
