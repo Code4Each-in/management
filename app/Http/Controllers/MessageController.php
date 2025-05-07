@@ -18,41 +18,53 @@ class MessageController extends Controller
      * @return Renderable
      */
     public function index()
-{
-    $user = Auth::user();
-    $client = '';
-    if ($user->role_id == 1) {
-        $projects = Projects::orderBy('id', 'desc')->get();
+    {
+        $user = Auth::user();
+        $client = null;
+    
+        if ($user->role_id == 1) {
+            $projects = Projects::orderBy('id', 'desc')->get();
+    
+            if ($projects->isNotEmpty()) {
+                $client = Client::find($projects->first()->client_id);
+            }
+        } else {
 
-        if ($projects->isNotEmpty()) {
-            $clientId = $projects->first()->client_id; 
+            $clientId = $user->client_id;
+            $projects = Projects::where('client_id', $clientId)
+                ->orderBy('id', 'desc')
+                ->get();
+    
             $client = Client::find($clientId);
         }
-    } else {
-        $clientId = $user->client_id;
-        $projectIds = Projects::where('client_id', $clientId)->pluck('id')->toArray();
-
-        $projects = Projects::whereIn('id', $projectIds)
-        ->orderBy('id', 'desc')
-        ->get();
-        $client = Client::find($clientId);
-    }
-    $projects = $projects->unique('project_name')->values();
-    foreach ($projects as $project) {
-        $project->last_message = Message::where('project_id', $project->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
-        $project->unread_count = Message::where('project_id', $project->id)
-            ->where('is_read', 0)
-            ->count();
+        $projects = $projects->unique('project_name')->values();
+    
+        foreach ($projects as $project) {
+            $project->last_message = Message::where('project_id', $project->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            if ($user->id == $project->last_message?->from) {
+                $project->unread_count = Message::where('project_id', $project->id)
+                    ->where('from', $user->id)
+                    ->where('is_read_from', 0)
+                    ->count();
+            } else {
+                $project->unread_count = Message::where('project_id', $project->id)
+                    ->where('to', $user->id)
+                    ->where('is_read_to', 0)
+                    ->count();
+            }
+    
             $project->client = Client::find($project->client_id);
-    }
-    $projects = $projects->sortByDesc(function ($project) {
-        return optional($project->last_message)->created_at;
-    })->values(); 
+        }
 
-    return view('developer.chat', compact('projects', 'client'));
-}
+        $projects = $projects->sortByDesc(function ($project) {
+            return optional($project->last_message)->created_at;
+        })->values();
+    
+        return view('developer.chat', compact('projects', 'client'));
+    }
+    
 
     
     public function getMessagesByProject($projectId)
@@ -168,5 +180,35 @@ public function addMessage(Request $request)
         return response()->json(['status' => 200, 'message' => 'Comment deleted']);
     }
 
+
+    public function markAsRead($projectId)
+{
+    $userId = Auth::id();
+
+    $fromUpdated = Message::where('project_id', $projectId)
+        ->where('from', $userId)
+        ->update(['is_read_from' => 1]);
+
+    $toUpdated = Message::where('project_id', $projectId)
+        ->where('to', $userId)
+        ->update(['is_read_to' => 1]);
+
+    $totalUpdated = $fromUpdated + $toUpdated;
+
+    if ($totalUpdated > 0) {
+        return response()->json([
+            'status' => 'success',
+            'message' => "$totalUpdated message(s) marked as read"
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'no_action',
+        'message' => 'No matching unread messages'
+    ]);
+}
+
+
+    
 
 }
