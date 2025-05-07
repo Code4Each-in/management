@@ -4029,8 +4029,18 @@ div#tickets_filter {
 @media (max-width: 767px) {
   .ticket-design{
     display: flex;
-    row-gap: 20px; }
+    row-gap: 20px;
   
+  }
+
+    .documents-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      grid-gap: 12px;
+  }
+  button.btn.bg-primary.text-white.px-3 {
+    width: 100%;
+}
 }
 
 span.badge.completed {

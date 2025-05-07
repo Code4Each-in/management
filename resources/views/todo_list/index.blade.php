@@ -78,7 +78,8 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-bordered teamstasks">
+                <div class="table-responsive">
+                    <table class="table table-resposnive table-bordered teamstasks">
                         <thead>
                             <tr>
                                 <th>Task</th>
@@ -130,6 +131,7 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div>
                 </div>
             </div>
         </div>
