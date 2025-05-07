@@ -12,7 +12,7 @@ class Reminder extends Model
 
     protected $fillable = [
         'type', 'daily_hour', 'daily_minute', 'weekly_day', 'weekly_hour', 'weekly_minute',
-        'monthly_date', 'monthly_hour', 'monthly_minute', 'description', 'reminder_date', 'is_active', 'clicked_at', 'user_id'
+        'monthly_date', 'monthly_hour', 'monthly_minute', 'description', 'reminder_date', 'is_active', 'clicked_at', 'user_id','custom_date'
     ];
 
     protected $casts = [

@@ -28,7 +28,11 @@
                     <option value="daily" {{ $reminder->type == 'daily' ? 'selected' : '' }}>Daily</option>
                     <option value="weekly" {{ $reminder->type == 'weekly' ? 'selected' : '' }}>Weekly</option>
                     <option value="monthly" {{ $reminder->type == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                    <option value="custom" {{ $reminder->type == 'custom' ? 'selected' : '' }}>Custom</option>
                 </select>
+                @if ($errors->has('type'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('type') }}</span>
+                @endif
             </div>
         </div>
 
@@ -41,6 +45,9 @@
                     <option value="{{ $day }}" {{ $reminder->weekly_day == $day ? 'selected' : '' }}>{{ $day }}</option>
                     @endforeach
                 </select>
+                @if ($errors->has('weekly_day'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('weekly_day') }}</span>
+                @endif
             </div>
         </div>
 
@@ -53,6 +60,18 @@
                         <option value="{{ $i }}" {{ $reminder->monthly_date == $i ? 'selected' : '' }}>{{ $i }}</option>
                         @endfor
                 </select>
+                @if ($errors->has('monthly_date'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('monthly_date') }}</span>
+                @endif
+            </div>
+        </div>
+        <div id="customDateField" class="row mb-5 mt-4 hidden">
+            <label for="custom_date" class="col-sm-3 col-form-label required">Custom Date</label>
+            <div class="col-sm-9">
+                <input type="date" name="custom_date" id="custom_date" class="form-control" value="{{ $reminder->custom_date }}">
+                @if ($errors->has('custom_date'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('custom_date') }}</span>
+                @endif
             </div>
         </div>
 
@@ -112,7 +131,7 @@
 
                 <!-- Error message -->
                 @if ($errors->has('description'))
-                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('description') }}</span>
                 @endif
             </div>
         </div>
@@ -128,10 +147,13 @@
         const type = document.getElementById('type').value;
         document.getElementById('weeklyFields').classList.add('hidden');
         document.getElementById('monthlyFields').classList.add('hidden');
+        document.getElementById('customDateField').classList.add('hidden');
         if (type === 'weekly') {
             document.getElementById('weeklyFields').classList.remove('hidden');
         } else if (type === 'monthly') {
             document.getElementById('monthlyFields').classList.remove('hidden');
+        } else if (type === 'custom') {
+            document.getElementById('customDateField').classList.remove('hidden');
         }
     }
 

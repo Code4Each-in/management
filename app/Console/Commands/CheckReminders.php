@@ -22,8 +22,7 @@ class CheckReminders extends Command
 
         $now = Carbon::now();
 
-        $reminders = Reminder::where('is_active', 1)
-            ->whereNotNull('reminder_date')
+        $reminders = Reminder::whereNotNull('reminder_date')
             ->where('reminder_date', '<=', $now)
             ->get();
 
