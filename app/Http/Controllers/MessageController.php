@@ -80,24 +80,24 @@ class MessageController extends Controller
 public function addMessage(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'comment_file.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000'
+        'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240', // 10MB max size
+        'comment' => 'nullable|string|max:255', 
     ], [
         'comment_file.*.file' => 'The :attribute must be a file.',
-        'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-        'comment_file.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-        'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
-        'comment.required' => 'The comment field is required.',
+        'comment_file.*.mimes' => 'The :attribute must be a file of an allowed type: images, documents, audio, or video.',
+        'comment_file.*.max' => 'The :attribute may not be greater than 10MB.',
         'comment.string' => 'The comment must be a valid string.',
         'comment.max' => 'The comment may not be greater than :max characters.',
     ]);
+    
 
     $validator->setAttributeNames([
-        'comment_file.*' => 'document'
+        'comment_file.*' => 'document', 
     ]);
-
+ 
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()->all()]);
-    }
+    }    
     $user = Auth::user();
 
     if ($user->role_id == 6) {
@@ -117,8 +117,6 @@ public function addMessage(Request $request)
  
 
     $documentPaths = [];
-    $maxTotalSize = 5 * 1024 * 1024;  
-    $totalSize = 0;
     $messageData = [
         'message' => $request->input('message'),
         'project_id' => $request->input('project_id'),
@@ -127,12 +125,6 @@ public function addMessage(Request $request)
     ];
 
     if ($request->hasFile('comment_file')) {
-        foreach ($request->file('comment_file') as $file) {
-            $totalSize += $file->getSize();
-        }
-        if ($totalSize > $maxTotalSize) {
-            return response()->json(['errors' => ['Total upload size should not exceed 5MB.']]);
-        }
         foreach ($request->file('comment_file') as $file) {
             $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $dateString = date('YmdHis');

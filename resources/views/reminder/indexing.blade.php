@@ -22,20 +22,24 @@
         @csrf
 
         <div class="row mb-5 mt-4">
-            <label for="type" class="col-sm-3 col-form-label required">Reminder Type</label>
+            <label for="type" class="col-sm-3 col-form-label ">Reminder Type</label>
             <div class="col-sm-9">
                 <select name="type" id="type" class="form-select form-control" onchange="toggleFields()">
                     <option value="">Select a reminder type</option>
                     <option value="daily" {{ old('type') == 'daily' ? 'selected' : '' }}>Daily</option>
                     <option value="weekly" {{ old('type') == 'weekly' ? 'selected' : '' }}>Weekly</option>
                     <option value="monthly" {{ old('type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                    <option value="custom" {{ old('type') == 'custom' ? 'selected' : '' }}>Custom</option>
                 </select>
+                @if ($errors->has('type'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('type') }}</span>
+                @endif
             </div>
 
         </div>
 
         <div id="weeklyFields" class="row mb-5 mt-4 hidden">
-            <label class="col-sm-3 col-form-label required">Weekly Day</label>
+            <label class="col-sm-3 col-form-label">Weekly Day</label>
             <div class="col-sm-9">
                 <select name="weekly_day" class="form-select form-control">
                     <option value="" {{ old('weekly_day') == '' ? 'selected' : '' }}>Select a day</option>
@@ -43,11 +47,14 @@
                     <option value="{{ $day }}" {{ old('weekly_day') == $day ? 'selected' : '' }}>{{ $day }}</option>
                     @endforeach
                 </select>
+                @if ($errors->has('weekly_day'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('weekly_day') }}</span>
+                @endif
             </div>
         </div>
 
         <div id="monthlyFields" class="row mb-5 mt-4 hidden">
-            <label class="col-sm-3 col-form-label required">Monthly Date</label>
+            <label class="col-sm-3 col-form-label">Monthly Date</label>
             <div class="col-sm-9">
                 <select name="monthly_date" class="form-select form-control">
                     <option value="">Select a date</option>
@@ -55,6 +62,9 @@
                         <option value="{{ $i }}" {{ old('monthly_date') == $i ? 'selected' : '' }}>{{ $i }}</option>
                         @endfor
                 </select>
+                @if ($errors->has('monthly_date'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('monthly_date') }}</span>
+                @endif
             </div>
         </div>
         <!-- Show Assign to User field only if user is Super Admin or Manager -->
@@ -62,17 +72,26 @@
         <div class="row mb-5 mt-4">
             <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
             <div class="col-sm-9">
-                <select name="user_id" class="form-select form-control" required>
+                <select name="user_id" class="form-select form-control">
                     <option value="{{ auth()->id() }}" selected>{{ auth()->user()->first_name }}</option>
                     @foreach (\App\Models\Users::where('status', 1)->get() as $user)
-                        <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                    <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
         @endif
+        <div id="customDateField" class="row mb-5 mt-4 hidden">
+            <label for="custom_date" class="col-sm-3 col-form-label">Custom Date</label>
+            <div class="col-sm-9">
+                <input type="date" name="custom_date" id="custom_date" class="form-control">
+                @if ($errors->has('custom_date'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('custom_date') }}</span>
+                @endif
+            </div>
+        </div>
         <div class="row mb-5">
-            <label class="col-sm-3 col-form-label required">Description</label>
+            <label class="col-sm-3 col-form-label">Description</label>
             <div class="col-sm-9">
                 <!-- Quill Toolbar -->
                 <div id="toolbar-container">
@@ -129,7 +148,7 @@
 
                 <!-- Error message -->
                 @if ($errors->has('description'))
-                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('description') }}</span>
                 @endif
             </div>
         </div>
@@ -141,19 +160,22 @@
 </div>
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-    function toggleFields() {
-        const type = document.getElementById('type').value;
-        document.getElementById('weeklyFields').classList.add('hidden');
-        document.getElementById('monthlyFields').classList.add('hidden');
-        if (type === 'weekly') {
-            document.getElementById('weeklyFields').classList.remove('hidden');
-        } else if (type === 'monthly') {
-            document.getElementById('monthlyFields').classList.remove('hidden');
-        }
+   function toggleFields() {
+    const type = document.getElementById('type').value;
+    document.getElementById('weeklyFields').classList.add('hidden');
+    document.getElementById('monthlyFields').classList.add('hidden');
+    document.getElementById('customDateField').classList.add('hidden');
+    if (type === 'weekly') {
+        document.getElementById('weeklyFields').classList.remove('hidden');
+    } else if (type === 'monthly') {
+        document.getElementById('monthlyFields').classList.remove('hidden');
+    } else if (type === 'custom') {
+        document.getElementById('customDateField').classList.remove('hidden');
     }
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleFields();
-    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFields();
+});
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize Quill
         const quill = new Quill('#editor', {

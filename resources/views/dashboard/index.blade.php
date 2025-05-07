@@ -1321,7 +1321,8 @@ use App\Models\Votes;
             const formattedDate = createdDate.toLocaleDateString();
             const formattedTime = createdDate.toLocaleTimeString([], {
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                hour12: true
             });
             const formattedDateTime = `${formattedDate} ${formattedTime}`;
             const fullName = first_name + ' ' + last_name;

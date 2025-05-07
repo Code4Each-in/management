@@ -4031,9 +4031,12 @@ div#tickets_filter {
     display: flex;
     row-gap: 20px; }
   
-    .documents-grid {
-      display: grid;
-      grid-template-columns: repeat(1, 1fr);
-      grid-gap: 12px;
-  }
+}
+
+span.badge.completed {
+  background: #3f996b !important;
+}
+.chat-container .message .text img {
+  width: 80%;
+
 }

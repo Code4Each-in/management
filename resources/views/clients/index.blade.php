@@ -58,7 +58,16 @@ use App\Models\Client;?>
                                             ---
                                             @endif
                                         </td>
-                                        <td>{{ Client::getStatus($client->status) }}</td>
+                                        <td>
+                                            @if($client->status == 1)
+                                                Active
+                                            @elseif($client->status == 0)
+                                                Inactive
+                                            @else
+                                                Talked
+                                            @endif
+                                        </td>
+
                                         <td>
                                             @if(!empty($client->company))
                                             {{ $client->company}}
@@ -330,8 +339,8 @@ use App\Models\Client;?>
                         <label for="status" class="col-sm-3 col-form-label">Status</label>
                         <div class="col-sm-9">
                         <select name="status" class="form-control text-dark">
-                                <option value="0">Active</option>
-                                <option value="1">Inactive</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
                                 <option value="2">Talked</option>
                             </select>
                         </div>

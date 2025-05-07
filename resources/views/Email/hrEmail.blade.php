@@ -1,35 +1,19 @@
 @extends('layout')
-@section('title', 'Email to all')
+@section('title', 'Email')
 @section('subtitle', 'Email')
 
 @section('content')
 <div class="container">
-    <!-- <h2>Send Email to Employees</h2> -->
-
-    @if(session('success'))
-    <div class="alert alert-success mt-2">
-        {{ session('success') }}
-    </div>
-    @endif
-
-
-    @if($errors->any())
-    <div class="alert alert-danger mt-2">
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     <form id="emailForm" action="{{ route('emailall.send') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row mb-5 mt-4">
-            <label for="subject" class="col-sm-3 col-form-label require">Subject</label>
+            <label for="subject" class="col-sm-3 col-form-label ">Subject</label>
             <div class="col-sm-9">
-                <input type="text" name="subject" id="subject" class="form-control" required>
+                <input type="text" name="subject" id="subject" class="form-control" >
+            @if ($errors->has('subject'))
+                <span style="font-size: 14px;" class="text-danger">{{ $errors->first('subject') }}</span>
+                @endif
             </div>
         </div>
 
@@ -88,8 +72,8 @@
                 <div id="message" style="height: 300px; border: 1px solid #ccc; border-radius: 5px; background-color: #fff;"></div>
                 <input type="hidden" name="message" id="description-hidden">
                 <!-- Error message -->
-                @if ($errors->has('description'))
-                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
+                @if ($errors->has('message'))
+                    <span style="font-size: 14px;" class="text-danger">{{ $errors->first('message') }}</span>
                 @endif
             </div>
         </div>
@@ -114,6 +98,9 @@
                         </label>
                     </div>
                 @endforeach
+                @if ($errors->has('emails'))
+                    <span style="font-size: 14px;" class="text-danger">{{ $errors->first('emails') }}</span>
+                @endif
             </div>
         </div>
 
@@ -126,75 +113,24 @@
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Select All functionality
-        const selectAll = document.getElementById('select_all');
-        const checkboxes = document.querySelectorAll('input[name="emails[]"]');
-
-        selectAll.addEventListener('change', function() {
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll.checked;
-            });
-        });
-
-        // Initialize TinyMCE
-        tinymce.init({
-            selector: '#message, #tinymce_textarea', // Initialize both fields
-            menubar: false,
-            plugins: 'advlist autolink lists link charmap anchor preview',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | outdent indent | link',
-            height: 300,
-            setup: function(editor) {
-                editor.on('change', function() {
-                    editor.save(); // Push HTML to the textarea
-                });
-            }
-        });
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const messageText = tinymce.get('message').getContent({
-                format: 'text'
-            });
-            const footerText = tinymce.get('tinymce_textarea').getContent({
-                format: 'text'
-            });
-
-            document.getElementById('message').value = messageText;
-            document.getElementById('tinymce_textarea').value = footerText;
-
-            form.submit();
-        });
-
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        const quill = new Quill('#message', {
-            theme: 'snow',
-            modules: {
-                toolbar: '#toolbar-container'
-            }
-        });
-
-        const oldContent = {!! json_encode(old('description')) !!};
-        if (oldContent) {
-            quill.root.innerHTML = oldContent;
+document.addEventListener("DOMContentLoaded", function () {
+    const quill = new Quill('#message', {
+        theme: 'snow',
+        modules: {
+            toolbar: '#toolbar-container'
         }
-
-        document.querySelector('form').addEventListener('submit', function (e) {
-            let html = quill.root.innerHTML.trim();
-            const plainText = quill.getText().trim();
-
-            // Prevent form submission if editor is empty
-            if (!plainText) {
-                e.preventDefault();
-                alert('Description is required.');
-                return;
-            }
-
-            // Save HTML to hidden input
-            document.getElementById('description-hidden').value = html;
-        });
     });
+
+    // Restore old content after failed validation
+    const oldContent = {!! json_encode(old('message')) !!};
+    if (oldContent) {
+        quill.root.innerHTML = oldContent;
+    }
+
+    document.querySelector('form').addEventListener('submit', function () {
+        const html = quill.root.innerHTML.trim();
+        document.getElementById('description-hidden').value = html;
+    });
+});
 </script>
 @endsection

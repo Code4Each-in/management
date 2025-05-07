@@ -500,46 +500,52 @@ function markMessageAsRead(messageId, projectId) {
 
 
           $('#commentsData').on('submit', function(e) {
-            e.preventDefault();
+              e.preventDefault();
 
-            document.getElementById('comment_input').value = quill.root.innerHTML;
+              document.getElementById('comment_input').value = quill.root.innerHTML;
 
-            $('.alert-danger').hide().html('');
-            const formData = new FormData(this);
-            const currentUserId = {{ Auth::id() }};
-            const clientName = @json($client->name ?? 'Project Not Assigned');
+              // Hide any previous error messages
+              $('.alert-danger').hide().html('');
+              
+              // Create the form data for the request
+              const formData = new FormData(this);
+              const currentUserId = {{ Auth::id() }};
+              const clientName = @json($client->name ?? 'Project Not Assigned');
 
-            $('#loader').show(); 
+              $('#loader').show(); 
 
-            $.ajax({
-                url: '{{ route('message.add') }}',
-                type: 'POST',
-                data: formData,
-                contentType: false, 
-                processData: false, 
-                success: function(response) {
-                  console.log('fg', response);
+              $.ajax({
+              url: '{{ route('message.add') }}',
+              type: 'POST',
+              data: formData,
+              contentType: false,
+              processData: false,
+              success: function(response) {
+                console.log(response.errors);
                   if (response.status === 200) {
-                      // Clear inputs
                       $('#comment').val('');
                       $('#comment_file').val('');
                       quill.root.innerHTML = "";
-
-                      const message = response.message; // assuming `message` is returned from the controller
-                      displayMessages(message, false); // Use the new function to append the message
-                  } else {
-                      $('.alert-danger').show().html(response.message || 'Something went wrong.');
+                      displayMessages(response.message, false);
+                  }else if(response.errors){
+                    $('.alert-danger').html(response.errors).fadeIn();
                   }
               },
               error: function(xhr) {
-                  $('.alert-danger').show().html('An error occurred while submitting the comment.');
+                  let errorHtml = 'An error occurred while submitting the comment.';
+                  if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                      const errors = xhr.responseJSON.errors;
+                      errorHtml = errors.join('<br>');
+                  }
+                  $('.alert-danger').html(errorHtml).fadeIn();
               },
               complete: function() {
-                  $('#loader').hide(); 
+                  $('#loader').hide();
               }
           });
-        });
-      });
+
+          });
+                });
       </script>      
                 <script>
                   // let currentProjectId = null;
@@ -558,8 +564,8 @@ function markMessageAsRead(messageId, projectId) {
                         url: "{{ url('/get/project/messages') }}/" + projectId,
                         type: "GET",
                         success: function(data) {
-                            displayMessages(data.messages); 
-                            $('#project_id').val(projectId);
+                            displayMessages(data.messages);
+                            $('#project_id').val(projectId);     
                         },
                         error: function(error) {
                             console.error("Error loading messages:", error);

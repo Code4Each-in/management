@@ -286,8 +286,9 @@
                     @endif
                 </td>
                 <td>
-                  <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
-                    {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                  <span class="badge 
+                    {{ $sprint->status == 1 ? 'active' : ($sprint->status == 2 ? 'completed' : 'inactive') }}">
+                    {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
                   </span>
                 </td>
                 <td style="text-align: center;">
@@ -384,6 +385,7 @@
                                         <option value="" disabled selected>Select Status</option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
+                                        <option value="2">Completed</option>
                                     </select>
                                 </div>
                             </div>                            
@@ -449,6 +451,9 @@
                             <label for="add_document" class="col-sm-3 col-form-label">Attach Documents</label>
                             <div class="col-sm-9">
                                 <input type="file" class="form-control" name="add_document[]" id="add_document" multiple>
+                                @if ($errors->has('add_document'))
+                                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('add_document') }}</span>
+                            @endif
                             </div>
                         </div>                                                                    
                             <div class="modal-footer">

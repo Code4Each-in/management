@@ -85,9 +85,10 @@ class TicketsController extends Controller
             return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));   
     }
 
-        public function create()
+        public function create(Request $request)
         {
             $auth_user = auth()->user();
+            $sprint_id = $request->get('sprint_id'); 
             $user = Users::whereHas('role', function($q) {
                     $q->where('name', '!=', 'Super Admin');
                 })
@@ -107,7 +108,7 @@ class TicketsController extends Controller
                 ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')
                 ->get();
         
-            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus'));
+            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus', 'sprint_id'));
         }
         
 
@@ -119,7 +120,7 @@ class TicketsController extends Controller
             'description' => 'required',
             'project_id' => 'required',
             'assign' => 'required|array|min:1',
-            'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'title.min' => 'Title must be at least 15 characters.',
@@ -255,8 +256,13 @@ class TicketsController extends Controller
                 }                               
             }
             $request->session()->flash('message','Tickets added successfully.');
-    		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
+                return response()->json([
+                    'status' => 200,
+                    'tickets' => $tickets,
+                    'redirect' => route('sprint.view', ['sprintId' => $request->sprint_id])
+                ]);            
     }
+    
     public function getTicketAssign(Request $request)
 	{
         $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$request->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
@@ -299,14 +305,14 @@ class TicketsController extends Controller
             'title' => 'required',
             'description' => 'required',
             'edit_project_id' => 'required',
-            'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'description.required' => 'Description is required.',
             'edit_project_id.required' => 'Project is required.',
             'edit_document.*.file' => 'Each document must be a valid file.',
             'edit_document.*.mimes' => 'Each document must be a file of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
-            'edit_document.*.max' => 'Each document may not be greater than 5000 kilobytes.',
+            'edit_document.*.max' => 'Each document may not be greater than 10MB.',
         ]);        
 
             $validator->setAttributeNames([
@@ -440,12 +446,12 @@ class TicketsController extends Controller
      public function addComments(Request $request)
      {
          $validator = Validator::make($request->all(), [
-             'comment_file.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+             'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
          ], [
              'comment_file.*.file' => 'The :attribute must be a file.',
              'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-             'comment_file.*.max' => 'The :attribute may not be greater than :max kilobytes.',
-             'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
+             'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
+             'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max MB.',
          ]);
      
          $validator->setAttributeNames([
@@ -458,17 +464,8 @@ class TicketsController extends Controller
      
          $validate = $validator->valid();
          $documentPaths = [];
-            $maxTotalSize = 5 * 1024 * 1024;
-            $totalSize = 0;
 
             if ($request->hasFile('comment_file')) {
-                foreach ($request->file('comment_file') as $file) {
-                    $totalSize += $file->getSize();
-                }
-
-                if ($totalSize > $maxTotalSize) {
-                    return response()->json(['errors' => ['Total upload size should not exceed 5MB.']]);
-                }
 
                 foreach ($request->file('comment_file') as $file) {
                     $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);

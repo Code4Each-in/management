@@ -53,7 +53,7 @@ class ClientController extends Controller
             'birth_date' => $request->input('birth_date'),
             'address' => $request->input('address'),
             'city' => $request->input('city'),
-            'status' => 1, 
+            'status' => $request->input('status'), 
             'zip' => $request->input('zip'),
             'country' => $request->input('country'),
             'projects' => $request->input('projects'),
@@ -61,7 +61,7 @@ class ClientController extends Controller
             'source' => $request->input('source'),
             'skype' => $request->input('skype'),
             'last_worked' => $request->input('last_worked'),
-            'password' => $request->input('password'), 
+            // 'password' => $request->input('password'), 
         ]);
 
         $user = Users::create([
@@ -75,7 +75,7 @@ class ClientController extends Controller
             'city' => $request->input('city'),
             'designation' => 'Client',
             'state' => null,
-            'status' => 1,
+            'status' => $request->input('status'),
             'zip' => $request->input('zip'),
             'phone' => $request->input('phone'),
             'department_id' => null,
