@@ -12,11 +12,11 @@ class EmailAll extends Controller
      * Show the form to send emails to employees.
      */
     public function index()
-{
-    $employees = Users::where('status', 1)->get();
+    {
+        $employees = Users::where('status', 1)->get();
 
-    return view('Email.hrEmail', compact('employees'));
-}
+        return view('Email.hrEmail', compact('employees'));
+    }
 
 
 
@@ -27,11 +27,25 @@ class EmailAll extends Controller
     {
         $request->validate([
             'subject'       => 'required|string|max:255',
-            'message'       => 'required|string',
-            'emails'        => 'required|array',
-            'emails.*'      => 'email',
+            'message'       => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $stripped = trim(strip_tags($value));
+                    if ($stripped === '') {
+                        $fail('The message field cannot be empty.');
+                    }
+                }
+            ],
+            'emails'        => 'required|array|min:1',
+            'emails.*'      => 'required|email',
             'attachments'   => 'nullable|array',
-            'attachments.*' => 'file', // This line expects each to be an actual uploaded file
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048', // Optional: file validation
+        ], [
+            'emails.required'    => 'Please select at least one employee to send email.',
+            'emails.*.email'     => 'One or more email addresses are invalid.',
+            'message.required'   => 'The message field is required.',
+            'attachments.*.mimes' => 'Attachments must be of type jpg, jpeg, png, pdf, doc, docx, or zip.',
+            'attachments.*.max'  => 'Each attachment must not exceed 2MB.',
         ]);
 
         $subject = $request->input('subject');
