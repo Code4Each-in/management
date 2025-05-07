@@ -263,7 +263,7 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
+          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }});" id="contact-{{ $project->id }}">
           <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
             {{ strtoupper(substr($project->project_name, 0, 2)) }}
         </div>
@@ -370,6 +370,25 @@
         </div>
         </div>
   </div>
+  <script>
+function markMessageAsRead(messageId) {
+    fetch(`/project-messages/${messageId}/mark-as-read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+          location.reload();
+        } else {
+            console.warn(data.message);
+        }
+    });
+}
+  </script>
   <script>  
   const csrfToken = '{{ csrf_token() }}';
     function toggleTaskDetails(headerElement) {
@@ -483,7 +502,6 @@
                         success: function(data) {
                             displayMessages(data.messages); 
                             $('#project_id').val(projectId);
-                            document.getElementById('to').value = data.messages[0].user?.id ?? '';
                         },
                         error: function(error) {
                             console.error("Error loading messages:", error);
@@ -496,7 +514,6 @@
               //     }
               // }, 1000); 
                 function displayMessages(messages, clearMessages = true) {
-                  console.log('dfdfd', messages);
                   const $chatContainer = $(".chat-container");
 
                   // If clearMessages is true, clear the chat container before adding new messages
