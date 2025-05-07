@@ -85,9 +85,10 @@ class TicketsController extends Controller
             return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));   
     }
 
-        public function create()
+        public function create(Request $request)
         {
             $auth_user = auth()->user();
+            $sprint_id = $request->get('sprint_id'); 
             $user = Users::whereHas('role', function($q) {
                     $q->where('name', '!=', 'Super Admin');
                 })
@@ -107,7 +108,7 @@ class TicketsController extends Controller
                 ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')
                 ->get();
         
-            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus'));
+            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus', 'sprint_id'));
         }
         
 
@@ -255,8 +256,13 @@ class TicketsController extends Controller
                 }                               
             }
             $request->session()->flash('message','Tickets added successfully.');
-    		return Response()->json(['status'=>200, 'tickets'=>$tickets]);
+                return response()->json([
+                    'status' => 200,
+                    'tickets' => $tickets,
+                    'redirect' => route('sprint.view', ['sprintId' => $request->sprint_id])
+                ]);            
     }
+    
     public function getTicketAssign(Request $request)
 	{
         $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$request->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);

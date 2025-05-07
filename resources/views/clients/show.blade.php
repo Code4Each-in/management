@@ -99,16 +99,24 @@ use App\Models\Client;?>
             </div>
 
             <div class="row mb-1 mt-4">
-                   <label for="" class="col-sm-3">Status</label>
-                   <div class="col-sm-9">
-                     @if (!empty(Client::getStatus($client->status) ))
-                     {{ Client::getStatus($client->status)}}
-                   @else
-                     ---
-                   @endif
+              <label for="" class="col-sm-3">Status</label>
+              <div class="col-sm-9">
+                  @switch($client->status)
+                      @case(1)
+                          Active
+                          @break
+                      @case(0)
+                          Inactive
+                          @break
+                      @case(2)
+                          Talked
+                          @break
+                      @default
+                          ---
+                  @endswitch
               </div>
-            </div>
-
+          </div>
+          
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Zip</label>
                    <div class="col-sm-9">
@@ -131,7 +139,7 @@ use App\Models\Client;?>
               </div>
             </div>
 
-            <div class="row mb-1 mt-4">
+            <!-- <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Projects</label>
                    <div class="col-sm-9">
                      @if(!empty(Client::getProjectName($client->projects)))
@@ -140,7 +148,7 @@ use App\Models\Client;?>
                      ---
                    @endif
               </div>
-            </div>
+            </div> -->
 
             <div class="row mb-1 mt-4">
               <label for="" class="col-sm-3">Company</label>
