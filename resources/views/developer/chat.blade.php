@@ -269,7 +269,7 @@
         </div>
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
-                      <div class="project">{{ $client->name ?? 'N/A' }}</div>
+                      <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
                       <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
                       </div>

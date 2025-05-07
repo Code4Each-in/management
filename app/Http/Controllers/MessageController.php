@@ -45,6 +45,7 @@ class MessageController extends Controller
         $project->unread_count = Message::where('project_id', $project->id)
             ->where('is_read', 0)
             ->count();
+            $project->client = Client::find($project->client_id);
     }
     $projects = $projects->sortByDesc(function ($project) {
         return optional($project->last_message)->created_at;
@@ -104,7 +105,7 @@ public function addMessage(Request $request)
  
 
     $documentPaths = [];
-    $maxTotalSize = 5 * 1024 * 1024;  // 5MB limit
+    $maxTotalSize = 5 * 1024 * 1024;  
     $totalSize = 0;
     $messageData = [
         'message' => $request->input('message'),
@@ -113,7 +114,6 @@ public function addMessage(Request $request)
         'from' => auth()->id(),
     ];
 
-    // Handle file uploads
     if ($request->hasFile('comment_file')) {
         foreach ($request->file('comment_file') as $file) {
             $totalSize += $file->getSize();
@@ -133,10 +133,7 @@ public function addMessage(Request $request)
         $messageData['document'] = $documentString; 
     }
 
-    // Create message
     $message = Message::create($messageData);
-    
-    // Retrieve the full message including user data
     $message = Message::with('user')->find($message->id);
     $user = auth()->user();
     $name = $user->first_name;
@@ -160,16 +157,16 @@ public function addMessage(Request $request)
     } 
     return response()->json([
         'status' => 200,
-        'message' => $message, // Return the message object
+        'message' => $message, 
         'Commentmessage' => 'Message added successfully.'
     ]);
 }
-public function destroy($id)
-{
-    $comment = Message::findOrFail($id);
-    $comment->delete();
-    return response()->json(['status' => 200, 'message' => 'Comment deleted']);
-}
+    public function destroy($id)
+    {
+        $comment = Message::findOrFail($id);
+        $comment->delete();
+        return response()->json(['status' => 200, 'message' => 'Comment deleted']);
+    }
 
 
 }
