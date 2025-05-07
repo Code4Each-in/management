@@ -4032,3 +4032,7 @@ div#tickets_filter {
     row-gap: 20px; }
   
 }
+
+.chat-container .message .text img {
+  width: 80%;
+}
