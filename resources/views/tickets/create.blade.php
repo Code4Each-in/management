@@ -12,7 +12,7 @@
             <form method="POST" id="addTicketsForm"  enctype="multipart/form-data">
                 @csrf
                 <div class="alert alert-danger mt-1" style="display: none;"></div>
-
+                <input type="hidden" name="sprint_id" value="{{ $sprint_id }}">
                 <div class="row mb-5 mt-4">
                     <label class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
@@ -237,18 +237,23 @@
                         data: formData,
                         processData: false,
                         contentType: false,
-                        success: (data) => {
+                        success: function(data) {
+                            $('#loader').hide();
+
                             if (data.errors) {
                                 $('.alert-danger').html('');
                                 $.each(data.errors, function(key, value) {
-                                    $('.alert-danger').show();
-                                    $('.alert-danger').append('<li>' + value + '</li>');
-                                })
+                                    $('.alert-danger').show().append('<li>' + value + '</li>');
+                                });
+                            } else if (data.redirect) {
+                                console.log(data.redirect);
+                                // Redirect to the sprint view page
+                                window.location.href = data.redirect;
                             } else {
+                                // Fallback if no redirect
                                 $("#addTickets").modal('hide');
                                 location.reload(true);
                             }
-                            $('#loader').hide();
                         },
                         error: function(data) {
                             $('#loader').hide();

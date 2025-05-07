@@ -39,10 +39,11 @@
 
     <div class="task-details"> <!-- Always visible -->
       <div class="detail-item">
-        <i class="fa-solid fa-align-left"></i>
-        <strong>Description:</strong>
-        <span>{{ preg_replace('/&nbsp;/', ' ', strip_tags(htmlspecialchars_decode($tickets->description))) }}</span>
+          <i class="fa-solid fa-align-left"></i>
+          <strong>Description:</strong>
+          <div>{!! $tickets->description !!}</div>
       </div>
+
 
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>

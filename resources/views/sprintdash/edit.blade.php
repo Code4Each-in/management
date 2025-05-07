@@ -9,14 +9,14 @@
             @csrf
             <input type="hidden" id="sprint_id" name="sprint_id" value="{{ $sprint->id }}">
             <div class="form-group mb-3 mt-0">
-                <label for="name" class="col-sm-3 col-form-label required">Sprint Name</label>
+                <label for="name" class="col-sm-3 col-form-label text-dark required">Sprint Name</label>
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $sprint->name) }}" required>
                 @error('name')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div> 
             <div class="form-group mb-3">
-                <label for="project" class="col-sm-3 col-form-label required">Project</label>
+                <label for="project" class="col-sm-3 col-form-label text-dark required">Project</label>
                 <select name="project" class="form-select form-control" id="project" required>
                     <option value="" disabled selected>Select your project</option>
                     @foreach ($projects as $data)
@@ -40,29 +40,30 @@
                 @enderror
             </div>         -->
             <div class="form-group mb-3">
-                <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
+                <label for="start_date" class="col-sm-3 col-form-label text-dark required">Start Date</label>
                 <input type="datetime-local" class="form-control" name="start_date" id="start_date" value="{{ old('start_date', \Carbon\Carbon::parse($sprint->start_date)->format('Y-m-d\TH:i')) }}" required>
                 @error('start_date')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
             <div class="form-group mb-3">
-                <label for="eta" class="col-sm-3 col-form-label required">End Date</label>
+                <label for="eta" class="col-sm-3 col-form-label text-dark required">End Date</label>
                 <input type="datetime-local" class="form-control" name="end_date" id="end_date" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
                 @error('eta')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
             <div class="form-group mb-3">
-                <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                <label for="status" class="col-sm-3 col-form-label text-dark required">Status</label>
                 
                     <select name="status" class="form-select form-control" id="status">
                         <option value="1" {{ old('status', $sprint->status) == 1 ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ old('status', $sprint->status) == 0 ? 'selected' : '' }}>Inactive</option>
+                        <option value="2" {{ old('status', $sprint->status) == 2 ? 'selected' : '' }}>Completed</option>
                     </select>                
             </div> 
             <div class="form-group mb-3">
-                <label for="tinymce_textarea" class="col-sm-3 col-form-label required">Description</label>
+                <label for="tinymce_textarea" class="col-sm-3 col-form-label text-dark required">Description</label>
                     <div id="toolbar-container">
                         <span class="ql-formats">
                             <select class="ql-font"></select>
@@ -126,7 +127,7 @@
 
             @if ($validDocuments->isNotEmpty())
                 <div class="row">
-                    <label for="edit_document" class="col-form-label">Uploaded Documents</label>
+                    <label for="edit_document" class="col-form-label text-dark">Uploaded Documents</label>
                     <div class="col-sm-9" id="Projectsdata">
                         @if (empty($ProjectDocuments) || count($ProjectDocuments) < 1)
                         No Uploaded Document Found
@@ -170,7 +171,7 @@
                 </div>   
             @endif
             <div class="form-group mb-3">
-                <label for="edit_document" class="col-sm-3 col-form-label">Upload Documents</label>
+                <label for="edit_document" class="col-sm-3 col-form-label text-dark">Upload Documents</label>
                 <div>
                     <input type="file" class="form-control" name="edit_document[]" id="edit_document" multiple>
                 </div>

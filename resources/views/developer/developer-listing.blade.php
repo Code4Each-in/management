@@ -11,6 +11,7 @@
                     <tr>
                         <th style="width: 60px;">Sr No</th>
                         <th style="width: 200px;">Developer</th>
+                        <th style="width: 200px;">Designation </th>
                         <th style="width: 400px;">Skills</th> <!-- Increased width here -->
                         <th style="width: 80px;">Feedback</th>
                     </tr>
@@ -20,6 +21,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ trim($developer->first_name . ' ' . ($developer->last_name ?? '')) }}</td>
+                        <td>{{ trim($developer->designation ?? '') }}</td>
                         <td>
                             @if(!empty($developer->skills))
                                 <div class="d-flex flex-wrap gap-2">

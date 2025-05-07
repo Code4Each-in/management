@@ -4032,7 +4032,9 @@ div#tickets_filter {
     row-gap: 20px; }
   
 }
-
+span.badge.completed {
+  background: #3f996b !important;
+}
 .chat-container .message .text img {
   width: 80%;
 }
