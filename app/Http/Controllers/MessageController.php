@@ -117,8 +117,6 @@ public function addMessage(Request $request)
  
 
     $documentPaths = [];
-    $maxTotalSize = 5 * 1024 * 1024;  
-    $totalSize = 0;
     $messageData = [
         'message' => $request->input('message'),
         'project_id' => $request->input('project_id'),
@@ -127,12 +125,6 @@ public function addMessage(Request $request)
     ];
 
     if ($request->hasFile('comment_file')) {
-        foreach ($request->file('comment_file') as $file) {
-            $totalSize += $file->getSize();
-        }
-        if ($totalSize > $maxTotalSize) {
-            return response()->json(['errors' => ['Total upload size should not exceed 10MB.']]);
-        }
         foreach ($request->file('comment_file') as $file) {
             $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $dateString = date('YmdHis');
