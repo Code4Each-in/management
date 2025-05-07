@@ -3302,11 +3302,11 @@ button#resetChartBtn {
 }
 
 /* Form Styling */
-form#commentsData {
+.message-section form#commentsData {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 10px;
+  gap: 10px;
+  padding: 0px;
 }
 
 /* Post Item (Each Comment) */
