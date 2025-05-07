@@ -164,7 +164,6 @@ class SprintController extends Controller
             if (str_contains($firstError, 'The edit document')) {
                 $firstError .= ' If your file is larger than 10MB, please upload it here: https://yourdomain.com/large-file-upload';
             }
-            dd('helo');
             return response()->json([
                 'status' => 'error',
                 'message' => $firstError
