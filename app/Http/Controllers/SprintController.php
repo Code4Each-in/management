@@ -162,7 +162,7 @@ class SprintController extends Controller
             'status' => 'required',
             'description' => 'required',
             'add_document' => 'nullable|array', 
-            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -170,7 +170,6 @@ class SprintController extends Controller
             if (str_contains($firstError, 'The edit document')) {
                 $firstError .= ' If your file is larger than 10MB, please upload it here: https://yourdomain.com/large-file-upload';
             }
-    
             return response()->json([
                 'status' => 'error',
                 'message' => $firstError

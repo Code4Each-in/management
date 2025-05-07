@@ -131,7 +131,7 @@ public function addMessage(Request $request)
             $totalSize += $file->getSize();
         }
         if ($totalSize > $maxTotalSize) {
-            return response()->json(['errors' => ['Total upload size should not exceed 5MB.']]);
+            return response()->json(['errors' => ['Total upload size should not exceed 10MB.']]);
         }
         foreach ($request->file('comment_file') as $file) {
             $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
