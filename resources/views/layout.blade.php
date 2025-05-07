@@ -7,7 +7,11 @@
         <!-- Navigation -->
         @include('includes.header')
         <!-- Navigation -->
-        <div class="pagetitle">
+        @php
+            $showTitle = View::hasSection('show_title') ? trim($__env->yieldContent('show_title')) : 'true';
+        @endphp
+        <div class="pagetitle" @if($showTitle == "false") style="display: none;" @endif>
+        
             <div class="row">
                 <div class="col">
                     <h1>@yield('title')</h1>

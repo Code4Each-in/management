@@ -1,6 +1,7 @@
 @extends('layout')
-{{-- @section('title', 'Chat Section') --}}
+@section('title', 'Messages')
 @section('subtitle', 'Chat')
+@section('show_title', 'false')
 @section('content')
 <style>
     /* body {
@@ -44,10 +45,14 @@
     border-radius: 10px 0px 0 0;
 }
 
-    .contact-list {
-      flex: 1;
-      overflow-y: auto;
-    }
+.contact-list {
+    flex: 1;
+    /* overflow: scroll; */
+    /* height: 22vh; */
+    max-height: 715px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
 
     .contact {
         display: flex;
@@ -58,6 +63,7 @@
         position: relative;
         transition: background-color 0.2s ease-in-out;
         margin: 10px 8px 10px;
+        gap: 10px;
     }
 
     .contact:hover {
@@ -242,7 +248,7 @@
     @media (max-width: 767px) {
     .message-section {
         width: 100%;
-        margin: auto;
+       
     }
 }
 
@@ -257,21 +263,25 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
-                  <img src="https://i.pravatar.cc/42?u={{ $project->id }}" alt="avatar">
+          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }});" id="contact-{{ $project->id }}">
+          <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+            {{ strtoupper(substr($project->project_name, 0, 2)) }}
+        </div>
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
-                      <div class="project">{{ $client->name ?? 'N/A' }}</div>
+                      <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
                       <div class="last-message">
-                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : 'No messages yet')), 15) }}
+                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
                       </div>
                   </div>
                   <div class="time">
-                      {{ $project->last_message ? $project->last_message->created_at->format('H:i') : '--:--' }}
+                    {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                   </div>
-                  <div class="badge">
-                      {{ $project->unread_count > 0 ? $project->unread_count : '' }}
-                  </div>
+                  @if($project->unread_count > 0)
+                    <div class="badge">
+                        {{ $project->unread_count }}
+                    </div>
+                @endif
               </div>
           @empty
               <p class="text-muted p-2">No projects available.</p>
@@ -340,7 +350,6 @@
                   <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
                   <input type="hidden" name="message" id="comment_input">
                   <input type="hidden" name="project_id" id="project_id">
-                  <input type="hidden" name="to" id="to" value="{{ isset($client) ? $client->id : '' }}">
                   @if ($errors->has('comment'))
                       <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                   @endif
@@ -361,7 +370,27 @@
         </div>
         </div>
   </div>
+  <script>
+function markMessageAsRead(messageId) {
+    fetch(`/project-messages/${messageId}/mark-as-read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+          location.reload();
+        } else {
+            console.warn(data.message);
+        }
+    });
+}
+  </script>
   <script>  
+  const csrfToken = '{{ csrf_token() }}';
     function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
@@ -375,8 +404,8 @@
             url: '/comments/' + commentId + '/delete',
             type: 'DELETE',
             data: {
-                _token: 'eWlS2tJP9gtD1M1rhxB3ga3tiQWODH8pNlmgZVwW'
-            },
+              _token: csrfToken
+          },
             success: function(response) {
                 if (response.status === 200) {
                     commentItem.fadeOut(300, function() {
@@ -394,6 +423,11 @@
         });
     }
     });
+    $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
     
     </script> 
         <script>
@@ -450,7 +484,10 @@
       });
       </script>      
                 <script>
+                  // let currentProjectId = null;
+                  
                   function loadMessages(projectId) {
+                    // currentProjectId = projectId;
                     const $chatContainer = $(".chat-container");
                     $chatContainer.empty(); // Clear messages
 
@@ -471,9 +508,12 @@
                         }
                     });
                 }
-
+              //   setInterval(function() {
+              //     if (currentProjectId) {
+              //         loadMessages(currentProjectId);
+              //     }
+              // }, 1000); 
                 function displayMessages(messages, clearMessages = true) {
-                  console.log('dfdfd', messages);
                   const $chatContainer = $(".chat-container");
 
                   // If clearMessages is true, clear the chat container before adding new messages
@@ -514,7 +554,7 @@
                                   ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
                             </div>`;
 
-                      const role = message.user?.role_id === 6 ? clientName : clientName;
+                            const role = message.user?.first_name || 'Unknown User';
 
                       const deleteBtn = message.from === currentUserId
                           ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
@@ -538,7 +578,6 @@
                                   ${avatarHtml}
                                   <div style="display: inline-block; vertical-align: middle;">
                                       <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
-                                      <span class="role">${role}</span>
                                   </div>
                               </div>
                               <div class="text">

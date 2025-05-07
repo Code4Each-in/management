@@ -10,13 +10,13 @@ class Message extends Model
     use HasFactory, SoftDeletes;  
 
     protected $table = 'project_messages';  
-    protected $fillable = ['project_id', 'user_id', 'message', 'from','to','document', 'is_read', 'created_at', 'updated_at'];
+    protected $fillable = ['project_id', 'user_id', 'message', 'from','to','document', 'is_read_from','is_read_to', 'created_at', 'updated_at'];
     protected $dates = ['deleted_at'];
 
 
     public function user()
     {
-        return $this->belongsTo(Users::class);
+        return $this->belongsTo(Users::class, 'from');
     }
     public function project()
     {

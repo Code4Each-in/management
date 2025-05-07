@@ -3110,7 +3110,7 @@ font-weight: 500;
   .styled-sprint-table th,
   .styled-sprint-table td {
     font-size: 12px;
-    padding: 8px 5px;
+    padding: 8px 27px;
   }
 
   .progress-bar-wrapper {
@@ -3122,6 +3122,9 @@ font-weight: 500;
     height: 30px;
     font-size: 16px;
   }
+  div#module_table_filter {
+    margin-bottom: 20px;
+}
 }
 
 @media (max-width: 767px) {
@@ -3994,4 +3997,40 @@ div#remindersTable_wrapper {
 }
 span.badge.completed {
   background: #3f996b !important;
+}
+div#role_table_filter {
+  padding-bottom: 20px;
+}
+div#clients_filter {
+  margin-bottom: 20px;
+}
+div#module_table_filter {
+  margin-bottom: 20px;
+}
+
+div#department_table_filter {
+  padding-bottom: 20px;
+}
+div#users_table_filter {
+  margin-bottom: 20px;
+}
+div#feedbacks_filter {
+  padding-bottom: 20px;
+}
+div#leavestable_filter {
+  padding-bottom: 20px;
+}
+div#tickets_filter {
+  padding-bottom: 25px;
+}
+
+/* form#filter-data {
+  padding-top: 0px;
+} */
+
+@media (max-width: 767px) {
+  .ticket-design{
+    display: flex;
+    row-gap: 20px; }
+  
 }

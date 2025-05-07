@@ -19,12 +19,12 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-2">
-                    <a class="btn btn-primary mt-3"  href="{{ route('tickets.create') }}">Add
+                    <a class="btn btn-primary mt-3"  style="background-color: #4154f1;" href="{{ route('tickets.create') }}" >Add
                 Ticket</a>
                 </div>
             </div>
             <form id="filter-data" method="GET" action="{{ route('tickets.index') }}">
-                <div class="row mt-3 mx-auto">
+                <div class="row mt-3 mx-auto ticket-design">
                     <div class="col-md-4 filtersContainer d-flex p-0">
                         <div style="margin-right:20px;">
                             <input type="checkbox" class="form-check-input" name="all_tickets" id="all_tickets"

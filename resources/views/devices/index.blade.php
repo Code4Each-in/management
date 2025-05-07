@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3 mb-4" onClick="openDeviceModel()" href="javascript:void(0)">Add
+            <button class="btn btn-primary mt-3 mb-4" onClick="openDeviceModel()" href="javascript:void(0)" style="background-color: #4154f1;">Add
                 Device</button>
 
                

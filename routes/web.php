@@ -318,5 +318,9 @@ Route::middleware(['role_permission'])->group(function () {
 	 //For messages
 	 Route::get('/messages', [MessageController::class, 'index'])->name('messages');
 	 Route::post('/add/message', [MessageController::class, 'addMessage'])->name('message.add'); 
+	 Route::get('/get/latest-message/{projectId}', [MessageController::class, 'getLatestMessage']);
 	 Route::get('/get/project/messages/{projectId}', [MessageController::class, 'getMessagesByProject'])->name('get.project.messages');
-});
+	 Route::delete('/comments/{id}/delete', [MessageController::class, 'destroy']);
+	 Route::post('/project-messages/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->name('project-messages.markAsRead');
+
+	});

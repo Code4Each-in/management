@@ -9,6 +9,7 @@ use App\Models\Users;
 use App\Models\Message;
 use App\Models\Projects;
 use App\Models\Client;
+use App\Notifications\EmailNotification;
 class MessageController extends Controller
 {
     /**
@@ -17,35 +18,53 @@ class MessageController extends Controller
      * @return Renderable
      */
     public function index()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
+        $client = null;
+    
+        if ($user->role_id == 1) {
+            $projects = Projects::orderBy('id', 'desc')->get();
+    
+            if ($projects->isNotEmpty()) {
+                $client = Client::find($projects->first()->client_id);
+            }
+        } else {
 
-    if ($user->role_id == 1) {
-        $projects = Projects::orderBy('id', 'desc')->get();
-        $client = null; 
-    } else {
-        $clientId = $user->client_id;
-        $projectIds = Projects::where('client_id', $clientId)->pluck('id')->toArray();
+            $clientId = $user->client_id;
+            $projects = Projects::where('client_id', $clientId)
+                ->orderBy('id', 'desc')
+                ->get();
+    
+            $client = Client::find($clientId);
+        }
+        $projects = $projects->unique('project_name')->values();
+    
+        foreach ($projects as $project) {
+            $project->last_message = Message::where('project_id', $project->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            if ($user->id == $project->last_message?->from) {
+                $project->unread_count = Message::where('project_id', $project->id)
+                    ->where('from', $user->id)
+                    ->where('is_read_from', 0)
+                    ->count();
+            } else {
+                $project->unread_count = Message::where('project_id', $project->id)
+                    ->where('to', $user->id)
+                    ->where('is_read_to', 0)
+                    ->count();
+            }
+    
+            $project->client = Client::find($project->client_id);
+        }
 
-        $projects = Projects::whereIn('id', $projectIds)
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $client = Client::find($clientId);
+        $projects = $projects->sortByDesc(function ($project) {
+            return optional($project->last_message)->created_at;
+        })->values();
+    
+        return view('developer.chat', compact('projects', 'client'));
     }
-
-    foreach ($projects as $project) {
-        $project->last_message = Message::where('project_id', $project->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        $project->unread_count = Message::where('project_id', $project->id)
-            ->where('is_read', 0)
-            ->count();
-    }
-
-    return view('developer.chat', compact('projects', 'client'));
-}
+    
 
     
     public function getMessagesByProject($projectId)
@@ -79,19 +98,34 @@ public function addMessage(Request $request)
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()->all()]);
     }
+    $user = Auth::user();
+
+    if ($user->role_id == 6) {
+        $to_id = 1;
+    }else{
+        $projectId = $request->input('project_id');
+        $project = Projects::find($projectId);
+
+        $toUser = Users::where('client_id', $project->client_id)->first();
+
+        if (!$toUser) {
+            return response()->json(['errors' => ['User with matching client ID not found.']]);
+        }
+    
+        $to_id = $toUser->id;
+    }
+ 
 
     $documentPaths = [];
-    $maxTotalSize = 5 * 1024 * 1024;  // 5MB limit
+    $maxTotalSize = 5 * 1024 * 1024;  
     $totalSize = 0;
-    $user = Auth::user();
     $messageData = [
         'message' => $request->input('message'),
         'project_id' => $request->input('project_id'),
-        'to' => $request->input('to'),
+        'to' => $to_id,
         'from' => auth()->id(),
     ];
 
-    // Handle file uploads
     if ($request->hasFile('comment_file')) {
         foreach ($request->file('comment_file') as $file) {
             $totalSize += $file->getSize();
@@ -111,18 +145,70 @@ public function addMessage(Request $request)
         $messageData['document'] = $documentString; 
     }
 
-    // Create message
     $message = Message::create($messageData);
-
-    // Retrieve the full message including user data
     $message = Message::with('user')->find($message->id);
+    $user = auth()->user();
+    $name = $user->first_name;
 
+    if ($message) {
+        try {
+            $messages = [
+                "subject" => "New Message  received from - {$name}",
+                "title" => "You've received new Message from {$name}.",
+                "body-text" => "Message: \"" . $request->input('message') . "\"",
+            ];
+    
+            
+            $assignedUser = Users::find($to_id);
+            if ($assignedUser) {
+                $assignedUser->notify(new EmailNotification($messages));
+            }
+        } catch (\Exception $e) {
+            \Log::error("Error sending notification for feedback: " . $e->getMessage());
+        }
+    } 
     return response()->json([
         'status' => 200,
-        'message' => $message, // Return the message object
+        'message' => $message, 
         'Commentmessage' => 'Message added successfully.'
     ]);
 }
+    public function destroy($id)
+    {
+        $comment = Message::findOrFail($id);
+        $comment->delete();
+        return response()->json(['status' => 200, 'message' => 'Comment deleted']);
+    }
 
+
+    public function markAsRead($projectId)
+{
+    $userId = Auth::id();
+
+    $fromUpdated = Message::where('project_id', $projectId)
+        ->where('from', $userId)
+        ->update(['is_read_from' => 1]);
+
+    $toUpdated = Message::where('project_id', $projectId)
+        ->where('to', $userId)
+        ->update(['is_read_to' => 1]);
+
+    $totalUpdated = $fromUpdated + $toUpdated;
+
+    if ($totalUpdated > 0) {
+        return response()->json([
+            'status' => 'success',
+            'message' => "$totalUpdated message(s) marked as read"
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'no_action',
+        'message' => 'No matching unread messages'
+    ]);
+}
+
+
+    
 
 }
