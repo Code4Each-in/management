@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3 mb-4" onClick="openPageModel()" href="javascript:void(0)">Add
+            <button class="btn btn-primary mt-3 mb-4" onClick="openPageModel()" href="javascript:void(0)"  style="background: rgb(65, 84, 241);">Add
                 Page</button>
             <!-- filter -->
             <div class="box-header with-border" id="filter-box">
