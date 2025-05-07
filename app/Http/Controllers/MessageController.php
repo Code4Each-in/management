@@ -185,6 +185,7 @@ public function addMessage(Request $request)
 {
     $userId = Auth::id();
 
+    // Mark messages as read
     $fromUpdated = Message::where('project_id', $projectId)
         ->where('from', $userId)
         ->update(['is_read_from' => 1]);
@@ -195,16 +196,29 @@ public function addMessage(Request $request)
 
     $totalUpdated = $fromUpdated + $toUpdated;
 
+    // Get updated unread count
+    $unreadCount = Message::where('project_id', $projectId)
+        ->where(function ($query) use ($userId) {
+            $query->where(function ($q) use ($userId) {
+                $q->where('from', $userId)->where('is_read_from', 0);
+            })->orWhere(function ($q) use ($userId) {
+                $q->where('to', $userId)->where('is_read_to', 0);
+            });
+        })
+        ->count();
+
     if ($totalUpdated > 0) {
         return response()->json([
             'status' => 'success',
-            'message' => "$totalUpdated message(s) marked as read"
+            'message' => "$totalUpdated message(s) marked as read",
+            'updatedUnreadCount' => $unreadCount
         ]);
     }
 
     return response()->json([
         'status' => 'no_action',
-        'message' => 'No matching unread messages'
+        'message' => 'No matching unread messages',
+        'updatedUnreadCount' => $unreadCount
     ]);
 }
 

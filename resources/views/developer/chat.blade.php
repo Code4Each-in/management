@@ -278,10 +278,10 @@
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                   </div>
                   @if($project->unread_count > 0)
-                    <div class="badge">
-                        {{ $project->unread_count }}
-                    </div>
-                @endif
+                  <div class="badge" id="unread-count-{{ $project->id }}">
+                      {{ $project->unread_count }}
+                  </div>
+                  @endif
               </div>
           @empty
               <p class="text-muted p-2">No projects available.</p>
@@ -371,7 +371,7 @@
         </div>
   </div>
   <script>
-function markMessageAsRead(messageId) {
+function markMessageAsRead(messageId, projectId) {
     fetch(`/project-messages/${messageId}/mark-as-read`, {
         method: 'POST',
         headers: {
@@ -382,10 +382,23 @@ function markMessageAsRead(messageId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-          location.reload();
+            const unreadCountElement = document.getElementById('unread-count-' + projectId);
+            const unreadCount = data.updatedUnreadCount;
+
+            if (unreadCountElement) {
+                if (unreadCount > 0) {
+                    unreadCountElement.textContent = unreadCount;
+                    unreadCountElement.style.display = 'inline-block'; 
+                } else {
+                    unreadCountElement.style.display = 'none';
+                }
+            }
         } else {
             console.warn(data.message);
         }
+    })
+    .catch(err => {
+        console.error('Error:', err);
     });
 }
   </script>
