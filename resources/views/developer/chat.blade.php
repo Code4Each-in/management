@@ -313,7 +313,23 @@
             {{ strtoupper(substr($project->project_name, 0, 2)) }}
         </div>
                   <div class="details">
-                      <div class="name">{{ $project->project_name }}</div>
+                      <div class="name">{{ $project->project_name }}
+                                            @php
+                        $statusClass = match($project->status) {
+                            'not_started' => 'bg-success',
+                            'active' => 'bg-warning text-dark',
+                            'completed' => 'bg-primary',
+                            'deactivated' => 'bg-secondary',
+                            // 'Cancelled' => 'bg-danger',
+                            default => 'bg-light text-dark',
+                        };
+                    @endphp
+
+                    <span class="badge rounded-pill {{ $statusClass }}">
+                        {{ $project->status }}
+                    </span>
+
+                      </div>
                       <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
                       <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
