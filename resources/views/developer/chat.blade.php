@@ -16,23 +16,25 @@
     } */
 
     .chat-wrapper {
-      /* max-width: 1200px; */
-      /* width: 100%; */
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       display: flex;
       padding: 0;
-      /* height: 80vh; */
+      
     }
-
+    .container.chat-wrapper {
+        height: 1100px;
+        overflow: hidden;
+    }
     .chatsidebar {
       width: 360px;
-      border-right: 1px solid #ddd;
-      background-color: #fff;
-      display: flex;
-      flex-direction: column;
+    border-right: 1px solid #ddd;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+
     }
 
     .sidebar-header  {
@@ -49,11 +51,23 @@
     flex: 1;
     /* overflow: scroll; */
     /* height: 22vh; */
-    max-height: 715px;
+    /* max-height: 715px; */
     overflow-y: auto;
     padding-right: 4px;
 }
+.contact .name {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
 
+
+.details {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    align-items: flex-start;
+}
     .contact {
         display: flex;
         align-items: center;
@@ -87,11 +101,12 @@
         row-gap: 1px;
     }
 
-    .contact.name {
-      font-weight: bold;
-      font-size: 14px;
-    }
-
+    .contact .name {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    FONT-SIZE: 14PX;
+}
     .contact.last-message {
       font-size: 12px;
       color: #666;
@@ -105,10 +120,20 @@
       right: 15px;
     }
     .message-section {
-        width: 87%;
-        /* max-width: 850px; */
-   
-    }
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+}
+.chat-container{
+    
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+}
+
     .chat-wrapper .contact .badge {
         background-color: #297bab;
         color: white;
@@ -233,7 +258,22 @@
     .msg-input button:hover {
       background-color: #0056b3;
     }
-    
+    .card.mt-3.card-designform {
+        flex: 1;
+        /* overflow-y: auto; */
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .card-designform {
+          background-color: #ffffff;
+          border-radius: 10px;
+          padding: 0px 20px 15px;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+          margin-top: 20px;
+          margin-bottom: 5px;
+      }
     @media (max-width: 768px) {
       .chat-wrapper {
         flex-direction: column;
@@ -252,7 +292,12 @@
     }
 }
 
-
+.message-section form#commentsData {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0px;
+}
 .chat-wrapper .card.mt-3.card-designform {
     margin-bottom: 0;
 }
@@ -278,10 +323,10 @@
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                   </div>
                   @if($project->unread_count > 0)
-                    <div class="badge">
-                        {{ $project->unread_count }}
-                    </div>
-                @endif
+                  <div class="badge" id="unread-count-{{ $project->id }}">
+                      {{ $project->unread_count }}
+                  </div>
+                  @endif
               </div>
           @empty
               <p class="text-muted p-2">No projects available.</p>
@@ -296,10 +341,10 @@
         <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
          
         </div>              
-        <div class="card mt-3 card-designform">
+        <div class="card mt-0 card-designform">
           <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
             @csrf
-            <div class="post-item clearfix mb-3 mt-3">
+            <div class="post-item clearfix mb-3 mt-0">
               <label for="comment" class="col-sm-3 col-form-label">Comment</label>
               <div class="col-sm-12">
                   <div id="toolbar-container">
@@ -371,7 +416,7 @@
         </div>
   </div>
   <script>
-function markMessageAsRead(messageId) {
+function markMessageAsRead(messageId, projectId) {
     fetch(`/project-messages/${messageId}/mark-as-read`, {
         method: 'POST',
         headers: {
@@ -382,10 +427,23 @@ function markMessageAsRead(messageId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-          location.reload();
+            const unreadCountElement = document.getElementById('unread-count-' + projectId);
+            const unreadCount = data.updatedUnreadCount;
+
+            if (unreadCountElement) {
+                if (unreadCount > 0) {
+                    unreadCountElement.textContent = unreadCount;
+                    unreadCountElement.style.display = 'inline-block'; 
+                } else {
+                    unreadCountElement.style.display = 'none';
+                }
+            }
         } else {
             console.warn(data.message);
         }
+    })
+    .catch(err => {
+        console.error('Error:', err);
     });
 }
   </script>
