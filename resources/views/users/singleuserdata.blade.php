@@ -35,6 +35,11 @@
         </div>
 
         <div class="row line-space">
+            <div class="col-lg-3 col-md-4 label">Gender</div>
+            <div class="col-lg-9 col-md-8 detail_full_phone">{{$usersProfiled->gender}}</div>
+        </div>
+
+        <div class="row line-space">
             <div class="col-lg-3 col-md-4 label">Joining Date</div>
             <div class="col-lg-9 col-md-8 detail_full_joining_date">
                 {{date("d-m-Y", strtotime($usersProfiled->joining_date))}}

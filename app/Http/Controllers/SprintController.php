@@ -120,21 +120,16 @@ class SprintController extends Controller
                 $query->where('status', 'ready');
             },
         ])
+        ->where('sprints.status', 2) 
         ->when(!is_null($clientId), function ($query) use ($projectIds) {
             $query->whereIn('project', $projectIds);
         })
         ->when($projectFilter, function ($query) use ($projectFilter) {
             $query->where('project', $projectFilter);
         })
-        ->having('tickets_count', '>', 0)
-        ->havingRaw('tickets_count = completed_tickets_count')
+        // ->having('tickets_count', '>', 0)
+        // ->havingRaw('tickets_count = completed_tickets_count')
         ->get();
-        foreach ($completedsprints as $sprint) {
-            if ($sprint->status != 2) {
-                $sprint->status = 2;
-                $sprint->save();
-            }
-        }
 
         $totalSprintCount = $sprints->count();
         $totalinSprintCount = $inactivesprints->count();
