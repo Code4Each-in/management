@@ -308,7 +308,7 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }});" id="contact-{{ $project->id }}">
+          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
           <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
             {{ strtoupper(substr($project->project_name, 0, 2)) }}
         </div>
@@ -490,6 +490,13 @@ function markMessageAsRead(messageId, projectId) {
     
     </script> 
         <script>
+          function hideUnreadCount(projectId) {
+    const badge = document.getElementById('unread-count-' + projectId);
+    if (badge) {
+        badge.style.display = 'none';
+    }
+}
+
           $(document).ready(function() {
             // Find any chat with the 'active' class
           const $activeChat = $(".contact.active");
