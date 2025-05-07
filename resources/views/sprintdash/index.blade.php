@@ -451,6 +451,9 @@
                             <label for="add_document" class="col-sm-3 col-form-label">Attach Documents</label>
                             <div class="col-sm-9">
                                 <input type="file" class="form-control" name="add_document[]" id="add_document" multiple>
+                                @if ($errors->has('add_document'))
+                                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('add_document') }}</span>
+                            @endif
                             </div>
                         </div>                                                                    
                             <div class="modal-footer">

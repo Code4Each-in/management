@@ -4035,3 +4035,6 @@ div#tickets_filter {
 span.badge.completed {
   background: #3f996b !important;
 }
+.chat-container .message .text img {
+  width: 80%;
+}
