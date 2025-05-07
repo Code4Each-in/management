@@ -5,7 +5,7 @@
 <div class="row">
     <div class="row mb-2">
         <div class="col-md-2">
-            <a class="btn btn-primary mt-3" href="{{ route('tickets.create') }}" style="background: #4154f1;">Add Ticket</a>
+            <a class="btn btn-primary mt-3" href="{{ route('tickets.create', ['sprint_id' => $sprint->id]) }}" style="background: #4154f1;">Add Ticket</a>
         </div>
     </div>
     @php
