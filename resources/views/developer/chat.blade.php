@@ -308,13 +308,13 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
           @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }})" id="contact-{{ $project->id }}">
+          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }});" id="contact-{{ $project->id }}">
           <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
             {{ strtoupper(substr($project->project_name, 0, 2)) }}
         </div>
                   <div class="details">
                       <div class="name">{{ $project->project_name }}</div>
-                      <div class="project">{{ $client->name ?? 'N/A' }}</div>
+                      <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
                       <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
                       </div>
@@ -323,10 +323,10 @@
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                   </div>
                   @if($project->unread_count > 0)
-                    <div class="badge">
-                        {{ $project->unread_count }}
-                    </div>
-                @endif
+                  <div class="badge" id="unread-count-{{ $project->id }}">
+                      {{ $project->unread_count }}
+                  </div>
+                  @endif
               </div>
           @empty
               <p class="text-muted p-2">No projects available.</p>
@@ -415,6 +415,38 @@
         </div>
         </div>
   </div>
+  <script>
+function markMessageAsRead(messageId, projectId) {
+    fetch(`/project-messages/${messageId}/mark-as-read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const unreadCountElement = document.getElementById('unread-count-' + projectId);
+            const unreadCount = data.updatedUnreadCount;
+
+            if (unreadCountElement) {
+                if (unreadCount > 0) {
+                    unreadCountElement.textContent = unreadCount;
+                    unreadCountElement.style.display = 'inline-block'; 
+                } else {
+                    unreadCountElement.style.display = 'none';
+                }
+            }
+        } else {
+            console.warn(data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+    });
+}
+  </script>
   <script>  
   const csrfToken = '{{ csrf_token() }}';
     function toggleTaskDetails(headerElement) {
@@ -528,7 +560,6 @@
                         success: function(data) {
                             displayMessages(data.messages); 
                             $('#project_id').val(projectId);
-                            document.getElementById('to').value = data.messages[0].user?.id ?? '';
                         },
                         error: function(error) {
                             console.error("Error loading messages:", error);
@@ -541,7 +572,6 @@
               //     }
               // }, 1000); 
                 function displayMessages(messages, clearMessages = true) {
-                  console.log('dfdfd', messages);
                   const $chatContainer = $(".chat-container");
 
                   // If clearMessages is true, clear the chat container before adding new messages
