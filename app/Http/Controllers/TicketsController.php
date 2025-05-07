@@ -120,7 +120,7 @@ class TicketsController extends Controller
             'description' => 'required',
             'project_id' => 'required',
             'assign' => 'required|array|min:1',
-            'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'title.min' => 'Title must be at least 15 characters.',
@@ -305,7 +305,7 @@ class TicketsController extends Controller
             'title' => 'required',
             'description' => 'required',
             'edit_project_id' => 'required',
-            'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
+            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'description.required' => 'Description is required.',
