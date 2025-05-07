@@ -60,6 +60,17 @@
         </div>
     </dfiv>
 </div>    
+        @php
+            $hasDocument = false;
+            foreach ($ProjectDocuments as $doc) {
+                if (!empty($doc->document)) {
+                    $hasDocument = true;
+                    break;
+                }
+            }
+        @endphp
+
+        @if ($hasDocument)
             <div class="row mb-2 mt-5">
                 <div class="col-auto">
                     <label class="col-form-label fw-bold mb-0">Uploaded Documents:</label>
@@ -104,8 +115,10 @@
                             @endforeach
                         @endif
                     </div>
-                </div>   
-            </div>       
+                </div>      
+        @endif
+        </div>    
+            
                     <div class="col-md-4">
                         <div class="row mb-2" style="align-items:center">
                             <label class="col-sm-4 col-form-label fw-bold">Sprint Name</label>

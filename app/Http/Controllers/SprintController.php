@@ -129,6 +129,12 @@ class SprintController extends Controller
         ->having('tickets_count', '>', 0)
         ->havingRaw('tickets_count = completed_tickets_count')
         ->get();
+        foreach ($completedsprints as $sprint) {
+            if ($sprint->status != 2) {
+                $sprint->status = 2;
+                $sprint->save();
+            }
+        }
 
         $totalSprintCount = $sprints->count();
         $totalinSprintCount = $inactivesprints->count();

@@ -3992,3 +3992,6 @@ div#remindersTable_filter {
 div#remindersTable_wrapper {
   padding-bottom: 10px;
 }
+span.badge.completed {
+  background: #3f996b !important;
+}
