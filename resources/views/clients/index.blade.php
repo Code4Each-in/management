@@ -10,7 +10,7 @@ use App\Models\Client;?>
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-                <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()">Add
+                <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()" style="background: rgb(65, 84, 241);">Add
                     Client
                 </button>
                         <div class="table-resposnive">
@@ -85,14 +85,14 @@ use App\Models\Client;?>
                                         @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
                                             <td>  
                                                 <a href="{{ route('clients.show', ['id' => $client->id]) }}">
-                                                    <i class="fas fa-eye" style="color: #007bff;"></i>
+                                                    <i class="fas fa-eye" style="color: rgb(65, 84, 241);"></i>
                                                 </a>
 
                                                 <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
-                                                    <i class="fas fa-edit" style="color: #007bff;"></i>                                       
+                                                    <i class="fas fa-edit" style="color: rgb(65, 84, 241);"></i>                                       
                                                 </a>
                                                 {{-- <a href="javascript:void(0)" onclick="deleteClient('{{ $client->id }}')"> --}}
-                                                    <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: #007bff;"></i>
+                                                    <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: rgb(65, 84, 241);"></i>
                                                 {{-- </a> --}}
                                                 
                                             </td>
