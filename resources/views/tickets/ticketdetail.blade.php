@@ -297,8 +297,15 @@
                       $('#comment').val('');
                       $('#comment_file').val('');
                       location.reload();
+                  } else if (response.errors) {
+                      let errorHtml = '<ul>';
+                      response.errors.forEach(function(error) {
+                          errorHtml += '<li>' + error + '</li>';
+                      });
+                      errorHtml += '</ul>';
+                      $('.alert-danger').show().html(errorHtml);
                   } else {
-                      $('.alert-danger').show().html(response.message || 'Something went wrong.');
+                      $('.alert-danger').show().html('Something went wrong.');
                   }
               },
               error: function(xhr) {
