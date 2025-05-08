@@ -30,7 +30,7 @@ class MessageNotification extends Notification
         ->subject($this->data['subject'])
         ->greeting($this->data['title'])
         ->line(new HtmlString($this->data['body-text']))
-        ->line(new HtmlString("Regards,<br>Code4Each"));
+        ->salutation(new HtmlString("Regards,<br>Code4Each"));
 }
 
     
