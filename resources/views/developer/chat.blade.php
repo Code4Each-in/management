@@ -303,37 +303,58 @@
 }
   </style>
 <div class="container chat-wrapper">
-    <!-- Sidebar -->
     <div class="chatsidebar">
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
-          @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
-          <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-            {{ strtoupper(substr($project->project_name, 0, 2)) }}
-        </div>
-                  <div class="details">
-                      <div class="name">{{ $project->project_name }}          
-                      </div>
-                      <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
-                      <div class="last-message">
+            @foreach($projects->where('status', 'active') as $project)
+            <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+                <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    {{ strtoupper(substr($project->project_name, 0, 2)) }}
+                </div>
+                <div class="details">
+                    <div class="name">{{ $project->project_name }}</div>
+                    <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
+                    <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
-                      </div>
-                  </div>
-                  <div class="time">
+                    </div>
+                </div>
+                <div class="time">
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
-                  </div>
-                  @if($project->unread_count > 0)
-                  <div class="badge" id="unread-count-{{ $project->id }}">
-                      {{ $project->unread_count }}
-                  </div>
-                  @endif
-              </div>
-          @empty
-              <p class="text-muted p-2">No projects available.</p>
-          @endforelse
-      </div>      
-    </div>          
+                </div>
+                @if($project->unread_count > 0)
+                <div class="badge" id="unread-count-{{ $project->id }}">
+                    {{ $project->unread_count }}
+                </div>
+                @endif
+            </div>
+            @endforeach
+            @foreach($projects->where('status', '!=', 'active') as $project)
+            <div class="contact" style="background-color: #c4bfbf;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+                <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    {{ strtoupper(substr($project->project_name, 0, 2)) }}
+                </div>
+                <div class="details">
+                    <div class="name">{{ $project->project_name }}</div>
+                    <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
+                    <div class="last-message">
+                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
+                    </div>
+                </div>
+                <div class="time">
+                    {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
+                </div>
+                @if($project->unread_count > 0)
+                <div class="badge" id="unread-count-{{ $project->id }}">
+                    {{ $project->unread_count }}
+                </div>
+                @endif
+            </div>
+            @endforeach
+            @if($projects->isEmpty())
+            <p class="text-muted p-2">No projects available.</p>
+            @endif
+        </div>
+    </div>           
     <div class="message-section">
         <div class="msger-header">
             <h1>Comments</h1>
