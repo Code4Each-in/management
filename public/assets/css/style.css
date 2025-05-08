@@ -4050,3 +4050,6 @@ span.badge.completed {
   width: 80%;
 
 }
+.chat-container .message .text p {
+  margin-bottom: 0px;
+}

@@ -329,7 +329,7 @@
             </div>
             @endforeach
             @foreach($projects->where('status', '!=', 'active') as $project)
-            <div class="contact" style="background-color: #c4bfbf;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+            <div class="contact" style="background-color: #d4d4d4;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
                 <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                     {{ strtoupper(substr($project->project_name, 0, 2)) }}
                 </div>
