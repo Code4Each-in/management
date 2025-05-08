@@ -213,7 +213,9 @@
                                 {!! $ticket->description !!}                                       
                                  @endif
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') }}</td>
+                            <td>
+                                {{ $ticket->eta ? \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') : '---' }}
+                            </td>                            
                             <td>
                                 @php
                                     $statusColors = [

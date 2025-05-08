@@ -27,6 +27,109 @@ use App\Models\Votes;
     justify-content: space-between;
     align-items: center;
 }
+.reminder-box {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 9px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .reminder-box h5 {
+      background-color: #f1c40f;
+      font-weight: bold;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.3rem;
+      margin: 0;
+      padding: 1rem 1.2rem;
+    }
+
+    .fa-bell {
+      animation: swing 1.5s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    @keyframes swing {
+      0%   { transform: rotate(0deg); }
+      20%  { transform: rotate(15deg); }
+      40%  { transform: rotate(-10deg); }
+      60%  { transform: rotate(5deg); }
+      80%  { transform: rotate(-5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .main-reminder-desc {
+      background-color: #fffbea;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 1rem 1.2rem;
+      align-items: center;
+    }
+
+    .reminder-icon {
+      font-size: 1.3rem;
+      color: #5c3b00;
+      margin-top: 2px;
+    }
+
+
+
+    .reminder-label {
+      font-weight: 600;
+      color: #5c3b00;
+    }
+
+    .reminder-text {
+      color: #5c3b00;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .reminder-text a {
+      color: #5c3b00;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .reminder-content {
+        display: flex;
+        /* flex-direction: column; */
+        gap: 0.3rem;
+    }
+    @media (max-width: 767px) {
+      .reminder-box h5 {
+        font-size: 1.1rem;
+        padding: 0.8rem 1rem;
+      }
+
+      .main-reminder-desc {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+      }
+      .reminder-content {
+        display:block;
+        /* flex-direction: column; */
+        gap: 0.3rem;
+    }
+      .reminder-icon {
+        font-size: 1.2rem;
+        margin-top: 0;
+      }
+
+      .reminder-text {
+        font-size: 0.95rem;
+      }
+    }
+    .main-deiv {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    background-color: #f1c40f;
+    align-items: center;
+}
 </style>
 @if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
@@ -46,12 +149,29 @@ use App\Models\Votes;
 
 @if($activeReminders->isNotEmpty())
     @foreach($activeReminders as $reminder)
-        @if($reminder->user_id == auth()->user()->id) <!-- Assuming 'user_id' indicates who created the reminder -->
-            <div class="alert alert-info">
-                {{ $reminder->description }}
-                <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+        @if($reminder->user_id == auth()->user()->id)
+            <div class="container">
+                <div class="reminder-box">
+                    <div class="main-deiv">
+                    <h5><i class="fa-solid fa-bell"></i>The {{ ucfirst($reminder->type) }} Reminder for You</h5>
+                    <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="main-reminder-desc">
+                        <div class="reminder-icon">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="reminder-content">
+                            <div class="reminder-label">
+                                Description:
+                            </div>
+                            <div class="reminder-text">
+                                {{ $reminder->description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         @endif
     @endforeach
@@ -912,7 +1032,7 @@ use App\Models\Votes;
                                 @if($notifications->isEmpty())
                                     <tr>
                                         <td colspan="3" class="text-center text-muted">No notifications found</td>
-                                    </tr>   
+                                    </tr>
                                 @else
                                     @foreach($notifications as $notification)
                                     @php
@@ -1465,6 +1585,26 @@ use App\Models\Votes;
         }
 
         createAddBtn();
+    $(document).on('click', '.reminder-close-btn', function() {
+        let reminderId = $(this).data('id');
+        $(this).closest('.container').fadeOut(); // or remove()
+
+        // Optional: Send AJAX request to mark reminder as closed
+        $.ajax({
+            url: '/reminders/close', // adjust this URL as needed
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: reminderId
+            },
+            success: function(response) {
+                console.log('Reminder closed.');
+            },
+            error: function(xhr) {
+                console.error('Error closing reminder.');
+            }
+        });
+    });
     </script>
 
     @endsection

@@ -9,7 +9,8 @@ use App\Models\Users;
 use App\Models\Message;
 use App\Models\Projects;
 use App\Models\Client;
-use App\Notifications\EmailNotification;
+use Illuminate\Support\Str;
+use App\Notifications\MessageNotification;
 class MessageController extends Controller
 {
     /**
@@ -96,8 +97,22 @@ public function addMessage(Request $request)
     ]);
  
     if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()->all()]);
+        $errors = $validator->errors();
+        $allErrors = $errors->all();
+    
+        foreach ($allErrors as $error) {
+            if (Str::contains($error, 'greater than 10MB')) {
+                return response()->json([
+                    'errors' => [
+                        'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
+                    ]
+                ]);
+            }
+        }
+    
+        return response()->json(['errors' => $allErrors]);
     }    
+
     $user = Auth::user();
 
     if ($user->role_id == 6) {
@@ -144,21 +159,26 @@ public function addMessage(Request $request)
 
     if ($message) {
         try {
-            $messages = [
-                "subject" => "New Message  received from - {$name}",
-                "title" => "You've received new Message from {$name}.",
-                "body-text" => "Message: \"" . $request->input('message') . "\"",
-            ];
-    
+            $rawMessage = $request->input('message');
+            $cleanMessage = nl2br(strip_tags(html_entity_decode($rawMessage)));
+
             
+            $messages = [
+                "subject" => "New Message received from - {$name}",
+                "title" => "You've received new Message from {$name}.",
+                "body-text" => "Message:<br><br>" . $cleanMessage,
+            ];
+          
             $assignedUser = Users::find($to_id);
             if ($assignedUser) {
-                $assignedUser->notify(new EmailNotification($messages));
+                $assignedUser->notify(new MessageNotification($messages));
             }
         } catch (\Exception $e) {
             \Log::error("Error sending notification for feedback: " . $e->getMessage());
         }
-    } 
+    }
+    
+     
     return response()->json([
         'status' => 200,
         'message' => $message, 

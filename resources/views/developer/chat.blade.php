@@ -303,36 +303,58 @@
 }
   </style>
 <div class="container chat-wrapper">
-    <!-- Sidebar -->
     <div class="chatsidebar">
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
-          @forelse($projects as $project)
-          <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }});" id="contact-{{ $project->id }}">
-          <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-            {{ strtoupper(substr($project->project_name, 0, 2)) }}
-        </div>
-                  <div class="details">
-                      <div class="name">{{ $project->project_name }}</div>
-                      <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
-                      <div class="last-message">
+            @foreach($projects->where('status', 'active') as $project)
+            <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+                <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    {{ strtoupper(substr($project->project_name, 0, 2)) }}
+                </div>
+                <div class="details">
+                    <div class="name">{{ $project->project_name }}</div>
+                    <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
+                    <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
-                      </div>
-                  </div>
-                  <div class="time">
+                    </div>
+                </div>
+                <div class="time">
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
-                  </div>
-                  @if($project->unread_count > 0)
-                  <div class="badge" id="unread-count-{{ $project->id }}">
-                      {{ $project->unread_count }}
-                  </div>
-                  @endif
-              </div>
-          @empty
-              <p class="text-muted p-2">No projects available.</p>
-          @endforelse
-      </div>      
-    </div>          
+                </div>
+                @if($project->unread_count > 0)
+                <div class="badge" id="unread-count-{{ $project->id }}">
+                    {{ $project->unread_count }}
+                </div>
+                @endif
+            </div>
+            @endforeach
+            @foreach($projects->where('status', '!=', 'active') as $project)
+            <div class="contact" style="background-color: #d4d4d4;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+                <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    {{ strtoupper(substr($project->project_name, 0, 2)) }}
+                </div>
+                <div class="details">
+                    <div class="name">{{ $project->project_name }}</div>
+                    <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
+                    <div class="last-message">
+                        {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
+                    </div>
+                </div>
+                <div class="time">
+                    {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
+                </div>
+                @if($project->unread_count > 0)
+                <div class="badge" id="unread-count-{{ $project->id }}">
+                    {{ $project->unread_count }}
+                </div>
+                @endif
+            </div>
+            @endforeach
+            @if($projects->isEmpty())
+            <p class="text-muted p-2">No projects available.</p>
+            @endif
+        </div>
+    </div>           
     <div class="message-section">
         <div class="msger-header">
             <h1>Comments</h1>
@@ -501,50 +523,55 @@ function markMessageAsRead(messageId, projectId) {
 
           $('#commentsData').on('submit', function(e) {
               e.preventDefault();
-
+ 
               document.getElementById('comment_input').value = quill.root.innerHTML;
-
-              // Hide any previous error messages
               $('.alert-danger').hide().html('');
-              
-              // Create the form data for the request
-              const formData = new FormData(this);
-              const currentUserId = {{ Auth::id() }};
-              const clientName = @json($client->name ?? 'Project Not Assigned');
-
-              $('#loader').show(); 
-
-              $.ajax({
-              url: '{{ route('message.add') }}',
-              type: 'POST',
-              data: formData,
-              contentType: false,
-              processData: false,
-              success: function(response) {
-                console.log(response.errors);
-                  if (response.status === 200) {
-                      $('#comment').val('');
-                      $('#comment_file').val('');
-                      quill.root.innerHTML = "";
-                      displayMessages(response.message, false);
-                  }else if(response.errors){
-                    $('.alert-danger').html(response.errors).fadeIn();
-                  }
-              },
-              error: function(xhr) {
-                  let errorHtml = 'An error occurred while submitting the comment.';
-                  if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                      const errors = xhr.responseJSON.errors;
-                      errorHtml = errors.join('<br>');
-                  }
-                  $('.alert-danger').html(errorHtml).fadeIn();
-              },
-              complete: function() {
-                  $('#loader').hide();
+ 
+              const fileInput = document.getElementById('comment_file');
+                const hasText = quill.getText().trim().length > 0;
+                const hasFile = fileInput.files && fileInput.files.length > 0;
+ 
+                if (hasText || hasFile) {    
+                // Create the form data for the request
+                const formData = new FormData(this);
+                const currentUserId = {{ Auth::id() }};
+                const clientName = @json($client->name ?? 'Project Not Assigned');
+ 
+                $('#loader').show();
+ 
+                $.ajax({
+                        url: '{{ route('message.add') }}',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log(response.errors);
+                            if (response.status === 200) {
+                                $('#comment').val('');
+                                $('#comment_file').val('');
+                                quill.root.innerHTML = "";
+                                displayMessages(response.message, false);
+                            }else if(response.errors){
+                                $('.alert-danger').html(response.errors).fadeIn();
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorHtml = 'An error occurred while submitting the comment.';
+                            if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                                const errors = xhr.responseJSON.errors;
+                                errorHtml = errors.join('<br>');
+                            }
+                            $('.alert-danger').html(errorHtml).fadeIn();
+                        },
+                        complete: function() {
+                            $('#loader').hide();
+                        }
+                    });
+              }else{
+                $('.alert-danger').html('Kindly type a message or attach a file before submitting..').fadeIn();
               }
-          });
-
-          });
+                     });
                 });
       </script>      
                 <script>
@@ -558,7 +585,8 @@ function markMessageAsRead(messageId, projectId) {
                     // Remove 'active' from all contacts and add to clicked one
                     $(".contact").removeClass("active");
                     $("#contact-" + projectId).addClass("active");
-
+                    quill.root.innerHTML = ""; // Clear Quill editor
+                    $('#comment_file').val('');
                     // AJAX call to fetch messages
                     $.ajax({
                         url: "{{ url('/get/project/messages') }}/" + projectId,

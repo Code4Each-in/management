@@ -280,36 +280,52 @@
 
 <script>
   $(document).ready(function() {
-      $('#commentsData').on('submit', function(e) {
-          e.preventDefault();
-          document.getElementById('comment_input').value = quill.root.innerHTML;
-          $('.alert-danger').hide().html('');
-          var formData = new FormData(this);
-          $('#loader').show(); 
-          $.ajax({
-              url: '{{ route('comments.add') }}',
-              type: 'POST',
-              data: formData,
-              contentType: false, 
-              processData: false, 
-              success: function(response) {
-                  if (response.status === 200) {
-                      $('#comment').val('');
-                      $('#comment_file').val('');
-                      location.reload();
-                  } else {
-                      $('.alert-danger').show().html(response.message || 'Something went wrong.');
-                  }
-              },
-              error: function(xhr) {
-                  $('.alert-danger').show().html('An error occurred while submitting the comment.');
-              },
-              complete: function() {
-                  $('#loader').hide(); 
-              }
-          });
-      });
-  });
+    $('#commentsData').on('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('comment_input').value = quill.root.innerHTML;
+        $('.alert-danger').hide().html('');
+
+        const fileInput = document.getElementById('comment_file');
+        const hasText = quill.getText().trim().length > 0;
+        const hasFile = fileInput.files && fileInput.files.length > 0;
+
+        if (hasText || hasFile) {
+            var formData = new FormData(this);
+            $('#loader').show(); 
+            $.ajax({
+                url: '{{ route('comments.add') }}',
+                type: 'POST',
+                data: formData,
+                contentType: false, 
+                processData: false, 
+                success: function(response) {
+                    if (response.status === 200) {
+                        $('#comment').val('');
+                        $('#comment_file').val('');
+                        location.reload();
+                    } else if (response.errors) {
+                        let errorHtml = '<ul>';
+                        response.errors.forEach(function(error) {
+                            errorHtml += '<li>' + error + '</li>';
+                        });
+                        errorHtml += '</ul>';
+                        $('.alert-danger').show().html(errorHtml);
+                    } else {
+                        $('.alert-danger').show().html('Something went wrong.');
+                    }
+                },
+                error: function(xhr) {
+                    $('.alert-danger').show().html('An error occurred while submitting the comment.');
+                },
+                complete: function() {
+                    $('#loader').hide(); 
+                }
+            });
+        } else {
+            $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+        }
+    });
+});
 
   function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
