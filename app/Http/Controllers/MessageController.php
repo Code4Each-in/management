@@ -160,14 +160,15 @@ public function addMessage(Request $request)
     if ($message) {
         try {
             $rawMessage = $request->input('message');
-            $cleanMessage = trim(strip_tags(html_entity_decode($rawMessage)));
+            $cleanMessage = nl2br(strip_tags(html_entity_decode($rawMessage)));
+
             
             $messages = [
                 "subject" => "New Message received from - {$name}",
                 "title" => "You've received new Message from {$name}.",
-                "body-text" => "Message: \"" . $cleanMessage . "\"",
+                "body-text" => "Message:<br><br>" . $cleanMessage,
             ];
-
+          
             $assignedUser = Users::find($to_id);
             if ($assignedUser) {
                 $assignedUser->notify(new MessageNotification($messages));
@@ -176,6 +177,7 @@ public function addMessage(Request $request)
             \Log::error("Error sending notification for feedback: " . $e->getMessage());
         }
     }
+    
      
     return response()->json([
         'status' => 200,

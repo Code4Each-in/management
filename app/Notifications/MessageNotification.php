@@ -28,6 +28,8 @@ class MessageNotification extends Notification
         return (new MailMessage)
                     ->subject($this->data['subject'])
                     ->greeting($this->data['title'])
-                    ->line($this->data['body-text']);
+                    ->line($this->data['body-text'])
+                    ->salutation('Regards,<br>Code4Each');
     }
+    
 }
