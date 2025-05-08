@@ -56,6 +56,7 @@ class CheckReminders extends Command
             return;
         }
         $reminder->reminder_date = $nextDate;
+        $reminder->clicked_at = null;
         $reminder->save();
 
         Log::info('Updated next reminder date to: ' . $nextDate->toDateTimeString());
