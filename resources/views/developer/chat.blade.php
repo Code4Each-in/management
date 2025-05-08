@@ -553,7 +553,6 @@ function markMessageAsRead(messageId, projectId) {
                         contentType: false,
                         processData: false,
                         success: function(response) {
-                            console.log(response.errors);
                             if (response.status === 200) {
                                 $('#comment').val('');
                                 $('#comment_file').val('');
