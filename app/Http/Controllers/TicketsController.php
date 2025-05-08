@@ -13,6 +13,7 @@ use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Sprint;
+use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 //use Dotenv\Validator;
@@ -459,8 +460,21 @@ class TicketsController extends Controller
          ]);
      
          if ($validator->fails()) {
-             return response()->json(['errors' => $validator->errors()->all()]);
-         }
+            $errors = $validator->errors();
+            $allErrors = $errors->all();
+        
+            foreach ($allErrors as $error) {
+                if (Str::contains($error, 'greater than') || Str::contains($error, 'Maximum file size allowed')) {
+                    return response()->json([
+                        'errors' => [
+                            'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
+                        ]
+                    ]);
+                }
+            }
+        
+            return response()->json(['errors' => $allErrors]);
+        }
      
          $validate = $validator->valid();
          $documentPaths = [];

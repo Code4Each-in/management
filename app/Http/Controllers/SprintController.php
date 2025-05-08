@@ -38,7 +38,7 @@ class SprintController extends Controller
             ->get();
             $projectIds = $projects->pluck('id')->toArray();
         } else {
-            $projects = Projects::all();
+            $projects = Projects::orderBy('project_name', 'asc')->get(); 
             $clients = Client::where('status', 1)->orderBy('name', 'asc')->get();
             $projectIds = $projects->pluck('id')->toArray();
         }

@@ -9,6 +9,7 @@ use App\Models\Users;
 use App\Models\Message;
 use App\Models\Projects;
 use App\Models\Client;
+use Illuminate\Support\Str;
 use App\Notifications\EmailNotification;
 class MessageController extends Controller
 {
@@ -96,8 +97,22 @@ public function addMessage(Request $request)
     ]);
  
     if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()->all()]);
+        $errors = $validator->errors();
+        $allErrors = $errors->all();
+    
+        foreach ($allErrors as $error) {
+            if (Str::contains($error, 'greater than 10MB')) {
+                return response()->json([
+                    'errors' => [
+                        'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
+                    ]
+                ]);
+            }
+        }
+    
+        return response()->json(['errors' => $allErrors]);
     }    
+
     $user = Auth::user();
 
     if ($user->role_id == 6) {
