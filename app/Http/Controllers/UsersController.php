@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Quote;
+use App\Models\Client;
 
 class UsersController extends Controller
 {
@@ -299,14 +300,65 @@ class UsersController extends Controller
 	// GET LOGIN USER PROFILE DETAILS
 	public function Userprofile(Request $request){
 		$usersProfile=Users::with('role','department')->where('id',auth()->user()->id)->first();
+		$clientProfile=Client::where('id',auth()->user()->client_id)->first();
 
 		$documents = UserDocuments::where('user_id', $usersProfile->id)->get();
 
-		return view('profile.index',compact('usersProfile','documents'));
+		return view('profile.index',compact('usersProfile','documents','clientProfile'));
 	}
 
 	// UPDATE LOGIN USER PROFILE
     public function updateProfile(Request $request) {
+		if ($request->filled('client_id')) {
+			// Validate client-specific fields
+			$validator = \Validator::make($request->all(), [
+				'full_name' => 'required|string|max:255',
+				'email' => 'required|email|max:255',
+				'secondary_email' => 'nullable|email|max:255',
+				'additional_email' => 'nullable|email|max:255',
+				'phone' => 'required|string|max:20',
+				'birth_date' => 'nullable|date',
+				'password' => 'nullable|confirmed|min:6'
+			]);
+	
+			if ($validator->fails()) {
+				return response()->json(['errors' => $validator->errors()->all()]);
+			}
+	
+			$user = Users::find($request->user_id);
+			if (!$user) {
+				return response()->json(['status' => 404, 'message' => 'User not found']);
+			}
+	
+			// Update user table
+			$user->first_name = $request->full_name;
+			if ($request->filled('password')) {
+				$user->password = $request->password;
+			}
+			$user->email = $request->email;
+			$user->phone = $request->phone;
+			$user->birth_date = $request->birth_date;
+				
+			$user->save();
+	
+			// Update client table
+			$client = Client::find($request->client_id);
+			if ($client) {
+				$client->name = $request->full_name;
+				$client->email = $request->email;
+				$client->secondary_email = $request->secondary_email;
+				$client->additional_email = $request->additional_email;
+				$client->phone = $request->phone;
+				$client->birth_date = $request->birth_date;
+				$client->save();
+			}
+	
+			return response()->json([
+				'status' => 200,
+				'message' => 'Client profile updated successfully',
+				'user_profile_data' => $user
+			]);
+		}
         $validator = \Validator::make($request->all(), [
             'tshirt_size' => 'nullable|string|max:10',
             'skills' => 'nullable|string',

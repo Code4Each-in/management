@@ -75,7 +75,16 @@ use App\Models\Client;?>
                       @endif
                    </div>
             </div>
-
+            <div class="row mb-1 mt-4">
+                   <label for="" class="col-sm-3">Gender</label>
+                   <div class="col-sm-9">
+                      @if (!empty($client->gender ))
+                         {{  $client->gender }}
+                      @else
+                        ---
+                      @endif
+                   </div>
+            </div>
             <div class="row mb-1 mt-4">
                    <label for="" class="col-sm-3">Address</label>
                    <div class="col-sm-9">

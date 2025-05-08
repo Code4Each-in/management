@@ -167,7 +167,16 @@ use App\Models\Client;?>
                                 </div>
                                 
                             </div>
-                        
+                            <div class="row mb-3">
+                                <label for="gender" class="col-sm-3 col-form-label">Gender</label>
+                                <div class="col-sm-9">
+                                    <select id="gender" name="gender" class="form-select form-control">
+                                        <option value="" disabled selected>Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="row mb-3">
                                 <label for="address" class="col-sm-3 col-form-label">Address</label>
                                 <div class="col-sm-9">
@@ -288,9 +297,22 @@ use App\Models\Client;?>
                             <input type="text" class="form-control text-dark" name="name" id="name" placeholder="Enter client name">
                         </div>
                     </div>
-
                     <div class="row mb-3">
-                        <label for="email" class="col-sm-3 col-form-label">Email</label>
+                        <label for="password" class="col-sm-3 col-form-label">Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="edit_password" id="edit_password">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="edit_password_confirmation" class="col-sm-3 col-form-label"> Confirm
+                            Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control mb-6" name="edit_password_confirmation"
+                                id="edit_password_confirmation">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="email" class="col-sm-3 col-form-label required">Email</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control text-dark" name="email" id="email" placeholder="Enter email">
                         </div>    
@@ -320,7 +342,16 @@ use App\Models\Client;?>
                             <input type="date" class="form-control text-dark" name="birth_date" id="birth_date" placeholder="Enter birth date">
                         </div>
                     </div>
-                
+                    <div class="row mb-3">
+                        <label for="edit_gender" class="col-sm-3 col-form-label">Gender</label>
+                        <div class="col-sm-9">
+                            <select id="edit_gender" name="gender" class="form-select form-control text-dark">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="row mb-3">
                         <label for="address" class="col-sm-3 col-form-label">Address</label>
                         <div class="col-sm-9">
@@ -431,6 +462,10 @@ use App\Models\Client;?>
         }, 2000);
         $('#clients').DataTable({
             "order": []
+        });
+
+         $('#editClient').on('hidden.bs.modal', function () {
+            $('#update-issue').hide().text('');
         });
 
     $("#addClientForm").submit(function(event) {
@@ -548,6 +583,7 @@ function editClientData(clientId) {
                     $("#editClientForm input[name='additional_email']").val(data.additional_email);
                     $("#editClientForm input[name='phone']").val(data.phone);
                     $("#editClientForm input[name='birth_date']").val(data.birth_date);
+                    $("#editClientForm select[name='gender']").val(data.gender);
                     $("#editClientForm input[name='address']").val(data.address);
                     $("#editClientForm input[name='city']").val(data.city);
                     $("#editClientForm select[name='status']").val(data.status);
