@@ -13,7 +13,7 @@ class EmailAll extends Controller
      */
     public function index()
     {
-        $employees = Users::where('status', 1)->get();
+        $employees = Users::where('status', 1)->whereNull('client_id')->get();
 
         return view('Email.hrEmail', compact('employees'));
     }
