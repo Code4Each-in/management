@@ -24,6 +24,7 @@ class CheckReminders extends Command
 
         $reminders = Reminder::whereNotNull('reminder_date')
             ->where('reminder_date', '<=', $now)
+            ->whereNotNull('clicked_at')
             ->get();
 
         Log::info("Found " . $reminders->count() . " reminders due.");
@@ -56,6 +57,7 @@ class CheckReminders extends Command
             return;
         }
         $reminder->reminder_date = $nextDate;
+        $reminder->clicked_at = null;
         $reminder->save();
 
         Log::info('Updated next reminder date to: ' . $nextDate->toDateTimeString());

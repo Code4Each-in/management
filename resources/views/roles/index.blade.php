@@ -6,7 +6,7 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)">Add Role</button>
+            <button class="btn btn-primary mt-3" onClick="openroleModal()" href="javascript:void(0)" style="background:rgb(65, 84, 241);">Add Role</button>
             <div class="box-header with-border" id="filter-box">
                 <br>
                 <div class="box-body table-responsive" style="margin-bottom: 5%">
