@@ -150,7 +150,7 @@ use App\Models\Votes;
 @if($activeReminders->isNotEmpty())
     @foreach($activeReminders as $reminder)
         @if($reminder->user_id == auth()->user()->id)
-            <div class="container my-5">
+            <div class="container">
                 <div class="reminder-box">
                     <div class="main-deiv">
                     <h5><i class="fa-solid fa-bell"></i>The {{ ucfirst($reminder->type) }} Reminder for You</h5>
