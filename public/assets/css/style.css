@@ -3909,6 +3909,7 @@ div#notification_length {
   .vbo-sticky-note-sign-dt {
     display: block; /* Ensures the date and time are on a new line */
     margin-bottom: 4px; /* Adds a little space between the date and user */
+    text-transform: uppercase;
   }
   
   .vbo-sticky-note-sign-user {
@@ -4049,4 +4050,7 @@ span.badge.completed {
 .chat-container .message .text img {
   width: 80%;
 
+}
+.picture .btn-sm {
+  min-width: auto;
 }

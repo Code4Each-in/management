@@ -34,15 +34,22 @@
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
+                @php
+                    $gender = strtolower(auth()->user()->gender ?? '');
+                @endphp
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     @if (auth()->user()->profile_picture)
-                    <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
-                        alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                        <img src="{{ asset('assets/img/' . auth()->user()->profile_picture) }}" id="profile_picture"
+                            alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
                     @else
-                    <img src="{{asset('assets/img/blankImage.jpg')}}" id="profile_picture"
-                        alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                        @if ($gender == 'male')
+                            <img src="{{ asset('assets/img/dummyMale.png') }}" id="profile_picture"
+                                alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                        @else
+                            <img src="{{ asset('assets/img/dummyFemale.png') }}" id="profile_picture"
+                                alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                        @endif
                     @endif
-
                 </a>
                 <li class="nav-item dropdown pe-3">
 
@@ -61,9 +68,13 @@
                                         id="profile_picture" alt="Profile" height="50px" width="50px"
                                         class="rounded-circle picture js-profile-picture">
                                     @else
-                                    <img src="{{asset('assets/img/blankImage.jpg')}}"
-                                        id="profile_picture" alt="Profile" height="50px" width="50px"
-                                        class="rounded-circle picture js-profile-picture">
+                                        @if ($gender == 'male')
+                                            <img src="{{ asset('assets/img/dummyMale.png') }}" id="profile_picture"
+                                                alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                                        @else
+                                            <img src="{{ asset('assets/img/dummyFemale.png') }}" id="profile_picture"
+                                                alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                                        @endif
                                     @endif
                                 </div>
                                 <div class="col-md-8">
@@ -76,14 +87,12 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            @if (auth()->user()->role_id != 6)
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="{{route('profile')}}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
                         </li>
-                        @endif
                         <hr class="dropdown-divider">
 
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('logout')}}">

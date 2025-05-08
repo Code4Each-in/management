@@ -13,6 +13,7 @@ class Client extends Model
         'email',
         'secondary_email',
         'additional_email',
+        'gender',
         'phone',
         'birth_date',
         'address',

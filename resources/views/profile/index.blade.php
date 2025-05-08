@@ -31,7 +31,9 @@
 <div id="loader">
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
 </div>
-
+@php
+    $gender = strtolower(auth()->user()->gender ?? '');
+@endphp
 <div class="col-xl-4 profile">
     <div class="card">
         <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
@@ -39,7 +41,11 @@
             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" id="profile_picture" alt="Profile"
                 class="rounded-circle picture js-profile-picture">
             @else
-            <img src="{{ asset('assets/img/blankImage.jpg')}}" id="profile_picture" alt="Profile" class="rounded-circle js-profile-picture">
+                @if ($gender == 'male')
+                    <img src="{{ asset('assets/img/dummyMale.png') }}" id="profile_picture" alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                @else
+                    <img src="{{ asset('assets/img/dummyFemale.png') }}" id="profile_picture" alt="Profile" class="rounded-circle picture js-profile-picture">
+                @endif
             @endif
             <h2 class="profile_name">{{$usersProfile->first_name." ".$usersProfile->last_name}}</h2>
             <h3>{{$usersProfile->role->name}}</h3>
@@ -68,6 +74,7 @@
                         Profile</button>
                 </li>
 
+                @if (auth()->user()->role_id !== 6)
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#upload-documents">Documents</button>
                 </li>
@@ -81,6 +88,7 @@
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change
                         Password</button>
                 </li>
+                @endif
 
             </ul>
             <div class="tab-content pt-2">
@@ -107,6 +115,18 @@
                         <div class="col-lg-9 col-md-8 detail_full_email">{{$usersProfile->email}}</div>
                     </div>
 
+                    @if(auth()->user()->role_id == 6)
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Secondary Email</div>
+                        <div class="col-lg-9 col-md-8 detail_full_secondary_email">{{ $clientProfile->secondary_email ? $clientProfile->secondary_email : '----' }}</div>
+                    </div>  
+
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Additional Email</div>
+                        <div class="col-lg-9 col-md-8 detail_full_additional_email">{{ $clientProfile->additional_email ? $clientProfile->additional_email : '----' }}</div>
+                    </div> 
+                    @endif 
+
                     <!-- <div class="row">
                         <div class="col-lg-3 col-md-4 label">Salary</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->salary}}</div>
@@ -126,12 +146,14 @@
                         <div class="col-lg-9 col-md-8 detail_full_phone">{{$usersProfile->phone}}</div>
                     </div>
 
+                    @if(auth()->user()->role_id !== 6)
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Joining Date</div>
                         <div class="col-lg-9 col-md-8 detail_full_joining_date">
                             {{date("d-m-Y", strtotime($usersProfile->joining_date))}}
                         </div>
                     </div>
+                    @endif  
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Birthdate</div>
                         <div class="col-lg-9 col-md-8 detail_full_birth_date">
@@ -139,6 +161,33 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Gender</div>
+                        <div class="col-lg-9 col-md-8">{{$usersProfile->gender ? $usersProfile->gender : '----'}}</div>
+                    </div>
+                    @if(auth()->user()->role_id == 6)
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Country</div>
+                        <div class="col-lg-9 col-md-8">{{$clientProfile->country ? $clientProfile->country : '----'}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Company</div>
+                        <div class="col-lg-9 col-md-8">{{$clientProfile->company ? $clientProfile->company : '----'}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Source</div>
+                        <div class="col-lg-9 col-md-8">{{$clientProfile->source ? $clientProfile->source : '----'}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Skype</div>
+                        <div class="col-lg-9 col-md-8">{{$clientProfile->skype ? $clientProfile->skype : '----'}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 label">Last Worked</div>
+                        <div class="col-lg-9 col-md-8">{{$clientProfile->last_worked ? $clientProfile->last_worked : '----'}}</div>
+                    </div>
+                    @endif
+                    @if(auth()->user()->role_id !== 6)
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Role</div>
                         <div class="col-lg-9 col-md-8">{{$usersProfile->role->name}}</div>
@@ -181,7 +230,7 @@
                             @endif
                         </div>
                     </div>
-
+                    @endif
 
                     
                 </div>
@@ -191,6 +240,7 @@
                     </div>
                     <div class="alert alert-success delete_message" style="display:none">
                     </div>
+                    
                     <div class="row mb-3">
                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label ">Profile Image</label>
                         <div class="col-md-8 col-lg-9 ">
@@ -198,7 +248,11 @@
                             <img src="{{asset('assets/img/').'/'.$usersProfile->profile_picture}}" class="picture js-profile-picture"
                                 id="edit_profile_picture" alt="Profile">
                             @else
-                            <img src="{{ asset('assets/img/blankImage.jpg')}}" id="edit_profile_picture" alt="Profile" class="js-profile-picture">
+                                @if ($gender == 'male')
+                                    <img src="{{ asset('assets/img/dummyMale.png') }}" id="profile_picture" alt="Profile" height="50px" width="50px" class="rounded-circle picture js-profile-picture">
+                                @else
+                                    <img src="{{ asset('assets/img/dummyFemale.png') }}" id="profile_picture" alt="Profile" class="rounded-circle picture js-profile-picture">
+                                @endif
                             @endif
 
                             <div class="row pt-2 ">
@@ -216,6 +270,7 @@
                                     <form id="update_profile_picture">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                                         <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
+                                        <input type="hidden" name="client_id" value="{{ auth()->user()->client_id }}" />
                                         <!-- <input type="file" name="image" class="image"> -->
 
                                         <input type="file" id="edit_profile_input_option" name="edit_profile_input"
@@ -265,7 +320,7 @@
                         <div class="alert alert-danger" style="display:none"></div>
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                         <input type="hidden" name="user_id" value="{{$usersProfile->id}}" />
-
+                        <input type="hidden" name="client_id" value="{{ auth()->user()->client_id }}" />
                         <!-- <div class="row mb-3">
                             <label for="first_name" class="col-md-4 col-lg-3 col-form-label">First Name</label>
                             <div class="col-md-8 col-lg-9">
@@ -336,7 +391,7 @@
                                     value="{{$usersProfile->zip?? ''}}">
                             </div>
                         </div> -->
-
+                    @if(auth()->user()->role_id !== 6)
                         <div class="row mb-3">
                             <label for="add_skills" class="col-md-4 col-lg-3 col-form-label">Add Skills</label>
                             <div class="col-md-8 col-lg-9">
@@ -408,11 +463,61 @@
 
                             </div>
                         </div>
+                    @endif  
+                    @if(auth()->user()->role_id == 6)
+                        <div class="row mb-3">
+                            <label for="full_name" class="col-md-4 col-lg-3 col-form-label">Name</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="full_name" type="text" class="form-control text-dark" id="full_name"
+                                    value='{{$clientProfile->name}}' data-role="taginput">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="password" class="col-md-4 col-lg-3 col-form-label">Password</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="password" class="form-control" name="password" id="password">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="edit_password_confirmation" class="col-md-4 col-lg-3 col-form-label"> Confirm
+                                Password</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="password" class="form-control mb-6" name="password_confirmation"
+                                    id="password_confirmation">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="text" class="form-control text-dark" name="email" id="email" value='{{$clientProfile->email}}'>
+                            </div>    
+                        </div>
+                        <div class="row mb-3">
+                            <label for="email" class="col-md-4 col-lg-3 col-form-label">Secondary Email</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="text" class="form-control text-dark" name="secondary_email" id="secondary_email" value='{{$clientProfile->secondary_email}}'>
+                            </div>    
+                        </div>
+                        <div class="row mb-3">
+                            <label for="email" class="col-md-4 col-lg-3 col-form-label">Additional Email</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="text" class="form-control text-dark" name="additional_email" id="additional_email" value='{{$clientProfile->additional_email}}'>
+                            </div>    
+                        </div>
+                        <div class="row mb-3">
+                            <label for="phone" class="col-md-4 col-lg-3 col-form-label">Phone number</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="text" class="form-control text-dark" name="phone" id="phone" value='{{$clientProfile->phone}}'>
+                            </div>
+                        </div>
 
-
-
-
-
+                        <div class="row mb-3">
+                            <label for="birth_date" class="col-md-4 col-lg-3 col-form-label">Birth date</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input type="date" class="form-control text-dark" name="birth_date" id="birth_date" value='{{$clientProfile->birth_date}}'>
+                            </div>
+                        </div>
+                    @endif
                         <div class="alert alert-success message" style="display:none">
                         </div>
                         <div class="text-center">
@@ -637,9 +742,11 @@
                             $('.alert-danger').append('<li>' + value + '</li>');
                         })
                     } else {
-                        $('.alert-danger').html('');
+                        $('.alert-danger').html('').fadeOut();
                         $('.message').html(data.message);
                         $('.message').show();
+                        $('#password').val('');
+                        $('#password_confirmation').val('');
                         setTimeout(function() {
                             $('.message').fadeOut("slow");
                         }, 2000);
