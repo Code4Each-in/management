@@ -69,18 +69,21 @@
         </div>
         <!-- Show Assign to User field only if user is Super Admin or Manager -->
         @if (auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager')
-        <div class="row mb-5 mt-4">
-            <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
-            <div class="col-sm-9">
-                <select name="user_id" class="form-select form-control">
-                    <option value="{{ auth()->id() }}" selected>{{ auth()->user()->first_name }}</option>
-                    @foreach (\App\Models\Users::where('status', 1)->get() as $user)
+    <div class="row mb-5 mt-4">
+        <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
+        <div class="col-sm-9">
+            <select name="user_id" class="form-select form-control">
+                <option value="{{ auth()->id() }}" selected>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</option>
+                @foreach (\App\Models\Users::where('status', 1)
+                        ->whereNull('client_id')
+                        ->where('id', '!=', auth()->id())
+                        ->get() as $user)
                     <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                @endforeach
+            </select>
         </div>
-        @endif
+    </div>
+@endif
         <div id="customDateField" class="row mb-5 mt-4 hidden">
             <label for="custom_date" class="col-sm-3 col-form-label">Custom Date</label>
             <div class="col-sm-9">
@@ -176,50 +179,44 @@
 document.addEventListener('DOMContentLoaded', function() {
     toggleFields();
 });
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize Quill
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: '#toolbar-container'
+document.addEventListener("DOMContentLoaded", function() {
+            // Initialize Quill
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: '#toolbar-container'
+        }
+    });
+
+    // Safe way to insert old content from Laravel
+    const oldContent = {!! json_encode(old('description')) !!};
+    if (oldContent && oldContent !== '') {
+        quill.root.innerHTML = oldContent;
+    }
+
+    function cleanHtml(html) {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+
+        const paragraphs = div.querySelectorAll('p');
+        paragraphs.forEach(p => {
+            if (!p.innerHTML.trim()) {
+                p.remove();
+            } else {
+                p.innerHTML = p.innerHTML.replace(/<br>/g, '');
             }
         });
 
-        // Set old value from Laravel (escaped properly for JS)
-        const oldContent = `{!! addslashes(old('description')) !!}`;
-        if (oldContent && oldContent !== '') {
-            quill.root.innerHTML = oldContent;
-        }
+        const content = div.innerHTML.trim().replace(/<\/?p>/g, '');
 
-        // Function to clean up the HTML content (remove empty <p> tags and <br> tags inside <p>)
-        function cleanHtml(html) {
-            const div = document.createElement('div');
-            div.innerHTML = html;
+        return content;
+    }
 
-            // Remove empty <p> tags and clean <br> tags
-            const paragraphs = div.querySelectorAll('p');
-            paragraphs.forEach(p => {
-                if (!p.innerHTML.trim()) {
-                    p.remove(); // Remove empty <p> tags
-                } else {
-                    // Remove <br> tags inside non-empty <p> tags
-                    p.innerHTML = p.innerHTML.replace(/<br>/g, '');
-                }
-            });
-
-            // Remove <p> tags entirely
-            const content = div.innerHTML.trim().replace(/<\/?p>/g, '');
-
-            return content;
-        }
-
-
-        // Sync Quill content to hidden input before form submit
-        document.querySelector('form').addEventListener('submit', function() {
-            let html = quill.root.innerHTML.trim();
-            html = cleanHtml(html); // Clean up the HTML content
-            document.getElementById('description-hidden').value = html;
-        });
+    document.querySelector('form').addEventListener('submit', function() {
+        let html = quill.root.innerHTML.trim();
+        html = cleanHtml(html);
+        document.getElementById('description-hidden').value = quill.getText().trim();
     });
+});
 </script>
 @endsection
