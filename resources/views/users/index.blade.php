@@ -197,6 +197,16 @@
                         </div>
                     </div>
                     <div class="row mb-3">
+                        <label for="gender" class="col-sm-3 col-form-label required">Gender</label>
+                        <div class="col-sm-9">
+                            <select id="gender" name="gender" class="form-select form-control">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label for="joining_date" class="col-sm-3 col-form-label required">Joining date</label>
                         <div class="col-sm-9">
                             <input type="date" class="form-control" name="joining_date" id="joining_date">
@@ -362,11 +372,22 @@
                         </div>
                     </div>
                     <div class="row mb-3">
+                        <label for="edit_gender" class="col-sm-3 col-form-label required">Gender</label>
+                        <div class="col-sm-9">
+                            <select id="edit_gender" name="gender" class="form-select form-control">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
                         <div class="col-sm-9">
                             <input type="number" class="form-control" name="edit_phone" id="edit_phone">
                         </div>
                     </div>
+                    
                     <div class="row mb-3">
                         <label for="edit_joining_date" class="col-sm-3 col-form-label required">Joining Date</label>
                         <div class="col-sm-9">
@@ -633,6 +654,7 @@
                     $('#editUsers').modal('show');
                     $('#edit_username').val(res.users.first_name);
                     $('#edit_lastname').val(res.users.last_name);
+                    $('#edit_gender').val(res.users.gender);
                     $('#edit_email').val(res.users.email);
                     // $('#edit_password').val(res.users.edit_password);
                     $('#edit_phone').val(res.users.phone);

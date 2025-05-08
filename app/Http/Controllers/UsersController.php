@@ -103,6 +103,7 @@ class UsersController extends Controller
 		'email'=>'required|unique:users',
 		'password'=>'required|confirmed|min:8',
 		'phone'=>'required|unique:users',
+		'gender'=>'required',
 		'joining_date'=>'required',
 		'birth_date'=>'required',
 		'profile_picture'=>'required|image|mimes:jpg,png,jpeg,gif',
@@ -131,6 +132,7 @@ class UsersController extends Controller
 		$users =Users::create([
 			'first_name' => $validate['user_name'],
 			'last_name' => $validate['last_name'],
+			'gender'=>$validate['gender'],
 			'email' => $validate['email'],
 			'password' => $validate['password'],
 			'salary'=>$salaried ,
