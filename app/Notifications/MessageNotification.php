@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Notifications;
+use Illuminate\Support\HtmlString;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,12 +25,13 @@ class MessageNotification extends Notification
     }
 
     public function toMail($notifiable)
-    {
-        return (new MailMessage)
-                    ->subject($this->data['subject'])
-                    ->greeting($this->data['title'])
-                    ->line($this->data['body-text'])
-                    ->salutation('Regards,<br>Code4Each');
-    }
+{
+    return (new MailMessage)
+        ->subject($this->data['subject'])
+        ->greeting($this->data['title'])
+        ->line(new HtmlString($this->data['body-text']))
+        ->line(new HtmlString("Regards,<br>Code4Each"));
+}
+
     
 }
