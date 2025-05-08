@@ -530,50 +530,55 @@ function markMessageAsRead(messageId, projectId) {
 
           $('#commentsData').on('submit', function(e) {
               e.preventDefault();
-
+ 
               document.getElementById('comment_input').value = quill.root.innerHTML;
-
-              // Hide any previous error messages
               $('.alert-danger').hide().html('');
-              
-              // Create the form data for the request
-              const formData = new FormData(this);
-              const currentUserId = {{ Auth::id() }};
-              const clientName = @json($client->name ?? 'Project Not Assigned');
-
-              $('#loader').show(); 
-
-              $.ajax({
-              url: '{{ route('message.add') }}',
-              type: 'POST',
-              data: formData,
-              contentType: false,
-              processData: false,
-              success: function(response) {
-                console.log(response.errors);
-                  if (response.status === 200) {
-                      $('#comment').val('');
-                      $('#comment_file').val('');
-                      quill.root.innerHTML = "";
-                      displayMessages(response.message, false);
-                  }else if(response.errors){
-                    $('.alert-danger').html(response.errors).fadeIn();
-                  }
-              },
-              error: function(xhr) {
-                  let errorHtml = 'An error occurred while submitting the comment.';
-                  if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                      const errors = xhr.responseJSON.errors;
-                      errorHtml = errors.join('<br>');
-                  }
-                  $('.alert-danger').html(errorHtml).fadeIn();
-              },
-              complete: function() {
-                  $('#loader').hide();
+ 
+              const fileInput = document.getElementById('comment_file');
+                const hasText = quill.getText().trim().length > 0;
+                const hasFile = fileInput.files && fileInput.files.length > 0;
+ 
+                if (hasText || hasFile) {    
+                // Create the form data for the request
+                const formData = new FormData(this);
+                const currentUserId = {{ Auth::id() }};
+                const clientName = @json($client->name ?? 'Project Not Assigned');
+ 
+                $('#loader').show();
+ 
+                $.ajax({
+                        url: '{{ route('message.add') }}',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log(response.errors);
+                            if (response.status === 200) {
+                                $('#comment').val('');
+                                $('#comment_file').val('');
+                                quill.root.innerHTML = "";
+                                displayMessages(response.message, false);
+                            }else if(response.errors){
+                                $('.alert-danger').html(response.errors).fadeIn();
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorHtml = 'An error occurred while submitting the comment.';
+                            if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                                const errors = xhr.responseJSON.errors;
+                                errorHtml = errors.join('<br>');
+                            }
+                            $('.alert-danger').html(errorHtml).fadeIn();
+                        },
+                        complete: function() {
+                            $('#loader').hide();
+                        }
+                    });
+              }else{
+                $('.alert-danger').html('Kindly type a message or attach a file before submitting..').fadeIn();
               }
-          });
-
-          });
+                     });
                 });
       </script>      
                 <script>
@@ -587,7 +592,8 @@ function markMessageAsRead(messageId, projectId) {
                     // Remove 'active' from all contacts and add to clicked one
                     $(".contact").removeClass("active");
                     $("#contact-" + projectId).addClass("active");
-
+                    quill.root.innerHTML = ""; // Clear Quill editor
+                    $('#comment_file').val('');
                     // AJAX call to fetch messages
                     $.ajax({
                         url: "{{ url('/get/project/messages') }}/" + projectId,
