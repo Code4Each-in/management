@@ -10,7 +10,7 @@ use App\Models\Message;
 use App\Models\Projects;
 use App\Models\Client;
 use Illuminate\Support\Str;
-use App\Notifications\EmailNotification;
+use App\Notifications\MessageNotification;
 class MessageController extends Controller
 {
     /**
@@ -159,21 +159,24 @@ public function addMessage(Request $request)
 
     if ($message) {
         try {
-            $messages = [
-                "subject" => "New Message  received from - {$name}",
-                "title" => "You've received new Message from {$name}.",
-                "body-text" => "Message: \"" . $request->input('message') . "\"",
-            ];
-    
+            $rawMessage = $request->input('message');
+            $cleanMessage = trim(strip_tags(html_entity_decode($rawMessage)));
             
+            $messages = [
+                "subject" => "New Message received from - {$name}",
+                "title" => "You've received new Message from {$name}.",
+                "body-text" => "Message: \"" . $cleanMessage . "\"",
+            ];
+
             $assignedUser = Users::find($to_id);
             if ($assignedUser) {
-                $assignedUser->notify(new EmailNotification($messages));
+                $assignedUser->notify(new MessageNotification($messages));
             }
         } catch (\Exception $e) {
             \Log::error("Error sending notification for feedback: " . $e->getMessage());
         }
-    } 
+    }
+     
     return response()->json([
         'status' => 200,
         'message' => $message, 
