@@ -107,7 +107,7 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'edit_password' => 'confirmed',
+            'edit_password' => 'nullable|confirmed|min:6'
             /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
@@ -119,7 +119,9 @@ class ClientController extends Controller
             $user = Users::where('client_id', $client->id)->first();
             if ($user) {
                 $user->email = $request->email;
-                $user->password = $request->edit_password;
+                if($request->filled('edit_password')) {
+                    $user->password = $request->edit_password;
+                }
                 $user->gender = $request->gender;
                 $user->save();
             }

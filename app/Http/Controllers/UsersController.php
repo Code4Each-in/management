@@ -312,11 +312,11 @@ class UsersController extends Controller
 		if ($request->filled('client_id')) {
 			// Validate client-specific fields
 			$validator = \Validator::make($request->all(), [
-				'full_name' => 'required|string|max:255',
-				'email' => 'required|email|max:255',
+				'full_name' => 'nullable|string|max:255',
+				'email' => 'nullable|email|max:255',
 				'secondary_email' => 'nullable|email|max:255',
 				'additional_email' => 'nullable|email|max:255',
-				'phone' => 'required|string|max:20',
+				'phone' => 'nullable|string|max:20',
 				'birth_date' => 'nullable|date',
 				'password' => 'nullable|confirmed|min:6'
 			]);
