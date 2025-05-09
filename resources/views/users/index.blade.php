@@ -40,6 +40,7 @@
                                     <th>Department</th>                                
                                     <th>Address</th>
                                     <th>Phone</th>
+                                    <th>Gender</th>
                                     @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
                                     <th>Documents</th>
                                     <th>Leaves</th>
@@ -53,15 +54,16 @@
                                 @forelse($usersData as $data)
                                 <tr>
                                     <td>{{ $data->employee_id ?? '---' }}</td>
-                                    <td>{{ $data->first_name }}</td>
-                                    <td>{{ $data->last_name }}</td>
-                                    <td>{{ $data->email }}</td>
+                                    <td>{{ $data->first_name ?? '---' }}</td>
+                                    <td>{{ $data->last_name ?? '---' }}</td>
+                                    <td>{{ $data->email ?? '---$_GET' }}</td>
                                     <!-- <td>{{ $data->salary }}</td> -->
-                                    <td>{{$data->role->name ?? ''}}</td>
+                                    <td>{{$data->role->name ?? '---'}}</td>
                                     <td>{{ $data->designation ?: '---' }}</td>
-                                    <td>{{$data->department->name ?? ''}}</td>                              
+                                    <td>{{$data->department->name ?? '---'}}</td>                              
                                     <td>{{ $data->address }} , {{ $data->city }},{{ $data->state }},{{ $data->zip }}</td>
-                                    <td>{{ $data->phone }}</td>
+                                    <td>{{ $data->phone ?? '---' }}</td>
+                                    <td>{{ $data->gender ?? '---' }}</td>
                                     @if (auth()->user()->role->name == "Super Admin" || auth()->user()->role->name == "HR Manager")
                                     <td>
                                         @if (count($data->documents) > 0)

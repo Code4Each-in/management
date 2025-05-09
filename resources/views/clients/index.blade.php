@@ -23,6 +23,7 @@ use App\Models\Client;?>
                                         <th>Email</th>
                                         <th>Phone number</th>
                                         <th>Birth date</th>
+                                        <th>Gender</th>
                                         <th>Status</th>
                                         <th>Company</th>
                                         <th>Country</th>
@@ -59,6 +60,13 @@ use App\Models\Client;?>
                                             @endif
                                         </td>
                                         <td>
+                                            @if (!empty($client->gender))
+                                                {{ $client->gender }}
+                                            @else
+                                                ---
+                                            @endif
+                                        </td>
+                                        <td>
                                             @if($client->status == 1)
                                                 Active
                                             @elseif($client->status == 0)
@@ -77,7 +85,7 @@ use App\Models\Client;?>
                                         </td>
                                         <td>
                                             @if (!empty($client->country))
-                                                {{ Client::getCountry($client->country) }}
+                                                {{ $client->country }}
                                             @else
                                                 ---
                                             @endif
