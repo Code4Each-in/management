@@ -135,8 +135,14 @@
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Address</div>
                         <div class="col-lg-9 col-md-8 detail_full_address">
-                            @if ($usersProfile->address)
-                            {{$usersProfile->address}} {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}
+                            @if(auth()->user()->role_id !== 6)
+                                @if ($usersProfile->address)
+                                    {{$usersProfile->address}} {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}
+                                @endif
+                            @else
+                                @if ($clientProfile->address)
+                                    {{$clientProfile->address}} {{$clientProfile->city}} , {{$clientProfile->zip}}
+                                @endif
                             @endif
                         </div>
                     </div>
