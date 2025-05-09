@@ -3909,6 +3909,7 @@ div#notification_length {
   .vbo-sticky-note-sign-dt {
     display: block; /* Ensures the date and time are on a new line */
     margin-bottom: 4px; /* Adds a little space between the date and user */
+    text-transform: uppercase !important;
   }
   
   .vbo-sticky-note-sign-user {
@@ -4050,6 +4051,15 @@ span.badge.completed {
   width: 80%;
 
 }
+
 .chat-container .message .text p {
   margin-bottom: 0px !important;
+}
+
+form#update_profile_picture .btn-sm {
+  font-size: 13px;
+  padding: 8px 14px;
+  min-width: auto;
+  text-align: center;
+  border-radius: 5px;
 }

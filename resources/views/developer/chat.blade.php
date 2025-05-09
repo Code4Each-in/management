@@ -511,13 +511,6 @@ function markMessageAsRead(messageId, projectId) {
     
     </script> 
         <script>
-          function hideUnreadCount(projectId) {
-    const badge = document.getElementById('unread-count-' + projectId);
-    if (badge) {
-        badge.style.display = 'none';
-    }
-}
-
           $(document).ready(function() {
             // Find any chat with the 'active' class
           const $activeChat = $(".contact.active");

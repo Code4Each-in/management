@@ -49,6 +49,7 @@ class ClientController extends Controller
             'email' => $request->input('email'),
             'secondary_email' => $request->input('secondary_email'),
             'additional_email' => $request->input('additional_email'),
+            'gender' => $request->input('gender'),
             'phone' => $request->input('phone'),
             'birth_date' => $request->input('birth_date'),
             'address' => $request->input('address'),
@@ -67,6 +68,7 @@ class ClientController extends Controller
         $user = Users::create([
             'first_name' => $request->input('name'),
             'last_name' => '',
+            'gender' => $request->input('gender'),
             'email' => $request->input('email'),
             'password' => $request->input('password'),
             'salary' => null,
@@ -103,17 +105,27 @@ class ClientController extends Controller
     
     public function update(Request $request) {
         $request->validate([
-            'name' => 'required'
-            // 'email' => 'required|email',
+            'name' => 'required',
+            'email' => 'required|email',
+            'edit_password' => 'nullable|confirmed|min:6'
             /*'phone' => ['regex:/^\d{5,15}$/']
         ], [
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
         ]);
-    
         $client = Client::find($request->id);
     
         if ($client) {
             $client->update($request->all());
+            $user = Users::where('client_id', $client->id)->first();
+            if ($user) {
+                $user->email = $request->email;
+                if($request->filled('edit_password')) {
+                    $user->password = $request->edit_password;
+                }
+                $user->gender = $request->gender;
+                $user->save();
+            }
+    
             return "success";
         }
     }
