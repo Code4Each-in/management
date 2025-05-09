@@ -91,36 +91,33 @@
       </div>
       </div>
 
-
-      @php
-    $statusLabels = [
-        'to_do' => 'To do',        
-        'in_progress' => 'In progress',  
-        'ready' => 'Ready',       
-        'deployed' => 'Deployed',  
-        'complete' => 'Complete',   
-    ];
-    $statusColors = [
-        'to_do' => '#948979',        
-        'in_progress' => '#3fa6d7',  
-        'ready' => '#e09f3e',       
-        'deployed' => '#e76f51',  
-        'complete' => '#2a9d8f',   
-    ];
-    $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
-@endphp
-
-<div class="detail-item">
+    @php
+      $statusLabels = [
+          'to_do' => 'To do',        
+          'in_progress' => 'In progress',  
+          'ready' => 'Ready',       
+          'deployed' => 'Deployed',  
+          'complete' => 'Complete',   
+      ];
+      $statusColors = [
+          'to_do' => '#948979',        
+          'in_progress' => '#3fa6d7',  
+          'ready' => '#e09f3e',       
+          'deployed' => '#e76f51',  
+          'complete' => '#2a9d8f',   
+      ];
+      $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+  @endphp
+  <div class="detail-item">
     <i class="fa-solid fa-bolt"></i>
     <strong>Ticket Status:</strong>
-
     @if(Auth::user()->role_id != 6)
         <div class="dropdown d-inline-block ms-0">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
                 {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
             </button>
             <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-                @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                @foreach(array_keys($statusLabels) as $status)
                     <li>
                         <a class="dropdown-item" href="#" data-value="{{ $status }}">
                             {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -130,14 +127,11 @@
             </ul>
         </div>
     @else
-    <button class="btn btn-sm btn-outline-secondary status-button ms-0"
-    type="button"
-    style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;">
-{{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-</button>
+      <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+      </button>
     @endif
-</div>     
-    </div>
+  </div>     
+  </div>
   </div>
 </div>
           <div class="main-section">
@@ -383,6 +377,13 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const statusColors = {
+        to_do: '#948979',
+        in_progress: '#3fa6d7',
+        ready: '#e09f3e',
+        deployed: '#e76f51',
+        complete: '#2a9d8f'
+    };
 
     document.body.addEventListener('click', function (e) {
       const clickedItem = e.target.closest('.dropdown-item');
@@ -416,7 +417,10 @@
             const formattedStatus = newStatus
               .replace('_', ' ')
               .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word
-            statusButton.innerHTML = `<i class="fa-solid fa-circle-dot"></i> ${formattedStatus}`;
+            statusButton.innerHTML = `${formattedStatus}`;
+            const newColor = statusColors[newStatus] || '#6c757d';
+                              statusButton.style.backgroundColor = newColor;
+                              statusButton.style.borderColor = newColor;
           }
 
           // Always reload after a small delay (to let user briefly see change if needed)
