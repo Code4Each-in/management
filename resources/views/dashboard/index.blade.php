@@ -414,7 +414,48 @@ use App\Models\Votes;
         </div>
     </div>
     <!-- Sticky Notes Ended -->
-
+    <div class="col-lg-12 stickyNotes">
+        <div class="card">
+            <div class="sticky-card">
+                <h5 class="mt-4">Latest Comments</h5>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Notification</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if($notifications->isEmpty())
+            <tr>
+                <td class="text-center text-muted">No recent comments found</td>
+            </tr>
+        @else
+            @foreach($notifications as $notification)
+                @php
+                    $userName = $notification->user->first_name ?? 'Unknown User';
+                    $projectName = $notification->ticket->project->project_name ?? 'Unknown Project';
+                    $ticketId = $notification->ticket_id;
+                    $ticketUrl = url('/view/ticket/' . $ticketId);
+                @endphp
+                <tr>
+                    <td>
+                        <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
+                            <strong class="text-primary">You got a new comment on #{{ $ticketId }}</strong>
+                            on project <strong>{{ $projectName }}</strong> by <strong>{{ $userName }}</strong>
+                        </a>
+                    </td>
+                </tr>
+            @endforeach
+        @endif
+    </tbody>
+</table>  
+ <div class="text-center">
+    <a href="{{ url('/comments') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1; padding: 6px 20px; font-weight: 600; border-radius: 10px;">
+        See All
+    </a>
+</div>
+            </div>
+        </div>
     <!-- ---------- ToDo List Started ---------------- -->
     <div class="col-lg-12">
         <div class="card">
@@ -423,10 +464,10 @@ use App\Models\Votes;
                     <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
                         <h5 class="card-title">Your Tasks</h5>
                         <a href="/todo_list" class="btn btn-primary" style="
-    font-weight: 600;
-    font-size: 15px;
-    background-color: #4154f1;
-">View All Tasks</a>
+                        font-weight: 600;
+                        font-size: 15px;
+                        background-color: #4154f1;
+                    ">View All Tasks</a>
                     </div>
                 </div>
 
@@ -1018,47 +1059,45 @@ use App\Models\Votes;
                 </div>
                 <div class="card">
                     <div class="card-body pb-4">
-                        <h4 class="mb-3">Recent Notifications</h4>
+                        <h4 class="mb-3">Recent Comments</h4>
                         <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
                                     <tr>
-                                        <th>Notification</th>
-                                        <th>Project Name</th>
-                                        <th>Ticket</th>
+                                        <th>Comments</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @if($notifications->isEmpty())
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">No notifications found</td>
-                                    </tr>
-                                @else
-                                    @foreach($notifications as $notification)
-                                    @php
-                                    $ticket = \App\Models\Tickets::find($notification->ticket_id);
-                                    $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
-                                    $creatorName = $notification->user->first_name ?? 'Unknown User';
-                                    @endphp
-                                    <tr>
-                                        <td>
-                                            {{ $notification->message }} <br>
-                                            <small>By: {{ $creatorName }}</small>
-                                        </td>
-                                        <td>{{ $projectName }}</td>
-                                        <td>
-                                            <a href="{{ url('/view/ticket/' . $notification->ticket_id) }}" target="_blank">
-                                                <i class="fa fa-eye text-primary"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                @endif
-                                </tbody>
-                            </table>
+                                    @if($notifications->isEmpty())
+                                        <tr>
+                                            <td class="text-center text-muted">No notifications found</td>
+                                        </tr>
+                                    @else
+                                        @foreach($notifications as $notification)
+                                            @php
+                                                $ticket = \App\Models\Tickets::find($notification->ticket_id);
+                                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
+                                                $creatorName = $notification->user->first_name ?? 'Unknown User';                              
+                                                $ticketUrl = url('/view/ticket/' . $notification->ticket_id);
+                                            @endphp
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
+                                                        <strong class="text-primary">
+                                                            You got a new comment on #{{ $notification->ticket_id }} 
+                                                            on project {{ $projectName }} 
+                                                            by {{ $creatorName }}
+                                                        </strong> 
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>                                
+                            </table>                            
                         </div>
                         <div class="text-center mt-3">
-                            <a href="{{ url('/notification/all') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
+                            <a href="{{ url('/comments') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
                         </div>
                     </div>
                 </div>

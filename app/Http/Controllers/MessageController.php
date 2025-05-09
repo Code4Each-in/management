@@ -22,7 +22,7 @@ class MessageController extends Controller
     {
         $user = Auth::user();
         $client = null;
-    
+        $roleid = $user->role_id;
         if ($user->role_id == 1) {
             $projects = Projects::orderBy('id', 'desc')->get();
     
@@ -63,7 +63,7 @@ class MessageController extends Controller
             return optional($project->last_message)->created_at;
         })->values();
     
-        return view('developer.chat', compact('projects', 'client'));
+        return view('developer.chat', compact('projects', 'client', 'roleid'));
     }
     
 
@@ -160,15 +160,15 @@ public function addMessage(Request $request)
     if ($message) {
         try {
             $rawMessage = $request->input('message');
-            $cleanMessage = nl2br(strip_tags(html_entity_decode($rawMessage)));
-
+            $cleanMessage = strip_tags(html_entity_decode($rawMessage)); 
             
             $messages = [
                 "subject" => "New Message received from - {$name}",
-                "title" => "You've received new Message from {$name}.",
-                "body-text" => "Message:<br><br>" . $cleanMessage,
+                "title"   => "You've received a new message from {$name}.",
+                "body-text" => $cleanMessage,
             ];
-          
+            
+                
             $assignedUser = Users::find($to_id);
             if ($assignedUser) {
                 $assignedUser->notify(new MessageNotification($messages));

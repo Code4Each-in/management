@@ -20,4 +20,8 @@ class TicketComments extends Model
     {
         return $this->belongsTo(Users::class, 'comment_by','id');
     }
+    public function ticket()
+{
+    return $this->belongsTo(Tickets::class, 'ticket_id');
+}
 }

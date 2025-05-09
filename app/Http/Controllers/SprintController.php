@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Users;
 use App\Models\Quote;
 use App\Models\Tickets;
+use App\Models\TicketComments;
 use App\Models\TodoList;
 use App\Models\Sprint;
 use App\Models\Notification;
@@ -412,25 +413,32 @@ class SprintController extends Controller
         public function allNotifications()
         {
             $user = auth()->user();
-
+            $roleId = $user->role_id;
             if ($user->role_id == 6) {
+                $user = auth()->user(); 
                 $clientId = $user->client_id;
-                $projectIds = Projects::where('client_id', $clientId)->pluck('id');
-                $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+                $projectMap = Projects::where('client_id', $clientId)->pluck('project_name', 'id');
 
-                $notifications = Notification::whereIn('ticket_id', $ticketIds)
-                ->where('message', 'not like', '%assigned%') // partial match
-                ->with(['ticket.project'])
-                ->get()
-                ->unique('created_at') 
-                ->sortByDesc('created_at')
-                ->values();            
-          
+                $projectIds = $projectMap->keys()->toArray();
+                $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+                $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+                ->where('comments', '!=', '')
+                ->where('created_at', '>=', Carbon::now()->subDays(2))
+                ->with(['user', 'ticket.project']) 
+                ->orderBy('created_at', 'desc')
+                ->get();
+                
+                
             } else {
-                $notifications = Notification::orderBy('created_at', 'desc')->get();
+                $projectMap = '';
+                $notifications = TicketComments::where('comments', '!=', '')
+                ->where('created_at', '>=', Carbon::now()->subDays(2))
+                ->with(['user', 'ticket.project']) 
+                ->orderBy('created_at', 'desc')
+                ->get();
             }
 
-            return view('developer.notification', compact('notifications'));
+            return view('developer.notification', compact('notifications', 'projectMap', 'roleId'));
         }
 
     

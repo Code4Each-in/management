@@ -20,7 +20,7 @@ use App\Models\TodoList;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\Reminder;
-
+use App\Models\TicketComments;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 
@@ -49,13 +49,22 @@ class DashboardController extends Controller
 
         $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
 
-        $notifications = Notification::whereIn('ticket_id', $ticketIds)
-        ->where('message', 'not like', '%assigned%')
-        ->with('user')
+        $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+        ->where('comments', '!=', '') 
+        ->where('created_at', '>=', Carbon::now()->subDays(2))
+        ->with('user') 
         ->orderBy('created_at', 'desc')
-        ->get()
-        ->unique('created_at')
-        ->take(5);
+        ->take(5)
+        ->get();
+        }
+        else{
+            $projectMap = null; // Not needed
+            $notifications = TicketComments::where('comments', '!=', '') 
+                ->where('created_at', '>=', Carbon::now()->subDays(2))
+                ->with(['user', 'ticket.project']) // Load relations
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
         }
         $joiningDate = $user->joining_date;
         $userId = $user->id;
