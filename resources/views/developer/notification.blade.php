@@ -1,31 +1,44 @@
 @extends('layout')
-@section('title', 'All Notifications')
+@section('title', 'All Comments')
 @section('subtitle', 'Show')
 @section('content')
 <div class="card">
     <div class="card-body pb-4">
-        <table class="table table-striped  table-bordered" id="notification">
-        <thead>
-            <tr>
-                <th>Notification</th>
-                <th>Project Name</th>
-                <th>Ticket</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($notifications as $index => $notification)
+        <table class="table table-striped table-bordered" id="notification">
+            <thead>
                 <tr>
-                    <td>{{ $notification->message }}</td>
-                    <td>{{ $notification->ticket->project->project_name }}</td>
-                    <td>
-                        <a href="{{ url('/view/ticket/'.$notification->ticket_id) }}" target="_blank">
-                            <i class="fa fa-eye text-primary"></i> 
-                        </a>
-                    </td>
+                    <th>Comments</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($notifications as $notification)
+                    @php
+            
+                        if(auth()->user()->role_id == 6) {
+                            $projectName = $notification->ticket
+                                ? ($projectMap[$notification->ticket->project_id] ?? 'Unknown Project')
+                                : 'Unknown Project';
+                        } else {
+                            $projectName = $notification->ticket->project->project_name ?? 'Unknown Project';
+                        }
+            
+                        $userName = $notification->user->first_name ?? 'Unknown User';
+                        $ticketUrl = url('/view/ticket/' . $notification->ticket_id);
+                    @endphp
+                    <tr>
+                        <td>
+                            <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
+                                <strong class="text-primary">
+                                    You got a new comment on #{{ $notification->ticket_id }} 
+                                    on project {{ $projectName }} 
+                                    by {{ $userName }}
+                                </strong>
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>                       
+        </table>        
 </div>
 </div>
 @endsection

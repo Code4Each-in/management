@@ -25,13 +25,16 @@ class MessageNotification extends Notification
     }
 
     public function toMail($notifiable)
-{
-    return (new MailMessage)
-        ->subject($this->data['subject'])
-        ->greeting($this->data['title'])
-        ->line(new HtmlString($this->data['body-text']))
-        ->salutation(new HtmlString("Regards,<br>Code4Each"));
-}
+    {
+        return (new MailMessage)
+            ->subject($this->data['subject'])
+            ->view('emails.custom_message', [
+                'subject' => $this->data['subject'],
+                'title'   => $this->data['title'],
+                'body'    => $this->data['body-text'],
+            ]);
+    }
+    
 
     
 }

@@ -313,7 +313,9 @@
                 </div>
                 <div class="details">
                     <div class="name">{{ $project->project_name }}</div>
+                    @if ($roleid != 6)
                     <div class="project">{{ $project->client->name ?? 'N/A' }}</div>
+                    @endif
                     <div class="last-message">
                         {{ Str::limit(strip_tags(html_entity_decode($project->last_message ? $project->last_message->message : ' ')), 15) }}
                     </div>

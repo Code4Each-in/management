@@ -155,9 +155,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('notification.all') ? '' : 'collapsed' }}"
-                    href="{{ route('notification.all') }}">
-                    <i class="bi bi-bell"></i> <span>All Notifications</span>
+                <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
+                    href="{{ route('comments') }}">
+                    <i class="bi bi-bell"></i> <span>All Comments</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -215,6 +215,18 @@
                 <span>Sprint</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                <i class="bi bi-people"></i>
+                <span>Messages</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
+                href="{{ route('comments') }}">
+                <i class="bi bi-bell"></i> <span>All Comments</span>
+            </a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">
@@ -250,12 +262,6 @@
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
                     <i class="bi bi-people"></i>
                     <span>Roles</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
-                    <i class="bi bi-people"></i>
-                    <span>Messages</span>
                 </a>
             </li>
           @endif
