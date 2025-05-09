@@ -61,6 +61,7 @@ class DashboardController extends Controller
             $projectMap = null; // Not needed
             $notifications = TicketComments::where('comments', '!=', '') 
                 ->where('created_at', '>=', Carbon::now()->subDays(2))
+                ->where('comment_by', '!=', auth()->id())
                 ->with(['user', 'ticket.project']) // Load relations
                 ->orderBy('created_at', 'desc')
                 ->take(5)

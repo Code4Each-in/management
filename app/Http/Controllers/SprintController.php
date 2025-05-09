@@ -433,6 +433,7 @@ class SprintController extends Controller
                 $projectMap = '';
                 $notifications = TicketComments::where('comments', '!=', '')
                 ->where('created_at', '>=', Carbon::now()->subDays(2))
+                ->where('comment_by', '!=', auth()->id())
                 ->with(['user', 'ticket.project']) 
                 ->orderBy('created_at', 'desc')
                 ->get();
