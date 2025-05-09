@@ -79,7 +79,7 @@
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif
                     </div>
-                </div>                
+                </div>       
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label required">Project</label>
                     <div class="col-sm-9">
@@ -96,11 +96,10 @@
                         @enderror
                     </div>
                 </div>
-
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label">Sprint</label>
                     <div class="col-sm-9">
-                        <select name="sprint_id" class="form-select form-control" id="sprint_id">
+                        <select name="sprint_id_ticket" class="form-select form-control" id="sprint_id_ticket">
                             <option value="">Select Sprint</option>
                         </select>
                     </div>
@@ -206,24 +205,24 @@
 }
      $('#project_id').on('change', function () {
         var projectId = $(this).val();
-        $('#sprint_id').empty().append('<option value="">Loading...</option>');
+        $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
 
         if (projectId) {
             $.ajax({
                 url: '/get-sprints-by-project/' + projectId,
                 type: 'GET',
                 success: function (response) {
-                    $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+                    $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
                     $.each(response, function (key, sprint) {
-                        $('#sprint_id').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+                        $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
                     });
                 },
                 error: function () {
-                    $('#sprint_id').empty().append('<option value="">Error loading sprints</option>');
+                    $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
                 }
             });
         } else {
-            $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+            $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
         }
     });
      $("#addTicketsForm").submit(function(event) {

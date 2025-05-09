@@ -260,7 +260,9 @@ class TicketsController extends Controller
                 return response()->json([
                     'status' => 200,
                     'tickets' => $tickets,
-                    'redirect' => route('sprint.view', ['sprintId' => $request->sprint_id])
+                    'redirect' => !empty($request->sprint_id)
+                                  ? route('sprint.view', ['sprintId' => $request->sprint_id])
+                                  : route('tickets.index')
                 ]);            
     }
     
@@ -434,7 +436,7 @@ class TicketsController extends Controller
            }
 
             $request->session()->flash('message','Ticket updated successfully.');
-    		return redirect()->back()->with('tickets', $tickets);
+    		return redirect()->route('tickets.index');
      }
      
      public function destroy(Request $request)

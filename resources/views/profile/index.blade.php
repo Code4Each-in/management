@@ -163,7 +163,7 @@
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Birthdate</div>
                         <div class="col-lg-9 col-md-8 detail_full_birth_date">
-                            {{date("d-m-Y", strtotime($usersProfile->birth_date))}}
+                            {{ $usersProfile->birth_date ? date("d-m-Y", strtotime($usersProfile->birth_date)) : '---' }}
                         </div>
                     </div>
 
