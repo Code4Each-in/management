@@ -56,7 +56,7 @@
                                     <td>{{ $data->employee_id ?? '---' }}</td>
                                     <td>{{ $data->first_name ?? '---' }}</td>
                                     <td>{{ $data->last_name ?? '---' }}</td>
-                                    <td>{{ $data->email ?? '---$_GET' }}</td>
+                                    <td>{{ $data->email ?? '---' }}</td>
                                     <!-- <td>{{ $data->salary }}</td> -->
                                     <td>{{$data->role->name ?? '---'}}</td>
                                     <td>{{ $data->designation ?: '---' }}</td>
