@@ -299,7 +299,7 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
     Route::delete('/delete/sprint/file', [SprintController::class, 'deleteSprintFile']);
-	Route::get('/notification/all', [SprintController::class, 'allNotifications'])->name('notification.all');
+	
 	Route::get('/developer/feedback', [ProjectsController::class, 'allfeedback'])->name('developer.feedback');
 
 	//Sticky Note
@@ -323,4 +323,5 @@ Route::middleware(['role_permission'])->group(function () {
 	 Route::delete('/comments/{id}/delete', [MessageController::class, 'destroy']);
 	 Route::post('/project-messages/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->name('project-messages.markAsRead');
 	 Route::delete('/comments/{id}/delete', [TicketsController::class, 'deleteComment'])->name('comments.delete');
+	 Route::get('/comments', [SprintController::class, 'allNotifications'])->name('comments');
 	});
