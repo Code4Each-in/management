@@ -127,7 +127,6 @@ class TicketsController extends Controller
 
     public function store(Request $request) 
 	{ 
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'title' => 'required|min:15',
             'description' => 'required',
@@ -157,7 +156,6 @@ class TicketsController extends Controller
             $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
-            // dd($validate['sprint_id_ticket']);
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'],
@@ -447,9 +445,9 @@ class TicketsController extends Controller
             $source = $request->input('source') ?? $request->query('source');
             // dd($source);
             $request->session()->flash('message','Ticket updated successfully.');
-    		if ($source === 'from-ticket-0') {
+    		if ($source === 'ticket') {
                 return redirect()->route('tickets.index');
-            } elseif ($source === 'from-sprint-1') {
+            } elseif ($source === 'sprint') {
                 return redirect()->route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')]);
             } else {
                 return redirect()->route('tickets.index');

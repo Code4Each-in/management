@@ -205,34 +205,32 @@
         charCountError.style.display = 'none';   
     }
 }
-     $('#project_id').on('change', function () {
-        var projectId = $(this).val();
-        $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
+    //  $('#project_id').on('change', function () {
+    //     var projectId = $(this).val();
+    //     $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
 
-        if (projectId) {
-            $.ajax({
-                url: '/get-sprints-by-project/' + projectId,
-                type: 'GET',
-                success: function (response) {
-                    $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
-                    $.each(response, function (key, sprint) {
-                        $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
-                    });
-                },
-                error: function () {
-                    $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
-                }
-            });
-        } else {
-            $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
-        }
-    });
+    //     if (projectId) {
+    //         $.ajax({
+    //             url: '/get-sprints-by-project/' + projectId,
+    //             type: 'GET',
+    //             success: function (response) {
+    //                 $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
+    //                 $.each(response, function (key, sprint) {
+    //                     $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+    //                 });
+    //             },
+    //             error: function () {
+    //                 $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
+    //             }
+    //         });
+    //     } else {
+    //         $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
+    //     }
+    // });
      $("#addTicketsForm").submit(function(event) {
                     event.preventDefault();    
                     $('#description_input').val(quill.root.innerHTML);             
                     var formData = new FormData(this);
-                    console.log($('#sprint_id_ticket').val());
-                    // return false;
                     $('#loader').show();
                     $.ajax({
                         type: 'POST',
@@ -315,6 +313,32 @@ function loadSprints(projectId, preselectedSprintId = null) {
                     if (preselectedSprintId) {
                         $('#sprint_id_ticket').val(preselectedSprintId);
                     }
+
+                    if (projectId && preselectedSprintId) {
+                        console.log('Disabling because both projectId and sprintId are present');
+                        $('#project_id').attr('disabled', true).css('pointer-events', 'none').css('background-color', '#e9ecef');
+                        $('#sprint_id_ticket').attr('disabled', true).css('pointer-events', 'none').css('background-color', '#e9ecef');
+
+                        // Hidden inputs
+                        if ($('#hidden_project_id').length === 0) {
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'hidden_project_id',
+                                name: 'project_id',
+                                value: projectId
+                            }).appendTo('form');
+                        }
+
+                        if ($('#hidden_sprint_id_ticket').length === 0) {
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'hidden_sprint_id_ticket',
+                                name: 'sprint_id_ticket',
+                                value: preselectedSprintId
+                            }).appendTo('form');
+                        }
+                    }
+
                 },
                 error: function () {
                     $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
