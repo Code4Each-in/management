@@ -12,6 +12,7 @@
         <div class="card-body">
 
             <form method="post" id="editTicketsForm" action="{{route('tickets.update',$tickets->id)}}" enctype="multipart/form-data">
+                 <input type="hidden" name="source" value="{{ request('source') }}">
                 <div class="row mb-5 mt-4">
                     <label for="edit_title" class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">

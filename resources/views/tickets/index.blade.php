@@ -193,7 +193,7 @@
                                         <a href="{{ url('/view/ticket/'.$data->id)}}"  target="_blank">
                                             <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                         </a>
-                                        <a href="{{ url('/edit/ticket/'.$data->id)}}"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
+                                        <a href="{{ url('/edit/ticket/'.$data->id)}}?source=ticket"><i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
                                             <i style="color:#4154f1;" onClick="deleteTickets('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                     </td>

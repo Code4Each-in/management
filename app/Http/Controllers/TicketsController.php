@@ -90,6 +90,17 @@ class TicketsController extends Controller
         {
             $auth_user = auth()->user();
             $sprint_id = $request->get('sprint_id'); 
+
+            $sprint = null;
+            $project_id = null;
+
+            if ($sprint_id) {
+                $sprint = Sprint::find($sprint_id);
+                if ($sprint) {
+                    $project_id = $sprint->project; 
+                }
+            }
+
             $user = Users::whereHas('role', function($q) {
                     $q->where('name', '!=', 'Super Admin');
                 })
@@ -109,7 +120,7 @@ class TicketsController extends Controller
                 ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')
                 ->get();
         
-            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus', 'sprint_id'));
+            return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus', 'sprint_id', 'project_id'));
         }
         
 
@@ -145,14 +156,11 @@ class TicketsController extends Controller
             $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
-
-
-
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'],
                 'project_id' => $validate['project_id'], 
-                'sprint_id' => $validate['sprint_id'],
+                'sprint_id' => $validate['sprint_id_ticket'],
                 'status'=> $validate ['status'],
                 'priority'=> $validate ['priority'],
                 'ticket_priority'=> $validate ['ticket_priority'],
@@ -260,7 +268,9 @@ class TicketsController extends Controller
                 return response()->json([
                     'status' => 200,
                     'tickets' => $tickets,
-                    'redirect' => route('sprint.view', ['sprintId' => $request->sprint_id])
+                    'redirect' => !empty($request->sprint_id)
+                                  ? route('sprint.view', ['sprintId' => $request->sprint_id])
+                                  : route('tickets.index')
                 ]);            
     }
     
@@ -274,7 +284,7 @@ class TicketsController extends Controller
      { 
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
 
-         $user = Users::whereHas('role', function($q){
+        $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
         })->orderBy('id','desc')->get()->toArray();	
         $userCount = Users::where('status', '!=', 0)
@@ -432,9 +442,16 @@ class TicketsController extends Controller
                 }
                
            }
-
+            $source = $request->input('source') ?? $request->query('source');
+            // dd($source);
             $request->session()->flash('message','Ticket updated successfully.');
-    		return redirect()->back()->with('tickets', $tickets);
+    		if ($source === 'ticket') {
+                return redirect()->route('tickets.index');
+            } elseif ($source === 'sprint') {
+                return redirect()->route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')]);
+            } else {
+                return redirect()->route('tickets.index');
+            }
      }
      
      public function destroy(Request $request)

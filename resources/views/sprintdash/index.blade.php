@@ -62,21 +62,20 @@
                   $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
                 @endphp
           
-                @if ($total === 0 || $completed < $total)
                   <tr>
                     <td>{{ $serial++ }}</td>
                     <td>{{ $sprint->name }}</td>
                     <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
                     @php
-                    $firstRole = explode(' ', $role_id)[0] ?? 0;
-                  @endphp
-                @if ($firstRole != 6)
-                <td style="text-align: center;">
-                  @if($daysLeft <= 2 && $daysLeft >= 0)
-                    <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-                  @endif
-                  Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-                </td>
+                      $firstRole = explode(' ', $role_id)[0] ?? 0;
+                    @endphp
+                    @if ($firstRole != 6)
+                      <td style="text-align: center;">
+                        @if($daysLeft <= 2 && $daysLeft >= 0)
+                          <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
+                        @endif
+                        Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+                      </td>
                     <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                     <td>{{ $eta->format('d/m/Y') }}</td>
                 @endif
@@ -117,7 +116,6 @@
                       </div>
                   </td>                                         
                   </tr>
-                @endif
               @endforeach
               @if($sprints->isEmpty())
               <tr>

@@ -5,6 +5,7 @@
 <div class="row">
     <div class="row mb-2">
         <div class="col-md-2">
+            <input type="hidden" name="project_id" value="{{ $sprints->project }}">
             <a class="btn btn-primary mt-3" href="{{ route('tickets.create', ['sprint_id' => $sprint->id]) }}" style="background: #4154f1;">Add Ticket</a>
         </div>
     </div>
@@ -266,7 +267,7 @@
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                 </a>
-                                <a href="{{ url('/edit/ticket/'.$ticket->id) }}">
+                                <a href="{{ url('/edit/ticket/'.$ticket->id) }}?source=sprint">
                                     <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
                                 </a>
                                 @if ($firstRole != 6)

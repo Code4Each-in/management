@@ -136,12 +136,16 @@
                         <div class="col-lg-3 col-md-4 label">Address</div>
                         <div class="col-lg-9 col-md-8 detail_full_address">
                             @if(auth()->user()->role_id !== 6)
-                                @if ($usersProfile->address)
-                                    {{$usersProfile->address}} {{$usersProfile->city}} , {{$usersProfile->state}} , {{$usersProfile->zip}}
+                                 @if ($usersProfile->address)
+                                    {{ $usersProfile->address }} {{ $usersProfile->city }} , {{ $usersProfile->state }} , {{ $usersProfile->zip }}
+                                @else
+                                    ---
                                 @endif
                             @else
                                 @if ($clientProfile->address)
                                     {{$clientProfile->address}} {{$clientProfile->city}} , {{$clientProfile->zip}}
+                                @else
+                                    ---
                                 @endif
                             @endif
                         </div>
@@ -149,7 +153,7 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Phone</div>
-                        <div class="col-lg-9 col-md-8 detail_full_phone">{{$usersProfile->phone}}</div>
+                        <div class="col-lg-9 col-md-8 detail_full_phone">{{$usersProfile->phone ? $usersProfile->phone : '---'}}</div>
                     </div>
 
                     @if(auth()->user()->role_id !== 6)
@@ -163,7 +167,7 @@
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Birthdate</div>
                         <div class="col-lg-9 col-md-8 detail_full_birth_date">
-                            {{date("d-m-Y", strtotime($usersProfile->birth_date))}}
+                            {{ $usersProfile->birth_date ? date("d-m-Y", strtotime($usersProfile->birth_date)) : '---' }}
                         </div>
                     </div>
 
