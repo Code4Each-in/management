@@ -267,7 +267,7 @@
                                 <a href="{{ url('/view/ticket/'.$ticket->id) }}"  target="_blank">
                                     <i style="color:#4154f1;" class="fa fa-eye fa-fw pointer"></i>
                                 </a>
-                                <a href="{{ url('/edit/ticket/'.$ticket->id) }}?source=from-sprint-1">
+                                <a href="{{ url('/edit/ticket/'.$ticket->id) }}?source=sprint">
                                     <i style="color:#4154f1;" class="fa fa-edit fa-fw pointer"></i>
                                 </a>
                                 @if ($firstRole != 6)
