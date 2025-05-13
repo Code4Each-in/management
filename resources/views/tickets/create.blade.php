@@ -315,7 +315,6 @@ function loadSprints(projectId, preselectedSprintId = null) {
                     }
 
                     if (projectId && preselectedSprintId) {
-                        console.log('Disabling because both projectId and sprintId are present');
                         $('#project_id').attr('disabled', true).css('pointer-events', 'none').css('background-color', '#e9ecef');
                         $('#sprint_id_ticket').attr('disabled', true).css('pointer-events', 'none').css('background-color', '#e9ecef');
 
