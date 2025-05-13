@@ -50,8 +50,8 @@ class DashboardController extends Controller
         $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
 
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
-        ->where('comments', '!=', '') 
-        ->where('created_at', '>=', Carbon::now()->subDays(2))
+        ->where('comments', '!=', '')
+        ->where('comment_by', '!=', auth()->id())
         ->with('user') 
         ->orderBy('created_at', 'desc')
         ->take(5)
@@ -59,8 +59,7 @@ class DashboardController extends Controller
         }
         else{
             $projectMap = null; // Not needed
-            $notifications = TicketComments::where('comments', '!=', '') 
-                ->where('created_at', '>=', Carbon::now()->subDays(2))
+            $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
                 ->with(['user', 'ticket.project']) // Load relations
                 ->orderBy('created_at', 'desc')
