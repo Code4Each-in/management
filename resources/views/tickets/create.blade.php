@@ -13,6 +13,7 @@
                 @csrf
                 <div class="alert alert-danger mt-1" style="display: none;"></div>
                 <input type="hidden" name="sprint_id" value="{{ $sprint_id }}">
+                <input type="hidden" id="pre_project_id" value="{{ $project_id ?? '' }}">
                 <div class="row mb-5 mt-4">
                     <label class="col-sm-3 col-form-label required">Title</label>
                     <div class="col-sm-9">
@@ -79,14 +80,15 @@
                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                         @endif
                     </div>
-                </div>                
+                </div>       
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label required">Project</label>
                     <div class="col-sm-9">
                         <select name="project_id" class="form-select form-control" id="project_id">
                             <option value="">Select Project</option>
                             @foreach ($projects as $data)
-                                <option value="{{ $data->id }}" {{ old('project_id') == $data->id ? 'selected' : '' }}>
+                                <option value="{{ $data->id }}"
+                                    {{ (old('project_id') == $data->id || (isset($project_id) && $project_id == $data->id)) ? 'selected' : '' }}>
                                     {{ $data->project_name }}
                                 </option>
                             @endforeach
@@ -96,11 +98,10 @@
                         @enderror
                     </div>
                 </div>
-
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label">Sprint</label>
                     <div class="col-sm-9">
-                        <select name="sprint_id" class="form-select form-control" id="sprint_id">
+                        <select name="sprint_id_ticket" class="form-select form-control" id="sprint_id_ticket">
                             <option value="">Select Sprint</option>
                         </select>
                     </div>
@@ -206,30 +207,32 @@
 }
      $('#project_id').on('change', function () {
         var projectId = $(this).val();
-        $('#sprint_id').empty().append('<option value="">Loading...</option>');
+        $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
 
         if (projectId) {
             $.ajax({
                 url: '/get-sprints-by-project/' + projectId,
                 type: 'GET',
                 success: function (response) {
-                    $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+                    $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
                     $.each(response, function (key, sprint) {
-                        $('#sprint_id').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+                        $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
                     });
                 },
                 error: function () {
-                    $('#sprint_id').empty().append('<option value="">Error loading sprints</option>');
+                    $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
                 }
             });
         } else {
-            $('#sprint_id').empty().append('<option value="">Select Sprint</option>');
+            $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
         }
     });
      $("#addTicketsForm").submit(function(event) {
                     event.preventDefault();    
                     $('#description_input').val(quill.root.innerHTML);             
                     var formData = new FormData(this);
+                    console.log($('#sprint_id_ticket').val());
+                    // return false;
                     $('#loader').show();
                     $.ajax({
                         type: 'POST',
@@ -264,27 +267,17 @@
     $(document).ready(function () {
         $('#add_assign').select2({ width: '100%', allowClear: true });
 
-        $('#add_project_id').on('change', function () {
-            var projectId = $(this).val();
-            $('#add_sprint_id').empty().append('<option value="">Loading...</option>');
+        const initialProjectId = $('#project_id').val();
+        const preselectedSprintId = "{{ $sprint_id ?? '' }}";
 
-            if (projectId) {
-                $.ajax({
-                    url: '/get-sprints-by-project/' + projectId,
-                    type: 'GET',
-                    success: function (response) {
-                        $('#add_sprint_id').empty().append('<option value="">Select Sprint</option>');
-                        $.each(response, function (key, sprint) {
-                            $('#add_sprint_id').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
-                        });
-                    },
-                    error: function () {
-                        $('#add_sprint_id').empty().append('<option value="">Error loading sprints</option>');
-                    }
-                });
-            } else {
-                $('#add_sprint_id').empty().append('<option value="">Select Sprint</option>');
-            }
+        // Load sprints automatically if a project is already selected
+        if (initialProjectId) {
+            loadSprints(initialProjectId, preselectedSprintId);
+        }
+
+        // Load sprints on project change (reset sprint selection)
+        $('#project_id').on('change', function () {
+            loadSprints($(this).val());
         });
     });
     document.addEventListener("DOMContentLoaded", function() {
@@ -305,5 +298,31 @@
     const maxEta = `${year}-${month}-${day}T${hours}:${minutes}`;
     document.getElementById("eta").setAttribute("max", maxEta);
 });
+function loadSprints(projectId, preselectedSprintId = null) {
+        $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
+
+        if (projectId) {
+            $.ajax({
+                url: '/get-sprints-by-project/' + projectId,
+                type: 'GET',
+                success: function (response) {
+                    $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
+                    $.each(response, function (key, sprint) {
+                        $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+                    });
+
+                    // Select the sprint automatically if provided
+                    if (preselectedSprintId) {
+                        $('#sprint_id_ticket').val(preselectedSprintId);
+                    }
+                },
+                error: function () {
+                    $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
+                }
+            });
+        } else {
+            $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
+        }
+    }
 </script>
 @endsection

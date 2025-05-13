@@ -70,9 +70,8 @@ class SprintController extends Controller
         ->when($projectFilter, function ($query) use ($projectFilter) {
             $query->where('project', $projectFilter);
         })
-        ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
+        // ->havingRaw('tickets_count != completed_tickets_count OR tickets_count = 0 OR completed_tickets_count = 0')
         ->get();
-
 
         $inactivesprints = Sprint::with('projectDetails')
         ->withCount([
