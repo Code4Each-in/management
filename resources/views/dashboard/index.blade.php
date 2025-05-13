@@ -1548,7 +1548,12 @@ use App\Models\Votes;
             };
 
             // Insert the note before the add button
-            noteGrid.insertBefore(note, document.getElementById('addBtn'));
+            // noteGrid.insertBefore(note, document.getElementById('addBtn'));
+            noteGrid.insertBefore(note, noteGrid.firstChild);
+            const addBtn = document.getElementById('addBtn');
+            if (addBtn) {
+                noteGrid.insertBefore(addBtn, noteGrid.firstChild);
+            }
         }
 
         function createAddBtn() {
@@ -1588,7 +1593,8 @@ use App\Models\Votes;
                     });
             };
 
-            noteGrid.appendChild(addBtn);
+            // noteGrid.appendChild(addBtn);
+            noteGrid.insertBefore(addBtn, noteGrid.firstChild);
         }
 
         function updateNote(event) {
