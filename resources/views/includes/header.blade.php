@@ -164,6 +164,9 @@
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
                     <i class="bi bi-people"></i>
                     <span>Messages</span>
+                    @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
+                        <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item">
@@ -216,11 +219,14 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+            <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
                 <i class="bi bi-people"></i>
                 <span>Messages</span>
+                @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
+                    <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
+                @endif
             </a>
-        </li>
+        </li>               
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
                 href="{{ route('comments') }}">
@@ -666,6 +672,15 @@
     <!-- End Footer -->
 
     <!-- <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a> -->
+    <script>
+function clearMessageCounter() {
+    const counter = document.getElementById('unread-message-counts');
+    if (counter) {
+        counter.remove();
+    }
+}
+</script>
+
     <script>
         function fetchNotifications() {
             $.ajax({

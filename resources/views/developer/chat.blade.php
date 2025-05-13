@@ -307,8 +307,8 @@
         <div class="sidebar-header">Messages</div>
         <div class="contact-list">
             @foreach($projects->where('status', 'active') as $project)
-            <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
-                <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }}); handleProjectClick({{ $project->id }});" id="contact-{{ $project->id }}">
+                           <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                     {{ strtoupper(substr($project->project_name, 0, 2)) }}
                 </div>
                 <div class="details">
@@ -439,6 +439,33 @@
         </div>
         </div>
   </div>
+  <script>
+    function handleProjectClick(projectId) {
+        loadMessages(projectId);
+        const newUrl = `${window.location.origin}${window.location.pathname}?project_id=${projectId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('project_id');
+        if (projectId) {
+            document.querySelectorAll('.contact').forEach(el => el.classList.remove('active'));
+            const contactDiv = document.getElementById(`contact-${projectId}`);
+            if (contactDiv) {
+                contactDiv.classList.add('active');
+                handleProjectClick(projectId); 
+            }
+        }
+    });
+</script>
+  <script>
+  function hideUnreadCount(projectId) {
+    const badge = document.getElementById('unread-count-' + projectId);
+    if (badge) {
+        badge.style.display = 'none';
+    }
+}
+</script>
   <script>
 function markMessageAsRead(messageId, projectId) {
     fetch(`/project-messages/${messageId}/mark-as-read`, {

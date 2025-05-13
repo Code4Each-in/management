@@ -324,4 +324,8 @@ Route::middleware(['role_permission'])->group(function () {
 	 Route::post('/project-messages/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->name('project-messages.markAsRead');
 	 Route::delete('/comments/{id}/delete', [TicketsController::class, 'deleteComment'])->name('comments.delete');
 	 Route::get('/comments', [SprintController::class, 'allNotifications'])->name('comments');
+	 Route::get('/project/chat/{projectId}', function ($projectId) {
+		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
+	});
+	
 	});

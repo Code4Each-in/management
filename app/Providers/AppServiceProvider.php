@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Notification;
-
+use App\Models\Message;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -44,9 +44,15 @@ class AppServiceProvider extends ServiceProvider
                         ->where('is_read', false)
                         ->count();
                 }
-        
+                
+                $unreadMessageCount = Message::where('to', $userId)
+                ->where('is_read_to', 0)
+                ->count();
+   
+                
                 $view->with('unreadCount', $unreadCount)
-                     ->with('notifications', $notifications);
+                     ->with('notifications', $notifications)
+                     ->with('unreadMessageCount', $unreadMessageCount);
             }
         });
                             

@@ -1082,11 +1082,11 @@ use App\Models\Votes;
                                             @endphp
                                             <tr>
                                                 <td>
-                                                    <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
+                                                    <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
                                                         <strong class="text-primary">
-                                                            You got a new comment on #{{ $notification->ticket_id }} 
-                                                            on project {{ $projectName }} 
-                                                            by {{ $creatorName }}
+                                                            You got a new comment on #{{ $notification->ticket_id }}</strong>
+                                                            on project <strong>{{ $projectName }} </strong>
+                                                            by <strong>{{ $creatorName }}</strong>
                                                         </strong> 
                                                     </a>
                                                 </td>

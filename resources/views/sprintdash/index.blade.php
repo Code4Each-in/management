@@ -53,31 +53,36 @@
               @php $serial = 1; @endphp
               @foreach ($sprints as $sprint)
                 @php
-                  $eta       = \Carbon\Carbon::parse($sprint->eta);
-                  $start     = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-                  $now       = \Carbon\Carbon::now('Asia/Kolkata');
-                  $daysLeft  = $eta->diffInDays($now);
-                  $total     = $sprint->tickets_count ?? 0;
-                  $completed = $sprint->completed_tickets_count ?? 0;
-                  $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
+                 $eta       = $sprint->eta ? \Carbon\Carbon::parse($sprint->eta) : null;
+                $start     = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                $now       = \Carbon\Carbon::now('Asia/Kolkata');
+                $daysLeft  = $eta ? $eta->diffInDays($now, false) : null; 
+                $total     = $sprint->tickets_count ?? 0;
+                $completed = $sprint->completed_tickets_count ?? 0;
+                $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
                 @endphp
           
+                @if ($total === 0 || $completed < $total)
                   <tr>
                     <td>{{ $serial++ }}</td>
                     <td>{{ $sprint->name }}</td>
                     <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
                     @php
-                      $firstRole = explode(' ', $role_id)[0] ?? 0;
-                    @endphp
-                    @if ($firstRole != 6)
-                      <td style="text-align: center;">
-                        @if($daysLeft <= 2 && $daysLeft >= 0)
+                    $firstRole = explode(' ', $role_id)[0] ?? 0;
+                  @endphp
+                @if ($firstRole != 6)
+                <td style="text-align: center;">
+                  @if($eta)
+                      @if($daysLeft <= 2 && $daysLeft >= 0)
                           <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-                        @endif
-                        Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-                      </td>
+                      @endif
+                      Ongoing Sprints: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+                  @else
+                  Ongoing Sprints: ---
+                  @endif
+              </td>              
                     <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
-                    <td>{{ $eta->format('d/m/Y') }}</td>
+                    <td>{{ $eta ? $eta->format('d/m/Y') : '---' }}</td>
                 @endif
                 <td class="actions-cell" style="text-align: center;">
                   <a href="{{ url('/view/sprint/'.$sprint->id) }}">
@@ -116,6 +121,7 @@
                       </div>
                   </td>                                         
                   </tr>
+                @endif
               @endforeach
               @if($sprints->isEmpty())
               <tr>
@@ -123,7 +129,7 @@
               </tr>
               @endif
             </tbody>
-          </table>             
+          </table>              
         </div>     
       </div>
       @if($inactivesprints && $inactivesprints->count() > 0)
@@ -175,7 +181,7 @@
                 @if($daysLeft <= 2 && $daysLeft >= 0)
                   <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
                 @endif
-                Days Left: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
+                Ongoing Sprints: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
               </td>
                   <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                   <td>{{ $eta->format('d/m/Y') }}</td>
