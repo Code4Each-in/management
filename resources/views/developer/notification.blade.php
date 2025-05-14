@@ -45,7 +45,9 @@
 @section('js_scripts')
 <script>
     $(document).ready(function() {
-        $('#notification').DataTable(); 
+        $('#notification').DataTable({
+            "order": false 
+        });
     });
 </script>
 @endsection

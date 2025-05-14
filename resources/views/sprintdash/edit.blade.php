@@ -47,7 +47,7 @@
                 @enderror
             </div>
             <div class="form-group mb-3">
-                <label for="eta" class="col-sm-3 col-form-label text-dark required">End Date</label>
+                <label for="eta" class="col-sm-3 col-form-label text-dark">End Date</label>
                 <input type="datetime-local" class="form-control" name="end_date" id="end_date" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
                 @error('eta')
                     <div class="text-danger">{{ $message }}</div>
@@ -223,25 +223,6 @@
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-    });
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        const startDateInput = document.getElementById('start_date');
-        const etaInput = document.getElementById('end_date');
-
-        startDateInput.addEventListener('change', function () {
-            const startDate = new Date(this.value);
-            if (!isNaN(startDate.getTime())) {
-                const maxDate = new Date(startDate);
-                maxDate.setDate(maxDate.getDate() + 14); 
-
-                const formattedMax = maxDate.toISOString().slice(0, 16);
-                const formattedStart = startDate.toISOString().slice(0, 16);
-
-                etaInput.setAttribute('min', formattedStart);
-                etaInput.setAttribute('max', formattedMax);
             }
         });
     });
