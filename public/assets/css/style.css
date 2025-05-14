@@ -693,7 +693,8 @@ h6 {
 }
 
 .sidebar-nav .nav-item {
-  margin-bottom: 5px;
+    margin-bottom: 5px;
+    position: relative;
 }
 
 .sidebar-nav .nav-heading {
@@ -4062,4 +4063,23 @@ form#update_profile_picture .btn-sm {
   min-width: auto;
   text-align: center;
   border-radius: 5px;
+}
+
+.detail-item img {
+    width: 70%;
+}
+span#unread-message-counts {
+    position: absolute;
+    top: -6px;
+    right: -20px;
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }
