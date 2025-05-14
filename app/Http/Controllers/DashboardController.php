@@ -57,6 +57,25 @@ class DashboardController extends Controller
         ->take(5)
         ->get();
         }
+      elseif (in_array($user->role_id, [2, 3])) {
+    $assignedTicketIds = DB::table('ticket_assigns')
+        ->where('user_id', $user->id)
+        ->pluck('ticket_id')
+        ->toArray();
+
+    $createdTicketIds = Tickets::where('created_by', $user->id)
+        ->pluck('id')
+        ->toArray();
+    $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
+    $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+        ->where('comments', '!=', '')
+        ->where('comment_by', '!=', auth()->id())
+        ->with(['user', 'ticket.project'])
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+}
+
         else{
             $projectMap = null; // Not needed
             $notifications = TicketComments::where('comments', '!=', '')
