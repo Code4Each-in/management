@@ -4081,3 +4081,6 @@ span#unread-message-counts {
     align-items: center;
     z-index: 10;
 }
+.detail-item img {
+    width: 70%;
+}
