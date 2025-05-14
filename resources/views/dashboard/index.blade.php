@@ -457,6 +457,7 @@ use App\Models\Votes;
             </div>
         </div>
     <!-- ---------- ToDo List Started ---------------- -->
+   @if($tasks->isNotEmpty())
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
@@ -518,7 +519,7 @@ use App\Models\Votes;
             </div>
         </div>
     </div>
-
+@endif
 
 
 
@@ -554,6 +555,7 @@ use App\Models\Votes;
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul> -->
                 </div>
+  @if($userLeaves->isNotEmpty())              
                 <div class="card-body">
                     <h5 class="card-title">Teams Leave</h5>
                     <table class="table table-borderless datatable" id="leavesss">
@@ -600,7 +602,7 @@ use App\Models\Votes;
                         </tbody>
                     </table>
                 </div>
-
+                @endif
             </div>
             <div class="row">
                 @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')

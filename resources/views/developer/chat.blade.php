@@ -441,7 +441,6 @@
   </div>
   <script>
     function handleProjectClick(projectId) {
-        loadMessages(projectId);
         const newUrl = `${window.location.origin}${window.location.pathname}?project_id=${projectId}`;
         window.history.pushState({ path: newUrl }, '', newUrl);
     }

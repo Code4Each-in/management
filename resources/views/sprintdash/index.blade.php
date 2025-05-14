@@ -53,13 +53,16 @@
               @php $serial = 1; @endphp
               @foreach ($sprints as $sprint)
                 @php
-                 $eta       = $sprint->eta ? \Carbon\Carbon::parse($sprint->eta) : null;
-                $start     = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-                $now       = \Carbon\Carbon::now('Asia/Kolkata');
-                $daysLeft  = $eta ? $eta->diffInDays($now, false) : null; 
                 $total     = $sprint->tickets_count ?? 0;
                 $completed = $sprint->completed_tickets_count ?? 0;
                 $progress  = $total > 0 ? ($completed / $total) * 100 : 0;
+                  $eta = $sprint->eta ? \Carbon\Carbon::parse($sprint->eta) : null;
+                  $start = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                  $now = \Carbon\Carbon::now('Asia/Kolkata');
+                  $isPast = $eta ? $now->greaterThan($eta) : false;
+                  $daysDiff = $eta ? $eta->diffInDays($now) : 0;
+                  $daysLeft = $isPast ? -$daysDiff : $daysDiff;
+
                 @endphp
           
                 @if ($total === 0 || $completed < $total)
@@ -71,16 +74,29 @@
                     $firstRole = explode(' ', $role_id)[0] ?? 0;
                   @endphp
                 @if ($firstRole != 6)
-                <td style="text-align: center;">
-                  @if($eta)
-                      @if($daysLeft <= 2 && $daysLeft >= 0)
-                          <i class="fas fa-exclamation-circle text-danger" title="Sprint is approaching its end!"></i>
-                      @endif
-                      Ongoing Sprints: {{ $daysLeft >= 0 ? $daysLeft : '0' }}
-                  @else
-                  Ongoing Sprints: ---
-                  @endif
-              </td>              
+                <td>
+    @php
+        // Calculate only if eta is present
+        $daysLeft = $eta ? $now->diffInDays($eta, false) : null;
+    @endphp
+
+    @if (!is_null($daysLeft))
+        <p>
+            @if ($daysLeft < 0)
+                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is overdue!"></i>
+                Overdue: {{ abs($daysLeft) }} days
+            @elseif ($daysLeft <= 2 && $daysLeft >= 0)
+                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>
+                Days Left: {{ $daysLeft }}
+            @else
+                Days Left: {{ $daysLeft }}
+            @endif
+        </p>
+    @else
+        ---
+    @endif
+</td>
+        
                     <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                     <td>{{ $eta ? $eta->format('d/m/Y') : '---' }}</td>
                 @endif
@@ -161,10 +177,12 @@
             <tbody>
               @foreach($inactivesprints as $sprint)
                 @php
-                  $eta      = \Carbon\Carbon::parse($sprint->eta);
-                  $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
-                  $now      = \Carbon\Carbon::now('Asia/Kolkata');
-                  $daysLeft = $eta->diffInDays($now);
+                   $eta = $sprint->eta ? \Carbon\Carbon::parse($sprint->eta) : null;
+                  $start = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+                  $now = \Carbon\Carbon::now('Asia/Kolkata');
+                  $isPast = $eta ? $now->greaterThan($eta) : false;
+                  $daysDiff = $eta ? $eta->diffInDays($now) : 0;
+                  $daysLeft = $isPast ? -$daysDiff : $daysDiff;
                   $total = $sprint->tickets_count ?? 0;
                   $completed = $sprint->completed_tickets_count ?? 0;
                   $progress = $total > 0 ? ($completed / $total) * 100 : 0;
@@ -348,7 +366,7 @@
                             </div>
 
                             <div class="row mb-3">
-                                <label for="etaDateTime" class="col-sm-3 col-form-label required">End Date</label>
+                                <label for="etaDateTime" class="col-sm-3 col-form-label">End Date</label>
                                 <div class="col-sm-9">
                                     <input type="datetime-local" class="form-control" id="end_date" name="end_date">
                                     <input type="hidden" class="form-control" name="sprint_id" id="sprint_id" value="{{ $sprint->id ?? '' }}">
