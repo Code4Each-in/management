@@ -945,33 +945,67 @@ use App\Models\Votes;
     </div>
 
 
-    <div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">List of members on leave today</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-danger" style="display:none"></div>
-                    @foreach ($validLeaves as $data)
-                    <div class="row leaveUserContainer mt-2 ">
+   <div class="modal fade" id="ShowLeaves" tabindex="-1" aria-labelledby="ShowLeaves" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">List of members on leave today</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" style="display:none"></div>
+
+                @foreach ($validLeaves as $data)
+                    <div class="row leaveUserContainer mt-2">
                         <div class="col-md-2">
-                            <img src="{{asset('assets/img/').'/'.$data->profile_picture}}" width="50" height="50" alt="" class="rounded-circle">
+                            <img src="{{ asset('assets/img/' . $data->profile_picture) }}" width="50" height="50" alt="" class="rounded-circle">
                         </div>
-                        <div class="col-md-10 ">
-                            <p><b>{{$data->first_name}} <b></p>
+                        <div class="col-md-10">
+                            <div class="leaveType">
+                                <p><strong>{{ $data->first_name }}</strong></p>
+                                <p class="text-muted small">
+                                    @php
+                                        $leaveType = $data->half_day ?? 'Full Day';
+                                        $leaveDescrp = '';
+                                        $leaveTime = '';
+
+                                        switch ($leaveType) {
+                                            case 'First Half':
+                                            case 'Second Half':
+                                                $leaveDescrp = $leaveType . ' Leave';
+                                                break;
+
+                                            case 'Short Leave':
+                                                if (!empty($data->from_time) && !empty($data->to_time)) {
+                                                    $leaveTime = \Carbon\Carbon::parse($data->from_time)->format('g:i A') . ' to ' . \Carbon\Carbon::parse($data->to_time)->format('g:i A');
+                                                    $leaveDescrp = $leaveType;
+                                                }
+                                                break;
+
+                                            default:
+                                                $leaveDescrp = 'Full Day';
+                                                break;
+                                        }
+                                    @endphp
+                                    is on <span>{{ $leaveDescrp }}</span>
+                                    @if($leaveType === 'Short Leave' && !empty($leaveTime))
+                                        <span> ({{ $leaveTime }})</span>
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                     </div>
+                @endforeach
 
-                    @endforeach
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
+
+
     <div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-labelledby="voteModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
