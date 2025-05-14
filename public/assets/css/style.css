@@ -4063,3 +4063,13 @@ form#update_profile_picture .btn-sm {
   text-align: center;
   border-radius: 5px;
 }
+.leaveType {
+    display: flex;
+    column-gap: 5px;
+    align-items: center;
+}
+
+.leaveType p.text-muted.small span {
+    font-weight: 600;
+    color: #000;
+}

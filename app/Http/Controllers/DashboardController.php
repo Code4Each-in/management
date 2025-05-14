@@ -447,11 +447,19 @@ class DashboardController extends Controller
             } else {
                 $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
                 if ($usr->half_day == 'First Half') {
-                    if ($usrAttendances->isEmpty()) {
+                    if ($usrAttendances->isEmpty() && $usrAttendances->first()->in_time < '14:00:00') {
                         $users++;
                     }
                 } else if ($usr->half_day == 'Second Half') {
-                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time && $usrAttendances->first()->out_time > '14:00:00')) {
+                        $users++;
+                    }
+                }else if ($usr->half_day == 'Short Leave') {
+                    $from = $usr->from_time;
+                    $to = $usr->to_time;
+                    $currentTime = now()->format('H:i:s');
+
+                    if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $users++;
                     }
                 }
@@ -463,7 +471,6 @@ class DashboardController extends Controller
     public function getValidLeaves($showLeaves, $currentDate)
     {
         $validLeaves = [];
-
         foreach ($showLeaves as $value) {
             if ($value->half_day === NULL) {
                 // If half_day is NULL, include this leave in the validLeaves array`
@@ -472,15 +479,21 @@ class DashboardController extends Controller
                 $usrAttendances = UserAttendances::where('user_id', $value->user_id)
                     ->whereDate('date', '=', $currentDate)
                     ->get();
-
                 if ($value->half_day === 'First Half') {
-                    if ($usrAttendances->isEmpty()) {
-                        // If no attendance records are found, the leave is considered valid
+                    if ($usrAttendances->first() && $usrAttendances->first()->in_time < '14:00:00') {
                         $validLeaves[] = $value;
                     }
                 } elseif ($value->half_day === 'Second Half') {
-                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time)) {
+                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time) && $usrAttendances->first()->out_time > '14:00:00') {
                         // If attendance exists and 'out_time' is not NULL, the leave is considered valid
+                        $validLeaves[] = $value;
+                    }
+                } elseif ($value->half_day === 'Short Leave') {
+                    $from = $value->from_time;
+                    $to = $value->to_time;
+                    $currentTime = now()->format('H:i:s');
+
+                    if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $validLeaves[] = $value;
                     }
                 }
