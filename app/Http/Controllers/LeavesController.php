@@ -47,14 +47,22 @@ class LeavesController extends Controller
         } else {
             $leaveType = NULL; // Set to null if 'leave_type' is not present in the request
         }
+
+        $shortFrom = null;
+        $shortTo = null;
+
+        if (!empty($request->time_from) && !empty($request->time_to)) {
+            $shortFrom = Carbon::createFromFormat('H:i', $request->time_from)->format('H:i:s');
+            $shortTo = Carbon::createFromFormat('H:i', $request->time_to)->format('H:i:s');
+        }
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
             'from'=>$request->from,
             'to'=>$request->to,
             'type'=> $type,
             'half_day' => $leaveType,
-            'from_time' => Carbon::createFromFormat('H:i', $request->time_form)->format('H:i:s'),
-            'to_time' => Carbon::createFromFormat('H:i', $request->time_to)->format('H:i:s'),
+            'from_time' => $shortFrom,
+            'to_time' => $shortTo,
             'leave_day_count' => $request->total_days,
             'notes'=>$request->notes,
            ]);    
@@ -84,7 +92,7 @@ class LeavesController extends Controller
                 $roleEmails = $rolesData->pluck('email');
                 // Merging mail collection data in one collection 
                 $emails = $managerEmails->merge($roleEmails);
-                Mail::to($emails)->send(new LeaveRequestMail($data));
+                // Mail::to($emails)->send(new LeaveRequestMail($data));
                 
            }elseif ($roles->name == "Manager") {
             
@@ -99,7 +107,7 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            Mail::to($emails)->send(new LeaveRequestMail($data));
+            // Mail::to($emails)->send(new LeaveRequestMail($data));
             
            }elseif ($roles->name == "HR Manager") {
 
@@ -114,7 +122,7 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            Mail::to($emails)->send(new LeaveRequestMail($data));
+            // Mail::to($emails)->send(new LeaveRequestMail($data));
     
            }
            $request->session()->flash('message','Leaves added successfully.');
