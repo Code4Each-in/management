@@ -161,14 +161,16 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
                     <i class="bi bi-people"></i>
-                    <span>Messages</span>
-                    @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
-                        <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
-                    @endif
+                    <div class="position-relative">
+                        @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
+                            <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
+                        @endif
+                        <span>Messages</span>
+                    </div>
                 </a>
-            </li>
+            </li>    
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
                     href="{{ route('reminder.create') }}">
@@ -218,15 +220,17 @@
                 <span>Sprint</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
-                <i class="bi bi-people"></i>
-                <span>Messages</span>
-                @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
-                    <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
-                @endif
-            </a>
-        </li>               
+         <li class="nav-item">
+                <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
+                    <i class="bi bi-people"></i>
+                    <div class="position-relative">
+                        @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
+                            <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
+                        @endif
+                        <span>Messages</span>
+                    </div>
+                </a>
+            </li>    
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
                 href="{{ route('comments') }}">
