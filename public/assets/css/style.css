@@ -4065,7 +4065,9 @@ form#update_profile_picture .btn-sm {
   border-radius: 5px;
 }
 
-
+.detail-item img {
+    width: 70%;
+}
 span#unread-message-counts {
     position: absolute;
     top: -6px;
@@ -4080,7 +4082,4 @@ span#unread-message-counts {
     justify-content: center;
     align-items: center;
     z-index: 10;
-}
-.detail-item img {
-    width: 70%;
 }
