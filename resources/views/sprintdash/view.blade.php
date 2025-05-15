@@ -5,7 +5,7 @@
 <div class="row">
     <div class="row mb-2">
         <div class="col-md-2">
-            <input type="hidden" name="project_id" value="{{ $sprints->project }}">
+            <input type="hidden" name="project_id" value="{{ $sprint->project }}">
             <a class="btn btn-primary mt-3" href="{{ route('tickets.create', ['sprint_id' => $sprint->id]) }}" style="background: #4154f1;">Add Ticket</a>
         </div>
     </div>
@@ -139,7 +139,7 @@
                             <label class="col-sm-4 col-form-label fw-bold">Description</label>
                             <div class="col-sm-8">
                                 <p class="mb-1" style="word-break: break-word; overflow-wrap: break-word;">
-                                    {{ $sprints->description ? strip_tags(str_replace('&nbsp;', ' ', $sprints->description)) : '----' }}
+                                    {{ $sprint->description ? strip_tags(str_replace('&nbsp;', ' ', $sprint->description)) : '----' }}
                                 </p>
                             </div>
                         </div>

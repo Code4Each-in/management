@@ -2,10 +2,17 @@
 @section('title', 'Ticket Details')
 @section('subtitle', 'Ticket')
 @section('content')
-<div class="editticket">
-    <a href="{{ url('/edit/ticket/'.$tickets->id)}}?source=sprint" class="btn btn-primary">Edit Ticket
-    <i style="color:#4154f1;"></i>
-</a>
+<div class="action_btn">
+  <div class="backToSprint">
+      <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
+      Back To Sprint <i style="color:#4154f1;"></i>
+    </a>
+  </div>
+  <div class="editticket">
+      <a href="{{ url('/edit/ticket/'.$tickets->id)}}?source=sprint" class="btn btn-primary">Edit Ticket
+      <i style="color:#4154f1;"></i>
+  </a>
+  </div>
 </div>
 <div id="loader">
   <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
@@ -51,6 +58,18 @@
         @foreach ($projects as $project)
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-user"></i>
+        <strong>Client:</strong>
+        <span>
+          @if($client)
+              <span>{{ $client->name }}</span>
+          @else
+              <span>---</span>
+          @endif
+        </span>
       </div>
 
       <div class="detail-item">

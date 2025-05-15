@@ -2,118 +2,112 @@
 use App\Models\Client;?>
 
 @extends('layout')
-    @section('title', 'Clients')
-    @section('subtitle', 'Clients')
-    @section('content')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+@section('title', 'Clients')
+@section('subtitle', 'Clients')
+@section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()" style="background: rgb(65, 84, 241);">Add
-                    Client
-                </button>
-                        <div class="table-resposnive">
-
-                            <table class="table table-striped table-borderless dashboard" id="clients">
-                                <thead>
-                                    <tr>
-                                        <th>Id</th>
-                                        <th>Client Name</th>
-                                        <th>Email</th>
-                                        <th>Phone number</th>
-                                        <th>Birth date</th>
-                                        <th>Gender</th>
-                                        <th>Status</th>
-                                        <th>Company</th>
-                                        <th>Country</th>
-                                        @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
-                                            <th>Actions</th>
-                                        @endif
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                @forelse($clients as $client)
-                                    <tr>
-                                        <td>{{ $client->id }}</td>
-                                        <td>{{ $client->name }}</td>
-                                        <td>
-                                            @if (!empty($client->email ))
-                                            {{  $client->email }}
-                                            @else
-                                            ---
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (!empty($client->phone ))
-                                            {{  $client->phone }}
-                                            @else
-                                            ---
-                                            @endif
-                                        </td>
-                                        <td> 
-                                            @if (!empty($client->birth_date ))
-                                                {{  $client->birth_date }}
-                                            @else
-                                            ---
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (!empty($client->gender))
-                                                {{ $client->gender }}
-                                            @else
-                                                ---
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($client->status == 1)
-                                                Active
-                                            @elseif($client->status == 0)
-                                                Inactive
-                                            @else
-                                                Talked
-                                            @endif
-                                        </td>
-
-                                        <td>
-                                            @if(!empty($client->company))
-                                            {{ $client->company}}
-                                            @else
-                                                ---
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (!empty($client->country))
-                                                {{ $client->country }}
-                                            @else
-                                                ---
-                                            @endif
-                                        </td>
-                                        @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
-                                            <td>  
-                                                <a href="{{ route('clients.show', ['id' => $client->id]) }}">
-                                                    <i class="fas fa-eye" style="color: rgb(65, 84, 241);"></i>
-                                                </a>
-
-                                                <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
-                                                    <i class="fas fa-edit" style="color: rgb(65, 84, 241);"></i>                                       
-                                                </a>
-                                                {{-- <a href="javascript:void(0)" onclick="deleteClient('{{ $client->id }}')"> --}}
-                                                    <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: rgb(65, 84, 241);"></i>
-                                                {{-- </a> --}}
-                                                
-                                            </td>
-                                        @endif
-                                    </tr>
-                                    @empty
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary mt-3 mb-4" onClick="openclientsModal()" style="background: rgb(65, 84, 241);">Add Client
+            </button>
+            <div class="table-resposnive">
+                <table class="table table-striped table-borderless dashboard" id="clients">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Client Name</th>
+                            <th>Email</th>
+                            <th>Phone number</th>
+                            <th>Birth date</th>
+                            <th>Gender</th>
+                            <th>Status</th>
+                            <th>Company</th>
+                            <th>Country</th>
+                            @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
+                                <th>Actions</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($clients as $client)
+                            <tr>
+                                <td>{{ $client->id }}</td>
+                                <td>{{ $client->name }}</td>
+                                <td>
+                                    @if (!empty($client->email ))
+                                        {{  $client->email }}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                <td>
+                                    @if (!empty($client->phone ))
+                                        {{  $client->phone }}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                <td> 
+                                    @if (!empty($client->birth_date ))
+                                        {{  $client->birth_date }}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                <td>
+                                    @if (!empty($client->gender))
+                                        {{ $client->gender }}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($client->status == 1)
+                                        Active
+                                    @elseif($client->status == 0)
+                                        Inactive
+                                    @else
+                                        Talked
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(!empty($client->company))
+                                        {{ $client->company}}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                <td>
+                                    @if (!empty($client->country))
+                                        {{ $client->country }}
+                                    @else
+                                        ---
+                                    @endif
+                                </td>
+                                @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager') 
+                                    <td>  
+                                        <a href="{{ route('clients.show', ['id' => $client->id]) }}">
+                                            <i class="fas fa-eye" style="color: rgb(65, 84, 241);"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" onClick="editClientData('{{ $client->id }}')">                                       
+                                            <i class="fas fa-edit" style="color: rgb(65, 84, 241);"></i>                                       
+                                        </a>
+                                        <a href="javascript:void(0)">
+                                            <i class="fas fa-trash deleteclientbtn" client-id="{{ $client->id }}" style="color: rgb(65, 84, 241);"></i>
+                                        </a>            
+                                    </td>
+                                @endif
+                            </tr>
+                        @empty
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-                    </div>
-                </div>
         <!---Add Client-->
         <div class="modal fade" id="addClient" tabindex="-1" aria-labelledby="role" aria-hidden="true">
             <div class="modal-dialog">
@@ -547,14 +541,14 @@ use App\Models\Client;?>
             });
         });
 
-        $(".deleteclientbtn").click(function(event) {
+        $(document).on("click", ".deleteclientbtn", function(event) {
             var id = $(this).attr("client-id");
             if (confirm("Are you sure?")) {
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ url('/delete/client') }}", // Include the id in the URL
+                    url: "{{ url('/delete/client') }}",
                     data: {
-                        "_token": "{{ csrf_token() }}", // Include the CSRF token
+                        "_token": "{{ csrf_token() }}",
                         id: id
                     },
                     success: function (res) {
@@ -623,8 +617,3 @@ function openclientsModal() {
     </script>
     <!-- <script src="{{ asset('assets/js/bootstrap-tags.js') }}"></script> -->
 @endsection
-
-        </div>
-            </div>
-                </div>
-                    </div>
