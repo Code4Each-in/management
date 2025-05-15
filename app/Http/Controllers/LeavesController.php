@@ -50,9 +50,9 @@ class LeavesController extends Controller
         $shortFrom = null;
         $shortTo = null;
 
-        if (!empty($request->time_from) && !empty($request->time_to)) {
-            $shortFrom = Carbon::createFromFormat('H:i', $request->time_from)->format('H:i:s');
-            $shortTo = Carbon::createFromFormat('H:i', $request->time_to)->format('H:i:s');
+        if (!empty($request->short_fromTime) && !empty($request->short_toTime)) {
+            $shortFrom = Carbon::createFromFormat('H:i', $request->short_fromTime)->format('H:i:s');
+            $shortTo = Carbon::createFromFormat('H:i', $request->short_toTime)->format('H:i:s');
         }
         $userLeaves=UserLeaves::create([     
             'user_id'=> auth()->user()->id,     
@@ -91,7 +91,7 @@ class LeavesController extends Controller
                 $roleEmails = $rolesData->pluck('email');
                 // Merging mail collection data in one collection 
                 $emails = $managerEmails->merge($roleEmails);
-                Mail::to($emails)->send(new LeaveRequestMail($data));
+                // Mail::to($emails)->send(new LeaveRequestMail($data));
                 
            }elseif ($roles->name == "Manager") {
             
@@ -106,7 +106,7 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            Mail::to($emails)->send(new LeaveRequestMail($data));
+            // Mail::to($emails)->send(new LeaveRequestMail($data));
             
            }elseif ($roles->name == "HR Manager") {
 
@@ -121,7 +121,7 @@ class LeavesController extends Controller
             $roleEmails = $rolesData->pluck('email');
             // Merging mail collection data in one collection 
             $emails = $managerEmails->merge($roleEmails);
-            Mail::to($emails)->send(new LeaveRequestMail($data));
+            // Mail::to($emails)->send(new LeaveRequestMail($data));
     
            }
            $request->session()->flash('message','Leaves added successfully.');
@@ -146,7 +146,7 @@ class LeavesController extends Controller
             $data->subject = $subject;
             $userEmail = $userObj->email;
              if($userObj->leave_status != 'requested' && $userLeaves > 0){
-                Mail::to($userEmail)->send(new LeaveStatusMail($data));
+                // Mail::to($userEmail)->send(new LeaveStatusMail($data));
              }
 
 			 $request->session()->flash('message', 'user leave status updated' );
@@ -189,28 +189,29 @@ class LeavesController extends Controller
         $validator = \Validator::make($request->all(), [
             'from' => 'required|date',
             'to' => 'required|date',
-            'half_day' => 'nullable', 
+            'leave_type' => 'nullable', 
             'total_days' => 'required',
             'from' => 'required',       
             'type' => 'required',
             'notes' => 'nullable',
-            'member_id' => 'required',       
+            'member_id' => 'required',   
+            'short_fromTime' => 'required_if:leave_type,short_leave|nullable',   
         ]);
  
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }
-        if (isset($request->half_day)) {
-            $string = $request->half_day;
+        if (isset($request->leave_type)) {
+            $string = $request->leave_type;
             $parts = explode("_", $string);
-            $halfday = "";
+            $leaveType = "";
             foreach ($parts as $part) {
-                $halfday .= ucfirst($part) . ' ';
+                $leaveType .= ucfirst($part) . ' ';
             }
-            $halfday = trim($halfday);
+            $leaveType = trim($leaveType);
         } else {
-            $halfday = NULL; // Set to null if 'half_day' is not present in the request
+            $leaveType = NULL; // Set to null if 'half_day' is not present in the request
         }
         $string = $request->type;
         $parts = explode("_", $string);
@@ -219,12 +220,21 @@ class LeavesController extends Controller
             $type .= ucfirst($part) . ' ';
         }
         $type = trim($type); 
+        $shortFrom = null;
+        $shortTo = null;
+
+        if (!empty($request->short_fromTime) && !empty($request->short_toTime)) {
+            $shortFrom = Carbon::createFromFormat('H:i', $request->short_fromTime)->format('H:i:s');
+            $shortTo = Carbon::createFromFormat('H:i', $request->short_toTime)->format('H:i:s');
+        }
         $teamLeave = UserLeaves::create([     
             'user_id'=> $request->member_id,     
             'from'=>$request->from,
             'to'=>$request->to,
             'type'=> $type,
-            'half_day' => $halfday,
+            'half_day' => $leaveType,
+            'from_time' => $shortFrom,
+            'to_time' => $shortTo,
             'leave_day_count' => $request->total_days,
             'notes'=>$request->notes,
            ]);  

@@ -37,7 +37,7 @@ class StoreUserLeavesRequest extends FormRequest
             }
             ],
 			'to' => 'required', 
-            'time_form' => 'required_if:leave_type,short_leave',
+            'short_fromTime' => 'required_if:leave_type,short_leave',
         ];
     }
 

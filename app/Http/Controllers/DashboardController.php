@@ -477,7 +477,7 @@ class DashboardController extends Controller
             } else {
                 $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
                 if ($usr->half_day == 'First Half') {
-                    if ($usrAttendances->isEmpty() && $usrAttendances->first()->in_time < '14:00:00') {
+                    if ($usrAttendances->isEmpty() || (optional($usrAttendances->first())->in_time < '14:00:00')) {
                         $users++;
                     }
                 } else if ($usr->half_day == 'Second Half') {
@@ -510,7 +510,7 @@ class DashboardController extends Controller
                     ->whereDate('date', '=', $currentDate)
                     ->get();
                 if ($value->half_day === 'First Half') {
-                    if ($usrAttendances->first() && $usrAttendances->first()->in_time < '14:00:00') {
+                    if ($usrAttendances->isEmpty() || (optional($usrAttendances->first())->in_time < '14:00:00')) {
                         $validLeaves[] = $value;
                     }
                 } elseif ($value->half_day === 'Second Half') {

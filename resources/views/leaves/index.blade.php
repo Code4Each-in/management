@@ -22,7 +22,7 @@
                                 <th>To</th>
                                 <th>Type</th>
                                 <th>Notes</th>
-                                <th>Half Day</th>
+                                <th>Leave Type</th>
                                 <th>Day Count</th>
                                 <th>Status</th>
                             </tr>
@@ -291,8 +291,8 @@ function addleaves() {
     total_days: totalDays,
     type : $('#type').val(),
     notes : $('#notes').val(),
-    time_form : $('#short_leave_from').val(),
-    time_to : $('#short_leave_to').val()
+    short_fromTime : $('#short_leave_from').val(),
+    short_toTime : $('#short_leave_to').val()
     };
 
   $.ajax({
