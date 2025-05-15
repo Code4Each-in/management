@@ -685,7 +685,7 @@ function clearMessageCounter() {
 }
 </script>
 <script>
-    setInterval(() => {
+    function sendHeartbeat() {
         fetch("{{ url('/user/heartbeat') }}", {
             method: 'POST',
             headers: {
@@ -694,8 +694,12 @@ function clearMessageCounter() {
             },
             body: JSON.stringify({})
         });
-    }, 120000); 
+    }
+
+    sendHeartbeat();
+    setInterval(sendHeartbeat, 3000);
 </script>
+
     <script>
         function fetchNotifications() {
             $.ajax({
