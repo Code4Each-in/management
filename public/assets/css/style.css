@@ -4274,5 +4274,10 @@ span#unread-message-counts {
         
       }
     }
+    .action_btn {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
 
 /* new design css end*/

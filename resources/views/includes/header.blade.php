@@ -697,7 +697,7 @@ function clearMessageCounter() {
     }
 
     sendHeartbeat();
-    setInterval(sendHeartbeat, 3000);
+    setInterval(sendHeartbeat, 30000);
 </script>
 
     <script>
