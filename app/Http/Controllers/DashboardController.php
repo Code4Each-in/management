@@ -141,16 +141,36 @@ class DashboardController extends Controller
                     ->count();
             }
 
-            $onlineUsers = Users::where('status', 1)
-                ->where('last_seen_at', '>=', now()->subMinutes(2))
-                ->get();
+           // Online Employees
+$onlineUsers = Users::where('status', 1)
+    ->where('role_id', '!=', 6)
+    ->where('last_seen_at', '>=', now()->subMinutes(2))
+    ->get();
 
-            $offlineUsers = Users::where('status', 1)
-                ->where(function ($query) {
-                    $query->where('last_seen_at', '<', now()->subMinutes(2))
-                        ->orWhereNull('last_seen_at');
-                })
-                ->get();
+// Offline Employees
+$offlineUsers = Users::where('status', 1)
+    ->where('role_id', '!=', 6)
+    ->where(function ($query) {
+        $query->where('last_seen_at', '<', now()->subMinutes(2))
+              ->orWhereNull('last_seen_at');
+    })
+    ->get();
+
+// Online Clients
+$onlineClients = Users::where('status', 1)
+    ->where('role_id', 6)
+    ->where('last_seen_at', '>=', now()->subMinutes(2))
+    ->get();
+
+// Offline Clients
+$offlineClients = Users::where('status', 1)
+    ->where('role_id', 6)
+    ->where(function ($query) {
+        $query->where('last_seen_at', '<', now()->subMinutes(2))
+              ->orWhereNull('last_seen_at');
+    })
+    ->get();
+
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
@@ -398,7 +418,9 @@ class DashboardController extends Controller
             'notifications',
             'projectMap',
             'onlineUsers',
-            'offlineUsers'
+            'offlineUsers',
+            'onlineClients',
+            'offlineClients'
         ));
     }
 
