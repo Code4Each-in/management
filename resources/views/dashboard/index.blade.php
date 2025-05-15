@@ -456,6 +456,20 @@ use App\Models\Votes;
 </div>
             </div>
         </div>
+        {{-- @foreach ($onlineUsers as $user)
+    <div class="card">
+        <strong>{{ $user->first_name }}</strong>
+        <span class="badge bg-success">Online</span>
+    </div>
+@endforeach
+
+@foreach ($offlineUsers as $user)
+    <div class="card text-muted">
+        <strong>{{ $user->first_name }}</strong>
+        <span class="badge bg-secondary">Offline</span>
+    </div>
+@endforeach --}}
+
     <!-- ---------- ToDo List Started ---------------- -->
    @if($tasks->isNotEmpty())
     <div class="col-lg-12">

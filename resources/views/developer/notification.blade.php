@@ -27,13 +27,15 @@
                     @endphp
                     <tr>
                         <td>
-                            <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
-                                <strong class="text-primary">
-                                    You got a new comment on #{{ $notification->ticket_id }} 
-                                    on project {{ $projectName }} 
-                                    by {{ $userName }}
-                                </strong>
-                            </a>
+                        <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
+                            <strong class="text-primary">
+                                You got a new comment on #{{ $notification->ticket_id }}  
+                            </strong>
+                            <span>
+                                on project <strong>{{ $projectName }}</strong>  
+                                by <strong>{{ $userName }}</strong>
+                            </span>
+                        </a>
                         </td>
                     </tr>
                 @endforeach

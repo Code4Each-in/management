@@ -585,4 +585,15 @@ class UsersController extends Controller
 
     return view('users.singleuserdata', compact('usersProfiled'));
 }
+
+	public function heartbeat(Request $request)
+	{
+		$user = auth()->user();
+	$user->update([
+		'last_seen_at' => Carbon::now('Asia/Kolkata')
+	]);
+		return response()->json(['status' => 'ok']);
+	}
+
+
 }

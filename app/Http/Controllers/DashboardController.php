@@ -54,7 +54,7 @@ class DashboardController extends Controller
         ->where('comment_by', '!=', auth()->id())
         ->with('user') 
         ->orderBy('created_at', 'desc')
-        ->take(5)
+        ->take(10)
         ->get();
         }
       elseif (in_array($user->role_id, [2, 3])) {
@@ -72,7 +72,7 @@ class DashboardController extends Controller
         ->where('comment_by', '!=', auth()->id())
         ->with(['user', 'ticket.project'])
         ->orderBy('created_at', 'desc')
-        ->take(5)
+        ->take(10)
         ->get();
 }
 
@@ -82,7 +82,7 @@ class DashboardController extends Controller
                 ->where('comment_by', '!=', auth()->id())
                 ->with(['user', 'ticket.project']) // Load relations
                 ->orderBy('created_at', 'desc')
-                ->take(5)
+                ->take(10)
                 ->get();
         }
         $joiningDate = $user->joining_date;
@@ -141,7 +141,16 @@ class DashboardController extends Controller
                     ->count();
             }
 
+            $onlineUsers = Users::where('status', 1)
+                ->where('last_seen_at', '>=', now()->subMinutes(2))
+                ->get();
 
+            $offlineUsers = Users::where('status', 1)
+                ->where(function ($query) {
+                    $query->where('last_seen_at', '<', now()->subMinutes(2))
+                        ->orWhereNull('last_seen_at');
+                })
+                ->get();
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
             // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
@@ -387,7 +396,9 @@ class DashboardController extends Controller
             'activeReminders',
             'projects',
             'notifications',
-            'projectMap'
+            'projectMap',
+            'onlineUsers',
+            'offlineUsers'
         ));
     }
 

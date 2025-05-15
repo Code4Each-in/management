@@ -47,7 +47,8 @@ class Users extends Authenticatable
         'emergency_name_secondary',
         'emergency_relation_secondary',
         'emergency_phone_secondary',
-        'client_id'
+        'client_id',
+        'last_seen_at'
     ];
 
     /**
