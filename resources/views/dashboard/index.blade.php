@@ -1091,7 +1091,7 @@ use App\Models\Votes;
                                                 break;
 
                                             default:
-                                                $leaveDescrp = 'Full Day';
+                                                $leaveDescrp = 'Full Day Leave';
                                                 break;
                                         }
                                     @endphp
