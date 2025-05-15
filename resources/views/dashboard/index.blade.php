@@ -497,7 +497,7 @@ use App\Models\Votes;
                             <div class="msg-header">
                                 <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
                             </div>
-                            <div class="msg-preview">{{ $user->last_seen_at }}</div>
+                            <div class="msg-preview">{{ $client->last_seen_at }}</div>
                         </div>
                     </div>
                 @endforeach
