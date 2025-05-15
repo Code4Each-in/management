@@ -623,6 +623,7 @@ class TicketsController extends Controller
         $project = Projects::find($projectId);
         
         $projectName = $project ? $project->project_name : 'Project Not Found';
+        $client = $project?->client;
         $user = Users::whereHas('role', function($q){
            $q->where('name', '!=', 'Super Admin');
        })->orderBy('id','desc')->get()->toArray();	
@@ -642,7 +643,7 @@ class TicketsController extends Controller
        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
        $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
-        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName'));
+        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client'));
     }
     public function viewDocument($filename)
 {
