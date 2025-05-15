@@ -414,7 +414,7 @@ use App\Models\Votes;
                     <div class="msg-card">
                         <div class="msg-avatar-wrapper me-3">
                             @if ($user->profile_picture)
-                                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
+                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
                             @else
                                 <div class="msg-avatar-initial">
                                     {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
@@ -426,7 +426,7 @@ use App\Models\Votes;
                             <div class="msg-header">
                                 <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
                             </div>
-                            <div class="msg-preview text-success">online</div>
+                            <div class="msg-preview text-success">Online</div>
                         </div>
                     </div>
                 @endforeach
@@ -435,7 +435,7 @@ use App\Models\Votes;
                     <div class="msg-card">
                         <div class="msg-avatar-wrapper me-3">
                             @if ($user->profile_picture)
-                                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
+                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
                             @else
                                 <div class="msg-avatar-initial">
                                     {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
@@ -464,7 +464,7 @@ use App\Models\Votes;
                     <div class="msg-card">
                         <div class="msg-avatar-wrapper me-3">
                             @if ($client->profile_picture)
-                                <img src="{{ asset('storage/' . $client->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
                             @else
                                 <div class="msg-avatar-initial">
                                     {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
@@ -476,7 +476,7 @@ use App\Models\Votes;
                             <div class="msg-header">
                                 <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
                             </div>
-                            <div class="msg-preview text-success">online</div>
+                            <div class="msg-preview text-success">Online</div>
                         </div>
                     </div>
                 @endforeach
@@ -485,7 +485,7 @@ use App\Models\Votes;
                     <div class="msg-card">
                         <div class="msg-avatar-wrapper me-3">
                             @if ($client->profile_picture)
-                                <img src="{{ asset('storage/' . $client->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
                             @else
                                 <div class="msg-avatar-initial">
                                     {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
