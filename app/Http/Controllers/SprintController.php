@@ -313,7 +313,7 @@ class SprintController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'start_date' => 'required|date',
-            'end_date' => 'required|date',
+            'end_date' => 'nullable|date',
             'project' => 'required|int|max:255',
             'description' => 'required',
             'status' => 'required',

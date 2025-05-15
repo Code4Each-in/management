@@ -48,7 +48,7 @@
             </div>
             <div class="form-group mb-3">
                 <label for="eta" class="col-sm-3 col-form-label text-dark">End Date</label>
-                <input type="datetime-local" class="form-control" name="end_date" id="end_date" value="{{ old('eta', \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i')) }}" required>
+                <input type="datetime-local" class="form-control" name="end_date" id="end_date" value="{{ old('eta', $sprint->eta ? \Carbon\Carbon::parse($sprint->eta)->format('Y-m-d\TH:i') : '') }}">
                 @error('eta')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror

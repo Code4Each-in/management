@@ -408,78 +408,102 @@ use App\Models\Votes;
         <!-- Employee Section (Left Column) -->
         <div class="col-12 col-md-6">
             <div class="msg-group-card">
-            <div class="msg-section-title">Employees</div>
+                <div class="msg-section-title">Employees</div>
+<div class="msg-design">
+                @foreach ($onlineUsers as $user)
+                    <div class="msg-card">
+                        <div class="msg-avatar-wrapper me-3">
+                            @if ($user->profile_picture)
+                                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
+                            @else
+                                <div class="msg-avatar-initial">
+                                    {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="msg-status-dot msg-online"></span>
+                        </div>
+                        <div class="msg-content">
+                            <div class="msg-header">
+                                <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
+                            </div>
+                            <div class="msg-preview text-success">online</div>
+                        </div>
+                    </div>
+                @endforeach
 
-            <!-- Employee 1 -->
-            <div class="msg-card">
-                <div class="msg-avatar-wrapper me-3">
-                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Riya Patel" class="msg-avatar-img" />
-                <span class="msg-status-dot msg-online"></span>
-                </div>
-                <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-name">Riya Patel</div>
-                    <!-- <div class="msg-time">10:45 AM</div> -->
-                </div>
-              
-                <div class="msg-preview">okay thanks...</div>
-                </div>
-                <!-- <div class="msg-unread-badge">2</div> -->
-            </div>
-
-            <!-- Employee 2 -->
-            <div class="msg-card">
-                <div class="msg-avatar-wrapper me-3">
-                <div class="msg-avatar-initial">SA</div>
-                <span class="msg-status-dot msg-offline"></span>
-                </div>
-                <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-name">Ananya Singh</div>
-                </div>
-                <div class="msg-preview">Let's catch up soon</div>
-                </div>
-            </div>
+                @foreach ($offlineUsers as $user)
+                    <div class="msg-card">
+                        <div class="msg-avatar-wrapper me-3">
+                            @if ($user->profile_picture)
+                                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
+                            @else
+                                <div class="msg-avatar-initial">
+                                    {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="msg-status-dot msg-offline"></span>
+                        </div>
+                        <div class="msg-content">
+                            <div class="msg-header">
+                                <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
+                            </div>
+                            <div class="msg-preview">{{ $user->last_seen_at }}</div>
+                        </div>
+                    </div>
+                @endforeach
+</div>
             </div>
         </div>
 
         <!-- Client Section (Right Column) -->
         <div class="col-12 col-md-6">
             <div class="msg-group-card">
-            <div class="msg-section-title">Clients</div>
+                <div class="msg-section-title">Clients</div>
+<div class="msg-design">
+                @foreach ($onlineClients as $client)
+                    <div class="msg-card">
+                        <div class="msg-avatar-wrapper me-3">
+                            @if ($client->profile_picture)
+                                <img src="{{ asset('storage/' . $client->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                            @else
+                                <div class="msg-avatar-initial">
+                                    {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="msg-status-dot msg-online"></span>
+                        </div>
+                        <div class="msg-content">
+                            <div class="msg-header">
+                                <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
+                            </div>
+                            <div class="msg-preview text-success">online</div>
+                        </div>
+                    </div>
+                @endforeach
 
-            <!-- Client 1 -->
-            <div class="msg-card">
-                <div class="msg-avatar-wrapper me-3">
-                <div class="msg-avatar-initial">UR</div>
-                <span class="msg-status-dot msg-online"></span>
-                </div>
-                <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-name">Karan Mehta</div>
-                </div>
-                <div class="msg-preview">See you at 5!</div>
-                </div>
-                
-            </div>
-
-            <!-- Client 2 -->
-            <div class="msg-card">
-                <div class="msg-avatar-wrapper me-3">
-                <div class="msg-avatar-initial">SJ</div>
-                <span class="msg-status-dot msg-offline"></span>
-                </div>
-                <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-name">Sonia Jaffrey</div>
-                </div>
-                <div class="msg-preview">Please send the invoice</div>
-                </div>
-              
-            </div>
+                @foreach ($offlineClients as $client)
+                    <div class="msg-card">
+                        <div class="msg-avatar-wrapper me-3">
+                            @if ($client->profile_picture)
+                                <img src="{{ asset('storage/' . $client->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                            @else
+                                <div class="msg-avatar-initial">
+                                    {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="msg-status-dot msg-offline"></span>
+                        </div>
+                        <div class="msg-content">
+                            <div class="msg-header">
+                                <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
+                            </div>
+                            <div class="msg-preview">{{ $user->last_seen_at }}</div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
-
+        </div>
         </div>
     </div>
 </div>
@@ -539,19 +563,6 @@ use App\Models\Votes;
 </div>
             </div>
         </div>
-        {{-- @foreach ($onlineUsers as $user)
-    <div class="card">
-        <strong>{{ $user->first_name }}</strong>
-        <span class="badge bg-success">Online</span>
-    </div>
-@endforeach
-
-@foreach ($offlineUsers as $user)
-    <div class="card text-muted">
-        <strong>{{ $user->first_name }}</strong>
-        <span class="badge bg-secondary">Offline</span>
-    </div>
-@endforeach --}}
 
     <!-- ---------- ToDo List Started ---------------- -->
    @if($tasks->isNotEmpty())

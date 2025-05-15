@@ -4244,4 +4244,12 @@ span#unread-message-counts {
       margin-left: 0;
       margin-right: auto;
     }
+    .msg-design {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    height: 320px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
 /* new design css end*/
