@@ -426,7 +426,7 @@ use App\Models\Votes;
                             <div class="msg-header">
                                 <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
                             </div>
-                            <div class="msg-preview text-success">online</div>
+                            <div class="msg-preview text-success">Online</div>
                         </div>
                     </div>
                 @endforeach
@@ -476,7 +476,7 @@ use App\Models\Votes;
                             <div class="msg-header">
                                 <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
                             </div>
-                            <div class="msg-preview text-success">online</div>
+                            <div class="msg-preview text-success">Online</div>
                         </div>
                     </div>
                 @endforeach
