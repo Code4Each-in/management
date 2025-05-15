@@ -327,5 +327,6 @@ Route::middleware(['role_permission'])->group(function () {
 	 Route::get('/project/chat/{projectId}', function ($projectId) {
 		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
 	});
-	
+	Route::post('/user/heartbeat', [UsersController::class, 'heartbeat'])->middleware('auth');
+
 	});

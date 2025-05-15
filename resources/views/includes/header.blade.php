@@ -684,7 +684,18 @@ function clearMessageCounter() {
     }
 }
 </script>
-
+<script>
+    setInterval(() => {
+        fetch("{{ url('/user/heartbeat') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+    }, 120000); 
+</script>
     <script>
         function fetchNotifications() {
             $.ajax({

@@ -64,8 +64,6 @@
                   $daysLeft = $isPast ? -$daysDiff : $daysDiff;
 
                 @endphp
-          
-                @if ($total === 0 || $completed < $total)
                   <tr>
                     <td>{{ $serial++ }}</td>
                     <td>{{ $sprint->name }}</td>
@@ -137,7 +135,6 @@
                       </div>
                   </td>                                         
                   </tr>
-                @endif
               @endforeach
               @if($sprints->isEmpty())
               <tr>
