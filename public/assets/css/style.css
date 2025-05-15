@@ -4146,22 +4146,20 @@ span#unread-message-counts {
     .msg-offline {
       background-color: #adb5bd;
     }
-
-    .msg-card {
-        align-items: center;
-        background-color: #ebf4faf0;
-        border-radius: 15px;
-        padding: 10px 15px;
-        display: flex;
-        align-items: start;
-        justify-content: space-between;
-        margin-bottom: 0px;
-        position: relative;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-        cursor: pointer;
-
-        /* height: 100%; */
-    }
+.msg-card {
+    align-items: center !important;
+    background-color: #e5ebf6;
+    border-radius: 15px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 0px;
+    position: relative;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    /* height: 100%; */
+}
 
     .msg-card:hover {
       background-color: #f6f9ff;
@@ -4170,10 +4168,14 @@ span#unread-message-counts {
 
     }
 
-    .msg-content {
-      flex-grow: 1;
-    }
-
+   .msg-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    row-gap: 1px;
+}
     .msg-header {
       display: flex;
       justify-content: space-between;
@@ -4229,15 +4231,15 @@ span#unread-message-counts {
           font-weight: 500;
       }
     .msg-group-card {
-      background-color: white;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-      margin-bottom: 0px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      row-gap: 15px;
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 0px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        row-gap: 0px;
     }
     
     .main-div {
@@ -4255,7 +4257,7 @@ span#unread-message-counts {
     .msg-design {
         display: flex;
         flex-direction: column;
-        row-gap: 10px;
+        row-gap: 20px;
         height: 320px;
         overflow-y: auto;
         padding: 10px;
