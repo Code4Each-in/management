@@ -17,6 +17,7 @@ use App\Models\Notification;
 use App\Models\Projects;
 use App\Models\Tickets;
 use App\Models\TodoList;
+use App\Models\UserAttendancesTemporary;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\Reminder;
@@ -497,20 +498,20 @@ $offlineClients = Users::where('status', 1)
             if ($usr->half_day == NULL) {
                 $users++;
             } else {
-                $usrAttendances = UserAttendances::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
+                $usrAttendances = UserAttendancesTemporary::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
                 if ($usr->half_day == 'First Half') {
                     if ($usrAttendances->isEmpty() || (optional($usrAttendances->first())->in_time < '14:00:00')) {
                         $users++;
                     }
                 } else if ($usr->half_day == 'Second Half') {
-                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time && $usrAttendances->first()->out_time > '14:00:00')) {
+                    if (!$usrAttendances->isEmpty() && !is_null($usrAttendances->first()->out_time) && $usrAttendances->first()->out_time > '14:00:00') {
                         $users++;
                     }
                 }else if ($usr->half_day == 'Short Leave') {
                     $from = $usr->from_time;
                     $to = $usr->to_time;
                     $currentTime = now()->format('H:i:s');
-
+ 
                     if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $users++;
                     }
@@ -519,7 +520,7 @@ $offlineClients = Users::where('status', 1)
         }
         return $users;
     }
-
+ 
     public function getValidLeaves($showLeaves, $currentDate)
     {
         $validLeaves = [];
@@ -528,7 +529,7 @@ $offlineClients = Users::where('status', 1)
                 // If half_day is NULL, include this leave in the validLeaves array`
                 $validLeaves[] = $value;
             } else {
-                $usrAttendances = UserAttendances::where('user_id', $value->user_id)
+                $usrAttendances = UserAttendancesTemporary::where('user_id', $value->user_id)
                     ->whereDate('date', '=', $currentDate)
                     ->get();
                 if ($value->half_day === 'First Half') {
@@ -544,7 +545,7 @@ $offlineClients = Users::where('status', 1)
                     $from = $value->from_time;
                     $to = $value->to_time;
                     $currentTime = now()->format('H:i:s');
-
+ 
                     if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $validLeaves[] = $value;
                     }
