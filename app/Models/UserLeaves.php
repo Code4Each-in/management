@@ -20,6 +20,8 @@ class UserLeaves extends Model
         'type',  
         'notes',  
         'half_day',
+        'from_time',
+        'to_time',
         'leave_day_count', 
     ];
 
