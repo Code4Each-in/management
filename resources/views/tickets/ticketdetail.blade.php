@@ -3,11 +3,13 @@
 @section('subtitle', 'Ticket')
 @section('content')
 <div class="action_btn">
-  <div class="backToSprint">
-      <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
-      Back To Sprint <i style="color:#4154f1;"></i>
-    </a>
-  </div>
+    @if(!empty($tickets->sprint_id))
+    <div class="backToSprint">
+        <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
+        Back To Sprint <i style="color:#4154f1;"></i>
+        </a>
+    </div>
+    @endif
   <div class="editticket">
       <a href="{{ url('/edit/ticket/'.$tickets->id)}}?source=sprint" class="btn btn-primary">Edit Ticket
       <i style="color:#4154f1;"></i>
@@ -19,7 +21,7 @@
 </div>
 <div class="container">
   <div class="task-card expanded">
-    <div class="task-header" onclick="toggleTaskDetails(this)"> 
+    <div class="task-header" onclick="toggleTaskDetails(this)">
       <div class="task-icon">
         <i class="fa-solid fa-folder-open"></i>
       </div>
@@ -91,13 +93,13 @@
 
       @php
           $priorityColors = [
-              'normal' => '#3f996b',    
-              'low' => '#cda21d',       
-              'high' => '#D66A00',      
-              'urgent' => '#b00000d1',  
+              'normal' => '#3f996b',
+              'low' => '#cda21d',
+              'high' => '#D66A00',
+              'urgent' => '#b00000d1',
           ];
 
-          $priority = $tickets->priority ?? 'urgent'; 
+          $priority = $tickets->priority ?? 'urgent';
           $bgColor = $priorityColors[$priority] ?? '#6c757d';
       @endphp
 
@@ -112,18 +114,18 @@
 
     @php
       $statusLabels = [
-          'to_do' => 'To do',        
-          'in_progress' => 'In progress',  
-          'ready' => 'Ready',       
-          'deployed' => 'Deployed',  
-          'complete' => 'Complete',   
+          'to_do' => 'To do',
+          'in_progress' => 'In progress',
+          'ready' => 'Ready',
+          'deployed' => 'Deployed',
+          'complete' => 'Complete',
       ];
       $statusColors = [
-          'to_do' => '#948979',        
-          'in_progress' => '#3fa6d7',  
-          'ready' => '#e09f3e',       
-          'deployed' => '#e76f51',  
-          'complete' => '#2a9d8f',   
+          'to_do' => '#948979',
+          'in_progress' => '#3fa6d7',
+          'ready' => '#e09f3e',
+          'deployed' => '#e76f51',
+          'complete' => '#2a9d8f',
       ];
       $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
   @endphp
@@ -149,14 +151,14 @@
       <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
       </button>
     @endif
-  </div>     
+  </div>
   </div>
   </div>
 </div>
           <div class="main-section">
             <div class="msger-header">
                 <h1>Comments</h1>
-                <i class="fas fa-comment icon"></i> 
+                <i class="fas fa-comment icon"></i>
             </div>
             <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
                 @if(count($CommentsData) != 0)
@@ -172,16 +174,16 @@
                                     <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                 @endif
                                 <div>
-                                    <span class="name">{{ $data->user->first_name }}</span> 
+                                    <span class="name">{{ $data->user->first_name }}</span>
                                     <span class="role">
                                       @if ($data->user->role_id == 6)
                                           {{ $projectName ?? 'Project Not Assigned' }}
                                       @else
                                           Code4Each
                                       @endif
-                                      @if(Auth::user()->id == $data->comment_by)                            
+                                      @if(Auth::user()->id == $data->comment_by)
                                       @endif
-                                  </span>                                  
+                                  </span>
                                 </div>
                             </div>
                             <div class="text">
@@ -194,7 +196,7 @@
                                 @php
                                     $documents = explode(',', $data->document);
                                 @endphp
-        
+
                                 <!-- Display Documents -->
                                 @foreach ($documents as $doc)
                                     @if (!empty($doc))
@@ -207,7 +209,7 @@
                                 @endforeach
                             </div>
                             <!-- Delete button (only for the comment owner) -->
-        
+
                         </div>
                     @endforeach
                 @else
@@ -269,13 +271,13 @@
                     </div>
                     <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
                     <input type="hidden" name="comment" id="comment_input">
-            
+
                     @if ($errors->has('comment'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                     @endif
                 </div>
             </div>
-                     
+
               <div class="mb-3 post-item clearfix upload_chat">
                   <label for="comment_file" class="form-label">Attach File</label>
                   <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
@@ -304,13 +306,13 @@
 
         if (hasText || hasFile) {
             var formData = new FormData(this);
-            $('#loader').show(); 
+            $('#loader').show();
             $.ajax({
                 url: '{{ route('comments.add') }}',
                 type: 'POST',
                 data: formData,
-                contentType: false, 
-                processData: false, 
+                contentType: false,
+                processData: false,
                 success: function(response) {
                     if (response.status === 200) {
                         $('#comment').val('');
@@ -331,7 +333,7 @@
                     $('.alert-danger').show().html('An error occurred while submitting the comment.');
                 },
                 complete: function() {
-                    $('#loader').hide(); 
+                    $('#loader').hide();
                 }
             });
         } else {
@@ -358,10 +360,10 @@
             success: function(response) {
                 if (response.status === 200) {
                     commentItem.fadeOut(300, function() {
-                        $(this).remove(); 
+                        $(this).remove();
                     });
 
-                    location.reload(); 
+                    location.reload();
                 } else {
                     alert(response.message || 'Failed to delete comment.');
                 }
@@ -373,7 +375,7 @@
     }
 });
 
-</script> 
+</script>
 <script>
   tinymce.init({
     selector: '#tinymce_textarea',
@@ -384,7 +386,7 @@
     setup: function (editor) {
       editor.on('keydown', function (e) {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-          $('#commentsData').submit(); 
+          $('#commentsData').submit();
           e.preventDefault();
         }
       });
@@ -392,7 +394,7 @@
   });
 </script>
 
-        
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -457,6 +459,6 @@
     });
   });
 </script>
-  
-     
+
+
 @endsection
