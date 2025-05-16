@@ -53,7 +53,7 @@ class DashboardController extends Controller
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
         ->where('comments', '!=', '')
         ->where('comment_by', '!=', auth()->id())
-        ->with('user') 
+        ->with('user')
         ->orderBy('created_at', 'desc')
         ->take(10)
         ->get();
@@ -498,7 +498,15 @@ $offlineClients = Users::where('status', 1)
             if ($usr->half_day == NULL) {
                 $users++;
             } else {
-                $usrAttendances = UserAttendancesTemporary::where('user_id', $usr->user_id)->whereDate('date', '=', $currentDate)->get();
+                if ($value->half_day === 'Second Half') {
+                    $userTable = UserAttendances::class;
+                } else {
+                    $userTable = UserAttendancesTemporary::class;
+                }
+                $usrAttendances = $userTable::where('user_id', $value->user_id)
+                    ->whereDate('date', '=', $currentDate)
+                    ->get();
+
                 if ($usr->half_day == 'First Half') {
                     if ($usrAttendances->isEmpty() || (optional($usrAttendances->first())->in_time < '14:00:00')) {
                         $users++;
@@ -511,7 +519,7 @@ $offlineClients = Users::where('status', 1)
                     $from = $usr->from_time;
                     $to = $usr->to_time;
                     $currentTime = now()->format('H:i:s');
- 
+
                     if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $users++;
                     }
@@ -520,7 +528,7 @@ $offlineClients = Users::where('status', 1)
         }
         return $users;
     }
- 
+
     public function getValidLeaves($showLeaves, $currentDate)
     {
         $validLeaves = [];
@@ -529,9 +537,15 @@ $offlineClients = Users::where('status', 1)
                 // If half_day is NULL, include this leave in the validLeaves array`
                 $validLeaves[] = $value;
             } else {
-                $usrAttendances = UserAttendancesTemporary::where('user_id', $value->user_id)
+                if ($value->half_day === 'Second Half') {
+                    $userTable = UserAttendances::class;
+                } else {
+                    $userTable = UserAttendancesTemporary::class;
+                }
+                $usrAttendances = $userTable::where('user_id', $value->user_id)
                     ->whereDate('date', '=', $currentDate)
                     ->get();
+
                 if ($value->half_day === 'First Half') {
                     if ($usrAttendances->isEmpty() || (optional($usrAttendances->first())->in_time < '14:00:00')) {
                         $validLeaves[] = $value;
@@ -545,7 +559,7 @@ $offlineClients = Users::where('status', 1)
                     $from = $value->from_time;
                     $to = $value->to_time;
                     $currentTime = now()->format('H:i:s');
- 
+
                     if(!$usrAttendances->isEmpty() && ($from <= $currentTime && $to >= $currentTime)){
                         $validLeaves[] = $value;
                     }
