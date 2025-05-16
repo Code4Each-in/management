@@ -498,7 +498,7 @@ $offlineClients = Users::where('status', 1)
             if ($usr->half_day == NULL) {
                 $users++;
             } else {
-                if ($value->half_day === 'Second Half') {
+                if ($usr->half_day === 'Second Half') {
                     $userTable = UserAttendances::class;
                 } else {
                     $userTable = UserAttendancesTemporary::class;
