@@ -281,7 +281,7 @@
             </a>
             </li>
           @endif
-          @if (auth()->user()->role->name == 'BDE')
+          @if (auth()->user()->designation == 'BDE')
            <li class="nav-item">
             <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
                 <i class="bi bi-person-badge"></i>

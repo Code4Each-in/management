@@ -150,7 +150,7 @@ $onlineUsers = Users::where('status', 1)
 
 // Offline Employees
 $offlineUsers = Users::where('status', 1)
-    ->where('role_id', '!=', 6)
+    ->whereNotIn('role_id', [2, 6])
     ->where(function ($query) {
         $query->where('last_seen_at', '<', now()->subMinutes(2))
               ->orWhereNull('last_seen_at');
