@@ -68,12 +68,12 @@
 </div>
 
 <!-- Comment Section Added Below -->
-<div class="main-section">
+{{-- <div class="main-section">
     <div class="msger-header">
         <h1>Comments</h1>
         <i class="fas fa-comment icon"></i> 
-    </div>
-    <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+    </div> --}}
+    {{-- <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;"> --}}
     {{-- @if(count($comments) > 0)
         @foreach ($comments as $data)
             <div class="message">
@@ -122,8 +122,8 @@
             <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
         </div>
     @endif --}}
-</div>
-    <div class="card mt-3 card-designform">
+{{-- </div> --}}
+    {{-- <div class="card mt-3 card-designform">
         <form method="POST" id="commentsData">
             @csrf
             <div class="post-item clearfix mb-3 mt-3">
@@ -186,14 +186,14 @@
             </div>
             <div class="alert alert-danger" style="display:none;"></div>
             {{-- Removed the hidden_id input with variable --}}
-            <div class="button-design">
+            {{-- <div class="button-design">
                 <button type="submit" class="btn btncomment btn-primary float-right" style="padding: 8px 15px; font-size: 1rem; border: none; border-radius: 5px;">
                     <i class="bi bi-send-fill"></i> Comment
                 </button>
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 @endsection
 
 @section('js_scripts')
