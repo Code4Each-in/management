@@ -140,13 +140,13 @@ public function destroytask($id)
 public function show($id)
 {
     $task = Task::findOrFail($id);
-    $comments = BDEComment::with('user') 
-    ->where('task_id', $task->id)
-    ->oldest() 
-    ->get();
+    // $comments = BDEComment::with('user') 
+    // ->where('task_id', $task->id)
+    // ->oldest() 
+    // ->get();
 
 
-    return view('bde.task-detail', compact('task', 'comments'));
+    return view('bde.task-detail', compact('task'));
 }
 
 public function addComment(Request $request)

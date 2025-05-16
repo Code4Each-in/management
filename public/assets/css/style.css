@@ -4280,4 +4280,7 @@ span#unread-message-counts {
     justify-content: flex-end;
 }
 
+table.styled-sprint-table.sprint-table.custom {
+    text-align: left;
+}
 /* new design css end*/
