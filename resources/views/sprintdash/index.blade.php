@@ -15,8 +15,7 @@
                   {{ $project->project_name }}
               </option>
           @endforeach
-      </select>
-      
+      </select>      
       @if ($errors->has('project_filter'))
           <span style="font-size: 10px;" class="text-danger">{{ $errors->first('project_filter') }}</span>
       @endif
