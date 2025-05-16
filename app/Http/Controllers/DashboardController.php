@@ -503,7 +503,7 @@ $offlineClients = Users::where('status', 1)
                 } else {
                     $userTable = UserAttendancesTemporary::class;
                 }
-                $usrAttendances = $userTable::where('user_id', $value->user_id)
+                $usrAttendances = $userTable::where('user_id', $usr->user_id)
                     ->whereDate('date', '=', $currentDate)
                     ->get();
 
