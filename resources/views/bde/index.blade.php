@@ -11,44 +11,41 @@
 
 <div class="card">
     <div class="card-body pb-4">
-        <table class="styled-sprint-table sprint-table">
-            <thead>
-                <tr style="color: #297bab;">
-                    <th>S.No</th>
-                    <th>Name</th>
-                    <th>Started At</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($bidSprint as $index => $sprint)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $sprint->name }}</td>
-                        <td>{{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y H:i') : '---' }}</td>
-                        <td>
-                            <span class="badge {{ $sprint->status == 1 ? 'active' : ($sprint->status == 2 ? 'completed' : 'inactive') }}">
-                                {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{{ url('/view/bid-sprint/' . $sprint->id) }}" target="_blank">
-                                <i class="fa fa-eye fa-fw pointer" title="View"></i>
-                            </a>
-                              <a href="{{ url('/edit/bid-sprint/' . $sprint->id) }}">
-                            <i class="fa fa-edit fa-fw pointer" title="Edit"></i>
-                            </a>
-                            <i class="fa fa-trash fa-fw pointer" title="Delete" onclick="deleteBidSprint('{{ $sprint->id }}')"></i>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center">No Bid Sprints found</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <table class="styled-sprint-table sprint-table custom">
+    <thead>
+        <tr style="color: #297bab;">
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Started At</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($bidSprint as $index => $sprint)
+            @php $hasData = true; @endphp
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $sprint->name }}</td>
+                <td>{{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y H:i') : '---' }}</td>
+                <td>
+                    <span class="badge {{ $sprint->status == 1 ? 'active' : ($sprint->status == 2 ? 'completed' : 'inactive') }}">
+                        {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url('/view/bid-sprint/' . $sprint->id) }}" target="_blank">
+                        <i class="fa fa-eye fa-fw pointer" title="View"></i>
+                    </a>
+                    <a href="{{ url('/edit/bid-sprint/' . $sprint->id) }}">
+                        <i class="fa fa-edit fa-fw pointer" title="Edit"></i>
+                    </a>
+                    <i class="fa fa-trash fa-fw pointer" title="Delete" onclick="deleteBidSprint('{{ $sprint->id }}')"></i>
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
 
         <!-- Add Bid Sprint Modal -->
         <div class="modal fade" id="addBidSprintModal" tabindex="-1" aria-labelledby="addBidSprintLabel" aria-hidden="true">
@@ -169,6 +166,46 @@
 
 @section('js_scripts')
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('addBidSprintModal');
+    const form = document.getElementById('addBidSprintForm');
+    const quillEditor = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: '#toolbar-container'
+        }
+    });
+
+    // Save the instance globally for use during reset
+    window.quillEditor = quillEditor;
+
+    // Clear form on modal close
+    modal.addEventListener('hidden.bs.modal', function () {
+        form.reset(); // Reset standard inputs/selects
+
+        // Clear Quill editor content
+        quillEditor.setContents([]);
+
+        // Clear hidden input for description
+        document.getElementById('description_input').value = '';
+
+        // Hide error message if shown
+        const errorBox = form.querySelector('.alert.alert-danger');
+        if (errorBox) {
+            errorBox.style.display = 'none';
+            errorBox.innerHTML = '';
+        }
+    });
+
+    // Update hidden input before form submission
+    form.addEventListener('submit', function (e) {
+        const content = quillEditor.root.innerHTML.trim();
+        document.getElementById('description_input').value = content;
+    });
+});
+</script>
+
+<script>
     function addBidSprintModal() {
         $('#addBidSprintModal').modal('show');
     }
@@ -234,12 +271,7 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('.styled-sprint-table').DataTable({
-            paging: true,
-            searching: true,
-            ordering: true,
-            info: true
-        });
-    });
+    $('.styled-sprint-table').DataTable();
+});
 </script>
 @endsection

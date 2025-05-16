@@ -104,7 +104,7 @@
 </div>
 <div class="card">
     <div class="card-body pb-4">
-       <table class="styled-sprint-table sprint-table">
+      <table class="styled-sprint-table sprint-table custom">
     <thead>
         <tr style="color: #297bab;">
             <th>S.No</th>
@@ -117,13 +117,18 @@
         </tr>
     </thead>
     <tbody>
-        @forelse ($tasks as $index => $task)
+        @php
+            $rowsCount = $tasks->count();
+            $minRows = 5;
+        @endphp
+
+        @foreach ($tasks as $index => $task)
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $task->job_title }}</td>
                 <td>
                     @if($task->job_link)
-                        <a href="{{ $task->job_link }}" target="_blank">Link</a>
+                        <a href="{{ $task->job_link }}" target="_blank" rel="noopener noreferrer">Link</a>
                     @else
                         ---
                     @endif
@@ -142,23 +147,18 @@
                     </span>
                 </td>
                 <td>
-                       <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
-                        <i class="fa-solid fa-eye fa-fw pointer text-primary"></i>
-                        </a>
-                   <a href="{{ route('tasks.edit', $task->id) }}" title="Edit">
+                    <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
+                        <i class="fa fa-eye fa-fw pointer text-primary"></i>
+                    </a>
+                    <a href="{{ route('tasks.edit', $task->id) }}" title="Edit">
                         <i class="fa fa-edit fa-fw pointer"></i>
                     </a>
-
-                   <a href="#" onclick="deleteTask({{ $task->id }})" title="Delete">
+                    <a href="#" onclick="deleteTask({{ $task->id }})" title="Delete">
                         <i class="fa fa-trash fa-fw pointer text-danger"></i>
                     </a>
                 </td>
             </tr>
-        @empty
-            <tr>
-                <td colspan="7" class="text-center">No Tasks found</td>
-            </tr>
-        @endforelse
+        @endforeach
     </tbody>
 </table>
     </div>
@@ -225,6 +225,16 @@
 </div>
 @endsection
 @section('js_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const addTaskModal = document.getElementById('addTaskModal');
+    const addTaskForm = document.getElementById('addTaskForm');
+
+    addTaskModal.addEventListener('hidden.bs.modal', function () {
+        addTaskForm.reset(); // Clear all inputs and selects
+    });
+});
+</script>
 <script>
     function addtask() {
         const sprintId = {{ $sprint->id ?? $bdeSprint->id ?? 'null' }}; 

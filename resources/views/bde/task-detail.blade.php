@@ -74,7 +74,7 @@
         <i class="fas fa-comment icon"></i> 
     </div>
     <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
-    @if(count($comments) > 0)
+    {{-- @if(count($comments) > 0)
         @foreach ($comments as $data)
             <div class="message">
                 <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
@@ -121,7 +121,7 @@
         <div class="center text-center mt-2">
             <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
         </div>
-    @endif
+    @endif --}}
 </div>
     <div class="card mt-3 card-designform">
         <form method="POST" id="commentsData">
