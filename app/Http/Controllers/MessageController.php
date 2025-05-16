@@ -15,7 +15,7 @@ class MessageController extends Controller
 {
     /**
      * Display login page.
-     * 
+     *
      * @return Renderable
      */
     public function index()
@@ -25,7 +25,7 @@ class MessageController extends Controller
         $roleid = $user->role_id;
         if ($user->role_id == 1) {
             $projects = Projects::orderBy('id', 'desc')->get();
-    
+
             if ($projects->isNotEmpty()) {
                 $client = Client::find($projects->first()->client_id);
             }
@@ -35,11 +35,11 @@ class MessageController extends Controller
             $projects = Projects::where('client_id', $clientId)
                 ->orderBy('id', 'desc')
                 ->get();
-    
+
             $client = Client::find($clientId);
         }
         $projects = $projects->unique('project_name')->values();
-    
+
         foreach ($projects as $project) {
             $project->last_message = Message::where('project_id', $project->id)
                 ->orderBy('created_at', 'desc')
@@ -55,19 +55,19 @@ class MessageController extends Controller
                     ->where('is_read_to', 0)
                     ->count();
             }
-    
+
             $project->client = Client::find($project->client_id);
         }
 
         $projects = $projects->sortByDesc(function ($project) {
             return optional($project->last_message)->created_at;
         })->values();
-    
+
         return view('developer.chat', compact('projects', 'client', 'roleid'));
     }
-    
 
-    
+
+
     public function getMessagesByProject($projectId)
 {
 
@@ -82,7 +82,7 @@ public function addMessage(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240', // 10MB max size
-        'comment' => 'nullable|string|max:255', 
+        'comment' => 'nullable|string|max:255',
     ], [
         'comment_file.*.file' => 'The :attribute must be a file.',
         'comment_file.*.mimes' => 'The :attribute must be a file of an allowed type: images, documents, audio, or video.',
@@ -90,16 +90,16 @@ public function addMessage(Request $request)
         'comment.string' => 'The comment must be a valid string.',
         'comment.max' => 'The comment may not be greater than :max characters.',
     ]);
-    
+
 
     $validator->setAttributeNames([
-        'comment_file.*' => 'document', 
+        'comment_file.*' => 'document',
     ]);
- 
+
     if ($validator->fails()) {
         $errors = $validator->errors();
         $allErrors = $errors->all();
-    
+
         foreach ($allErrors as $error) {
             if (Str::contains($error, 'greater than 10MB')) {
                 return response()->json([
@@ -109,27 +109,28 @@ public function addMessage(Request $request)
                 ]);
             }
         }
-    
+
         return response()->json(['errors' => $allErrors]);
-    }    
+    }
 
     $user = Auth::user();
+
+    $projectId = $request->input('project_id');
+    $project = Projects::find($projectId);
+    $projectName = $project->project_name;
 
     if ($user->role_id == 6) {
         $to_id = 1;
     }else{
-        $projectId = $request->input('project_id');
-        $project = Projects::find($projectId);
-
         $toUser = Users::where('client_id', $project->client_id)->first();
 
         if (!$toUser) {
             return response()->json(['errors' => ['User with matching client ID not found.']]);
         }
-    
+
         $to_id = $toUser->id;
     }
- 
+
 
     $documentPaths = [];
     $messageData = [
@@ -146,10 +147,10 @@ public function addMessage(Request $request)
             $name = $dateString . '_' . $fileName . '.' . $file->extension();
             $file->move(public_path('assets/img/ticketAssets'), $name);
             $path = 'ticketAssets/' . $name;
-            $documentPaths[] = $path; 
+            $documentPaths[] = $path;
         }
         $documentString = implode(',', $documentPaths);
-        $messageData['document'] = $documentString; 
+        $messageData['document'] = $documentString;
     }
 
     $message = Message::create($messageData);
@@ -159,16 +160,16 @@ public function addMessage(Request $request)
 
     if ($message) {
         try {
-            $rawMessage = $request->input('message');
-            $cleanMessage = strip_tags(html_entity_decode($rawMessage)); 
-            
-            $messages = [
-                "subject" => "New Message received from - {$name}",
-                "title"   => "You've received a new message from {$name}.",
-                "body-text" => $cleanMessage,
-            ];
-            
-                
+            // $rawMessage = $request->input('message');
+            // $cleanMessage = strip_tags(html_entity_decode($rawMessage));
+
+            $messages["greeting-text"] = "{$name}!";
+            $messages["subject"] = "New Message received from - {$name}";
+            $messages["title"] = "You've received a new message from <strong>{$name}</strong>.";
+            $messages["body-text"] = " {$projectName}";
+            $messages["url-title"] = "View Message";
+            $messages["url"] = "/messages?project_id={$projectId}";
+
             $assignedUser = Users::find($to_id);
             if ($assignedUser) {
                 $assignedUser->notify(new MessageNotification($messages));
@@ -177,11 +178,11 @@ public function addMessage(Request $request)
             \Log::error("Error sending notification for feedback: " . $e->getMessage());
         }
     }
-    
-     
+
+
     return response()->json([
         'status' => 200,
-        'message' => $message, 
+        'message' => $message,
         'Commentmessage' => 'Message added successfully.'
     ]);
 }
@@ -235,6 +236,6 @@ public function addMessage(Request $request)
 }
 
 
-    
+
 
 }

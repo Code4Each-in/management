@@ -24,17 +24,21 @@ class MessageNotification extends Notification
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    // public function toMail($notifiable)
+    // {
+    //     return (new MailMessage)
+    //         ->subject($this->data['subject'])
+    //         ->view('Email.custom_message', [
+    //             'subject' => $this->data['subject'],
+    //             'title'   => $this->data['title'],
+    //             'body'    => $this->data['body-text'],
+    //         ]);
+    // }
+   public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->data['subject'])
-            ->view('emails.custom_message', [
-                'subject' => $this->data['subject'],
-                'title'   => $this->data['title'],
-                'body'    => $this->data['body-text'],
-            ]);
+            ->subject($this->data['subject'] ?? 'Notification Email')
+            ->view('Email.custom_message', ['data' => $this->data]);
     }
-    
 
-    
 }
