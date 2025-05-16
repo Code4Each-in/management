@@ -274,7 +274,21 @@
                     <span>Roles</span>
                 </a>
             </li>
+            <li class="nav-item">
+            <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
+                <i class="bi bi-person-badge"></i>
+                <span>BDE Panel</span>
+            </a>
+            </li>
           @endif
+          @if (auth()->user()->role->name == 'BDE')
+           <li class="nav-item">
+            <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
+                <i class="bi bi-person-badge"></i>
+                <span>BDE Panel</span>
+            </a>
+            </li>
+            @endif
           @if (auth()->user()->role->name == 'HR Manager')
           <li class="nav-item">
                 <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"

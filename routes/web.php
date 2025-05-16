@@ -30,6 +30,7 @@ use App\Http\Controllers\EmailAll;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\StickyNoteController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\BDEController;
 
 /*
 |--------------------------------------------------------------------------
@@ -328,5 +329,21 @@ Route::middleware(['role_permission'])->group(function () {
 		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
 	});
 	Route::post('/user/heartbeat', [UsersController::class, 'heartbeat'])->middleware('auth');
+
+	//bde section
+	Route::get('/bid-sprints', [BDEController::class, 'index'])->name('bdeSprint.index');
+	Route::post('/add/bde/sprint', [BDEController::class, 'add'])->name('bdeSprint.add');
+	Route::get('/edit/bid-sprint/{id}', [BDEController::class, 'edit'])->name('bdeSprint.edit');
+    Route::post('/update/bid-sprint/{id}', [BDEController::class, 'update'])->name('bdeSprint.update');
+    Route::delete('/bde-sprint/{id}', [BDEController::class, 'destroy'])->name('bdeSprint.destroy');
+    Route::get('/view/bid-sprint/{id}', [BDEController::class, 'view'])->name('bid-sprint.view');
+    Route::post('/add-task', [BDEController::class, 'storeTask'])->name('task.store');
+    Route::get('/tasks/{id}/edit', [BDEController::class, 'edittask'])->name('tasks.edit');
+    Route::post('/tasks/{id}/update', [BDEController::class, 'updateTaskWithPost'])->name('tasks.update');
+	Route::delete('/tasks/{id}', [BDEController::class, 'destroytask'])->name('tasks.destroy');
+	Route::get('/view/task/{id}', [BDEController::class, 'show'])->name('tasks.show');
+    Route::post('/bde/add-comment', [BDEController::class, 'addComment'])->name('bde.comment.add');
+
+
 
 	});

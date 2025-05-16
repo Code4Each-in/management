@@ -400,7 +400,6 @@ use App\Models\Votes;
         </div>
     </div>
 </div>
-
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
@@ -507,7 +506,6 @@ use App\Models\Votes;
         </div>
     </div>
 </div>
-
 <!-- Sticky Notes Started -->
 <div class="col-lg-12 stickyNotes">
     <div class="card">

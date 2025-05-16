@@ -144,7 +144,7 @@ class DashboardController extends Controller
 
            // Online Employees
 $onlineUsers = Users::where('status', 1)
-    ->where('role_id', '!=', 6)
+    ->whereNotIn('role_id', [2, 6])
     ->where('last_seen_at', '>=', now()->subMinutes(2))
     ->get();
 
