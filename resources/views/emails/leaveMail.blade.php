@@ -44,7 +44,7 @@
         <p>Dear HR Team,</p>
         <p>I hope this email finds you well. I am writing to make a formal request for a leave of absence from {{date('d-M-Y', strtotime($data['from'])) }} to {{date('d-M-Y', strtotime($data['to'])) }} @if ($data['half_day'] != null), during the {{$data['half_day']}} of the day @endif.</p>
         <p>Please review the details below:</p>
-        
+
         <table>
             <tr>
                 <td><strong>Employee Name:</strong></td>
@@ -61,7 +61,7 @@
             <tr>
                 <td><strong>End Date:</strong></td>
                 <td>{{ date('d-m-Y', strtotime($data['to']))}}</td>
-                
+
             </tr>
             <tr>
                 <td><strong>Reason:</strong></td>
@@ -70,13 +70,13 @@
         </table>
         <br>
         <p>Please take appropriate action regarding this leave request.</p>
-        
+
         <p>Thank you.</p>
         <p>Best regards,</p>
         <p>{{ ucfirst($data['first_name']).' '. ucfirst($data['last_name'])}}</p>
 
         <p>Visit HR Management: <a href="{{ url('/') }}" target="_blank">Click Here </a></p>
-        
+
     </div>
 </body>
 </html>

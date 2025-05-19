@@ -9,7 +9,9 @@ use App\Models\Tickets;
 use App\Models\TicketAssigns;
 use App\Models\TicketComments;
 use App\Models\TicketFiles;
+use App\Models\Client;
 use App\Notifications\EmailNotification;
+use App\Notifications\TicketNotification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Sprint;
@@ -33,7 +35,7 @@ class TicketsController extends Controller
             ->where('status', '!=', 0)
             ->where('role_id', '!=', 6)
             ->orderBy('first_name', 'asc')
-            ->get();        
+            ->get();
             $sprints = Sprint::where('status', 1)->get();
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
@@ -47,7 +49,7 @@ class TicketsController extends Controller
             } else {
                 if (auth()->user()->role->name != "Super Admin") {
                     $tickets = $ticketFilterQuery->whereRelation('ticketAssigns', 'user_id', 'like', '%' . $auth_user . '%')->where('status', '!=', 'complete');
-                    
+
                     if ($completeTicketsFilter == 'on') {
                         $tickets = $ticketFilterQuery->orWhere('status', 'complete');
                     }
@@ -59,37 +61,37 @@ class TicketsController extends Controller
                     }
                 }
             }
-            
+
             if (request()->has('project_filter') && request()->input('project_filter')!= '') {
-                $tickets = $ticketFilterQuery->whereHas('ticketRelatedTo', function($query) { 
-                    $query->where('id', request()->input('project_filter')); 
+                $tickets = $ticketFilterQuery->whereHas('ticketRelatedTo', function($query) {
+                    $query->where('id', request()->input('project_filter'));
                 });
             }
             if (request()->has('assigned_to_filter') && request()->input('assigned_to_filter')!= '') {
-                $tickets = $ticketFilterQuery->whereHas('ticketAssigns', function($query) { 
-                    $query->where('user_id', request()->input('assigned_to_filter')); 
+                $tickets = $ticketFilterQuery->whereHas('ticketAssigns', function($query) {
+                    $query->where('user_id', request()->input('assigned_to_filter'));
                 });
             }
                 $tickets = $tickets->get();
-            
+
             if (!empty($tickets)){
                 $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
             ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
             ->get();
-            foreach ($tickets as $key=>$data) 
+            foreach ($tickets as $key=>$data)
             {
                 $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
                 $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
             }
         }
-        
-            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));   
+
+            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));
     }
 
         public function create(Request $request)
         {
             $auth_user = auth()->user();
-            $sprint_id = $request->get('sprint_id'); 
+            $sprint_id = $request->get('sprint_id');
 
             $sprint = null;
             $project_id = null;
@@ -97,7 +99,7 @@ class TicketsController extends Controller
             if ($sprint_id) {
                 $sprint = Sprint::find($sprint_id);
                 if ($sprint) {
-                    $project_id = $sprint->project; 
+                    $project_id = $sprint->project;
                 }
             }
 
@@ -119,14 +121,14 @@ class TicketsController extends Controller
             $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
                 ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name')
                 ->get();
-        
+
             return view('tickets.create', compact('user', 'sprints', 'projects', 'auth_user', 'ticketStatus', 'sprint_id', 'project_id'));
         }
-        
 
 
-    public function store(Request $request) 
-	{ 
+
+    public function store(Request $request)
+	{
         $validator = Validator::make($request->all(), [
             'title' => 'required|min:15',
             'description' => 'required',
@@ -142,7 +144,7 @@ class TicketsController extends Controller
             'add_document.*.file' => 'Each document must be a valid file.',
             'add_document.*.mimes' => 'Each document must be of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
             'add_document.*.max' => 'Each document must not exceed 5MB.',
-        ]);        
+        ]);
             $validator->setAttributeNames([
                 'add_document.*' => 'document',
             ]);
@@ -151,7 +153,7 @@ class TicketsController extends Controller
             {
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }
-            
+
     		$validate = $validator->valid();
             $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
@@ -159,7 +161,7 @@ class TicketsController extends Controller
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'],
-                'project_id' => $validate['project_id'], 
+                'project_id' => $validate['project_id'],
                 'sprint_id' => $validate['sprint_id_ticket'],
                 'status'=> $validate ['status'],
                 'priority'=> $validate ['priority'],
@@ -169,7 +171,7 @@ class TicketsController extends Controller
                 'created_by'=> auth()->user()->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-                'user_id'=> auth()->user()->id,     
+                'user_id'=> auth()->user()->id,
             ]);
             Notification::create([
                 'user_id' => auth()->user()->id,
@@ -182,7 +184,7 @@ class TicketsController extends Controller
             $managerIds = DB::table('managers')
             ->where('user_id', auth()->user()->id)
             ->pluck('parent_user_id');
-    
+
         foreach ($managerIds as $managerId) {
             Notification::create([
                 'user_id' => $managerId,
@@ -194,7 +196,7 @@ class TicketsController extends Controller
             ]);
         }
 
-                
+
 
             if (auth()->user()->id  == 1) {
                 Notification::create([
@@ -208,15 +210,15 @@ class TicketsController extends Controller
             }
 
             if (isset($validate['assign']))
-            {			
+            {
                 foreach($validate['assign'] as $assign)
-                {				
-                    $assign =TicketAssigns::create([					
+                {
+                    $assign =TicketAssigns::create([
                         'ticket_id' => $tickets->id,
                         'user_id' => $assign,
-                   
+
                     ]);
-                }		
+                }
             }
 
             if($request->hasfile('add_document')){
@@ -225,19 +227,19 @@ class TicketsController extends Controller
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $dateString = date('YmdHis');
                 $name = $dateString . '_' . $fileName . '.' . $file->extension();
-                $file->move(public_path('assets/img/ticketAssets'), $name);  
+                $file->move(public_path('assets/img/ticketAssets'), $name);
                 $path='ticketAssets/'.$name;
                     $documents = TicketFiles::create([
                     'document' => $path,
                     'ticket_id'=> $tickets->id,
-                    ]); 
+                    ]);
                 }
            }
 
            //if user assigned then send email Notification to the Assigned Users
            if($assign){
                 $ticketAuthor = Users::find(auth()->user()->id);
-                $projectDetail = Projects::find($tickets->project_id); 
+                $projectDetail = Projects::find($tickets->project_id);
                 $authorName = $ticketAuthor->first_name. ' '. $ticketAuthor->last_name;
                 $ticket_id = $tickets->id;
                 $ticket_eta = "Not Mentioned";
@@ -262,7 +264,7 @@ class TicketsController extends Controller
                             \Log::error("Error sending notification for ticket #{$tickets->id} to user {$assignedUser->id}: " . $e->getMessage());
                         }
                     }
-                }                               
+                }
             }
             $request->session()->flash('message','Tickets added successfully.');
                 return response()->json([
@@ -271,22 +273,22 @@ class TicketsController extends Controller
                     'redirect' => !empty($request->sprint_id)
                                   ? route('sprint.view', ['sprintId' => $request->sprint_id])
                                   : route('tickets.index')
-                ]);            
+                ]);
     }
-    
+
     public function getTicketAssign(Request $request)
 	{
         $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$request->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
-       
+
         return Response()->json(['status'=>200, 'ticketAssigns'=> $ticketAssigns]);
     }
      public function editTicket($ticketId)
-     { 
+     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
 
         $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
-        })->orderBy('id','desc')->get()->toArray();	
+        })->orderBy('id','desc')->get()->toArray();
         $userCount = Users::where('status', '!=', 0)
         ->whereNotIn('role_id', [1, 6])
         ->orderBy('first_name', 'asc')
@@ -308,8 +310,8 @@ class TicketsController extends Controller
         $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
         // dd($ticketsCreatedByUser);
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser', 'sprints'));   	
-     }     
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser', 'sprints'));
+     }
      public function updateTicket( Request $request ,$ticketId)
      {
         $validator = Validator::make($request->all(), [
@@ -324,18 +326,18 @@ class TicketsController extends Controller
             'edit_document.*.file' => 'Each document must be a valid file.',
             'edit_document.*.mimes' => 'Each document must be a file of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
             'edit_document.*.max' => 'Each document may not be greater than 10MB.',
-        ]);        
+        ]);
 
             $validator->setAttributeNames([
                 'edit_document.*' => 'document',
             ]);
 
             if ($validator->fails())
-            {   
+            {
                 return Redirect::back()->withErrors($validator);
             }
            $validate = $validator->valid();
-        
+
            $assignedUsers= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$ticketId)->get(['ticket_assigns.*','users.first_name','users.email']);
            $ticketData = Tickets::with('ticketAssigns')->where('id',$ticketId)->first();
            $changed_by = auth()->user()->first_name;
@@ -343,9 +345,9 @@ class TicketsController extends Controller
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
 
-            $tickets=   Tickets::where('id', $ticketId)  
+            $tickets=   Tickets::where('id', $ticketId)
             ->update([
-            'title' => $validate['title'],        
+            'title' => $validate['title'],
             'description' => $validate['description'],
             'project_id' => $validate['edit_project_id'],
             'sprint_id' => $validate['edit_sprint_id'],
@@ -355,9 +357,9 @@ class TicketsController extends Controller
             'priority' => $validate['priority'],
             'eta'=>$eta
             ]);
-        
+
             Notification::create([
-                'user_id' => auth()->user()->id, 
+                'user_id' => auth()->user()->id,
                 'type' => 'status_change',
                 'message' => "Ticket #{$ticketId} status changed to {$validate['status']}",
                 'ticket_id' => $ticketId,
@@ -366,7 +368,7 @@ class TicketsController extends Controller
             $managerIds = DB::table('managers')
             ->where('user_id', auth()->user()->id)
             ->pluck('parent_user_id');
-    
+
         foreach ($managerIds as $managerId) {
             Notification::create([
                 'user_id' => $managerId,
@@ -403,16 +405,16 @@ class TicketsController extends Controller
                         \Log::error("Error sending notification for ticket #{$assignedUser->ticket_id} to user {$assignedUser->id}: " . $e->getMessage());
                     }
                 }
-            }            
+            }
 
-            if (isset($request->assign)) {				
-                foreach ($request->assign as $data) {				
+            if (isset($request->assign)) {
+                foreach ($request->assign as $data) {
                     try {
-                        $newTicketAssign = TicketAssigns::create([					
+                        $newTicketAssign = TicketAssigns::create([
                             'ticket_id' => $ticketId,
                             'user_id' => $data,
                         ]);
-            
+
                         if ($newTicketAssign) {
                             $messages["subject"] = "New Ticket #{$ticketId} Assigned By - {$changed_by}";
                             $messages["title"] = "You have been assigned a new ticket #{$ticketId} by {$changed_by}.";
@@ -426,21 +428,21 @@ class TicketsController extends Controller
                         \Log::error("Error assigning ticket #{$ticketId} to user {$data}: " . $e->getMessage());
                     }
                 }
-            }            
+            }
             if($request->hasfile('edit_document')){
                 foreach($request->file('edit_document') as $file)
                 {
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $dateString = date('YmdHis');
                 $name = $dateString . '_' . $fileName . '.' . $file->extension();
-                $file->move(public_path('assets/img/ticketAssets'), $name);  
+                $file->move(public_path('assets/img/ticketAssets'), $name);
                 $path='ticketAssets/'.$name;
                     $documents = TicketFiles::create([
                     'document' => $path,
                     'ticket_id'=> $ticketId,
-                    ]); 
+                    ]);
                 }
-               
+
            }
             $source = $request->input('source') ?? $request->query('source');
             // dd($source);
@@ -453,33 +455,33 @@ class TicketsController extends Controller
                 return redirect()->route('tickets.index');
             }
      }
-     
+
      public function destroy(Request $request)
      {
-         $tickets = Tickets::where('id',$request->id)->delete(); 
+         $tickets = Tickets::where('id',$request->id)->delete();
          $request->session()->flash('message','Ticket deleted successfully.');
          return Response()->json($tickets);
      }
-       
-     public function addComments(Request $request)
-     {
-         $validator = Validator::make($request->all(), [
-             'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
-         ], [
-             'comment_file.*.file' => 'The :attribute must be a file.',
-             'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-             'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
-             'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max MB.',
-         ]);
-     
-         $validator->setAttributeNames([
-             'comment_file.*' => 'document',
-         ]);
-     
-         if ($validator->fails()) {
+
+    public function addComments(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+        ], [
+            'comment_file.*.file' => 'The :attribute must be a file.',
+            'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+            'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
+            'comment_file.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max MB.',
+        ]);
+
+        $validator->setAttributeNames([
+            'comment_file.*' => 'document',
+        ]);
+
+        if ($validator->fails()) {
             $errors = $validator->errors();
             $allErrors = $errors->all();
-        
+
             foreach ($allErrors as $error) {
                 if (Str::contains($error, 'greater than') || Str::contains($error, 'Maximum file size allowed')) {
                     return response()->json([
@@ -489,12 +491,12 @@ class TicketsController extends Controller
                     ]);
                 }
             }
-        
+
             return response()->json(['errors' => $allErrors]);
         }
-     
-         $validate = $validator->valid();
-         $documentPaths = [];
+
+        $validate = $validator->valid();
+        $documentPaths = [];
 
             if ($request->hasFile('comment_file')) {
 
@@ -530,19 +532,19 @@ class TicketsController extends Controller
             ]);
 
             $managerIds = DB::table('managers')
-        ->where('user_id', auth()->user()->id)
-        ->pluck('parent_user_id');
+                ->where('user_id', auth()->user()->id)
+                ->pluck('parent_user_id');
 
-    foreach ($managerIds as $managerId) {
-        Notification::create([
-            'user_id' => $managerId,
-            'ticket_id' => $validate['id'],
-            'type' => 'comment',
-            'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
-            'is_read' => false,
-            'is_super_admin' => false
-        ]);
-    }
+            foreach ($managerIds as $managerId) {
+                Notification::create([
+                    'user_id' => $managerId,
+                    'ticket_id' => $validate['id'],
+                    'type' => 'comment',
+                    'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => false
+                ]);
+            }
 
             if (auth()->user()->id ==1) {
                 Notification::create([
@@ -555,45 +557,89 @@ class TicketsController extends Controller
                 ]);
             }
 
-         if ($ticket) {
-             $id = auth()->user()->id;
-             $user = Users::find($id);
-             try {
-                 $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-                 $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. Where you are assigned to this ticket.";
-                 $messages["body-text"] = "Please review the comment and provide a response if necessary.";
-                 $messages["url-title"] = "View Ticket";
-                 $messages["url"] = "/edit/ticket/" . $validate['id'];
-     
-                 $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-                     ->where('ticket_id', $validate['id'])
-                     ->get(['ticket_assigns.*', 'users.first_name', 'users.email']);
-     
-                 foreach ($assignedUsers as $assignedUser) {
-                     $assignedUser->notify(new EmailNotification($messages));
-                 }
-             } catch (\Exception $e) {
-                 \Log::error("Error sending notification for comment on ticket #{$validate['id']} to assigned users: " . $e->getMessage());
-             }
-         }
-     
+            if ($ticket) {
+            $currentUser = auth()->user();
+
+            // Determine who commented
+            if ($currentUser->role_id == 6) {
+                // Comment made by client
+                $clientId = $currentUser->client_id;
+                $user = Users::where('client_id', $clientId)->first();
+
+                $messages["greeting-text"] = "Hello!";
+                $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
+                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                $messages["body-text"] = "{$validate['id']}";
+                $messages["url-title"] = "View Ticket";
+                $messages["url"] = "/view/ticket/" . $validate['id'];
+
+                try {
+                    // Notify all assigned users
+                    $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                        ->where('ticket_id', $validate['id'])
+                        ->get(['users.id', 'users.first_name', 'users.email']);
+                    
+                    foreach ($assignedUsers as $assignedUser) {
+                        $assignedUser->notify(new TicketNotification($messages));
+                    }
+
+                    // Notify admin (user ID 1)
+                    $admin = Users::find(1);
+                    if ($admin) {
+                        $admin->notify(new TicketNotification($messages));
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Error sending notification for client comment on ticket #{$validate['id']}: " . $e->getMessage());
+                }
+
+            } else {
+                // Comment made by admin or assigned user
+                $user = Users::find($currentUser->id);
+                $messages["greeting-text"] = "Hello!";
+                $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
+                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                $messages["body-text"] = "{$validate['id']}";
+                $messages["url-title"] = "View Ticket";
+                $messages["url"] = "/view/ticket/" . $validate['id'];
+
+                try {
+                    // Notify client (get the user with the same client_id)
+                    $ticketModel = Tickets::find($validate['id']);
+                    $projectId = $ticketModel->project_id;
+                    $project = Projects::find($projectId);
+
+                    if ($project) {
+                        $clientId = $project->client_id;
+                    }
+                    $client = Users::where('client_id', $clientId)->first();
+                    if ($client) {
+                        $client->notify(new TicketNotification($messages));
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Error sending notification for staff/admin comment on ticket #{$validate['id']}: " . $e->getMessage());
+                }
+            }
+        }
+
          $CommentsData = TicketComments::with('user')->where('id', $ticket->id)->get();
          return response()->json([
              'status' => 200,
              'CommentsData' => $CommentsData,
              'Commentmessage' => 'Comments added successfully.'
          ]);
-     }     
+     }
     public function DeleteTicketAssign(request $request)
     {
         $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
         $request->session()->flash('message','TicketAssign deleted successfully.');
         $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
-        
+
         $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
-        })->orderBy('id','desc')->get()->toArray();	
-    
+        })->orderBy('id','desc')->get()->toArray();
+
        foreach($user as $key1=> $data1)
        {
            foreach($AssignData as $key2=> $data2){
@@ -602,16 +648,16 @@ class TicketsController extends Controller
                }
            }
        }
-        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
-      
+        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]);
+
     }
 
     public function deleteTicketFile(Request $request)
     {
-        
-        $ticketFile = TicketFiles::where('id',$request->id)->forceDelete(); 
+
+        $ticketFile = TicketFiles::where('id',$request->id)->forceDelete();
         $request->session()->flash('message','TicketFile deleted successfully.');
-        return Response()->json(['status'=>200]); 
+        return Response()->json(['status'=>200]);
 
     }
 
@@ -621,12 +667,12 @@ class TicketsController extends Controller
         $ticket = Tickets::find($ticketId);
         $projectId = $ticket->project_id;
         $project = Projects::find($projectId);
-        
+
         $projectName = $project ? $project->project_name : 'Project Not Found';
         $client = $project?->client;
         $user = Users::whereHas('role', function($q){
            $q->where('name', '!=', 'Super Admin');
-       })->orderBy('id','desc')->get()->toArray();	
+       })->orderBy('id','desc')->get()->toArray();
         $userCount = Users::orderBy('id','desc')->where('status','!=',0)->get();
        foreach($user as $key1=> $data1)
        {
@@ -672,7 +718,7 @@ public function updateStatus(Request $request, $id)
     $ticket->save();
 
     Notification::create([
-        'user_id' => $auth_user, 
+        'user_id' => $auth_user,
         'type' => 'status_change',
         'message' => "Ticket #{$ticket->id} status changed to {$ticket->status}",
         'ticket_id' => $ticket->id,
@@ -714,11 +760,11 @@ public function notifications()
 
     if (request()->ajax()) {
         if ($userId == 1) {
-       
+
             $notifications = Notification::latest()->take(5)->get();
             $unreadCount = Notification::where('is_read', false)->count();
         } else {
-     
+
             $notifications = Notification::where('user_id', $userId)
                 ->latest()
                 ->take(5)
@@ -726,7 +772,7 @@ public function notifications()
 
             $unreadCount = Notification::where('user_id', $userId)
                 ->where('is_read', false)
-                ->count(); 
+                ->count();
         }
 
         return response()->json([
@@ -750,7 +796,7 @@ public function notifications()
 
 public function markAsRead($id)
 {
-    logger("MarkAsRead called with ID: " . $id); 
+    logger("MarkAsRead called with ID: " . $id);
 
     $notification = Notification::where('id', $id)->first();
     if (!$notification) {
@@ -795,7 +841,7 @@ public function deleteComment($id)
     return response()->json([
         'status' => 200,
         'message' => 'Comment deleted successfully.',
-        'id' => $id 
+        'id' => $id
     ]);
 }
 
