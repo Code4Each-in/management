@@ -124,7 +124,7 @@
         @endphp
 
         @foreach ($tasks as $index => $task)
-            <tr onclick="window.open('{{ url('/view/task/'.$task->id) }}', '_blank')" style="cursor: pointer;">
+            <tr onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $task->job_title }}</td>
                 <td>
@@ -166,15 +166,15 @@
                     </ul>
                 </div>
             </td>
-                <td>
+                <td class="actions-cell">
                     <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
-                        <i class="fa fa-eye fa-fw pointer text-primary"></i>
+                        <i class="fa fa-eye fa-fw pointer" style="color:#4154f1;"></i>
                     </a>
                     <a href="{{ route('tasks.edit', $task->id) }}" title="Edit">
                         <i class="fa fa-edit fa-fw pointer"></i>
                     </a>
                     <a href="#" onclick="deleteTask({{ $task->id }})" title="Delete">
-                        <i class="fa fa-trash fa-fw pointer text-danger"></i>
+                        <i class="fa fa-trash fa-fw pointer" style="color:#4154f1;"></i>
                     </a>
                 </td>
             </tr>

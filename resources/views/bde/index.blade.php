@@ -23,7 +23,7 @@
     </thead>
     <tbody>
     @foreach ($bidSprint as $index => $sprint)
-        <tr onclick="window.location='{{ url('/view/bid-sprint/' . $sprint->id) }}';" style="cursor: pointer;">
+        <tr onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.location='{{ url('/view/bid-sprint/' . $sprint->id) }}'; }" style="cursor: pointer;">
             <td>{{ $index + 1 }}</td>
             <td>{{ $sprint->name }}</td>
             <td>{{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y H:i') : '---' }}</td>
@@ -32,7 +32,7 @@
                     {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
                 </span>
             </td>
-            <td>
+            <td class="actions-cell">
                 <a href="{{ url('/view/bid-sprint/' . $sprint->id) }}" target="_blank" onclick="event.stopPropagation();">
                     <i class="fa fa-eye fa-fw pointer" title="View"></i>
                 </a>
