@@ -9,7 +9,9 @@ use App\Models\Tickets;
 use App\Models\TicketAssigns;
 use App\Models\TicketComments;
 use App\Models\TicketFiles;
+use App\Models\Client;
 use App\Notifications\EmailNotification;
+use App\Notifications\TicketNotification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Sprint;
@@ -530,19 +532,19 @@ class TicketsController extends Controller
             ]);
 
             $managerIds = DB::table('managers')
-        ->where('user_id', auth()->user()->id)
-        ->pluck('parent_user_id');
+                ->where('user_id', auth()->user()->id)
+                ->pluck('parent_user_id');
 
-    foreach ($managerIds as $managerId) {
-        Notification::create([
-            'user_id' => $managerId,
-            'ticket_id' => $validate['id'],
-            'type' => 'comment',
-            'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
-            'is_read' => false,
-            'is_super_admin' => false
-        ]);
-    }
+            foreach ($managerIds as $managerId) {
+                Notification::create([
+                    'user_id' => $managerId,
+                    'ticket_id' => $validate['id'],
+                    'type' => 'comment',
+                    'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => false
+                ]);
+            }
 
             if (auth()->user()->id ==1) {
                 Notification::create([
@@ -555,26 +557,69 @@ class TicketsController extends Controller
                 ]);
             }
 
-        if ($ticket) {
-             $id = auth()->user()->id;
-             $user = Users::find($id);
-             try {
-                 $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
-                 $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}. Where you are assigned to this ticket.";
-                 $messages["body-text"] = "Please review the comment and provide a response if necessary.";
-                 $messages["url-title"] = "View Ticket";
-                 $messages["url"] = "/view/ticket/" . $validate['id'];
+            if ($ticket) {
+            $currentUser = auth()->user();
 
-                 $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-                     ->where('ticket_id', $validate['id'])
-                     ->get(['ticket_assigns.*', 'users.first_name', 'users.email']);
+            // Determine who commented
+            if ($currentUser->role_id == 6) {
+                // Comment made by client
+                $clientId = $currentUser->client_id;
+                $user = Users::where('client_id', $clientId)->first();
 
-                 foreach ($assignedUsers as $assignedUser) {
-                     $assignedUser->notify(new EmailNotification($messages));
-                 }
-             } catch (\Exception $e) {
-                 \Log::error("Error sending notification for comment on ticket #{$validate['id']} to assigned users: " . $e->getMessage());
-             }
+                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                $messages["body-text"] = "{$validate['id']}";
+                $messages["url-title"] = "View Ticket";
+                $messages["url"] = "/view/ticket/" . $validate['id'];
+
+                try {
+                    // Notify all assigned users
+                    $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                        ->where('ticket_id', $validate['id'])
+                        ->get(['users.id', 'users.first_name', 'users.email']);
+                    
+                    foreach ($assignedUsers as $assignedUser) {
+                        $assignedUser->notify(new TicketNotification($messages));
+                    }
+
+                    // Notify admin (user ID 1)
+                    $admin = Users::find(1);
+                    if ($admin) {
+                        $admin->notify(new TicketNotification($messages));
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Error sending notification for client comment on ticket #{$validate['id']}: " . $e->getMessage());
+                }
+
+            } else {
+                // Comment made by admin or assigned user
+                $user = Users::find($currentUser->id);
+                 $messages["greeting-text"] = "Hello!";
+                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                $messages["body-text"] = "{$validate['id']}";
+                $messages["url-title"] = "View Ticket";
+                $messages["url"] = "/view/ticket/" . $validate['id'];
+
+                try {
+                    // Notify client (get the user with the same client_id)
+                    $ticketModel = Tickets::find($validate['id']);
+                    $projectId = $ticketModel->project_id;
+                    $project = Projects::find($projectId);
+
+                    if ($project) {
+                        $clientId = $project->client_id;
+                    }
+                    $client = Users::where('client_id', $clientId)->first();
+                    if ($client) {
+                        $client->notify(new TicketNotification($messages));
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Error sending notification for staff/admin comment on ticket #{$validate['id']}: " . $e->getMessage());
+                }
+            }
         }
 
          $CommentsData = TicketComments::with('user')->where('id', $ticket->id)->get();

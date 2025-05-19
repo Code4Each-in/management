@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{{ $data['subject'] }}</title>
+    <title>{{ $messages['subject'] }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,20 +41,20 @@
 </head>
 <body>
     <div class="container">
-        <p><strong>{{ $data['greeting-text'] ?? '' }}</strong></p>
-        <p>A new message has been added to the project <strong>{{ $data['body-text'] ?? '' }}</strong>.<br> Please check and respond if needed.</p>
-        @if(!empty($data['url']))
+        <p><strong>{{ $messages['greeting-text'] ?? '' }}</strong></p>
+        <p>A new comment has been added to Ticket # <strong>{{ $messages['body-text'] ?? '' }}</strong>.<br> Please review the comment and provide a response if necessary.</p>
+        @if(!empty($messages['url']))
             <p>
-                <a href="{{ url($data['url']) }}" class="button">
-                    {{ $data['url-title'] ?? 'Action' }}
+                <a href="{{ url($messages['url']) }}" class="button">
+                    {{ $messages['url-title'] ?? 'Action' }}
                 </a>
             </p>
         @endif
          <p>Regards,<br>PMS</p>
-        @if(!empty($data['url']))
+        @if(!empty($messages['url']))
             <hr>
             <p class="footer">
-                If you're having trouble clicking the "{{ $data['url-title'] ?? 'Action' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($data['url']) }}">{{ url($data['url']) }}</a>
+                If you're having trouble clicking the "{{ $messages['url-title'] ?? 'Action' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($messages['url']) }}">{{ url($messages['url']) }}</a>
             </p>
         @endif
     </div>
