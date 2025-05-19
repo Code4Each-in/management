@@ -27,14 +27,12 @@
                     @endphp
                     <tr>
                         <td>
-                        <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
-                            <strong class="text-primary">
-                                You got a new comment on #{{ $notification->ticket_id }}  
-                            </strong>
-                            <span>
-                                on project <strong>{{ $projectName }}</strong>  
-                                by <strong>{{ $userName }}</strong>
-                            </span>at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
+                       <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
+                            You received a new comment on 
+                            <strong class="text-primary">#{{ $notification->ticket_id }}</strong> 
+                            in project <strong>{{ $projectName }}</strong> 
+                            by <strong>{{ $userName }}</strong> 
+                            on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
                         </a>
                         </td>
                     </tr>

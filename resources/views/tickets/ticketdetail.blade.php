@@ -85,6 +85,12 @@
         </span>
       </div>
 
+       <div class="detail-item">
+        <i class="fa-solid fa-calendar-day"></i>
+        <strong>Created At:</strong>
+        <span>{{ !empty($tickets->created_at) ? date("d/m/Y", strtotime($tickets->created_at)) : '---' }}</span>
+      </div>
+
       <div class="detail-item">
         <i class="fa-solid fa-calendar-day"></i>
         <strong>ETA:</strong>

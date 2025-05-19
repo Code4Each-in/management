@@ -25,7 +25,9 @@
                     @endphp
                     <td>{{ date('d-m-Y', strtotime($newdate)) }}</td>
                     <td>{{ date('h:i A', strtotime($data->in_time)) }}</td>
-                    <td>{{ date('h:i A', strtotime($data->out_time)) }}</td>
+                    <td>
+    {{ $data->out_time_date ? date('h:i A', strtotime($data->out_time_date)) : '-' }}
+</td>
                 </tr>
             @empty
                 <tr>
