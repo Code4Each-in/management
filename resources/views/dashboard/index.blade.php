@@ -547,6 +547,7 @@ use App\Models\Votes;
                         <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
                             <strong class="text-primary">You got a new comment on #{{ $ticketId }}</strong>
                             on project <strong>{{ $projectName }}</strong> by <strong>{{ $userName }}</strong>
+                            at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
                         </a>
                     </td>
                 </tr>
@@ -1228,7 +1229,7 @@ use App\Models\Votes;
                                                         <strong class="text-primary">
                                                             You got a new comment on #{{ $notification->ticket_id }}</strong>
                                                             on project <strong>{{ $projectName }} </strong>
-                                                            by <strong>{{ $creatorName }}</strong>
+                                                            by <strong>{{ $creatorName }}</strong>at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
                                                         </strong> 
                                                     </a>
                                                 </td>

@@ -4,9 +4,10 @@
 @section('content')
 
 <div class="row row-design mb-4 mt-2">
-    <div class="col-md-2">
-        <button class="btn btn-primary m-3" onclick="addtask()">Add Task</button>
-    </div>
+  <div class="col-md-4 d-flex justify-content-start gap-3">
+    <button class="btn btn-primary" onclick="addtask()">Add Record</button>
+     <a href="{{ url('bid-sprints') }}" class="btn btn-primary">Back to Sprint</a>
+  </div>
 </div>
 <div class="accordion mt-4 mb-3" id="sprintAccordion">
     <div class="accordion-item">
@@ -135,17 +136,36 @@
                 </td>
                 <td>{{ $task->source ?? '---' }}</td>
                 <td>{{ $task->profile ?? '---' }}</td>
-                <td>
-                    <span class="badge 
-                        @if($task->status == 'applied') bg-primary
-                        @elseif($task->status == 'viewed') bg-info
-                        @elseif($task->status == 'replied') bg-warning
-                        @elseif($task->status == 'success') bg-success
-                        @else bg-secondary @endif
-                    ">
+               <td>
+                @php
+                    $statusClasses = [
+                        'applied' => 'bg-primary',
+                        'viewed' => 'bg-info',
+                        'replied' => 'bg-warning',
+                        'success' => 'bg-success',
+                    ];
+                    $badgeClass = $statusClasses[$task->status] ?? 'bg-secondary';
+                @endphp
+
+                <div class="dropdown">
+                    <span class="badge rounded-pill dropdown-toggle {{ $badgeClass }}"
+                        data-bs-toggle="dropdown"
+                        role="button"
+                        aria-expanded="false"
+                        style="cursor: pointer;">
                         {{ ucfirst($task->status) }}
                     </span>
-                </td>
+                    <ul class="dropdown-menu status-options" data-task-id="{{ $task->id }}">
+                        @foreach(['applied', 'viewed', 'replied', 'success'] as $status)
+                            <li>
+                                <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                    {{ ucfirst($status) }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </td>
                 <td>
                     <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
                         <i class="fa fa-eye fa-fw pointer text-primary"></i>
@@ -167,7 +187,7 @@
     <div class="modal-dialog">
         <div class="modal-content" style="width: 630px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="addTaskLabel">Add Task</h5>
+                <h5 class="modal-title" id="addTaskLabel">Add Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="addTaskForm">
@@ -217,7 +237,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Task</button>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
                 </div>
             </form>
         </div>
@@ -376,6 +396,33 @@ $('#addTaskForm').submit(function(e) {
             info: true
         });
     });
+    document.querySelectorAll('.status-options a').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const newStatus = this.getAttribute('data-value');
+        const taskId = this.closest('.dropdown-menu').getAttribute('data-task-id');
+
+        fetch(`/tasks/${taskId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(`.dropdown-menu[data-task-id="${taskId}"]`).previousElementSibling;
+                badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                badge.className = `badge rounded-pill dropdown-toggle bg-${newStatus === 'success' ? 'success' : (newStatus === 'replied' ? 'warning' : (newStatus === 'viewed' ? 'info' : 'primary'))}`;
+            }
+        })
+        .catch(err => console.error(err));
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 @endsection

@@ -276,8 +276,23 @@ class AttendanceController extends Controller
         }
 
         public function delete(Request $request){
-            $Users = UserAttendances::where('id',$request->id)->delete();
+        $Users = UserAttendances::where('id',$request->id)->delete();
 		    $request->session()->flash('message','Attendance deleted successfully.');
 		    return Response()->json(['status'=>200]);
         }
+
+        public function history()
+        {
+            $fiveDaysAgo = now()->subDays(5)->startOfDay();
+
+            $attendances = UserAttendances::with('user') 
+                ->where('created_at', '>=', $fiveDaysAgo)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('attendance.history', compact('attendances'));
+        }
+
+
+
     }

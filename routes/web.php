@@ -343,7 +343,11 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::delete('/tasks/{id}', [BDEController::class, 'destroytask'])->name('tasks.destroy');
 	Route::get('/view/task/{id}', [BDEController::class, 'show'])->name('tasks.show');
     Route::post('/bde/add-comment', [BDEController::class, 'addComment'])->name('bde.comment.add');
+    Route::post('/tasks/{task}/update-status', [BDEController::class, 'updateStatus'])->name('tasks.updateStatus');
 
 
+	//attendance history 
+	 Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+  
 
 	});

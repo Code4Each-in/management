@@ -1,6 +1,6 @@
 @extends('layout')
-@section('title', 'Edit Task')
-@section('subtitle', 'Edit Task')
+@section('title', 'Edit Record')
+@section('subtitle', 'Edit Record')
 @section('content')
 
 <form id="editTaskForm" enctype="multipart/form-data">
@@ -70,7 +70,7 @@
 
             <div class="text-end">
                 <a href="{{ route('bdeSprint.index') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Update Task</button>
+                <button type="submit" class="btn btn-primary">Update Record</button>
             </div>
 
         </div>

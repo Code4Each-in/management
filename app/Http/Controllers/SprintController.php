@@ -425,6 +425,7 @@ class SprintController extends Controller
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
+            ->whereYear('created_at', 2025)
             ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -448,6 +449,7 @@ class SprintController extends Controller
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
+            ->whereYear('created_at', 2025)
             ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -456,6 +458,7 @@ class SprintController extends Controller
         $projectMap = '';
         $notifications = TicketComments::where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
+            ->whereYear('created_at', 2025)
             ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();

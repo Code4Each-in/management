@@ -4,11 +4,18 @@
 @section('content')
 <div class="row">
     <div class="row mb-2">
-        <div class="col-md-2">
-            <input type="hidden" name="project_id" value="{{ $sprint->project }}">
-            <a class="btn btn-primary mt-3" href="{{ route('tickets.create', ['sprint_id' => $sprint->id]) }}" style="background: #4154f1;">Add Ticket</a>
-        </div>
+    <div class="col-md-2">
+        <input type="hidden" name="project_id" value="{{ $sprint->project }}">
+        <a href="{{ route('tickets.create', ['sprint_id' => $sprint->id]) }}" class="btn btn-primary w-100" style="background: #4154f1; margin-top: 10px;">
+            Add Ticket
+        </a>
     </div>
+    <div class="col-md-2">
+        <a href="{{ route('sprint.edit', $sprint->id) }}" class="btn btn-primary w-100" style="background: #4154f1;margin-top: 10px;">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Sprint
+        </a>
+    </div>
+</div>
     @php
     $donePercent = $totalTicketsCount > 0 ? round(($doneTicketsCount / $totalTicketsCount) * 100) : 0;
 @endphp
@@ -184,6 +191,7 @@
                         <th scope="col">Name</th>
                         <th scope="col">Description</th>                   
                         <th scope="col">ETA (d/m/y)</th>
+                        <th scope="col">Ticket Number</th>
                         <th scope="col">Status</th>
                         <th scope="col">Assigned To</th>
                         <th scope="col">Actions</th>
@@ -216,7 +224,8 @@
                             </td>
                             <td>
                                 {{ $ticket->eta ? \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') : '---' }}
-                            </td>                            
+                            </td>  
+                            <td>{{ $ticket->id }}</td>                     
                             <td>
                                 @php
                                     $statusColors = [

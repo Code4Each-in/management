@@ -144,8 +144,6 @@ public function show($id)
     // ->where('task_id', $task->id)
     // ->oldest() 
     // ->get();
-
-
     return view('bde.task-detail', compact('task'));
 }
 
@@ -198,6 +196,19 @@ public function addComment(Request $request)
 
         return response()->json($comments);
     }
+
+            public function updateStatus(Request $request, $taskId)
+        {
+            $request->validate([
+                'status' => 'required|in:applied,viewed,replied,success',
+            ]);
+
+            $task = Task::findOrFail($taskId);
+            $task->status = $request->status;
+            $task->save();
+
+            return response()->json(['success' => true, 'status' => $task->status]);
+        }
 
 
 
