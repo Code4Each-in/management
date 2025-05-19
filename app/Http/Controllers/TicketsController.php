@@ -566,7 +566,8 @@ class TicketsController extends Controller
                 $clientId = $currentUser->client_id;
                 $user = Users::where('client_id', $clientId)->first();
 
-                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                $messages["greeting-text"] = "Hello!";
+                $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
                 $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
                 $messages["body-text"] = "{$validate['id']}";
                 $messages["url-title"] = "View Ticket";
@@ -595,8 +596,8 @@ class TicketsController extends Controller
             } else {
                 // Comment made by admin or assigned user
                 $user = Users::find($currentUser->id);
-                 $messages["greeting-text"] = "Hello!";
-                $messages["subject"] = "New Comment On #{$validate['id']} By - {$user->first_name}";
+                $messages["greeting-text"] = "Hello!";
+                $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
                 $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
                 $messages["body-text"] = "{$validate['id']}";
                 $messages["url-title"] = "View Ticket";
