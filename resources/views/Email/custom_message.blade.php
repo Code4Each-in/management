@@ -41,8 +41,8 @@
 </head>
 <body>
     <div class="container">
-        <p><strong>{{ Hello $data['greeting-text']! ?? 'Hello!' }}</strong></p>
-        <p>{{ A new message has been added to the project <strong>$data['body-text']</strong>, where you are assigned. <br> Please check it to stay updated and respond if needed. ?? '' }}</p>
+        <p><strong>Hello {{ $data['greeting-text'] ?? '' }}!</strong></p>
+        <p>A new message has been added to the project <strong>{{ $data['body-text'] ?? '' }}</strong>.<br> Please check and respond if needed.</p>
         @if(!empty($data['url']))
             <p>
                 <a href="{{ url($data['url']) }}" class="button">
@@ -50,12 +50,11 @@
                 </a>
             </p>
         @endif
-         <p>Regards,<br>HR Management</p>
+         <p>Regards,<br>PMS</p>
         @if(!empty($data['url']))
             <hr>
             <p class="footer">
-                If you're having trouble clicking the "{{ $data['url-title'] ?? 'Action' }}" button, copy and paste the URL below into your web browser:<br>
-                <a href="{{ url($data['url']) }}">{{ url($data['url']) }}</a>
+                If you're having trouble clicking the "{{ $data['url-title'] ?? 'Action' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($data['url']) }}">{{ url($data['url']) }}</a>
             </p>
         @endif
     </div>

@@ -34,7 +34,7 @@ class MessageNotification extends Notification
     //             'body'    => $this->data['body-text'],
     //         ]);
     // }
-   public function toMail($notifiable)
+    public function toMail($notifiable)
     {
         return (new MailMessage)
             ->subject($this->data['subject'] ?? 'Notification Email')
