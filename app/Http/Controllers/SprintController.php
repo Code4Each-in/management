@@ -39,11 +39,11 @@ class SprintController extends Controller
             ->get();
             $projectIds = $projects->pluck('id')->toArray();
         } else {
-            $projects = Projects::orderBy('project_name', 'asc')->get(); 
+            $projects = Projects::orderBy('project_name', 'asc')->get();
             $clients = Client::where('status', 1)->orderBy('name', 'asc')->get();
             $projectIds = $projects->pluck('id')->toArray();
         }
-    
+
         $sprints = Sprint::with('projectDetails')
         ->withCount([
             'tickets',
@@ -120,7 +120,7 @@ class SprintController extends Controller
                 $query->where('status', 'ready');
             },
         ])
-        ->where('sprints.status', 2) 
+        ->where('sprints.status', 2)
         ->when(!is_null($clientId), function ($query) use ($projectIds) {
             $query->whereIn('project', $projectIds);
         })
@@ -135,12 +135,12 @@ class SprintController extends Controller
         $totalinSprintCount = $inactivesprints->count();
         $role_id = auth()->user()->role_id;
         return view('sprintdash.index', compact(
-            'projects', 
-            'clients', 
-            'sprints', 
-            'inactivesprints', 
-            'totalSprintCount', 
-            'totalinSprintCount', 
+            'projects',
+            'clients',
+            'sprints',
+            'inactivesprints',
+            'totalSprintCount',
+            'totalinSprintCount',
             'completedsprints',
             'role_id',
             'user'
@@ -156,7 +156,7 @@ class SprintController extends Controller
             'project' => 'required|string|max:255',
             'status' => 'required',
             'description' => 'required',
-            'add_document' => 'nullable|array', 
+            'add_document' => 'nullable|array',
             'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ]);
 
@@ -191,7 +191,7 @@ class SprintController extends Controller
             'project' => $validated['project'],
             'description' => $validated['description'],
             'status' => $validated['status'],
-            'document' => $documentField, 
+            'document' => $documentField,
         ]);
 
         $request->session()->flash('message', 'Sprint added successfully.');
@@ -201,10 +201,10 @@ class SprintController extends Controller
             'message' => 'Sprint added successfully.',
         ]);
     }
-    
+
     public function destroy(Request $request)
     {
-        $sprints = Sprint::where('id',$request->id)->delete(); 
+        $sprints = Sprint::where('id',$request->id)->delete();
         $request->session()->flash('message','Sprint deleted successfully.');
         return Response()->json($sprints);
     }
@@ -212,7 +212,7 @@ class SprintController extends Controller
     public function editSprint($sprintId)
     {
         $sprint = Sprint::findOrFail($sprintId);
-        $clients = Client::orderBy('name', 'asc')  
+        $clients = Client::orderBy('name', 'asc')
         ->get();
         $user = Auth::user();
         $clientId = $user->client_id;
@@ -222,7 +222,7 @@ class SprintController extends Controller
             ->where('status', 1)
             ->orderBy('name', 'asc')
             ->get();
-    
+
         } else {
             $projects = Projects::all();
             $clients = Client::where('status', 1)->orderBy('name', 'asc')->get();
@@ -249,15 +249,15 @@ class SprintController extends Controller
         ->whereRaw('LOWER(status) = ?', ['complete'])
         ->count();
 
-        $clients = Sprint::select('sprints.*', 'projects.project_name as project_name', 'users.first_name as client_name')
+        $clients = Sprint::select('sprints.*', 'projects.project_name as project_name', 'clients.name as client_name')
         ->join('projects', 'sprints.project', '=', 'projects.id')
-        ->join('users', 'projects.client_id', '=', 'users.client_id')
+        ->join('clients', 'projects.client_id', '=', 'clients.id')
         ->where('sprints.id', $sprintId)
         ->first();
 
         $sprints = Sprint::select('sprints.*', 'projects.project_name as project_name')
         ->join('projects', 'sprints.project', '=', 'projects.id')
-        ->where('sprints.id', $sprintId) 
+        ->where('sprints.id', $sprintId)
         ->first();
 
         $progressTicketsCount = Tickets::where('sprint_id', $sprintId)
@@ -296,10 +296,10 @@ class SprintController extends Controller
         $existingDocs = array_filter($allDocs, function ($file) {
             return file_exists(public_path('assets/img/' . trim($file)));
         });
-        
+
         $ProjectDocuments = collect($existingDocs)->map(function ($filename, $index) {
             return (object)[
-                'id' => $index, 
+                'id' => $index,
                 'document' => trim($filename),
             ];
         });
@@ -307,7 +307,7 @@ class SprintController extends Controller
         return view('sprintdash.view', compact('sprint','tickets', 'assignedUsers', 'doneTicketsCount', 'progressTicketsCount', 'totalTicketsCount', 'clients', 'sprints', 'progress', 'complete', 'todo', 'ready', 'role_id', 'deployed','ProjectDocuments'));
 
     }
-    
+
     public function updateSprint(Request $request, $sprintId)
     {
         $validator = Validator::make($request->all(), [
@@ -326,12 +326,12 @@ class SprintController extends Controller
             if (str_contains($firstError, 'The edit document')) {
                 $firstError .= ' If your file is larger than 10MB, please upload it here: https://yourdomain.com/large-file-upload';
             }
-        
+
             return response()->json([
                 'status' => 'error',
                 'message' => $firstError
             ]);
-        }        
+        }
 
         $validated = $validator->validated();
 
@@ -355,8 +355,8 @@ class SprintController extends Controller
             }
 
             if (count($documentPaths) > 0) {
-                $existingDocuments = explode(',', $sprint->document); 
-                $updatedDocuments = array_merge($existingDocuments, $documentPaths); 
+                $existingDocuments = explode(',', $sprint->document);
+                $updatedDocuments = array_merge($existingDocuments, $documentPaths);
                 $sprint->document = implode(',', $updatedDocuments);
             }
         }
@@ -364,14 +364,14 @@ class SprintController extends Controller
         $sprint->save();
 
         $request->session()->flash('message', 'Sprint updated successfully.');
-            
+
         return response()->json([
             'status' => 'success',
             'message' => 'Sprint updated successfully.'
         ]);
     }
 
-    
+
     public function getSprints($project_id)
     {
         $sprints = Sprint::where('project', $project_id)
@@ -384,7 +384,7 @@ class SprintController extends Controller
         {
             $sprint = Sprint::findOrFail($request->sprintId);
             $documents = explode(',', $sprint->document);
-            
+
             if (!isset($documents[$request->id])) {
                 return response()->json(['status' => 'error', 'message' => 'Invalid file index'], 404);
             }
@@ -396,11 +396,11 @@ class SprintController extends Controller
                 unlink($filePath);
             }
             unset($documents[$request->id]);
-            $sprint->document = implode(',', array_values($documents)); 
+            $sprint->document = implode(',', array_values($documents));
             $sprint->save();
             if (!empty($fileToDelete)) {
                 $filePath = public_path('assets/img/' . $fileToDelete);
-        
+
                 if (file_exists($filePath) && is_file($filePath)) {
                     unlink($filePath);
                 }
@@ -425,7 +425,7 @@ class SprintController extends Controller
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
-            ->with(['user', 'ticket.project']) 
+            ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
     } elseif (in_array($roleId, [2, 3])) {
@@ -448,7 +448,7 @@ class SprintController extends Controller
         $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
-            ->with(['user', 'ticket.project']) 
+            ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -456,7 +456,7 @@ class SprintController extends Controller
         $projectMap = '';
         $notifications = TicketComments::where('comments', '!=', '')
             ->where('comment_by', '!=', $user->id)
-            ->with(['user', 'ticket.project']) 
+            ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -464,5 +464,5 @@ class SprintController extends Controller
     return view('developer.notification', compact('notifications', 'projectMap', 'roleId'));
 }
 
-    
+
     }
