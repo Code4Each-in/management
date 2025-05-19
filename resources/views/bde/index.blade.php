@@ -22,29 +22,28 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($bidSprint as $index => $sprint)
-            @php $hasData = true; @endphp
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $sprint->name }}</td>
-                <td>{{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y H:i') : '---' }}</td>
-                <td>
-                    <span class="badge {{ $sprint->status == 1 ? 'active' : ($sprint->status == 2 ? 'completed' : 'inactive') }}">
-                        {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
-                    </span>
-                </td>
-                <td>
-                    <a href="{{ url('/view/bid-sprint/' . $sprint->id) }}" target="_blank">
-                        <i class="fa fa-eye fa-fw pointer" title="View"></i>
-                    </a>
-                    <a href="{{ url('/edit/bid-sprint/' . $sprint->id) }}">
-                        <i class="fa fa-edit fa-fw pointer" title="Edit"></i>
-                    </a>
-                    <i class="fa fa-trash fa-fw pointer" title="Delete" onclick="deleteBidSprint('{{ $sprint->id }}')"></i>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
+    @foreach ($bidSprint as $index => $sprint)
+        <tr onclick="window.location='{{ url('/view/bid-sprint/' . $sprint->id) }}';" style="cursor: pointer;">
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $sprint->name }}</td>
+            <td>{{ $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date)->format('d/m/Y H:i') : '---' }}</td>
+            <td>
+                <span class="badge {{ $sprint->status == 1 ? 'active' : ($sprint->status == 2 ? 'completed' : 'inactive') }}">
+                    {{ $sprint->status == 1 ? 'Active' : ($sprint->status == 2 ? 'Completed' : 'Inactive') }}
+                </span>
+            </td>
+            <td>
+                <a href="{{ url('/view/bid-sprint/' . $sprint->id) }}" target="_blank" onclick="event.stopPropagation();">
+                    <i class="fa fa-eye fa-fw pointer" title="View"></i>
+                </a>
+                <a href="{{ url('/edit/bid-sprint/' . $sprint->id) }}" onclick="event.stopPropagation();">
+                    <i class="fa fa-edit fa-fw pointer" title="Edit"></i>
+                </a>
+                <i class="fa fa-trash fa-fw pointer" title="Delete" onclick="event.stopPropagation(); deleteBidSprint('{{ $sprint->id }}')"></i>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
 </table>
 
         <!-- Add Bid Sprint Modal -->

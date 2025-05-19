@@ -34,7 +34,7 @@
                             <span>
                                 on project <strong>{{ $projectName }}</strong>  
                                 by <strong>{{ $userName }}</strong>
-                            </span>
+                            </span>at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
                         </a>
                         </td>
                     </tr>

@@ -327,12 +327,31 @@
             </li>
             @if(auth()->user()->role->name == 'Super Admin')
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('attendance/team') ? '' : 'collapsed' }} show"
-                    href="{{ route('attendance.team.index') }}">
-                    <i class="bi bi-person-vcard-fill"></i>
-                    <span>Attendance</span>
-                </a>
-            </li>
+            <a class="nav-link {{ request()->is('attendance/team') || request()->is('attendance/history') ? '' : 'collapsed' }}"
+                data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-person-vcard-fill"></i>
+                <span>Attendance</span>
+            </a>
+            
+            <ul id="attendance-nav"
+                class="nav-content collapse {{ request()->is('attendance/team') || request()->is('attendance/history') ? 'show' : '' }}"
+                data-bs-parent="#sidebar-nav">
+                
+                <li>
+                    <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed' }}"
+                        href="{{ route('attendance.team.index') }}">
+                        <i class="bi bi-circle"></i><span>Team Attendance</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a class="{{ request()->is('attendance/history') ? 'active' : 'collapsed' }}"
+                        href="{{ route('attendance.history') }}">
+                        <i class="bi bi-circle"></i><span>Attendance History</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
                     <i class="bi bi-people"></i>
@@ -368,6 +387,14 @@
                             <i class="bi bi-circle"></i><span>Team Attendance</span>
                         </a>
                     </li>
+                     @if (auth()->user()->role->name == 'HR Manager')
+                     <li>
+                    <a class="{{ request()->is('attendance/history') ? 'active' : 'collapsed' }}"
+                        href="{{ route('attendance.history') }}">
+                        <i class="bi bi-circle"></i><span>Attendance History</span>
+                    </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif
