@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\UserAttendances;
 use App\Models\Users;
+use App\Models\UserAttendancesTemporary;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
 
@@ -281,17 +282,18 @@ class AttendanceController extends Controller
 		    return Response()->json(['status'=>200]);
         }
 
-        public function history()
-        {
-            $fiveDaysAgo = now()->subDays(5)->startOfDay();
+            public function history()
+      {
+          $today = now()->toDateString(); 
 
-            $attendances = UserAttendances::with('user') 
-                ->where('created_at', '>=', $fiveDaysAgo)
-                ->orderBy('created_at', 'desc')
-                ->get();
+          $attendances = UserAttendancesTemporary::with('user') 
+              ->where('date', $today)
+              ->orderBy('in_time', 'desc') 
+              ->get();
 
-            return view('attendance.history', compact('attendances'));
-        }
+          return view('attendance.history', compact('attendances'));
+      }
+
 
 
 

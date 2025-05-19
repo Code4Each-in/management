@@ -200,7 +200,7 @@
                 </thead>
                 <tbody>
                     @foreach ($tickets as $ticket)
-                        <tr class="ticket-row" data-status="{{ $ticket->status }}">
+                        <tr class="ticket-row" data-status="{{ $ticket->status }}" onclick="window.open('{{ url('/view/ticket/'.$ticket->id) }}', '_blank')" style="cursor: pointer;">
                             <td>{{ $ticket->title }}</td>
                             <td>
                                 @if(strlen($ticket->description) >= 100)

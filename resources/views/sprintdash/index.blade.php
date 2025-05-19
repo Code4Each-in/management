@@ -63,7 +63,7 @@
                   $daysLeft = $isPast ? -$daysDiff : $daysDiff;
 
                 @endphp
-                  <tr>
+                  <tr onclick="window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank')" style="cursor: pointer;">
                     <td>{{ $serial++ }}</td>
                     <td>{{ $sprint->name }}</td>
                     <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>

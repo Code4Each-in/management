@@ -545,10 +545,12 @@ use App\Models\Votes;
                 <tr>
                     <td>
                         <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
-                            <strong class="text-primary">You got a new comment on #{{ $ticketId }}</strong>
-                            on project <strong>{{ $projectName }}</strong> by <strong>{{ $userName }}</strong>
-                            at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
-                        </a>
+                        You received a new comment on 
+                        <strong class="text-primary">#{{ $ticketId }}</strong> 
+                        in project <strong>{{ $projectName }}</strong> 
+                        by <strong>{{ $userName }}</strong> 
+                        on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
+                    </a>
                     </td>
                 </tr>
             @endforeach
@@ -1226,12 +1228,12 @@ use App\Models\Votes;
                                             <tr>
                                                 <td>
                                                     <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
-                                                        <strong class="text-primary">
-                                                            You got a new comment on #{{ $notification->ticket_id }}</strong>
-                                                            on project <strong>{{ $projectName }} </strong>
-                                                            by <strong>{{ $creatorName }}</strong>at <strong>{{ $notification->created_at->format('d-m-Y') }}</strong>
-                                                        </strong> 
-                                                    </a>
+                                                            You received a new comment on 
+                                                            <strong class="text-primary">#{{ $notification->ticket_id }}</strong> 
+                                                            in project <strong>{{ $projectName }}</strong> 
+                                                            by <strong>{{ $creatorName }}</strong> 
+                                                            on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
+                                                        </a>
                                                 </td>
                                             </tr>
                                         @endforeach

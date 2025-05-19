@@ -124,7 +124,7 @@
         @endphp
 
         @foreach ($tasks as $index => $task)
-            <tr>
+            <tr onclick="window.open('{{ url('/view/task/'.$task->id) }}', '_blank')" style="cursor: pointer;">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $task->job_title }}</td>
                 <td>
