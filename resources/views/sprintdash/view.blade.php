@@ -269,7 +269,7 @@
                                     {{ $user->assigned_user_name }} ({{ $user->designation }})
                                     @endforeach
                                 </td>
-                            <td>
+                            <td class="actions-cell">
                                 @php
                                 $firstRole = explode(' ', $role_id)[0] ?? 0;
                                 @endphp
