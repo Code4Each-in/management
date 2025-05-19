@@ -63,7 +63,7 @@
                   $daysLeft = $isPast ? -$daysDiff : $daysDiff;
 
                 @endphp
-                  <tr onclick="window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank')" style="cursor: pointer;">
+                  <tr onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank');" style="cursor: pointer;">
                     <td>{{ $serial++ }}</td>
                     <td>{{ $sprint->name }}</td>
                     <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
@@ -502,6 +502,14 @@
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
 <script>
+    document.querySelectorAll('tr.clickable-row').forEach(row => {
+  row.addEventListener('click', (event) => {
+    if (!event.target.closest('.actions-cell')) {
+      const sprintUrl = row.dataset.url; 
+      window.open(sprintUrl, '_blank');
+    }
+  });
+});
 function opensprintModal() {
                 document.getElementById("addTicketsForm").reset();
                 $('#addSprints').modal('show');

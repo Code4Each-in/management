@@ -200,7 +200,7 @@
                 </thead>
                 <tbody>
                     @foreach ($tickets as $ticket)
-                        <tr class="ticket-row" data-status="{{ $ticket->status }}" onclick="window.open('{{ url('/view/ticket/'.$ticket->id) }}', '_blank')" style="cursor: pointer;">
+                        <tr class="ticket-row" data-status="{{ $ticket->status }}" onclick="if (!event.target.closest('.actions-cell')) { window.open('{{ url('/view/ticket/'.$ticket->id) }}', '_blank'); }" style="cursor: pointer;">
                             <td>{{ $ticket->title }}</td>
                             <td>
                                 @if(strlen($ticket->description) >= 100)
@@ -226,7 +226,7 @@
                                 {{ $ticket->eta ? \Carbon\Carbon::parse($ticket->eta)->format('d/m/Y') : '---' }}
                             </td>  
                             <td>{{ $ticket->id }}</td>                     
-                            <td>
+                            <td class="actions-cell">
                                 @php
                                     $statusColors = [
                                         'to_do' => '#948979',
