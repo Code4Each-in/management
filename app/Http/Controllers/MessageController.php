@@ -162,7 +162,7 @@ public function addMessage(Request $request)
         try {
             // $rawMessage = $request->input('message');
             // $cleanMessage = strip_tags(html_entity_decode($rawMessage));
-            $messages["greeting-text"] = "{$name}!";
+            $messages["greeting-text"] = "Hello!";
             $messages["subject"] = "New Message received from - {$name}";
             $messages["title"] = "You've received a new message from <strong>{$name}</strong>.";
             $messages["body-text"] = " {$projectName}";
