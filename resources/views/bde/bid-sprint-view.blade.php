@@ -136,7 +136,7 @@
                 </td>
                 <td>{{ $task->source ?? '---' }}</td>
                 <td>{{ $task->profile ?? '---' }}</td>
-               <td>
+               <td class="actions-cell"> 
                 @php
                     $statusClasses = [
                         'applied' => 'bg-primary',
