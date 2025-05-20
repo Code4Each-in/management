@@ -439,11 +439,14 @@
         </div>
         </div>
   </div>
-  <script>
+@endsection
+@section('js_scripts')
+<script>
     function handleProjectClick(projectId) {
         const newUrl = `${window.location.origin}${window.location.pathname}?project_id=${projectId}`;
         window.history.pushState({ path: newUrl }, '', newUrl);
     }
+
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const projectId = urlParams.get('project_id');
@@ -457,109 +460,112 @@
         }
     });
 </script>
-  <script>
-  function hideUnreadCount(projectId) {
-    const badge = document.getElementById('unread-count-' + projectId);
-    if (badge) {
-        badge.style.display = 'none';
+<script>
+    function hideUnreadCount(projectId) {
+        const badge = document.getElementById('unread-count-' + projectId);
+        if (badge) {
+            badge.style.display = 'none';
+        }
     }
-}
 </script>
-  <script>
-function markMessageAsRead(messageId, projectId) {
-    fetch(`/project-messages/${messageId}/mark-as-read`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const unreadCountElement = document.getElementById('unread-count-' + projectId);
-            const unreadCount = data.updatedUnreadCount;
-
-            if (unreadCountElement) {
-                if (unreadCount > 0) {
-                    unreadCountElement.textContent = unreadCount;
-                    unreadCountElement.style.display = 'inline-block';
-                } else {
-                    unreadCountElement.style.display = 'none';
-                }
+<script>
+    function markMessageAsRead(messageId, projectId) {
+        fetch(`/project-messages/${messageId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json'
             }
-        } else {
-            console.warn(data.message);
-        }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-    });
-}
-  </script>
-  <script>
-  const csrfToken = '{{ csrf_token() }}';
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const unreadCountElement = document.getElementById('unread-count-' + projectId);
+                const unreadCount = data.updatedUnreadCount;
+
+                if (unreadCountElement) {
+                    if (unreadCount > 0) {
+                        unreadCountElement.textContent = unreadCount;
+                        unreadCountElement.style.display = 'inline-block';
+                    } else {
+                        unreadCountElement.style.display = 'none';
+                    }
+                }
+            } else {
+                console.warn(data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+        });
+    }
+</script>
+<script>
+    const csrfToken = '{{ csrf_token() }}';
+
     function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
     }
+
     $(document).on('click', '.delete-comment', function() {
-    const commentId = $(this).data('id');
-    const commentItem = $(this).closest('.post-item');
+        const commentId = $(this).data('id');
+        const commentItem = $(this).closest('.post-item');
 
-    if (confirm('Are you sure you want to delete this comment?')) {
-        $.ajax({
-            url: '/comments/' + commentId + '/delete',
-            type: 'DELETE',
-            data: {
-              _token: csrfToken
-          },
-            success: function(response) {
-                if (response.status === 200) {
-                    commentItem.fadeOut(300, function() {
-                        $(this).remove();
-                    });
-
-                    location.reload();
-                } else {
-                    alert(response.message || 'Failed to delete comment.');
-                }
+        if (confirm('Are you sure you want to delete this comment?')) {
+            $.ajax({
+                url: '/comments/' + commentId + '/delete',
+                type: 'DELETE',
+                data: {
+                _token: csrfToken
             },
-            error: function() {
-                alert('An error occurred while deleting the comment.');
-            }
-        });
-    }
+                success: function(response) {
+                    if (response.status === 200) {
+                        commentItem.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Failed to delete comment.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while deleting the comment.');
+                }
+            });
+        }
     });
     $.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+</script>
+<script>
+    let offset = 0;
+    let isLoadingOlder = false;
+    let allMessagesLoaded = false;
 
-    </script>
-        <script>
-          $(document).ready(function() {
-            // Find any chat with the 'active' class
-          const $activeChat = $(".contact.active");
+    $(document).ready(function() {
+        // Find any chat with the 'active' class
+        const $activeChat = $(".contact.active");
+        if ($activeChat.length > 0) {
+            const projectId = $activeChat.attr("id").replace("contact-", "");
+            loadMessages(projectId); // Call the function to load its messages
+        }
 
-          if ($activeChat.length > 0) {
-              const projectId = $activeChat.attr("id").replace("contact-", "");
-              loadMessages(projectId); // Call the function to load its messages
-          }
+        $('#commentsData').on('submit', function(e) {
+            e.preventDefault();
 
+            document.getElementById('comment_input').value = quill.root.innerHTML;
+            $('.alert-danger').hide().html('');
 
-          $('#commentsData').on('submit', function(e) {
-              e.preventDefault();
+            const fileInput = document.getElementById('comment_file');
+            const hasText = quill.getText().trim().length > 0;
+            const hasFile = fileInput.files && fileInput.files.length > 0;
 
-              document.getElementById('comment_input').value = quill.root.innerHTML;
-              $('.alert-danger').hide().html('');
-
-              const fileInput = document.getElementById('comment_file');
-                const hasText = quill.getText().trim().length > 0;
-                const hasFile = fileInput.files && fileInput.files.length > 0;
-
-                if (hasText || hasFile) {
+            if (hasText || hasFile) {
                 // Create the form data for the request
                 const formData = new FormData(this);
                 const currentUserId = {{ Auth::id() }};
@@ -568,185 +574,225 @@ function markMessageAsRead(messageId, projectId) {
                 $('#loader').show();
 
                 $.ajax({
-                        url: '{{ route('message.add') }}',
-                        type: 'POST',
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function(response) {
-                            if (response.status === 200) {
-                                $('#comment').val('');
-                                $('#comment_file').val('');
-                                quill.root.innerHTML = "";
-                                displayMessages(response.message, false);
-                            }else if(response.errors){
-                                $('.alert-danger').html(response.errors).fadeIn();
-                            }
-                        },
-                        error: function(xhr) {
-                            let errorHtml = 'An error occurred while submitting the comment.';
-                            if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                                const errors = xhr.responseJSON.errors;
-                                errorHtml = errors.join('<br>');
-                            }
-                            $('.alert-danger').html(errorHtml).fadeIn();
-                        },
-                        complete: function() {
-                            $('#loader').hide();
+                    url: '{{ route('message.add') }}',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.status === 200) {
+                            $('#comment').val('');
+                            $('#comment_file').val('');
+                            quill.root.innerHTML = "";
+                            displayMessages(response.message, false);
+                        }else if(response.errors){
+                            $('.alert-danger').html(response.errors).fadeIn();
                         }
-                    });
-              }else{
-                $('.alert-danger').html('Kindly type a message or attach a file before submitting..').fadeIn();
-              }
-                     });
-                });
-      </script>
-                <script>
-                  // let currentProjectId = null;
-
-                  function loadMessages(projectId) {
-                    // currentProjectId = projectId;
-                    const $chatContainer = $(".chat-container");
-                    $chatContainer.empty(); // Clear messages
-
-                    // Remove 'active' from all contacts and add to clicked one
-                    $(".contact").removeClass("active");
-                    $("#contact-" + projectId).addClass("active");
-                    quill.root.innerHTML = ""; // Clear Quill editor
-                    $('#comment_file').val('');
-                    // AJAX call to fetch messages
-                    $.ajax({
-                        url: "{{ url('/get/project/messages') }}/" + projectId,
-                        type: "GET",
-                        success: function(data) {
-                            displayMessages(data.messages);
-                            $('#project_id').val(projectId);
-                        },
-                        error: function(error) {
-                            console.error("Error loading messages:", error);
+                    },
+                    error: function(xhr) {
+                        let errorHtml = 'An error occurred while submitting the comment.';
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorHtml = errors.join('<br>');
                         }
-                    });
-                }
-              //   setInterval(function() {
-              //     if (currentProjectId) {
-              //         loadMessages(currentProjectId);
-              //     }
-              // }, 1000);
-            function displayMessages(messages, clearMessages = true) {
-                const $chatContainer = $(".chat-container");
-
-                if (clearMessages) {
-                    $chatContainer.empty();
-                }
-
-                if (messages.length === 0) {
-                    const noMessagesHTML = `
-                        <div class="center text-center mt-2">
-                            <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
-                        </div>`;
-                    $chatContainer.append(noMessagesHTML);
-                    return;
-                }
-
-                const currentUserId = {{ Auth::id() }};
-                const clientName = @json($client->name ?? 'Project Not Assigned');
-
-                if (!Array.isArray(messages)) {
-                    messages = [messages];
-                }
-
-                messages.reverse(); // Ensure oldest messages are on top
-
-                let lastDateLabel = "";
-
-                messages.forEach(function(message) {
-                    const msgDate = new Date(message.created_at);
-                    const msgDayLabel = getDateLabel(msgDate);
-
-                    // Insert a new date label if it's different from the last one
-                    if (msgDayLabel !== lastDateLabel) {
-                        $chatContainer.append(`
-                            <div class="date-label text-center my-3">
-                                <span style="background: #eee; padding: 4px 12px; border-radius: 20px; color: #555; font-weight: 500;">
-                                    ${msgDayLabel}
-                                </span>
-                            </div>
-                        `);
-                        lastDateLabel = msgDayLabel;
+                        $('.alert-danger').html(errorHtml).fadeIn();
+                    },
+                    complete: function() {
+                        $('#loader').hide();
                     }
-
-                    const createdAt = msgDate.toLocaleString("en-IN", {
-                        timeZone: "Asia/Kolkata",
-                        year: "numeric", month: "short", day: "numeric",
-                        hour: "numeric", minute: "numeric", hour12: true
-                    });
-
-                    const avatarHtml = message.user?.profile_picture
-                        ? `<div class="avatar" style="background-color: #27ae60;">
-                                <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
-                            </div>`
-                        : `<div class="avatar" style="background-color: #27ae60;">
-                                ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
-                            </div>`;
-
-                    const deleteBtn = message.from === currentUserId
-                        ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>`
-                        : '';
-
-                    const documentLinks = (message.document ?? '')
-                        .split(',')
-                        .filter(doc => doc.trim() !== '')
-                        .map(doc => `
-                            <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
-                            </p>
-                        `).join('');
-
-                    const messageHTML = `
-                        <div class="message">
-                            <div class="info">${createdAt}</div>
-                            <div class="user">
-                                ${avatarHtml}
-                                <div style="display: inline-block; vertical-align: middle;">
-                                    <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
-                                </div>
-                            </div>
-                            <div class="text">
-                                ${deleteBtn}
-                                <p>${message.message}</p>
-                                ${documentLinks}
-                            </div>
-                        </div>`;
-
-                    $chatContainer.append(messageHTML);
                 });
-
-                $chatContainer.scrollTop($chatContainer.prop("scrollHeight"));
+            }else{
+                $('.alert-danger').html('Kindly type a message or attach a file before submitting..').fadeIn();
             }
-            function getDateLabel(date) {
-                const today = new Date();
-                const yesterday = new Date();
-                yesterday.setDate(today.getDate() - 1);
+        });
+    });
 
-                const msgDate = new Date(date);
-                const msgDateStr = msgDate.toDateString();
+    function loadMessages(projectId) {
+        offset = 0;
+        allMessagesLoaded = false;
 
-                if (msgDateStr === today.toDateString()) {
-                    return 'Today';
-                } else if (msgDateStr === yesterday.toDateString()) {
-                    return 'Yesterday';
-                } else {
-                    return msgDate.toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                    }); // Example: 13 May 2025
-                }
+        const $chatContainer = $(".chat-container");
+        $chatContainer.off("scroll"); // Remove previous scroll event if any
+        $chatContainer.empty(); // Clear messages
+
+        $(".contact").removeClass("active");
+        $("#contact-" + projectId).addClass("active");
+
+        quill.root.innerHTML = "";
+        $('#comment_file').val('');
+
+        $.ajax({
+            url: `/get/project/messages/${projectId}?offset=${offset}`,
+            type: "GET",
+            success: function(data) {
+                offset += data.messages.length;
+                displayMessages(data.messages, true);
+                $('#project_id').val(projectId);
+
+                // Attach scroll listener after first load
+                setupInfiniteScroll(projectId);
+            },
+            error: function(error) {
+                console.error("Error loading messages:", error);
+            }
+        });
+    }
+
+    function setupInfiniteScroll(projectId) {
+        const $chatContainer = $(".chat-container");
+
+        $chatContainer.on("scroll", function() {
+            if ($chatContainer.scrollTop() <= 50 && !isLoadingOlder && !allMessagesLoaded) {
+                isLoadingOlder = true;
+                $chatContainer.find('.loading-older').remove();
+                // Show loading message
+                const $loadingMessage = $(`
+                    <div class="loading-older text-center my-2"> <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i> </div> `
+                );
+                $chatContainer.prepend($loadingMessage);
+
+                const oldScrollHeight = $chatContainer[0].scrollHeight;
+
+                $.ajax({
+                    url: `/get/project/messages/${projectId}?offset=${offset}`,
+                    type: "GET",
+                    success: function(data) {
+                        setTimeout(() => {
+                            $loadingMessage.remove();
+                            if (data.messages.length === 0) {
+                                allMessagesLoaded = true;
+                                return;
+                            }
+
+                            offset += data.messages.length;
+
+                            displayMessages(data.messages, false, true); // Prepend older
+                            const newScrollHeight = $chatContainer[0].scrollHeight;
+                            $chatContainer.scrollTop(newScrollHeight - oldScrollHeight); // Preserve position
+                        }, 1000);
+                    },
+                    complete: function() {
+                        isLoadingOlder = false;
+                    }
+                });
+            }
+        });
+    }
+     
+    function displayMessages(messages, clearMessages = true, prepend = false) {
+        const $chatContainer = $(".chat-container");
+
+        if (!Array.isArray(messages)) {
+            messages = [messages];
+        }
+
+        if (clearMessages) {
+            $chatContainer.empty();
+        }
+
+        if (messages.length === 0 && clearMessages) {
+            $chatContainer.append(`<div class="center text-center mt-2">
+                <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+            </div>`);
+            return;
+        }
+
+        messages.reverse(); // Show oldest first
+
+        const currentUserId = {{ Auth::id() }};
+        const clientName = @json($client->name ?? 'Project Not Assigned');
+
+        let htmlToInsert = "";
+
+        let lastDateLabel = ""; // optionally manage this smarter if needed
+
+        messages.forEach(function(message) {
+            const msgDate = new Date(message.created_at);
+            const msgDayLabel = getDateLabel(msgDate);
+
+            if (msgDayLabel !== lastDateLabel) {
+                htmlToInsert += `
+                    <div class="date-label text-center my-3">
+                        <span style="background: #eee; padding: 4px 12px; border-radius: 20px; color: #555; font-weight: 500;">
+                            ${msgDayLabel}
+                        </span>
+                    </div>`;
+                lastDateLabel = msgDayLabel;
             }
 
-    </script>
-@endsection
-@section('js_scripts')
+            const createdAt = msgDate.toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                year: "numeric", month: "short", day: "numeric",
+                hour: "numeric", minute: "numeric", hour12: true
+            });
+
+            const avatarHtml = message.user?.profile_picture
+                ? `<div class="avatar" style="background-color: #27ae60;">
+                        <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
+                    </div>`
+                : `<div class="avatar" style="background-color: #27ae60;">
+                        ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
+                    </div>`;
+
+            const deleteBtn = message.from === currentUserId
+                ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>`
+                : '';
+
+            const documentLinks = (message.document ?? '')
+                .split(',')
+                .filter(doc => doc.trim() !== '')
+                .map(doc => `
+                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                        <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
+                    </p>
+                `).join('');
+
+            htmlToInsert += `
+                <div class="message">
+                    <div class="info">${createdAt}</div>
+                    <div class="user">
+                        ${avatarHtml}
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div class="text">
+                        ${deleteBtn}
+                        <p>${message.message}</p>
+                        ${documentLinks}
+                    </div>
+                </div>`;
+        });
+
+        if (prepend) {
+            $chatContainer.prepend(htmlToInsert);
+        } else {
+            $chatContainer.append(htmlToInsert);
+            $chatContainer.scrollTop($chatContainer.prop("scrollHeight")); // scroll to bottom only on first load
+        }
+    }
+
+    function getDateLabel(date) {
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        const msgDate = new Date(date);
+        const msgDateStr = msgDate.toDateString();
+
+        if (msgDateStr === today.toDateString()) {
+            return 'Today';
+        } else if (msgDateStr === yesterday.toDateString()) {
+            return 'Yesterday';
+        } else {
+            return msgDate.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }); // Example: 13 May 2025
+        }
+    }
+</script>
 @endsection

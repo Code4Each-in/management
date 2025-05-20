@@ -68,15 +68,20 @@ class MessageController extends Controller
 
 
 
-    public function getMessagesByProject($projectId)
-{
-
-    $messages = Message::where('project_id', $projectId)
-        ->with('user', 'project')
-        ->orderBy('created_at', 'desc')
-        ->get();
+    public function getMessagesByProject(Request $request, $projectId)
+    {
+        $limit = 15;
+        $offset = $request->input('offset', 0); 
+    
+        $messages = Message::where('project_id', $projectId)
+            ->with('user', 'project')
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+    
         return response()->json(['messages' => $messages]);
-}
+    }
 
 public function addMessage(Request $request)
 {
