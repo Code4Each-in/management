@@ -197,6 +197,13 @@
 
             @if(in_array(auth()->user()->role_id, [2, 3]))
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->is('search') ? '' : 'collapsed' }}"
+                        href="{{ route('search.index') }}">
+                        <i class="bi bi-search"></i>
+                        <span>Search</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
                         href="{{ route('sprint.index') }}">
                         <i class="bi bi-clipboard"></i>
@@ -237,6 +244,13 @@
                 <i class="bi bi-bell"></i> <span>All Comments</span>
             </a>
         </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('search') ? '' : 'collapsed' }}"
+                    href="{{ route('search.index') }}">
+                    <i class="bi bi-search"></i>
+                    <span>Search</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
                     href="{{ route('pages.index') }}">

@@ -347,7 +347,6 @@ Route::middleware(['role_permission'])->group(function () {
 
 
 	//attendance history 
-	 Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
-  
-
-	});
+	Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+	Route::get('/search', [TicketsController::class, 'searchList'])->name('search.index');
+});
