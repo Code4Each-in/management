@@ -3663,6 +3663,10 @@ span.badge.inactive {
   border-radius: 10px;
   /* max-width: 90%; */
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      word-break: break-all;
+}
+.message .text iframe {
+    width: 100%;
 }
 .comment-box{
   display: flex;
