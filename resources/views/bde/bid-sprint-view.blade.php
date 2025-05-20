@@ -127,7 +127,7 @@
             <tr onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $task->job_title }}</td>
-                <td>
+                <td class="actions-cell">
                     @if($task->job_link)
                         <a href="{{ $task->job_link }}" target="_blank" rel="noopener noreferrer">Link</a>
                     @else

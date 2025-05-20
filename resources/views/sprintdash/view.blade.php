@@ -202,7 +202,7 @@
                     @foreach ($tickets as $ticket)
                         <tr class="ticket-row" data-status="{{ $ticket->status }}" onclick="if (!event.target.closest('.actions-cell')) { window.open('{{ url('/view/ticket/'.$ticket->id) }}', '_blank'); }" style="cursor: pointer;">
                             <td>{{ $ticket->title }}</td>
-                            <td>
+                            <td class="actions-cell">
                                 @if(strlen($ticket->description) >= 100)
                                 <span class="description">
                                     @php
