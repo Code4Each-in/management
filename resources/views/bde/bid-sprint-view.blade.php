@@ -113,6 +113,7 @@
             <th>Job Link</th>
             <th>Source</th>
             <th>Profile</th>
+            <th>Created By</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -122,7 +123,6 @@
             $rowsCount = $tasks->count();
             $minRows = 5;
         @endphp
-
         @foreach ($tasks as $index => $task)
             <tr onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
                 <td>{{ $index + 1 }}</td>
@@ -136,6 +136,7 @@
                 </td>
                 <td>{{ $task->source ?? '---' }}</td>
                 <td>{{ $task->profile ?? '---' }}</td>
+                <td>{{ $task->creator ? $task->creator->first_name . ' ' . $task->creator->last_name : 'N/A' }}</td>
                <td class="actions-cell"> 
                 @php
                     $statusClasses = [
@@ -418,6 +419,7 @@ $('#addTaskForm').submit(function(e) {
                 const badge = document.querySelector(`.dropdown-menu[data-task-id="${taskId}"]`).previousElementSibling;
                 badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
                 badge.className = `badge rounded-pill dropdown-toggle bg-${newStatus === 'success' ? 'success' : (newStatus === 'replied' ? 'warning' : (newStatus === 'viewed' ? 'info' : 'primary'))}`;
+                location.reload();
             }
         })
         .catch(err => console.error(err));

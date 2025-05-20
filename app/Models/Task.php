@@ -9,5 +9,10 @@ class Task extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['job_title', 'job_link', 'source', 'profile', 'status', 'bdesprint_id'];
+    protected $fillable = ['job_title', 'job_link', 'source', 'profile', 'status', 'bdesprint_id', 'created_by'];
+
+    public function creator()
+{
+    return $this->belongsTo(Users::class, 'created_by');
+}
 }

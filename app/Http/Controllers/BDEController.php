@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\BidSprint;
 use App\Models\Task;
+use App\Models\Users;
 use App\Models\BDEComment;
 use Illuminate\Http\Request;
 
@@ -69,7 +70,9 @@ public function destroy($id)
 
 public function view($id)
 {
-    $tasks = Task::where('bdesprint_id', $id)->get();
+   
+    $tasks = Task::with('creator')->where('bdesprint_id', $id)->get();
+
     $bdeSprints = BidSprint::all();
     $bdeSprint = BidSprint::findOrFail($id);
 
@@ -79,6 +82,7 @@ public function view($id)
     $success = $tasks->where('status', 'success')->count();
 
     $total = $tasks->count();
+
     return view('bde.bid-sprint-view', compact(
         'tasks', 'bdeSprints', 'bdeSprint',
         'applied', 'viewed', 'replied', 'success',
@@ -88,6 +92,8 @@ public function view($id)
 
 public function storeTask(Request $request)
 {
+    $userId = auth()->id();
+
     $request->validate([
         'job_title' => 'required|string|max:255',
         'bdesprint_id' => 'required',
@@ -97,7 +103,15 @@ public function storeTask(Request $request)
         'status' => 'required|in:applied,viewed,replied,success',
     ]);
 
-    Task::create($request->only(['job_title', 'job_link', 'source', 'profile', 'status', 'bdesprint_id']));
+    Task::create([
+        'job_title'     => $request->job_title,
+        'job_link'      => $request->job_link,
+        'source'        => $request->source,
+        'profile'       => $request->profile,
+        'status'        => $request->status,
+        'bdesprint_id'  => $request->bdesprint_id,
+        'created_by'    => $userId,
+    ]);
 
     return response()->json(['success' => true, 'message' => 'Task created successfully.']);
 }
