@@ -290,6 +290,9 @@
         width: 100%;
        
     }
+    .chat-container{
+        max-height: 450px;
+    }
 }
 
 .message-section form#commentsData {
