@@ -143,31 +143,39 @@ class DashboardController extends Controller
             }
 
            // Online Employees
+
+
 $onlineUsers = Users::where('status', 1)
     ->whereNotIn('role_id', [2, 6])
-    ->where('last_seen_at', '>=', now()->subMinutes(2))
+    ->where('last_seen_at', '>=', Carbon::now('Asia/Kolkata')->subMinutes(2))
     ->get();
 
+
 // Offline Employees
+
+
 $offlineUsers = Users::where('status', 1)
     ->whereNotIn('role_id', [2, 6])
     ->where(function ($query) {
-        $query->where('last_seen_at', '<', now()->subMinutes(2))
+        $query->where('last_seen_at', '<', Carbon::now('Asia/Kolkata')->subMinutes(2))
               ->orWhereNull('last_seen_at');
     })
     ->get();
 
+
 // Online Clients
 $onlineClients = Users::where('status', 1)
     ->where('role_id', 6)
-    ->where('last_seen_at', '>=', now()->subMinutes(2))
+    ->where('last_seen_at', '>', now()->setTimezone('Asia/Kolkata')->subMinutes(2))
     ->get();
+
+
 
 // Offline Clients
 $offlineClients = Users::where('status', 1)
     ->where('role_id', 6)
     ->where(function ($query) {
-        $query->where('last_seen_at', '<', now()->subMinutes(2))
+        $query->where('last_seen_at', '<', Carbon::now('Asia/Kolkata')->subMinutes(2))
               ->orWhereNull('last_seen_at');
     })
     ->get();
