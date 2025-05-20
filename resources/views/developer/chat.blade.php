@@ -277,7 +277,7 @@
     @media (max-width: 768px) {
       .chat-wrapper {
         flex-direction: column;
-        height: auto;
+        height: fit-content !important;
       }
 
       .chatsidebar {
