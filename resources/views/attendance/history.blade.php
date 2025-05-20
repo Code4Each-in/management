@@ -7,36 +7,38 @@
         <div class="card-body mt-5">
             <div class="table-responsive mb-5">
                 <table class="table table-borderless dashboard" id="attendance">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>In Time</th>
-                            <th>Out Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                @if(!empty($attendances) && count($attendances) > 0)
-                    @forelse($attendances as $data)
-                <tr>
-                    <td>{{ $data->user->first_name ?? '' }}</td>
-                    @php
-                        $newdate = $data->date . ' ' . $data->in_time;
-                    @endphp
-                    <td>{{ date('d-m-Y', strtotime($newdate)) }}</td>
-                    <td>{{ date('h:i A', strtotime($data->in_time)) }}</td>
-                    <td>
-    {{ $data->out_time_date ? date('h:i A', strtotime($data->out_time_date)) : '-' }}
-</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="text-center">No attendance records found.</td>
-                </tr>
-            @endforelse
-        @endif
-    </tbody>
-                    </table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Date</th>
+                                        <th>In Time</th>
+                                        <th>Out Time</th>
+                                        <th>Total Working Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            @if(!empty($attendances) && count($attendances) > 0)
+                                @forelse($attendances as $data)
+                            <tr>
+                                <td>{{ $data->user->first_name ?? '' }}</td>
+                                @php
+                                    $newdate = $data->date . ' ' . $data->in_time;
+                                @endphp
+                                <td>{{ date('d-m-Y', strtotime($newdate)) }}</td>
+                                <td>{{ date('h:i A', strtotime($data->in_time)) }}</td>
+                                <td>
+                {{ $data->out_time_date ? date('h:i A', strtotime($data->out_time_date)) : '-' }}
+            </td>
+            <td data-in-time="{{ $data->in_time }}" class="working-hours"></td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">No attendance records found.</td>
+                            </tr>
+                        @endforelse
+                    @endif
+                </tbody>
+                </table>
                 </div>
             </div>
     </div>     
@@ -69,6 +71,23 @@
             });
         });
     });
+    function updateWorkingHours() {
+        const now = new Date();
+        document.querySelectorAll('.working-hours').forEach(td => {
+            const inTime = td.dataset.inTime;
+            const [hours, minutes, seconds] = inTime.split(':');
+            const inDate = new Date();
+            inDate.setHours(hours, minutes, seconds);
+
+            const diffMs = now - inDate;
+            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            td.textContent = `${diffHrs}h ${diffMins}m`;
+        });
+    }
+    updateWorkingHours();
+    setInterval(updateWorkingHours, 60000); // every minute
 </script>
 <script>
     $(document).ready(function () {

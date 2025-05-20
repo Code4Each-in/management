@@ -107,28 +107,34 @@
                             <td>{{date("h:i A", strtotime($data->out_time));}}</td>
                             <td>
                                 @php
-                               
-                                $inTime = new DateTime($data->in_time);
-                                $outTime = new DateTime($data->out_time);
+                                    $inTime = new DateTime($data->in_time);
+                                    $outTime = new DateTime($data->out_time);
 
-                                if ($data->out_time_date) {
-                                    $inDate = new DateTime($data->date);
-                                    $combinedInDateTime = new DateTime($inDate->format('Y-m-d') . ' ' . $inTime->format('H:i:s'));
-                                    $outTimeDate = new DateTime($data->out_time_date);
+                                    if ($data->out_time_date) {
+                                        $inDate = new DateTime($data->date);
+                                        $combinedInDateTime = new DateTime($inDate->format('Y-m-d') . ' ' . $inTime->format('H:i:s'));
+                                        $outTimeDate = new DateTime($data->out_time_date);
 
+                                        $durationT = $combinedInDateTime->diff($outTimeDate);
+                                        $hours = $durationT->h + ($durationT->d * 24); // total hours
+                                        $formattedDuration = $durationT->format('%d days %h hours %i minutes');
+                                        if ($hours < 9) {
+                                            echo '<span class="text-danger" title="Less than 9 hours"><i class="fas fa-exclamation-triangle"></i></span> ';
+                                        }
 
-                                    $duration = $inTime->diff($outTime)->format('%h:%i');
-                                    $durationT = $combinedInDateTime->diff($outTimeDate);
-                                    $formattedDuration = $durationT->format('%d days %h hours %i minutes'); // Days, Hours, Minutes
-                                    echo $formattedDuration;
-                                } else {
-                                $duration = $inTime->diff($outTime)->format('%h:%i');
-                                    echo $duration;
-                                }
-                                
+                                        echo $formattedDuration;
+                                    } else {
+                                        $duration = $inTime->diff($outTime);
+                                        $hours = $duration->h + ($duration->d * 24); // total hours
+                                        $formattedDuration = $duration->format('%h:%i');
+                                        if ($hours < 9) {
+                                            echo '<span class="text-danger" title="Less than 9 hours"><i class="fas fa-exclamation-triangle"></i></span> ';
+                                        }
+
+                                        echo $formattedDuration;
+                                    }
                                 @endphp
                             </td>
-
                             <td style="width:200px;">
                                 @if(strlen($data->notes) >= 100)
                                 <span class="description">
