@@ -410,38 +410,36 @@ use Carbon\Carbon;
                     <div class="msg-section-title">Employees</div>
                     <div class="msg-design">
                         @foreach ($allEmployees as $user)
-                           @php
-                                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // Current IST time
-                                    $lastSeen = $user->last_seen_at ? \Carbon\Carbon::parse($user->last_seen_at, 'Asia/Kolkata') : null;
+                            @php
+                                $now = \Carbon\Carbon::now('Asia/Kolkata');
+                                $lastSeen = $user->last_seen_at ? \Carbon\Carbon::parse($user->last_seen_at, 'Asia/Kolkata') : null;
 
-                                    if (!$lastSeen) {
-                                        $statusLabel = 'Offline';
-                                        $statusClass = 'text-secondary';
-                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                        $lastSeenText = '';
-                                    } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
-                                        // Last seen within last 2 minutes => Online
-                                        $statusLabel = 'Online';
-                                        $statusClass = 'text-success';
-                                        $statusIcons = '<span class="msg-status-dot msg-online"></span>';
-                                        $lastSeenText = '';
-                                    } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
-                                        // Last seen between 2 and 6 minutes ago => Away
-                                        $statusLabel = 'Away';
-                                        $statusClass = 'text-warning';
-                                        $statusIcons = '
-                                            <span class="msg-status-dot msg-online"></span>
-                                            <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
-                                        ';
-                                        $lastSeenText = '';
-                                    } else {
-                                        // Last seen more than 6 minutes ago => Offline, show last seen
-                                        $statusLabel = 'Offline';
-                                        $statusClass = 'text-secondary';
-                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
-                                    }
-                                @endphp
+                                if (!$lastSeen) {
+                                    $statusLabel = 'Offline';
+                                    $statusClass = 'text-secondary';
+                                    $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                    $lastSeenText = '';
+                                } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
+                                    $statusLabel = 'Online';
+                                    $statusClass = 'text-success';
+                                    $statusIcons = '<span class="msg-status-dot msg-online"></span>';
+                                    $lastSeenText = '';
+                                } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
+                                    $statusLabel = 'Away';
+                                    $statusClass = 'text-warning';
+                                    $statusIcons = '
+                                        <span class="msg-status-dot msg-away"></span>
+                                        <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
+                                    ';
+                                    $lastSeenText = '';
+                                } else {
+                                    $statusLabel = 'Offline';
+                                    $statusClass = 'text-secondary';
+                                    $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                }
+                            @endphp
+
                             <div class="msg-card">
                                 <div class="msg-avatar-wrapper me-3">
                                     @if ($user->profile_picture)
@@ -457,10 +455,10 @@ use Carbon\Carbon;
                                     <div class="msg-header">
                                         <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
                                     </div>
-                                    <div class="msg-preview {{ $statusClass }}">
+                                        <div class="{{ $statusLabel === 'Online' ? 'msg-preview ' . $statusClass : $statusClass }}">
                                         {{ $statusLabel }}
                                         @if($lastSeenText)
-                                            <small class="text-muted d-block">{{ $lastSeenText }}</small>
+                                            <span class="text-muted ms-1">{{ $lastSeenText }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -476,45 +474,40 @@ use Carbon\Carbon;
                     <div class="msg-section-title">Clients</div>
                     <div class="msg-design">
                         @foreach ($allClients as $client)
-                          @php
-                                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // IST time
-                                    $lastSeen = $client->last_seen_at ? \Carbon\Carbon::parse($client->last_seen_at, 'Asia/Kolkata') : null;
+                            @php
+                                $now = \Carbon\Carbon::now('Asia/Kolkata');
+                                $lastSeen = $client->last_seen_at ? \Carbon\Carbon::parse($client->last_seen_at, 'Asia/Kolkata') : null;
 
-
-                                    if (!$lastSeen) {
-                                        $statusLabel = 'Offline';
-                                        $statusClass = 'text-secondary';
-                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                        $lastSeenText = '';
-                                    } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
-                                        // Last seen within 2 minutes IST
-                                        $statusLabel = 'Online';
-                                        $statusClass = 'text-success';
-                                        $statusIcons = '<span class="msg-status-dot msg-online"></span>';
-                                        $lastSeenText = '';
+                                if (!$lastSeen) {
+                                    $statusLabel = 'Offline';
+                                    $statusClass = 'text-secondary';
+                                    $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                    $lastSeenText = '';
+                                } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
+                                    $statusLabel = 'Online';
+                                    $statusClass = 'text-success';
+                                    $statusIcons = '<span class="msg-status-dot msg-online"></span>';
+                                    $lastSeenText = '';
                                     } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
-                                        // Last seen between 2 and 6 minutes ago IST
                                         $statusLabel = 'Away';
                                         $statusClass = 'text-warning';
                                         $statusIcons = '
-                                            <span class="msg-status-dot msg-online"></span>
+                                            <span class="msg-status-dot msg-away"></span>
                                             <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                         ';
                                         $lastSeenText = '';
                                     } else {
-                                        // Offline and show last seen
-                                        $statusLabel = 'Offline';
-                                        $statusClass = 'text-secondary';
-                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
-                                    }
-                                @endphp
-                            <div> 
-                    </div>
+                                    $statusLabel = 'Offline';
+                                    $statusClass = 'text-secondary';
+                                    $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                }
+                            @endphp
+
                             <div class="msg-card">
                                 <div class="msg-avatar-wrapper me-3">
                                     @if ($client->profile_picture)
-                                        <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                                        <img src="{{ asset('assets/img/' . $client->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
                                     @else
                                         <div class="msg-avatar-initial">
                                             {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
@@ -526,12 +519,12 @@ use Carbon\Carbon;
                                     <div class="msg-header">
                                         <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
                                     </div>
-                                    <div class="msg-preview {{ $statusClass }}">
-                                        {{ $statusLabel }}
-                                        @if($lastSeenText)
-                                            <small class="text-muted d-block">{{ $lastSeenText }}</small>
-                                        @endif
-                                    </div>
+                                    <div class="{{ $statusLabel === 'Online' ? 'msg-preview ' . $statusClass : $statusClass }}">
+                                    {{ $statusLabel }}
+                                    @if($lastSeenText)
+                                        <span class="text-muted ms-1">{{ $lastSeenText }}</span>
+                                    @endif
+                                </div>
                                 </div>
                             </div>
                         @endforeach
