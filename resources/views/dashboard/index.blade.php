@@ -426,12 +426,12 @@ use Carbon\Carbon;
                                     $lastSeenText = '';
                                 } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
                                     $statusLabel = 'Away';
-                                    $statusClass = 'text-warning';
+                                    $statusClass = 'text-warnings';
                                     $statusIcons = '
                                         <span class="msg-status-dot msg-away"></span>
                                         <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                     ';
-                                    $lastSeenText = '';
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
                                 } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
@@ -490,12 +490,12 @@ use Carbon\Carbon;
                                     $lastSeenText = '';
                                     } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
                                         $statusLabel = 'Away';
-                                        $statusClass = 'text-warning';
+                                        $statusClass = 'text-warnings';
                                         $statusIcons = '
                                             <span class="msg-status-dot msg-away"></span>
                                             <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                         ';
-                                        $lastSeenText = '';
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
                                     } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
@@ -535,6 +535,19 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
+<!-- Sticky Notes Started -->
+    <div class="col-lg-12 stickyNotes">
+        <div class="card">
+            <div class="sticky-card">
+                <div class="row">
+                    <!-- <div class="container"> -->
+                    <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+                    <div class="notes-wrapper" id="noteGrid"></div>
+                </div>
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
     <!-- Sticky Notes Ended -->
     <div class="col-lg-12 stickyNotes">
         <div class="card">
@@ -1173,6 +1186,7 @@ use Carbon\Carbon;
                 <!-- </div> -->
             </div>
         </div>
+    </div>
         <!-- Sticky Notes Ended -->
         <div class="row">
             <!-- Left 8-column block for both tables -->
