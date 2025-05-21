@@ -4302,4 +4302,7 @@ table.styled-sprint-table.sprint-table.custom {
     color: white;
     box-shadow: 0 0 0 1px white;
 }
+.text-secondary {
+    font-size: 0.85rem;
+}
 /* new design css end*/
