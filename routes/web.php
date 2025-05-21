@@ -31,6 +31,7 @@ use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\StickyNoteController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BDEController;
+use App\Http\Controllers\SearchDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -345,8 +346,9 @@ Route::middleware(['role_permission'])->group(function () {
     Route::post('/bde/add-comment', [BDEController::class, 'addComment'])->name('bde.comment.add');
     Route::post('/tasks/{task}/update-status', [BDEController::class, 'updateStatus'])->name('tasks.updateStatus');
 
-
 	//attendance history 
 	Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
-	Route::get('/search', [TicketsController::class, 'searchList'])->name('search.index');
+
+	// Routes for search functionality
+	Route::match(['get', 'post'], '/search', [SearchDataController::class, 'searchList'])->name('search.index');
 });
