@@ -48,23 +48,23 @@ class SearchDataController extends Controller
                     ->get();
 
                 $results['ticket'] = $tickets;
-            }
 
-            // Ticket comments → ticket ids
-            $ticketIdsFromComments = TicketComments::where('comments', 'like', "%{$searchTerm}%")
-                ->pluck('ticket_id')
-                ->unique()
-                ->toArray();
+                 // Ticket comments → ticket ids
+                $ticketIdsFromComments = TicketComments::where('comments', 'like', "%{$searchTerm}%")
+                    ->pluck('ticket_id')
+                    ->unique()
+                    ->toArray();
 
-            if (!empty($ticketIdsFromComments)) {
-                $ticketsFromComments = Tickets::whereIn('id', $ticketIdsFromComments)
-                    ->whereDate('created_at', '>=', $dateThreshold)
-                    ->get();
+                if (!empty($ticketIdsFromComments)) {
+                    $ticketsFromComments = Tickets::whereIn('id', $ticketIdsFromComments)
+                        ->whereDate('created_at', '>=', $dateThreshold)
+                        ->get();
 
-                if (isset($results['ticket'])) {
-                    $results['ticket'] = $results['ticket']->merge($ticketsFromComments)->unique('id');
-                } else {
-                    $results['ticket'] = $ticketsFromComments;
+                    if (isset($results['ticket'])) {
+                        $results['ticket'] = $results['ticket']->merge($ticketsFromComments)->unique('id');
+                    } else {
+                        $results['ticket'] = $ticketsFromComments;
+                    }
                 }
             }
 
