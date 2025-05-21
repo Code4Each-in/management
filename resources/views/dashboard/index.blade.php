@@ -401,20 +401,6 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
-<!-- Sticky Notes Started -->
-    <div class="col-lg-12 stickyNotes">
-        <div class="card">
-            <div class="sticky-card">
-                <div class="row">
-                    <!-- <div class="container"> -->
-                    <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-                    <div class="notes-wrapper" id="noteGrid"></div>
-                </div>
-                <!-- </div> -->
-            </div>
-        </div>
-    </div>
-    <!-- Sticky Notes Ended -->
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
@@ -549,6 +535,20 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
+<!-- Sticky Notes Started -->
+    <div class="col-lg-12 stickyNotes">
+        <div class="card">
+            <div class="sticky-card">
+                <div class="row">
+                    <!-- <div class="container"> -->
+                    <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+                    <div class="notes-wrapper" id="noteGrid"></div>
+                </div>
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+    <!-- Sticky Notes Ended -->
     <div class="col-lg-12 stickyNotes">
         <div class="card">
             <div class="sticky-card">
