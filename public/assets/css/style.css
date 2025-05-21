@@ -4441,3 +4441,9 @@ table.styled-sprint-table.sprint-table.custom {
 .clickable-row {
   cursor: pointer;
 }
+
+form#searchForm {
+    position: relative;
+    z-index: 1;
+}
+ 
