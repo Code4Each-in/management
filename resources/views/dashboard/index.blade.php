@@ -5,6 +5,7 @@
 <!-- @php
 use App\Models\Users;
 use App\Models\Votes;
+use Carbon\Carbon;
 @endphp -->
 <style>
     .reminder-close-btn {
@@ -403,121 +404,144 @@ use App\Models\Votes;
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
-        
-        <!-- Employee Section (Left Column) -->
-        <div class="col-12 col-md-6">
-            <div class="msg-group-card">
-                <div class="msg-section-title">Employees</div>
-<div class="msg-design">
-                @foreach ($onlineUsers as $user)
-                    <div class="msg-card">
-                        <div class="msg-avatar-wrapper me-3">
-                            @if ($user->profile_picture)
-                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
-                            @else
-                                <div class="msg-avatar-initial">
-                                    {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
-                                </div>
-                            @endif
-                            <span class="msg-status-dot msg-online"></span>
-                        </div>
-                        <div class="msg-content">
-                            <div class="msg-header">
-                                <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
-                            </div>
-                            <div class="msg-preview text-success">Online</div>
-                        </div>
-                    </div>
-                @endforeach
+            <!-- Employee Section (Left Column) -->
+            <div class="col-12 col-md-6">
+                <div class="msg-group-card">
+                    <div class="msg-section-title">Employees</div>
+                    <div class="msg-design">
+                        @foreach ($allEmployees as $user)
+                           @php
+                                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // Current IST time
+                                    $lastSeen = $user->last_seen_at ? \Carbon\Carbon::parse($user->last_seen_at, 'Asia/Kolkata') : null;
 
-                @foreach ($offlineUsers as $user)
-                    <div class="msg-card">
-                        <div class="msg-avatar-wrapper me-3">
-                            @if ($user->profile_picture)
-                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
-                            @else
-                                <div class="msg-avatar-initial">
-                                    {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+                                    if (!$lastSeen) {
+                                        $statusLabel = 'Offline';
+                                        $statusClass = 'text-secondary';
+                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                        $lastSeenText = '';
+                                    } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
+                                        // Last seen within last 2 minutes => Online
+                                        $statusLabel = 'Online';
+                                        $statusClass = 'text-success';
+                                        $statusIcons = '<span class="msg-status-dot msg-online"></span>';
+                                        $lastSeenText = '';
+                                    } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
+                                        // Last seen between 2 and 6 minutes ago => Away
+                                        $statusLabel = 'Away';
+                                        $statusClass = 'text-warning';
+                                        $statusIcons = '
+                                            <span class="msg-status-dot msg-online"></span>
+                                            <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
+                                        ';
+                                        $lastSeenText = '';
+                                    } else {
+                                        // Last seen more than 6 minutes ago => Offline, show last seen
+                                        $statusLabel = 'Offline';
+                                        $statusClass = 'text-secondary';
+                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                    }
+                                @endphp
+                            <div class="msg-card">
+                                <div class="msg-avatar-wrapper me-3">
+                                    @if ($user->profile_picture)
+                                        <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $user->full_name ?? $user->first_name }}" class="msg-avatar-img" />
+                                    @else
+                                        <div class="msg-avatar-initial">
+                                            {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    {!! $statusIcons !!}
                                 </div>
-                            @endif
-                            <span class="msg-status-dot msg-offline"></span>
-                        </div>
-                        <div class="msg-content">
-                            <div class="msg-header">
-                                <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                <div class="msg-content">
+                                    <div class="msg-header">
+                                        <div class="msg-name">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                    </div>
+                                    <div class="msg-preview {{ $statusClass }}">
+                                        {{ $statusLabel }}
+                                        @if($lastSeenText)
+                                            <small class="text-muted d-block">{{ $lastSeenText }}</small>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            <div class="msg-preview">{{ $user->last_seen_at }}</div>
-                        </div>
+                        @endforeach
                     </div>
-                @endforeach
-</div>
+                </div>
             </div>
-        </div>
 
-        <!-- Client Section (Right Column) -->
-        <div class="col-12 col-md-6">
-            <div class="msg-group-card">
-                <div class="msg-section-title">Clients</div>
-<div class="msg-design">
-                @foreach ($onlineClients as $client)
-                    <div class="msg-card">
-                        <div class="msg-avatar-wrapper me-3">
-                            @if ($client->profile_picture)
-                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
-                            @else
-                                <div class="msg-avatar-initial">
-                                    {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
-                                </div>
-                            @endif
-                            <span class="msg-status-dot msg-online"></span>
-                        </div>
-                        <div class="msg-content">
-                            <div class="msg-header">
-                                <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
-                            </div>
-                            <div class="msg-preview text-success">Online</div>
-                        </div>
-                    </div>
-                @endforeach
+            <!-- Client Section (Right Column) -->
+            <div class="col-12 col-md-6">
+                <div class="msg-group-card">
+                    <div class="msg-section-title">Clients</div>
+                    <div class="msg-design">
+                        @foreach ($allClients as $client)
+                          @php
+                                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // IST time
+                                    $lastSeen = $client->last_seen_at ? \Carbon\Carbon::parse($client->last_seen_at, 'Asia/Kolkata') : null;
 
-                @foreach ($offlineClients as $client)
-                    <div class="msg-card">
-                        <div class="msg-avatar-wrapper me-3">
-                            @if ($client->profile_picture)
-                                <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
-                            @else
-                                <div class="msg-avatar-initial">
-                                    {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
-                                </div>
-                            @endif
-                            <span class="msg-status-dot msg-offline"></span>
-                        </div>
-                        <div class="msg-content">
-                            <div class="msg-header">
-                                <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
-                            </div>
-                            <div class="msg-preview">{{ $client->last_seen_at }}</div>
-                        </div>
+
+                                    if (!$lastSeen) {
+                                        $statusLabel = 'Offline';
+                                        $statusClass = 'text-secondary';
+                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                        $lastSeenText = '';
+                                    } elseif ($lastSeen >= $now->copy()->subMinutes(2)) {
+                                        // Last seen within 2 minutes IST
+                                        $statusLabel = 'Online';
+                                        $statusClass = 'text-success';
+                                        $statusIcons = '<span class="msg-status-dot msg-online"></span>';
+                                        $lastSeenText = '';
+                                    } elseif ($lastSeen >= $now->copy()->subMinutes(6)) {
+                                        // Last seen between 2 and 6 minutes ago IST
+                                        $statusLabel = 'Away';
+                                        $statusClass = 'text-warning';
+                                        $statusIcons = '
+                                            <span class="msg-status-dot msg-online"></span>
+                                            <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
+                                        ';
+                                        $lastSeenText = '';
+                                    } else {
+                                        // Offline and show last seen
+                                        $statusLabel = 'Offline';
+                                        $statusClass = 'text-secondary';
+                                        $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                    }
+                                @endphp
+                            <div> 
                     </div>
-                @endforeach
+                            <div class="msg-card">
+                                <div class="msg-avatar-wrapper me-3">
+                                    @if ($client->profile_picture)
+                                        <img src="{{ asset('assets/img/' . $user->profile_picture) }}" alt="{{ $client->full_name ?? $client->first_name }}" class="msg-avatar-img" />
+                                    @else
+                                        <div class="msg-avatar-initial">
+                                            {{ strtoupper(substr($client->first_name, 0, 1)) }}{{ strtoupper(substr($client->last_name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    {!! $statusIcons !!}
+                                </div>
+                                <div class="msg-content">
+                                    <div class="msg-header">
+                                        <div class="msg-name">{{ $client->first_name }} {{ $client->last_name }}</div>
+                                    </div>
+                                    <div class="msg-preview {{ $statusClass }}">
+                                        {{ $statusLabel }}
+                                        @if($lastSeenText)
+                                            <small class="text-muted d-block">{{ $lastSeenText }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
-        </div>
-        </div>
+
         </div>
     </div>
 </div>
-<!-- Sticky Notes Started -->
-<div class="col-lg-12 stickyNotes">
-    <div class="card">
-        <div class="sticky-card">
-            <div class="row">
-                <!-- <div class="container"> -->
-                <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-                <div class="notes-wrapper" id="noteGrid"></div>
-            </div>
-            <!-- </div> -->
-        </div>
-    </div>
     <!-- Sticky Notes Ended -->
     <div class="col-lg-12 stickyNotes">
         <div class="card">
