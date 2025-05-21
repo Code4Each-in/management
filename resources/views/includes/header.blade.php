@@ -740,21 +740,40 @@ function clearMessageCounter() {
 }
 </script>
 <script>
-    function sendHeartbeat() {
-        fetch("{{ url('/user/heartbeat') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
+    document.addEventListener('DOMContentLoaded', function () {
+        let isUserActive = true;
+        let activityTimeout;
+
+        function resetUserActivity() {
+            isUserActive = true;
+            clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                isUserActive = false;
+            }, 60000); // Mark inactive after 1 minute of no activity
+        }
+
+        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetUserActivity);
         });
-    }
 
-    sendHeartbeat();
-    setInterval(sendHeartbeat, 30000);
+        function sendHeartbeat() {
+            if (isUserActive) {
+                fetch("{{ url('/user/heartbeat') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+            }
+        }
+
+        resetUserActivity();
+        sendHeartbeat();
+        setInterval(sendHeartbeat, 30000);
+    });
 </script>
-
     <script>
         function fetchNotifications() {
             $.ajax({

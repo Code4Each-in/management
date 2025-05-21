@@ -4287,4 +4287,22 @@ span#unread-message-counts {
 table.styled-sprint-table.sprint-table.custom {
     text-align: left;
 }
+.msg-clock-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #ffa638;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: white;
+    box-shadow: 0 0 0 1px white;
+}
+.text-secondary {
+    font-size: 0.85rem;
+}
 /* new design css end*/
