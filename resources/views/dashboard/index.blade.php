@@ -458,7 +458,7 @@ use Carbon\Carbon;
                                         <div class="{{ $statusLabel === 'Online' ? 'msg-preview ' . $statusClass : $statusClass }}">
                                         {{ $statusLabel }}
                                         @if($lastSeenText)
-                                            <span class="text-muted ms-1">{{ $lastSeenText }}</span>
+                                            <span class="text-muted ms-1">({{ $lastSeenText }})</span>
                                         @endif
                                     </div>
                                 </div>
@@ -522,7 +522,7 @@ use Carbon\Carbon;
                                     <div class="{{ $statusLabel === 'Online' ? 'msg-preview ' . $statusClass : $statusClass }}">
                                     {{ $statusLabel }}
                                     @if($lastSeenText)
-                                        <span class="text-muted ms-1">{{ $lastSeenText }}</span>
+                                        <span class="text-muted ms-1">({{ $lastSeenText }})</span>
                                     @endif
                                 </div>
                                 </div>
