@@ -845,11 +845,5 @@ public function deleteComment($id)
     ]);
 }
 
-public function searchList()
-{
-    return view('search.index');
-}
-
-
 
 }

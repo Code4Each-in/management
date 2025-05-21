@@ -4306,3 +4306,134 @@ table.styled-sprint-table.sprint-table.custom {
     font-size: 0.85rem;
 }
 /* new design css end*/
+.search-table {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  margin-bottom: 50px;
+  transition: all 0.3s ease;
+}
+
+.search-table:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.1);
+}
+
+.search-header {
+  padding: 8px 25px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-header .avatar {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.search-header h5 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.search-header .sub-count {
+  font-weight: 600;
+  font-size: 1rem;
+  opacity: 0.85;
+  margin-left: auto;
+  color: #000000;
+}
+
+.search-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.search-table thead {
+  background: #f9f9f9;
+}
+
+.search-table th,
+.search-table td {
+  padding: 12px 15px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.search-table tbody tr {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+.search-table tbody tr:hover {
+  background: #f1f5f8;
+}
+
+.search-table .badge-custom {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.search-table .badge-ongoing {
+  background: #d6f0fa;
+  color: #0c5a74;
+}
+
+.search-table .badge-review {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.search-table .badge-active {
+  background: #007bff;
+  color: white;
+}
+
+.search-table .workflow-stages {
+  display: flex;
+  gap: 6px;
+}
+
+.search-table .workflow-stages span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: bold;
+  line-height: 26px;
+  text-align: center;
+}
+
+.search-table .stage-1 { background: #6ec1e4; }
+.search-table .stage-2 { background: #f9bc86; }
+.search-table .stage-3 { background: #6dd3a9; }
+.search-table .stage-4 { background: #f18a8a; }
+.search-table .stage-5 { background: #c4b7f9; }
+
+.search-table .action-icon {
+  margin: 0 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-table   .action-icon.view { color: #17a2b8; }
+.search-table .action-icon.edit { color: #ffc107; }
+.search-table .action-icon.delete { color: #dc3545; }
+
+.search-1 .search-header { background: linear-gradient(120deg, #297bab, #d6d9d5);}
+.search-2 .search-header { background: linear-gradient(120deg, #2a9d8f, #d6d9d5);}
+.search-3 .search-header { background: linear-gradient(120deg, #927464, #d6d9d5);}
