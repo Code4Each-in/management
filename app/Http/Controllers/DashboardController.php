@@ -142,37 +142,39 @@ class DashboardController extends Controller
                     ->count();
             }
 
-$thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
+        $thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
 
-// Online Employees
-$onlineUsers = Users::where('status', 1)
-    ->whereNotIn('role_id', [2, 6])
-    ->where('last_seen_at', '>=', $thresholdTime)
-    ->get();
+        // Online Employees
+        $onlineUsers = Users::where('status', 1)
+            ->whereNotIn('role_id', [2, 6])
+            ->where('last_seen_at', '>=', $thresholdTime)
+            ->get();
 
-// Offline Employees
-$offlineUsers = Users::where('status', 1)
-    ->whereNotIn('role_id', [2, 6])
-    ->where(function ($query) use ($thresholdTime) {
-        $query->where('last_seen_at', '<', $thresholdTime)
-              ->orWhereNull('last_seen_at');
-    })
-    ->get();
+        // Offline Employees
+        $offlineUsers = Users::where('status', 1)
+            ->whereNotIn('role_id', [2, 6])
+            ->where(function ($query) use ($thresholdTime) {
+                $query->where('last_seen_at', '<', $thresholdTime)
+                    ->orWhereNull('last_seen_at');
+            })
+            ->get();
 
-// Online Clients
-$onlineClients = Users::where('status', 1)
-    ->where('role_id', 6)
-    ->where('last_seen_at', '>=', $thresholdTime)
-    ->get();
+        // Online Clients
+        $onlineClients = Users::where('status', 1)
+            ->where('role_id', 6)
+            ->where('last_seen_at', '>=', $thresholdTime)
+            ->get();
 
-// Offline Clients
-$offlineClients = Users::where('status', 1)
-    ->where('role_id', 6)
-    ->where(function ($query) use ($thresholdTime) {
-        $query->where('last_seen_at', '<', $thresholdTime)
-              ->orWhereNull('last_seen_at');
-    })
-    ->get();
+        // Offline Clients
+        $offlineClients = Users::where('status', 1)
+            ->where('role_id', 6)
+            ->where(function ($query) use ($thresholdTime) {
+                $query->where('last_seen_at', '<', $thresholdTime)
+                    ->orWhereNull('last_seen_at');
+            })
+            ->get();
+            $allEmployees = $onlineUsers->merge($offlineUsers);
+            $allClients = $onlineClients->merge($offlineClients);
 
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
@@ -420,10 +422,8 @@ $offlineClients = Users::where('status', 1)
             'projects',
             'notifications',
             'projectMap',
-            'onlineUsers',
-            'offlineUsers',
-            'onlineClients',
-            'offlineClients'
+            'allEmployees',
+            'allClients',
         ));
     }
 
