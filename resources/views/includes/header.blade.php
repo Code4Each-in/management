@@ -732,11 +732,10 @@ function clearMessageCounter() {
 
         function resetUserActivity() {
             isUserActive = true;
-
             clearTimeout(activityTimeout);
             activityTimeout = setTimeout(() => {
                 isUserActive = false;
-            }, 60000); 
+            }, 60000); // Mark inactive after 1 minute of no activity
         }
 
         ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
@@ -756,12 +755,11 @@ function clearMessageCounter() {
             }
         }
 
-        resetUserActivity(); 
-        setInterval(sendHeartbeat, 30000); 
+        resetUserActivity();
+        sendHeartbeat();
+        setInterval(sendHeartbeat, 30000);
     });
 </script>
-
-
     <script>
         function fetchNotifications() {
             $.ajax({
