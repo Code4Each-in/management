@@ -39,7 +39,7 @@ class SearchDataController extends Controller
         $dateThreshold = '2025-01-01';
 
         $projectIds = null;
-        // dd($user->id);
+        
         if ($user->role_id == 6) {
             $client = Client::where('id', $user->client_id)->first(); 
             if ($client) {
