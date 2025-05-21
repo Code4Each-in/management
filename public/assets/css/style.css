@@ -4341,7 +4341,7 @@ table.styled-sprint-table.sprint-table.custom {
 
 .search-header h5 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -4437,3 +4437,7 @@ table.styled-sprint-table.sprint-table.custom {
 .search-1 .search-header { background: linear-gradient(120deg, #297bab, #d6d9d5);}
 .search-2 .search-header { background: linear-gradient(120deg, #2a9d8f, #d6d9d5);}
 .search-3 .search-header { background: linear-gradient(120deg, #927464, #d6d9d5);}
+
+.clickable-row {
+  cursor: pointer;
+}

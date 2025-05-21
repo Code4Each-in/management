@@ -29,7 +29,9 @@
                         <label for="searchPage" class="form-label">Search In</label>
                         <select name="searchPage[]" id="searchPage" class="form-select searchList" style="height: 47px;" multiple="multiple">
                             <option value="ticket">Ticket Page</option>
-                            <option value="message">Message Page</option>
+                            @if(in_array(auth()->user()->role_id, [1, 6]))
+                                <option value="message">Message Page</option>
+                            @endif
                             <option value="sprint">Sprint Page</option>
                         </select>
                     </div>

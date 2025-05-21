@@ -2,6 +2,10 @@
 
 @if(!empty($results))
     @foreach($results as $type => $items)
+        @if($type === 'message' && !in_array(auth()->user()->role_id, [1, 6]))
+            @continue
+        @endif
+
         <div class="search-table search-{{ $loop->iteration }}">
             <div class="search-header">
                 <div class="avatar">{{ strtoupper(substr($type, 0, 1)) }}</div>
