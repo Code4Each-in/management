@@ -431,12 +431,12 @@ use Carbon\Carbon;
                                         <span class="msg-status-dot msg-away"></span>
                                         <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                     ';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
                                 } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
                                 }
                             @endphp
 
@@ -495,12 +495,12 @@ use Carbon\Carbon;
                                             <span class="msg-status-dot msg-away"></span>
                                             <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                         ';
-                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
                                     } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans($now);
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
                                 }
                             @endphp
 
