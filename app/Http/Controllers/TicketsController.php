@@ -258,7 +258,7 @@ class TicketsController extends Controller
                             $messages["body-text"] = "We kindly request you to review the ticket details and take necessary actions or provide a response if needed.";
                             $messages["action-message"] = "To Preview The Change, Click on the link provided below.";
                             $messages["url-title"] = "View Ticket";
-                            $messages["url"] = "/edit/ticket/" . $tickets->id;
+                            $messages["url"] = "/view/ticket/" . $tickets->id;
                             $assignedUser->notify(new EmailNotification($messages));
                         } catch (\Exception $e) {
                             \Log::error("Error sending notification for ticket #{$tickets->id} to user {$assignedUser->id}: " . $e->getMessage());
@@ -399,7 +399,7 @@ class TicketsController extends Controller
                         $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
                         $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
                         $messages["url-title"] = "View Ticket";
-                        $messages["url"] = "/edit/ticket/" . $assignedUser->ticket_id;
+                        $messages["url"] = "/view/ticket/" . $assignedUser->ticket_id;
                         $assignedUser->notify(new EmailNotification($messages));
                     } catch (\Exception $e) {
                         \Log::error("Error sending notification for ticket #{$assignedUser->ticket_id} to user {$assignedUser->id}: " . $e->getMessage());
@@ -420,7 +420,7 @@ class TicketsController extends Controller
                             $messages["title"] = "You have been assigned a new ticket #{$ticketId} by {$changed_by}.";
                             $messages["body-text"] = " Please review and take necessary action.";
                             $messages["url-title"] = "View Ticket";
-                            $messages["url"] = "/edit/ticket/" . $ticketId;
+                            $messages["url"] = "/view/ticket/" . $ticketId;
                             $user = Users::find($data);
                             $user->notify(new EmailNotification($messages));
                         }
@@ -844,8 +844,6 @@ public function deleteComment($id)
         'id' => $id
     ]);
 }
-
-
 
 
 }
