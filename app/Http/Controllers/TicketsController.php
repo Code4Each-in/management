@@ -475,206 +475,210 @@ class TicketsController extends Controller
      }
 
         public function addComments(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-        'comment' => 'nullable|string',
-        'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
-    ], [
-        'comment_file.*.file' => 'The :attribute must be a file.',
-        'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-        'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
-    ]);
-    
-    $validator->after(function ($validator) use ($request) {
-        if (empty($request->comment) && !$request->hasFile('comment_file')) {
-            $validator->errors()->add('comment', 'Kindly type a message or attach a file before submitting.');
-        }
-    });
+        {
+            $validator = Validator::make($request->all(), [
+            'comment' => 'nullable|string',
+            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            ], [
+            'comment_file.*.file' => 'The :attribute must be a file.',
+            'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
+            'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
+        ]);
+        
+        $validator->after(function ($validator) use ($request) {
+            if (empty($request->comment) && !$request->hasFile('comment_file')) {
+                $validator->errors()->add('comment', 'Kindly type a message or attach a file before submitting.');
+            }
+        });
 
 
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            $allErrors = $errors->all();
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                $allErrors = $errors->all();
 
-            foreach ($allErrors as $error) {
-                if (Str::contains($error, 'greater than') || Str::contains($error, 'Maximum file size allowed')) {
+                foreach ($allErrors as $error) {
+                    if (Str::contains($error, 'greater than') || Str::contains($error, 'Maximum file size allowed')) {
+                        return response()->json([
+                            'errors' => [
+                                'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
+                            ]
+                        ]);
+                    }
+                }
+
+                return response()->json(['errors' => $allErrors]);
+            }
+
+            $validate = $validator->valid();
+            $documentPaths = [];
+
+            if ($request->hasFile('comment_file')) {
+                foreach ($request->file('comment_file') as $file) {
+                    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $dateString = date('YmdHis');
+                    $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                    $file->move(public_path('assets/img/ticketAssets'), $name);
+                    $path = 'ticketAssets/' . $name;
+
+                    TicketFiles::create([
+                        'document' => $path,
+                        'ticket_id' => $validate['id'],
+                    ]);
+
+                    $documentPaths[] = $path;
+                }
+            }
+
+            if ($request->has('comment_id') && $request->comment_id != null) {
+                $existingComment = TicketComments::find($request->comment_id);
+                if ($existingComment) {
+                    $existingComment->comments = $validate['comment'];
+                    if (!empty($documentPaths)) {
+                        $existingComment->document = implode(',', $documentPaths);
+                    }
+                    $existingComment->save();
+
+                    $CommentsData = TicketComments::with('user')->where('id', $existingComment->id)->get();
                     return response()->json([
-                        'errors' => [
-                            'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
-                        ]
+                        'status' => 200,
+                        'CommentsData' => $CommentsData,
+                        'Commentmessage' => 'Comment updated successfully.'
                     ]);
                 }
             }
 
-            return response()->json(['errors' => $allErrors]);
-        }
-
-        $validate = $validator->valid();
-        $documentPaths = [];
-
-        if ($request->hasFile('comment_file')) {
-            foreach ($request->file('comment_file') as $file) {
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $dateString = date('YmdHis');
-                $name = $dateString . '_' . $fileName . '.' . $file->extension();
-                $file->move(public_path('assets/img/ticketAssets'), $name);
-                $path = 'ticketAssets/' . $name;
-
-                TicketFiles::create([
-                    'document' => $path,
-                    'ticket_id' => $validate['id'],
-                ]);
-
-                $documentPaths[] = $path;
-            }
-        }
-
-        if ($request->has('comment_id') && $request->comment_id != null) {
-            $existingComment = TicketComments::find($request->comment_id);
-            if ($existingComment) {
-                $existingComment->comments = $validate['comment'];
-                if (!empty($documentPaths)) {
-                    $existingComment->document = implode(',', $documentPaths);
-                }
-                $existingComment->save();
-
-                $CommentsData = TicketComments::with('user')->where('id', $existingComment->id)->get();
-                return response()->json([
-                    'status' => 200,
-                    'CommentsData' => $CommentsData,
-                    'Commentmessage' => 'Comment updated successfully.'
-                ]);
-            }
-        }
-
-        $ticket = TicketComments::create([
-            'comments'   => $validate['comment'],
-            'ticket_id'  => $validate['id'],
-            'document'   => implode(',', $documentPaths),
-            'comment_by' => auth()->user()->id,
-        ]);
-
-        Notification::create([
-            'user_id' => auth()->user()->id,
-            'type' => 'comment',
-            'message' => "New comment on Ticket #{$validate['id']}",
-            'ticket_id' => $validate['id'],
-            'is_super_admin' => false
-        ]);
-
-        $managerIds = DB::table('managers')
-            ->where('user_id', auth()->user()->id)
-            ->pluck('parent_user_id');
-
-        foreach ($managerIds as $managerId) {
-            Notification::create([
-                'user_id' => $managerId,
-                'ticket_id' => $validate['id'],
-                'type' => 'comment',
-                'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
-                'is_read' => false,
-                'is_super_admin' => false
+            $ticket = TicketComments::create([
+                'comments'   => $validate['comment'],
+                'ticket_id'  => $validate['id'],
+                'document'   => implode(',', $documentPaths),
+                'comment_by' => auth()->user()->id,
             ]);
-        }
 
-        if (auth()->user()->id == 1) {
             Notification::create([
                 'user_id' => auth()->user()->id,
+                'type' => 'comment',
+                'message' => "New comment on Ticket #{$validate['id']}",
                 'ticket_id' => $validate['id'],
-                'type' => 'assigned',
-                'message' => 'Ticket #' . $validate['id'] . ' assigned to ' . auth()->user()->first_name,
-                'is_read' => false,
-                'is_super_admin' => true
+                'is_super_admin' => false
+            ]);
+
+            $managerIds = DB::table('managers')
+                ->where('user_id', auth()->user()->id)
+                ->pluck('parent_user_id');
+
+            foreach ($managerIds as $managerId) {
+                Notification::create([
+                    'user_id' => $managerId,
+                    'ticket_id' => $validate['id'],
+                    'type' => 'comment',
+                    'message' => 'Ticket #' . $validate['id'] . ' commented by ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => false
+                ]);
+            }
+
+            if (auth()->user()->id == 1) {
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'ticket_id' => $validate['id'],
+                    'type' => 'assigned',
+                    'message' => 'Ticket #' . $validate['id'] . ' assigned to ' . auth()->user()->first_name,
+                    'is_read' => false,
+                    'is_super_admin' => true
+                ]);
+            }
+
+            if ($ticket) {
+                $currentUser = auth()->user();
+    
+                // Determine who commented
+                if ($currentUser->role_id == 6) {
+                    // Comment made by client
+                    $clientId = $currentUser->client_id;
+                    $user = Users::where('client_id', $clientId)->first();
+    
+                    $messages["greeting-text"] = "Hello!";
+                    $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
+                    $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                    $messages["body-text"] = "{$validate['id']}";
+                    $messages["url-title"] = "View Ticket";
+                    $messages["url"] = "/view/ticket/" . $validate['id'];
+    
+                    try {
+                        // Notify all assigned users
+                        $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                            ->where('ticket_id', $validate['id'])
+                            ->get(['users.id', 'users.first_name', 'users.email']);
+                        
+                        foreach ($assignedUsers as $assignedUser) {
+                            $assignedUser->notify(new TicketNotification($messages));
+                        }
+    
+                        // Notify admin (user ID 1)
+                        $admin = Users::find(2);
+                        if ($admin) {
+                            $admin->notify(new TicketNotification($messages));
+                        }
+    
+                    } catch (\Exception $e) {
+                        \Log::error("Error sending notification for client comment on ticket #{$validate['id']}: " . $e->getMessage());
+                    }
+    
+                } else {
+                    // Comment made by admin or assigned user
+                    $user = Users::find($currentUser->id);
+                    $messages["greeting-text"] = "Hello!";
+                    $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
+                    $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
+                    $messages["body-text"] = "{$validate['id']}";
+                    $messages["url-title"] = "View Ticket";
+                    $messages["url"] = "/view/ticket/" . $validate['id'];
+    
+                    try {
+                        // Notify client (get the user with the same client_id)
+                        $ticketModel = Tickets::find($validate['id']);
+                        $projectId = $ticketModel->project_id;
+                        $project = Projects::find($projectId);
+    
+                        if ($project) {
+                            $clientId = $project->client_id;
+                        }
+                        $client = Users::where('client_id', $clientId)->first();
+                        if ($client) {
+                            $client->notify(new TicketNotification($messages));
+                        }
+    
+                    } catch (\Exception $e) {
+                        \Log::error("Error sending notification for staff/admin comment on ticket #{$validate['id']}: " . $e->getMessage());
+                    }
+                }
+            }
+            $CommentsData = TicketComments::with('user')->where('id', $ticket->id)->get();
+            return response()->json([
+                'status' => 200,
+                'CommentsData' => $CommentsData,
+                'Commentmessage' => 'Comment added successfully.'
             ]);
         }
+        public function DeleteTicketAssign(request $request)
+        {
+            $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
+            $request->session()->flash('message','TicketAssign deleted successfully.');
+            $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
 
-        $currentUser = auth()->user();
+            $user = Users::whereHas('role', function($q){
+                $q->where('name', '!=', 'Super Admin');
+            })->orderBy('id','desc')->get()->toArray();
 
-        if ($currentUser->role_id == 6) {
-            $clientId = $currentUser->client_id;
-            $user = Users::where('client_id', $clientId)->first();
-
-            $messages = [
-                "greeting-text" => "Hello!",
-                "subject"       => "New Comment On Ticket #{$validate['id']} By - {$user->first_name}",
-                "title"         => "A new comment has been added to Ticket #{$validate['id']}.",
-                "body-text"     => "{$validate['id']}",
-                "url-title"     => "View Ticket",
-                "url"           => "/view/ticket/" . $validate['id'],
-            ];
-
-            try {
-                $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-                    ->where('ticket_id', $validate['id'])
-                    ->get(['users.id', 'users.first_name', 'users.email']);
-
-                foreach ($assignedUsers as $assignedUser) {
-                    $assignedUser->notify(new TicketNotification($messages));
+        foreach($user as $key1=> $data1)
+        {
+            foreach($AssignData as $key2=> $data2){
+                if($data1['id']==$data2['user_id']){
+                    unset($user[$key1]);
                 }
-
-                $admin = Users::find(1);
-                if ($admin) {
-                    $admin->notify(new TicketNotification($messages));
-                }
-
-            } catch (\Exception $e) {
-                \Log::error("Error sending notification for client comment on ticket #{$validate['id']}: " . $e->getMessage());
-            }
-
-        } else {
-            $user = Users::find($currentUser->id);
-            $messages = [
-                "greeting-text" => "Hello!",
-                "subject"       => "New Comment On Ticket #{$validate['id']} By - {$user->first_name}",
-                "title"         => "A new comment has been added to Ticket #{$validate['id']}.",
-                "body-text"     => "{$validate['id']}",
-                "url-title"     => "View Ticket",
-                "url"           => "/view/ticket/" . $validate['id'],
-            ];
-
-            try {
-                $ticketModel = Tickets::find($validate['id']);
-                $projectId = $ticketModel->project_id;
-                $project = Projects::find($projectId);
-                $clientId = $project->client_id ?? null;
-
-                $client = Users::where('client_id', $clientId)->first();
-                if ($client) {
-                    $client->notify(new TicketNotification($messages));
-                }
-
-            } catch (\Exception $e) {
-                \Log::error("Error sending notification for staff/admin comment on ticket #{$validate['id']}: " . $e->getMessage());
             }
         }
-
-        $CommentsData = TicketComments::with('user')->where('id', $ticket->id)->get();
-        return response()->json([
-            'status' => 200,
-            'CommentsData' => $CommentsData,
-            'Commentmessage' => 'Comment added successfully.'
-        ]);
-    }
-    public function DeleteTicketAssign(request $request)
-    {
-        $ticketAssign = TicketAssigns::where('id',$request->id)->delete();
-        $request->session()->flash('message','TicketAssign deleted successfully.');
-        $AssignData = TicketAssigns::where(['ticket_id' => $request->TicketId])->get();
-
-        $user = Users::whereHas('role', function($q){
-            $q->where('name', '!=', 'Super Admin');
-        })->orderBy('id','desc')->get()->toArray();
-
-       foreach($user as $key1=> $data1)
-       {
-           foreach($AssignData as $key2=> $data2){
-               if($data1['id']==$data2['user_id']){
-                   unset($user[$key1]);
-               }
-           }
-       }
-        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]);
-
+            return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]);
     }
 
     public function deleteTicketFile(Request $request)
