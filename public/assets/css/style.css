@@ -4446,4 +4446,7 @@ form#searchForm {
     position: relative;
     z-index: 1;
 }
+.text-warnings{
+  font-size: 0.85rem;
+}
  

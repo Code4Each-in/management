@@ -420,8 +420,9 @@
                       </span>
                   </div>
                   <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
-                  <input type="hidden" name="message" id="comment_input">
+                  <input type="hidden" name="message" id="comment_input" value="{!! old('comment') !!}">
                   <input type="hidden" name="project_id" id="project_id">
+                  <input type="hidden" name="comment_id" id="comment_id" value="">
                   @if ($errors->has('comment'))
                       <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                   @endif
@@ -583,11 +584,15 @@
                     contentType: false,
                     processData: false,
                     success: function(response) {
+                    console.log(response);
                         if (response.status === 200) {
                             $('#comment').val('');
                             $('#comment_file').val('');
                             quill.root.innerHTML = "";
                             displayMessages(response.message, false);
+                             if (response.is_updated == 1) {
+                            location.reload();
+                        }
                         }else if(response.errors){
                             $('.alert-danger').html(response.errors).fadeIn();
                         }
@@ -743,6 +748,18 @@
                     </button>`
                 : '';
 
+           const editBtn = message.from === currentUserId
+            ? `<button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                        data-comment-id="${message.id}"
+                        data-content="${encodeURIComponent(message.message)}"
+                        title="Edit Comment"
+                        style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 10px;">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>`
+            : '';
+
+    
+
             const documentLinks = (message.document ?? '')
                 .split(',')
                 .filter(doc => doc.trim() !== '')
@@ -762,6 +779,7 @@
                         </div>
                     </div>
                     <div class="text">
+                        ${editBtn}
                         ${deleteBtn}
                         <p>${message.message}</p>
                         ${documentLinks}
@@ -797,5 +815,56 @@
             }); // Example: 13 May 2025
         }
     }
+</script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+document.addEventListener('click', function (e) {
+  // Check if the clicked element or its ancestor has the .edit-comment class
+  const button = e.target.closest('.edit-comment');
+
+  if (button) {
+    e.preventDefault(); // prevent link/button default behavior if needed
+
+    const commentId = button.getAttribute('data-comment-id');
+    let commentContent = button.getAttribute('data-content') || '';
+
+    // Decode the URL-encoded content first
+    commentContent = decodeURIComponent(commentContent);
+
+    // Decode HTML entities (if needed)
+    commentContent = decodeHTMLEntities(commentContent);
+
+    // Log the decoded content to ensure it's correct
+    console.log('Decoded Comment Content:', commentContent);
+
+    // Set comment ID and content to the hidden inputs
+    const hiddenInput = document.getElementById('comment_input');
+    const commentIdInput = document.getElementById('comment_id');
+    const editor = document.querySelector('#editor');
+
+    if (hiddenInput) hiddenInput.value = commentContent;
+    if (commentIdInput) commentIdInput.value = commentId;
+
+    // If Quill editor is initialized, set the content in Quill
+    if (quill) {
+      quill.root.innerHTML = commentContent;
+    }
+
+    // Smooth scroll to the editor
+    if (editor) {
+      editor.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+});
+
+// Utility function for decoding HTML entities
+function decodeHTMLEntities(str) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
+}
+
+
 </script>
 @endsection
