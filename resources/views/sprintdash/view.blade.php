@@ -89,7 +89,7 @@
                         @else  
                             @foreach ($ProjectDocuments as $data)
                                 @if (!empty($data->document))
-                                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm mb-2" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')">
                                         @php
                                             $extension = pathinfo($data->document, PATHINFO_EXTENSION);
                                             $iconClass = '';
@@ -116,7 +116,7 @@
                                                     break;
                                             }
                                         @endphp
-                                        <i class="bi {{ $iconClass }} mr-1" onclick="window.open('{{ asset('assets/img/' . $data->document) }}', '_blank')"></i>
+                                        <i class="bi {{ $iconClass }} mr-1"></i>
                                         <i class="bi bi-x pointer ticketfile text-danger" onclick="deleteSprintFile('{{ $data->id }}')"></i>
                                     </button>
                                 @endif
