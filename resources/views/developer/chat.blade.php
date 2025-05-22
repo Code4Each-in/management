@@ -743,7 +743,7 @@
                     </div>`;
 
             const deleteBtn = message.from === currentUserId
-                ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 15px;">
+                ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 8px;">
                         <i class="fa-solid fa-trash"></i>
                     </button>`
                 : '';
@@ -754,7 +754,7 @@
                         data-content="${encodeURIComponent(message.message)}"
                         title="Edit Comment"
                         style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 10px;">
-                    <i class="fa-solid fa-pen-to-square"></i>
+                    <i class="fa-solid fa-pen"></i>
                 </button>`
             : '';
 
@@ -779,8 +779,8 @@
                         </div>
                     </div>
                     <div class="text">
-                        ${editBtn}
                         ${deleteBtn}
+                        ${editBtn}
                         <p>${message.message}</p>
                         ${documentLinks}
                     </div>
