@@ -242,30 +242,41 @@ class TicketsController extends Controller
                 $projectDetail = Projects::find($tickets->project_id);
                 $authorName = $ticketAuthor->first_name. ' '. $ticketAuthor->last_name;
                 $ticket_id = $tickets->id;
-                $ticket_eta = "Not Mentioned";
-                if ($tickets->eta){
-                    $ticket_eta = $tickets->eta;
+                $ticket_eta = $tickets->eta ?: "Not Mentioned";
+
+                $assignee_ids = TicketAssigns::where('ticket_id', $ticket_id)->pluck('user_id');
+                $assignedUsers = Users::whereIn('id', $assignee_ids)->get();
+
+                // Compose the message
+                $messages = [
+                    "subject" => "New Ticket #{$tickets->id} Has Been Created - {$authorName}",
+                    "title" => "The New Ticket #{$tickets->id} has been created for project '{$projectDetail->project_name}' subject '{$tickets->title}' and priority level '{$tickets->priority}' end time is '{$ticket_eta}'.",
+                    "body-text" => "We kindly request you to review the ticket details and take necessary actions or provide a response if needed.",
+                    "action-message" => "To Preview The Change, Click on the link provided below.",
+                    "url-title" => "View Ticket",
+                    "url" => "/view/ticket/" . $tickets->id
+                ];
+
+                foreach ($assignedUsers as $assignedUser) {
+                    try {
+                        $assignedUser->notify(new EmailNotification($messages));
+                    } catch (\Exception $e) {
+                        \Log::error("Error sending notification to assigned user {$assignedUser->id}: " . $e->getMessage());
+                    }
                 }
-                $assignee_ids = TicketAssigns::where('ticket_id', $ticket_id)->pluck('user_id as id');
-                foreach ($assignee_ids as $id) {
-                    $assignedUsers = Users::where('id',$id)->get();
-                }
-                if ($tickets) {
-                    foreach ($assignedUsers as $assignedUser) {
+
+                if (auth()->user()->role_id == 6) {
+                    $admin = Users::find(1); 
+                    if ($admin) {
                         try {
-                            $messages["subject"] = "New Ticket #{$tickets->id} Has Been Created - {$authorName}";
-                            $messages["title"] = "The New Ticket #{$tickets->id} has been created for project '{$projectDetail->project_name}' subject '{$tickets->title}' and priority level '{$tickets->priority}' end time is '{$ticket_eta}'.";
-                            $messages["body-text"] = "We kindly request you to review the ticket details and take necessary actions or provide a response if needed.";
-                            $messages["action-message"] = "To Preview The Change, Click on the link provided below.";
-                            $messages["url-title"] = "View Ticket";
-                            $messages["url"] = "/view/ticket/" . $tickets->id;
-                            $assignedUser->notify(new EmailNotification($messages));
+                            $admin->notify(new EmailNotification($messages));
                         } catch (\Exception $e) {
-                            \Log::error("Error sending notification for ticket #{$tickets->id} to user {$assignedUser->id}: " . $e->getMessage());
+                            \Log::error("Error sending notification to admin {$admin->id}: " . $e->getMessage());
                         }
                     }
                 }
             }
+
             $request->session()->flash('message','Tickets added successfully.');
                 return response()->json([
                     'status' => 200,
