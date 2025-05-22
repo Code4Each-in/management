@@ -754,7 +754,7 @@
                         data-content="${encodeURIComponent(message.message)}"
                         title="Edit Comment"
                         style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 10px;">
-                    <i class="fa-solid fa-pen"></i>
+                    <i class="fa-solid fa-pen-to-square"></i>
                 </button>`
             : '';
 
