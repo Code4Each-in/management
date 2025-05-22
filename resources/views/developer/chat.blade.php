@@ -590,9 +590,6 @@
                             $('#comment_file').val('');
                             quill.root.innerHTML = "";
                             displayMessages(response.message, false);
-                             if (response.is_updated == 1) {
-                            location.reload();
-                        }
                         }else if(response.errors){
                             $('.alert-danger').html(response.errors).fadeIn();
                         }
@@ -688,112 +685,115 @@
     }
      
     function displayMessages(messages, clearMessages = true, prepend = false) {
-        const $chatContainer = $(".chat-container");
+    const $chatContainer = $(".chat-container");
 
-        if (!Array.isArray(messages)) {
-            messages = [messages];
-        }
+    if (!Array.isArray(messages)) {
+        messages = [messages];
+    }
 
-        if (clearMessages) {
-            $chatContainer.empty();
-        }
+    if (clearMessages) {
+        $chatContainer.empty();
+    }
 
-        if (messages.length === 0 && clearMessages) {
-            $chatContainer.append(`<div class="center text-center mt-2">
-                <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
-            </div>`);
-            return;
-        }
+    if (messages.length === 0 && clearMessages) {
+        $chatContainer.append(`<div class="center text-center mt-2">
+            <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+        </div>`);
+        return;
+    }
 
-        messages.reverse(); // Show oldest first
+    messages.reverse(); 
 
-        const currentUserId = {{ Auth::id() }};
-        const clientName = @json($client->name ?? 'Project Not Assigned');
+    const currentUserId = {{ Auth::id() }};
+    const clientName = @json($client->name ?? 'Project Not Assigned');
 
-        let htmlToInsert = "";
+    let lastDateLabel = "";
 
-        let lastDateLabel = ""; // optionally manage this smarter if needed
+    messages.forEach(function(message) {
+        const msgDate = new Date(message.created_at);
+        const msgDayLabel = getDateLabel(msgDate);
 
-        messages.forEach(function(message) {
-            const msgDate = new Date(message.created_at);
-            const msgDayLabel = getDateLabel(msgDate);
+        const createdAt = msgDate.toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric", month: "short", day: "numeric",
+            hour: "numeric", minute: "numeric", hour12: true
+        });
 
-            if (msgDayLabel !== lastDateLabel) {
-                htmlToInsert += `
-                    <div class="date-label text-center my-3">
-                        <span style="background: #eee; padding: 4px 12px; border-radius: 20px; color: #555; font-weight: 500;">
-                            ${msgDayLabel}
-                        </span>
-                    </div>`;
-                lastDateLabel = msgDayLabel;
-            }
+        const avatarHtml = message.user?.profile_picture
+            ? `<div class="avatar" style="background-color: #27ae60;">
+                    <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
+                </div>`
+            : `<div class="avatar" style="background-color: #27ae60;">
+                    ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
+                </div>`;
 
-            const createdAt = msgDate.toLocaleString("en-IN", {
-                timeZone: "Asia/Kolkata",
-                year: "numeric", month: "short", day: "numeric",
-                hour: "numeric", minute: "numeric", hour12: true
-            });
+        const deleteBtn = message.from === currentUserId
+            ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 8px;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>` : '';
 
-            const avatarHtml = message.user?.profile_picture
-                ? `<div class="avatar" style="background-color: #27ae60;">
-                        <img src="/assets/img/${message.user.profile_picture}" alt="Profile" class="rounded-circle" width="35" height="35">
-                    </div>`
-                : `<div class="avatar" style="background-color: #27ae60;">
-                        ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
-                    </div>`;
-
-            const deleteBtn = message.from === currentUserId
-                ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 8px;">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>`
-                : '';
-
-           const editBtn = message.from === currentUserId
+        const editBtn = message.from === currentUserId
             ? `<button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
                         data-comment-id="${message.id}"
                         data-content="${encodeURIComponent(message.message)}"
                         title="Edit Comment"
                         style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 10px;">
                     <i class="fa-solid fa-pen-to-square"></i>
-                </button>`
-            : '';
+                </button>` : '';
 
-    
+        const documentLinks = (message.document ?? '')
+            .split(',')
+            .filter(doc => doc.trim() !== '')
+            .map(doc => `
+                <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                    <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
+                </p>
+            `).join('');
 
-            const documentLinks = (message.document ?? '')
-                .split(',')
-                .filter(doc => doc.trim() !== '')
-                .map(doc => `
-                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                        <a href="/assets/img/${doc.trim()}" target="_blank">${doc.trim().split('/').pop()}</a>
-                    </p>
-                `).join('');
-
-            htmlToInsert += `
-                <div class="message">
-                    <div class="info">${createdAt}</div>
-                    <div class="user">
-                        ${avatarHtml}
-                        <div style="display: inline-block; vertical-align: middle;">
-                            <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
-                        </div>
+        let html = `
+            <div class="message" id="message-${message.id}">
+                <div class="info">${createdAt}</div>
+                <div class="user">
+                    ${avatarHtml}
+                    <div style="display: inline-block; vertical-align: middle;">
+                        <span class="name">${message.user?.first_name ?? 'Unknown'}</span>
                     </div>
-                    <div class="text">
-                        ${deleteBtn}
-                        ${editBtn}
-                        <p>${message.message}</p>
-                        ${documentLinks}
-                    </div>
-                </div>`;
-        });
+                </div>
+                <div class="text">
+                    ${deleteBtn}
+                    ${editBtn}
+                    <p>${message.message}</p>
+                    ${documentLinks}
+                </div>
+            </div>`;
 
-        if (prepend) {
-            $chatContainer.prepend(htmlToInsert);
+        const existingMessage = $(`#message-${message.id}`);
+        if (existingMessage.length > 0) {
+            existingMessage.replaceWith(html);
         } else {
-            $chatContainer.append(htmlToInsert);
-            $chatContainer.scrollTop($chatContainer.prop("scrollHeight")); // scroll to bottom only on first load
+            // Add date label only if it's a new message (not replacement)
+            if (msgDayLabel !== lastDateLabel) {
+                $chatContainer.append(`
+                    <div class="date-label text-center my-3">
+                        <span style="background: #eee; padding: 4px 12px; border-radius: 20px; color: #555; font-weight: 500;">
+                            ${msgDayLabel}
+                        </span>
+                    </div>`);
+                lastDateLabel = msgDayLabel;
+            }
+
+            if (prepend) {
+                $chatContainer.prepend(html);
+            } else {
+                $chatContainer.append(html);
+            }
         }
+    });
+
+    if (!prepend) {
+        $chatContainer.scrollTop($chatContainer.prop("scrollHeight"));
     }
+}
 
     function getDateLabel(date) {
         const today = new Date();
