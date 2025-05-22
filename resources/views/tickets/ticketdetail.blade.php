@@ -198,6 +198,15 @@
                                   <i class="fa-solid fa-trash"></i>
                               </button>
                               @endif
+                              @if(Auth::user()->id == $data->comment_by)
+                              <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                                      data-comment-id="{{ $data->id }}"
+                                      data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
+                                      title="Edit Comment"
+                                      style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px;">
+                                <i class="fa-solid fa-pen"></i>
+                              </button>
+                            @endif
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
@@ -229,6 +238,7 @@
               @csrf
               <div class="post-item clearfix mb-3 mt-3">
                 <label for="comment" class="col-sm-3 col-form-label">Comment</label>
+                <input type="hidden" name="comment_id" id="comment_id" value="">
                 <div class="col-sm-12">
                     <div id="toolbar-container">
                         <span class="ql-formats">
@@ -275,8 +285,8 @@
                             <button class="ql-clean"></button>
                         </span>
                     </div>
-                    <div id="editor" style="height: 300px;">{!! old('comment') !!}</div>
-                    <input type="hidden" name="comment" id="comment_input">
+                    <div id="editor" style="height: 300px;"></div>
+                    <input type="hidden" name="comment" id="comment_input" value="{{ old('comment') }}">
 
                     @if ($errors->has('comment'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
@@ -297,57 +307,107 @@
               </div>
           </form>
             </div>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-    $('#commentsData').on('submit', function(e) {
-        e.preventDefault();
-        document.getElementById('comment_input').value = quill.root.innerHTML;
-        $('.alert-danger').hide().html('');
+document.addEventListener('DOMContentLoaded', function () {
+  const editor = document.querySelector('#editor');
+  if (!editor) {
+    console.error('Editor element not found!');
+    return;
+  }
 
-        const fileInput = document.getElementById('comment_file');
-        const hasText = quill.getText().trim().length > 0;
-        const hasFile = fileInput.files && fileInput.files.length > 0;
+  const quill = new Quill(editor, {
+    theme: 'snow',
+    modules: {
+      toolbar: '#toolbar-container'
+    }
+  });
 
-        if (hasText || hasFile) {
-            var formData = new FormData(this);
-            $('#loader').show();
-            $.ajax({
-                url: '{{ route('comments.add') }}',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    if (response.status === 200) {
-                        $('#comment').val('');
-                        $('#comment_file').val('');
-                        location.reload();
-                    } else if (response.errors) {
-                        let errorHtml = '<ul>';
-                        response.errors.forEach(function(error) {
-                            errorHtml += '<li>' + error + '</li>';
-                        });
-                        errorHtml += '</ul>';
-                        $('.alert-danger').show().html(errorHtml);
-                    } else {
-                        $('.alert-danger').show().html('Something went wrong.');
-                    }
-                },
-                error: function(xhr) {
-                    $('.alert-danger').show().html('An error occurred while submitting the comment.');
-                },
-                complete: function() {
-                    $('#loader').hide();
-                }
-            });
-        } else {
-            $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
-        }
+  editor.__quillInstance = quill;
+
+  function decodeHTMLEntities(str) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
+  }
+
+  // Edit Comment Click
+  document.querySelectorAll('.edit-comment').forEach(button => {
+    button.addEventListener('click', function () {
+      const commentId = this.getAttribute('data-comment-id');
+      let commentContent = this.getAttribute('data-content') || '';
+      commentContent = decodeHTMLEntities(decodeHTMLEntities(commentContent));
+
+      document.getElementById('comment_input').value = commentContent;
+      const commentIdInput = document.querySelector('#comment_id');
+      if (commentIdInput) commentIdInput.value = commentId;
+
+      if (quill) {
+        quill.root.innerHTML = commentContent;
+      }
+
+      editor.scrollIntoView({ behavior: 'smooth' });
     });
-});
+  });
 
+  // Submit Form
+  $('#commentsData').on('submit', function(e) {
+    e.preventDefault();
+
+    // 👇 Update hidden input with editor HTML
+    const commentHtml = quill.root.innerHTML.trim();
+    const commentText = quill.getText().trim();
+    console.log('Submitting Comment:', commentHtml);
+
+    document.getElementById('comment_input').value = commentHtml;
+    $('.alert-danger').hide().html('');
+
+    const fileInput = document.getElementById('comment_file');
+    const hasText = commentText.length > 0;
+    const hasFile = fileInput.files && fileInput.files.length > 0;
+
+    if (hasText || hasFile) {
+      const formData = new FormData(this);
+      $('#loader').show();
+
+      $.ajax({
+        url: '{{ route('comments.add') }}',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+          if (response.status === 200) {
+            $('#comment').val('');
+            $('#comment_file').val('');
+            location.reload();
+          } else if (response.errors) {
+            let errorHtml = '<ul>';
+            response.errors.forEach(function(error) {
+              errorHtml += '<li>' + error + '</li>';
+            });
+            errorHtml += '</ul>';
+            $('.alert-danger').show().html(errorHtml);
+          } else {
+            $('.alert-danger').show().html('Something went wrong.');
+          }
+        },
+        error: function(xhr) {
+          $('.alert-danger').show().html('An error occurred while submitting the comment.');
+        },
+        complete: function() {
+          $('#loader').hide();
+        }
+      });
+    } else {
+      $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+    }
+  });
+});
+</script>
+<script>
   function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
@@ -381,27 +441,7 @@
     }
 });
 
-</script>
-<script>
-  tinymce.init({
-    selector: '#tinymce_textarea',
-    plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
-    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | link image media | preview fullscreen',
-    menubar: 'file edit view insert format tools table help',
-    height: 300,
-    setup: function (editor) {
-      editor.on('keydown', function (e) {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-          $('#commentsData').submit();
-          e.preventDefault();
-        }
-      });
-    }
-  });
-</script>
 
-
-<script>
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const statusColors = {
