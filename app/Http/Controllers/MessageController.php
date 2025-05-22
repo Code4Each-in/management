@@ -86,27 +86,25 @@ class MessageController extends Controller
 public function addMessage(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240', // 10MB max size
-        'comment' => 'nullable|string|max:255',
+        'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+        'message' => 'nullable|string',
     ], [
-        'comment_file.*.file' => 'The :attribute must be a file.',
-        'comment_file.*.mimes' => 'The :attribute must be a file of an allowed type: images, documents, audio, or video.',
-        'comment_file.*.max' => 'The :attribute may not be greater than 10MB.',
-        'comment.string' => 'The comment must be a valid string.',
-        'comment.max' => 'The comment may not be greater than :max characters.',
+        'comment_file.*.file' => 'Each file must be a valid file.',
+        'comment_file.*.mimes' => 'Each file must be of an allowed type.',
+        'comment_file.*.max' => 'Each file must not be larger than 10MB.',
+        'message.string' => 'The message must be a valid string.'
     ]);
-
 
     $validator->setAttributeNames([
         'comment_file.*' => 'document',
     ]);
 
     if ($validator->fails()) {
-        $errors = $validator->errors();
-        $allErrors = $errors->all();
+        $errors = $validator->errors()->all();
 
-        foreach ($allErrors as $error) {
-            if (Str::contains($error, 'greater than 10MB')) {
+        // Custom 10MB limit message
+        foreach ($errors as $error) {
+            if (Str::contains($error, '10MB')) {
                 return response()->json([
                     'errors' => [
                         'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
@@ -115,74 +113,96 @@ public function addMessage(Request $request)
             }
         }
 
-        return response()->json(['errors' => $allErrors]);
+        return response()->json(['errors' => $errors]);
     }
 
-    $user = Auth::user();
+    // Ensure at least a message or file is submitted
+    if (empty($request->message) && !$request->hasFile('comment_file')) {
+        return response()->json([
+            'errors' => ['Kindly type a message or attach a file before submitting.']
+        ]);
+    }
 
+    $user = auth()->user();
     $projectId = $request->input('project_id');
     $project = Projects::find($projectId);
-    $projectName = $project->project_name;
 
-    if ($user->role_id == 6) {
-        $to_id = 1;
-    }else{
-        $toUser = Users::where('client_id', $project->client_id)->first();
-
-        if (!$toUser) {
-            return response()->json(['errors' => ['User with matching client ID not found.']]);
-        }
-
-        $to_id = $toUser->id;
+    if (!$project) {
+        return response()->json(['errors' => ['Project not found.']]);
     }
 
+    $to_id = $user->role_id == 6
+        ? 1
+        : Users::where('client_id', $project->client_id)->value('id');
 
+    if (!$to_id) {
+        return response()->json(['errors' => ['Recipient user not found for this project.']]);
+    }
+
+    // Handle file uploads
     $documentPaths = [];
-    $messageData = [
-        'message' => $request->input('message'),
-        'project_id' => $request->input('project_id'),
-        'to' => $to_id,
-        'from' => auth()->id(),
-    ];
 
     if ($request->hasFile('comment_file')) {
         foreach ($request->file('comment_file') as $file) {
-            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $dateString = date('YmdHis');
-            $name = $dateString . '_' . $fileName . '.' . $file->extension();
-            $file->move(public_path('assets/img/ticketAssets'), $name);
-            $path = 'ticketAssets/' . $name;
-            $documentPaths[] = $path;
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $fileName = now()->format('YmdHis') . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/img/ticketAssets'), $fileName);
+            $documentPaths[] = 'ticketAssets/' . $fileName;
         }
-        $documentString = implode(',', $documentPaths);
-        $messageData['document'] = $documentString;
     }
 
-    $message = Message::create($messageData);
-    $message = Message::with('user')->find($message->id);
-    $user = auth()->user();
-    $name = $user->first_name;
+    // 🔄 Update existing message
+    if ($request->filled('comment_id')) {
+        
+        $existingMessage = Message::find($request->comment_id);
 
-    if ($message) {
-        try {
-            // $rawMessage = $request->input('message');
-            // $cleanMessage = strip_tags(html_entity_decode($rawMessage));
-            $messages["greeting-text"] = "Hello!";
-            $messages["subject"] = "New Message received from - {$name}";
-            $messages["title"] = "You've received a new message from <strong>{$name}</strong>.";
-            $messages["body-text"] = " {$projectName}";
-            $messages["url-title"] = "View Message";
-            $messages["url"] = "/messages?project_id={$projectId}";
-
-            $assignedUser = Users::find($to_id);
-            if ($assignedUser) {
-                $assignedUser->notify(new MessageNotification($messages));
+        if ($existingMessage) {
+            
+            $existingMessage->message = $request->input('message');
+            // dd($existingMessage->message);
+            if (!empty($documentPaths)) {
+                $existingMessage->document = implode(',', $documentPaths);
             }
-        } catch (\Exception $e) {
-            \Log::error("Error sending notification for feedback: " . $e->getMessage());
+            $existingMessage->save();
+
+            //dd($existingMessage);
+
+            return response()->json([
+                'status' => 200,
+                'message' => $existingMessage->load('user'),
+                'is_updated' => true,
+                'Commentmessage' => 'Message updated successfully.'
+            ]);
         }
     }
 
+    // 🆕 Create new message
+    $message = Message::create([
+        'message'     => $request->input('message'),
+        'project_id'  => $projectId,
+        'to'          => $to_id,
+        'from'        => $user->id,
+        'document'    => !empty($documentPaths) ? implode(',', $documentPaths) : null,
+    ])->load('user');
+
+    // 🔔 Send notification
+    try {
+        $notificationData = [
+            "greeting-text" => "Hello!",
+            "subject"       => "New Message received from - {$user->first_name}",
+            "title"         => "You've received a new message from <strong>{$user->first_name}</strong>.",
+            "body-text"     => $project->project_name,
+            "url-title"     => "View Message",
+            "url"           => "/messages?project_id={$projectId}",
+        ];
+
+        $recipient = Users::find($to_id);
+        if ($recipient) {
+            $recipient->notify(new MessageNotification($notificationData));
+        }
+    } catch (\Exception $e) {
+        \Log::error("Notification error: " . $e->getMessage());
+    }
 
     return response()->json([
         'status' => 200,
@@ -190,6 +210,8 @@ public function addMessage(Request $request)
         'Commentmessage' => 'Message added successfully.'
     ]);
 }
+
+
     public function destroy($id)
     {
         $comment = Message::findOrFail($id);
