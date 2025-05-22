@@ -194,7 +194,7 @@
                             </div>
                             <div class="text">
                               @if(Auth::user()->id == $data->comment_by)
-                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 15px;">
+                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 8px;">
                                   <i class="fa-solid fa-trash"></i>
                               </button>
                               @endif
@@ -204,7 +204,7 @@
                                       data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
                                       title="Edit Comment"
                                       style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px;">
-                                <i class="fa-solid fa-pen"></i>
+                                <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
                                 {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
