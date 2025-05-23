@@ -82,11 +82,22 @@ public function view($id)
     $success = $tasks->where('status', 'success')->count();
 
     $total = $tasks->count();
+    $creatorIds = Task::whereNotNull('created_by')
+        ->distinct()
+        ->pluck('created_by');
 
+    $user = Users::whereIn('id', $creatorIds)->get();
+   $tasksJson = $tasks->map(function ($task) {
+        return [
+            'status' => $task->status,
+            'created_by' => $task->created_by,
+            'created_at' => $task->created_at->toDateString(),
+        ];
+    });
     return view('bde.bid-sprint-view', compact(
         'tasks', 'bdeSprints', 'bdeSprint',
         'applied', 'viewed', 'replied', 'success',
-        'total'
+        'total','user','tasksJson'
     ));
 }
 
