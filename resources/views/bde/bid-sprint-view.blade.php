@@ -8,6 +8,32 @@
     <button class="btn btn-primary" onclick="addtask()">Add Record</button>
      <a href="{{ url('bid-sprints') }}" class="btn btn-primary">Back to Sprint</a>
   </div>
+
+  <div class="row mt-3">
+    <div class="col-md-3 form-group">
+        <label for="dateFilterSelectBox">Filter By Date</label>
+        <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="filterTasksByDateAndCreator()">
+            <option value="" selected>Select Date Range</option>
+            <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
+            <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
+            <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
+        </select>
+        @if ($errors->has('date_filter'))
+            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
+        @endif
+    </div>
+
+    <div class="col-md-3 form-group">
+    <label for="createdByFilterSelectBox">Created By</label>
+<select class="form-control" id="createdByFilterSelectBox" name="created_by_filter" onchange="filterTasksByDateAndCreator()">
+        <option value="" selected>Select User</option>
+        @foreach ($user as $u)
+            <option value="{{ $u->id }}">{{ $u->first_name . ' ' . $u->last_name }}</option>
+        @endforeach
+    </select>
+</div>
+
+</div>
 </div>
 <div class="accordion mt-4 mb-3" id="sprintAccordion">
     <div class="accordion-item">
@@ -24,35 +50,26 @@
                             <i class="bi bi-arrow-clockwise"></i>
                         </button>                        
                     </div>
+                  <div class="col-md-8">
+                            <div class="text-center">
+                                <div id="pieChart" style="min-height: 300px;"></div>
 
-                    @php
-                        $total = $total > 0 ? $total : 1; 
-                        $appliedPercent = round(($applied / $total) * 100, 1);
-                        $viewedPercent  = round(($viewed / $total) * 100, 1);
-                        $repliedPercent = round(($replied / $total) * 100, 1);
-                        $successPercent = round(($success / $total) * 100, 1);
-                    @endphp
-
-                    <div class="col-md-8">
-                        <div class="text-center">
-                            <div id="pieChart" style="min-height: 300px;"></div>
-                            <div class="row mt-3 justify-content-center gap-2">
-                                <div class="col-auto">
-                                    <span class="badge bg-info text-white">Applied: {{ $applied }}</span>
-                                </div>
-                                <div class="col-auto">
-                                    <span class="badge bg-primary text-white">Viewed: {{ $viewed }}</span>
-                                </div>
-                                <div class="col-auto">
-                                    <span class="badge bg-warning text-dark">Replied: {{ $replied }}</span>
-                                </div>
-                                <div class="col-auto">
-                                    <span class="badge bg-success text-white">Success: {{ $success }}</span>
+                                <div class="row mt-3 justify-content-center gap-2" id="statusCounts">
+                                    <div class="col-auto">
+                                        <span class="badge bg-info text-white" id="appliedCount">Applied: {{ $applied }}</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-primary text-white" id="viewedCount">Viewed: {{ $viewed }}</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-warning text-dark" id="repliedCount">Replied: {{ $replied }}</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-success text-white" id="successCount">Success: {{ $success }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
                     <div class="col-md-4">
                         <div class="row mb-2">
                             <label class="col-sm-4 fw-bold">Sprint Name</label>
@@ -124,7 +141,7 @@
             $minRows = 5;
         @endphp
         @foreach ($tasks as $index => $task)
-            <tr onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
+            <tr  data-created-at="{{ $task->created_at->format('Y-m-d') }}" data-created-by="{{ $task->created_by ? $task->created_by : '' }}" onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $task->job_title }}</td>
                 <td class="actions-cell">
@@ -246,6 +263,27 @@
 </div>
 @endsection
 @section('js_scripts')
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+let sprintTable;
+function filterTasksByDateAndCreator() {
+    sprintTable.draw();
+}
+function isSameDay(date1, date2) {
+    return date1.toDateString() === date2.toDateString();
+}
+function isSameWeek(date1, date2) {
+    const startOfWeek = new Date(date2);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    return date1 >= startOfWeek && date1 <= endOfWeek;
+}
+function isSameMonth(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
+}
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const addTaskModal = document.getElementById('addTaskModal');
@@ -262,6 +300,31 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#taskModal input[name="bdesprint_id"]').val(sprintId); 
         $('#taskModal').modal('show');
     }
+</script>
+<script>
+const chart = echarts.init(document.getElementById('pieChart'));
+
+function updateChartAndBadges(data) {
+    const total = data.total > 0 ? data.total : 1;
+
+    // Update chart
+    chart.setOption({
+        series: [{
+            data: [
+                { value: data.applied, name: 'Applied' },
+                { value: data.viewed, name: 'Viewed' },
+                { value: data.replied, name: 'Replied' },
+                { value: data.success, name: 'Success' }
+            ]
+        }]
+    });
+
+    // Update badges
+    document.getElementById('appliedCount').innerText = `Applied: ${data.applied}`;
+    document.getElementById('viewedCount').innerText = `Viewed: ${data.viewed}`;
+    document.getElementById('repliedCount').innerText = `Replied: ${data.replied}`;
+    document.getElementById('successCount').innerText = `Success: ${data.success}`;
+}
 </script>
 <script>
 function addtask() {
@@ -352,50 +415,134 @@ $('#addTaskForm').submit(function(e) {
     });
 </script>
 <script>
+    const tasksData = @json($tasksJson);
+</script>
+<script>
     document.addEventListener('DOMContentLoaded', function () {
-        var chart = echarts.init(document.getElementById('pieChart'));
+        const chart = echarts.init(document.getElementById('pieChart'));
 
-        var option = {
-            tooltip: {
-                trigger: 'item'
-            },
-            legend: {
-                top: 'bottom'
-            },
-            series: [
-                {
-                    name: 'Status',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        show: true,
-                        position: 'outside'
-                    },
-                    labelLine: {
-                        show: true
-                    },
-                    data: [
-                        { value: {{ $applied ?? 0 }}, name: 'Applied', itemStyle: { color: '#0dcaf0' } },   // bg-info
-                        { value: {{ $viewed ?? 0 }}, name: 'Viewed', itemStyle: { color: '#0d6efd' } },    // bg-primary
-                        { value: {{ $replied ?? 0 }}, name: 'Replied', itemStyle: { color: '#ffc107' } },  // bg-warning
-                        { value: {{ $success ?? 0 }}, name: 'Success', itemStyle: { color: '#198754' } }   // bg-success
-                    ]
+        const getFilteredTasks = () => {
+            const creatorId = document.getElementById('createdByFilterSelectBox').value;
+            const dateFilter = document.getElementById('dateFilterSelectBox').value;
+            const today = new Date();
+
+            return tasksData.filter(task => {
+                const createdDate = new Date(task.created_at);
+                let matchDate = true;
+
+                if (dateFilter === 'today') {
+                    matchDate = createdDate.toDateString() === today.toDateString();
+                } else if (dateFilter === 'this_week') {
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    matchDate = createdDate >= startOfWeek && createdDate <= endOfWeek;
+                } else if (dateFilter === 'this_month') {
+                    matchDate = createdDate.getFullYear() === today.getFullYear() &&
+                                createdDate.getMonth() === today.getMonth();
                 }
-            ]
+
+                const matchCreator = !creatorId || task.created_by == creatorId;
+
+                return matchDate && matchCreator;
+            });
         };
 
-        chart.setOption(option);
+        const updateStatusCounts = (counts) => {
+        document.getElementById('appliedCount').innerText = `Applied: ${counts.applied}`;
+        document.getElementById('viewedCount').innerText = `Viewed: ${counts.viewed}`;
+        document.getElementById('repliedCount').innerText = `Replied: ${counts.replied}`;
+        document.getElementById('successCount').innerText = `Success: ${counts.success}`;
+    };
+
+const updateChart = () => {
+    const filtered = getFilteredTasks();
+
+    const counts = {
+        applied: 0,
+        viewed: 0,
+        replied: 0,
+        success: 0
+    };
+
+    filtered.forEach(task => {
+        if (counts[task.status] !== undefined) {
+            counts[task.status]++;
+        }
+    });
+
+    const option = {
+        title: {
+            text: 'Task Status Overview',
+            left: 'center'
+        },
+        tooltip: { trigger: 'item' },
+        legend: { bottom: '0%', left: 'center' },
+        series: [{
+            name: 'Tasks',
+            type: 'pie',
+            radius: '50%',
+            data: [
+                { value: counts.applied, name: 'Applied', itemStyle: { color: '#0dcaf0' } },
+                { value: counts.viewed, name: 'Viewed', itemStyle: { color: '#0d6efd' } },
+                { value: counts.replied, name: 'Replied', itemStyle: { color: '#ffc107' } },
+                { value: counts.success, name: 'Success', itemStyle: { color: '#198754' } }
+            ]
+        }]
+    };
+
+    chart.setOption(option);
+    updateStatusCounts(counts);
+};
+
+updateChart();
+
+document.getElementById('createdByFilterSelectBox').addEventListener('change', updateChart);
+document.getElementById('dateFilterSelectBox').addEventListener('change', updateChart);
     });
 </script>
 <script>
     $(document).ready(function() {
-        $('.styled-sprint-table').DataTable({
+        sprintTable = $('.styled-sprint-table').DataTable({
             paging: true,
             searching: true,
             ordering: true,
             info: true
         });
+
+$.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex) {
+        const creatorFilter = document.getElementById('createdByFilterSelectBox').value;
+        const dateFilter = document.getElementById('dateFilterSelectBox').value;
+
+        const row = sprintTable.row(dataIndex).node();
+        const rowCreatorId = row.getAttribute('data-created-by');
+        const createdAt = row.getAttribute('data-created-at');
+        if (!createdAt) return true;
+
+        const createdDate = new Date(createdAt);
+        const today = new Date();
+
+        let showByDate = true;
+        if (dateFilter === 'today') {
+            showByDate = isSameDay(createdDate, today);
+        } else if (dateFilter === 'this_week') {
+            showByDate = isSameWeek(createdDate, today);
+        } else if (dateFilter === 'this_month') {
+            showByDate = isSameMonth(createdDate, today);
+        }
+
+        const showByCreator = !creatorFilter || rowCreatorId === creatorFilter;
+
+        return showByDate && showByCreator;
+    }
+);
+
+$('#createdByFilterSelectBox, #dateFilterSelectBox').on('change', function () {
+    sprintTable.draw();
+});
+
     });
     document.querySelectorAll('.status-options a').forEach(function(item) {
     item.addEventListener('click', function(e) {
@@ -426,6 +573,5 @@ $('#addTaskForm').submit(function(e) {
     });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 @endsection
 
