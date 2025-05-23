@@ -11,20 +11,31 @@
 
   <div class="row mt-3">
     <div class="col-md-3 form-group">
-        <label for="dateFilterSelectBox">Filter By Date</label>
-        <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="filterTasksByDateAndCreator()">
-            <option value="" selected>Select Date Range</option>
-            <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
-            <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
-            <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
-        </select>
-        @if ($errors->has('date_filter'))
-            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
-        @endif
-    </div>
+    <label for="dateFilterSelectBox"><strong>Filter By Date</strong></label>
+    <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="filterTasksByDateAndCreator()">
+        <option value="" selected>Select Date Range</option>
+        <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
+        <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
+        <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
+        <option value="custom" {{ request()->input('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+    </select>
+    @if ($errors->has('date_filter'))
+        <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
+    @endif
+</div>
+
+<!-- Custom Date Range Fields -->
+<div class="col-md-3 form-group" id="customDateRange" style="display: none;">
+    <label><strong>Start Date</strong></label>
+    <input type="date" class="form-control" name="start_date" id="startDate" value="{{ request()->input('start_date') }}">
+
+    <label class="mt-2"><strong>End Date</strong></label>
+    <input type="date" class="form-control" name="end_date" id="endDate" value="{{ request()->input('end_date') }}">
+    <button class="btn btn-primary mt-3" id="applyFilterBtn">Apply Filter</button>
+</div>
 
     <div class="col-md-3 form-group">
-    <label for="createdByFilterSelectBox">Created By</label>
+    <label for="createdByFilterSelectBox"><strong>Created By</strong></label>
 <select class="form-control" id="createdByFilterSelectBox" name="created_by_filter" onchange="filterTasksByDateAndCreator()">
         <option value="" selected>Select User</option>
         @foreach ($user as $u)
@@ -572,6 +583,75 @@ $('#createdByFilterSelectBox, #dateFilterSelectBox').on('change', function () {
         .catch(err => console.error(err));
     });
 });
+</script>
+<script>
+  function filterTasksByDateAndCreator() {
+    const dateFilterSelectBox = document.getElementById('dateFilterSelectBox');
+    const customDateDiv = document.getElementById('customDateRange');
+    if (dateFilterSelectBox.value === 'custom') {
+      customDateDiv.style.display = 'block';
+    } else {
+      customDateDiv.style.display = 'none';
+    }
+  }
+
+ document.addEventListener('DOMContentLoaded', function () {
+  const filterBtn = document.getElementById('applyFilterBtn');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+
+  filterBtn.addEventListener('click', function () {
+  const startDate = startDateInput?.value;
+  const endDate = endDateInput?.value;
+
+  if (!startDate || !endDate) {
+    // Show all rows if dates are not selected
+    document.querySelectorAll('.sprint-table tbody tr').forEach(row => {
+      row.style.display = '';
+    });
+  } else {
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T23:59:59`);
+
+    document.querySelectorAll('.sprint-table tbody tr').forEach(row => {
+      const createdAtStr = row.getAttribute('data-created-at');
+      const createdAt = new Date(`${createdAtStr}T00:00:00`);
+
+      if (createdAt >= start && createdAt <= end) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  const counts = getStatusCountsForVisibleRows();
+  updateChartAndBadges(counts);
+});
+});
+function getStatusCountsForVisibleRows() {
+  const rows = document.querySelectorAll('.sprint-table tbody tr');
+  const counts = {
+    applied: 0,
+    viewed: 0,
+    replied: 0,
+    success: 0,
+    total: 0,
+  };
+
+  rows.forEach(row => {
+    if (row.style.display !== 'none') {
+      const statusText = row.querySelector('.badge').textContent.trim().toLowerCase();
+      if (counts[statusText] !== undefined) {
+        counts[statusText]++;
+      }
+      counts.total++;
+    }
+  });
+
+  return counts;
+}
+
 </script>
 @endsection
 
