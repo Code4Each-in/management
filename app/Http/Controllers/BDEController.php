@@ -68,53 +68,60 @@ public function destroy($id)
     return response()->json(['message' => 'Bid Sprint deleted successfully.']);
 }
 
-public function view(Request $request,$id)
+public function view(Request $request, $id)
 {
-   
-    $tasks = Task::with('creator')->where('bdesprint_id', $id)->get();
-
     $bdeSprints = BidSprint::all();
     $bdeSprint = BidSprint::findOrFail($id);
 
+    // Build base query
+    $tasksQuery = Task::with('creator')->where('bdesprint_id', $id);
+
+    // Filter by date
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $tasksQuery->whereBetween('created_at', [
+            $request->input('start_date') . ' 00:00:00',
+            $request->input('end_date') . ' 23:59:59',
+        ]);
+    }
+
+    // Filter by creator
+    if ($request->filled('created_by_filter')) {
+        $tasksQuery->where('created_by', $request->input('created_by_filter'));
+    }
+
+    // Get filtered tasks
+    $tasks = $tasksQuery->get();
+
+    // Stats from filtered tasks
     $applied = $tasks->where('status', 'applied')->count();
     $viewed = $tasks->where('status', 'viewed')->count();
     $replied = $tasks->where('status', 'replied')->count();
     $success = $tasks->where('status', 'success')->count();
-
     $total = $tasks->count();
+
+    // Distinct creators for filter dropdown
     $creatorIds = Task::whereNotNull('created_by')
         ->distinct()
         ->pluck('created_by');
 
     $user = Users::whereIn('id', $creatorIds)->get();
-    // Get inputs for date filtering
-    $startDate = $request->input('start_date');
-    $endDate = $request->input('end_date');
 
-    $tasksQuery = Task::where('bdesprint_id', $id);
-
-    if ($startDate && $endDate) {
-        $tasksQuery->whereBetween('created_at', [
-            $startDate . ' 00:00:00',
-            $endDate . ' 23:59:59',
-        ]);
-    }
-
-    $taskss = $tasksQuery->get();
-
-   $tasksJson = $tasks->map(function ($task) {
+    // JSON for chart or frontend usage
+    $tasksJson = $tasks->map(function ($task) {
         return [
             'status' => $task->status,
             'created_by' => $task->created_by,
             'created_at' => $task->created_at->toDateString(),
         ];
     });
+
     return view('bde.bid-sprint-view', compact(
         'tasks', 'bdeSprints', 'bdeSprint',
         'applied', 'viewed', 'replied', 'success',
-        'total','user','tasksJson','taskss'
+        'total', 'user', 'tasksJson'
     ));
 }
+
 
 public function storeTask(Request $request)
 {
