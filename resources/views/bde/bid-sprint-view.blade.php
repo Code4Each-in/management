@@ -9,42 +9,52 @@
      <a href="{{ url('bid-sprints') }}" class="btn btn-primary">Back to Sprint</a>
   </div>
 
-  <div class="row mt-3">
+ <div class="row align-items-end mt-3">
+    {{-- Filter By Date --}}
     <div class="col-md-3 form-group">
-    <label for="dateFilterSelectBox"><strong>Filter By Date</strong></label>
-    <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="filterTasksByDateAndCreator()">
-        <option value="" selected>Select Date Range</option>
-        <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
-        <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
-        <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
-        <option value="custom" {{ request()->input('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
-    </select>
-    @if ($errors->has('date_filter'))
-        <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
-    @endif
-</div>
+        <label for="dateFilterSelectBox"><strong>Filter By Date</strong></label>
+        <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="toggleCustomDateRange(); filterTasksByDateAndCreator();">
+            <option value="" selected>Select Date Range</option>
+            <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
+            <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
+            <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
+            <option value="custom" {{ request()->input('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+        </select>
+        @if ($errors->has('date_filter'))
+            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
+        @endif
+    </div>
 
-<!-- Custom Date Range Fields -->
-<div class="col-md-3 form-group" id="customDateRange" style="display: none;">
-    <label><strong>Start Date</strong></label>
-    <input type="date" class="form-control" name="start_date" id="startDate" value="{{ request()->input('start_date') }}">
-
-    <label class="mt-2"><strong>End Date</strong></label>
-    <input type="date" class="form-control" name="end_date" id="endDate" value="{{ request()->input('end_date') }}">
-    <button class="btn btn-primary mt-3" id="applyFilterBtn">Apply Filter</button>
-</div>
-
+    {{-- Created By --}}
     <div class="col-md-3 form-group">
-    <label for="createdByFilterSelectBox"><strong>Created By</strong></label>
-<select class="form-control" id="createdByFilterSelectBox" name="created_by_filter" onchange="filterTasksByDateAndCreator()">
-        <option value="" selected>Select User</option>
-        @foreach ($user as $u)
-            <option value="{{ $u->id }}">{{ $u->first_name . ' ' . $u->last_name }}</option>
-        @endforeach
-    </select>
+        <label for="createdByFilterSelectBox"><strong>Created By</strong></label>
+        <select class="form-control" id="createdByFilterSelectBox" name="created_by_filter" onchange="filterTasksByDateAndCreator()">
+            <option value="" selected>Select User</option>
+            @foreach ($user as $u)
+                <option value="{{ $u->id }}" {{ request()->input('created_by_filter') == $u->id ? 'selected' : '' }}>
+                    {{ $u->first_name . ' ' . $u->last_name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 </div>
 
-</div>
+{{-- Custom Date Range Section (separate form) --}}
+<form method="GET" action="{{ url()->current() }}">
+    <div class="row align-items-end mt-2" id="customDateRange" style="display: none;">
+        <div class="col-md-3">
+            <label for="startDate"><strong>Start Date</strong></label>
+            <input type="date" class="form-control" name="start_date" id="startDate" value="{{ request()->input('start_date') }}">
+        </div>
+        <div class="col-md-3">
+            <label for="endDate"><strong>End Date</strong></label>
+            <input type="date" class="form-control" name="end_date" id="endDate" value="{{ request()->input('end_date') }}">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+        </div>
+    </div>
+</form>
 </div>
 <div class="accordion mt-4 mb-3" id="sprintAccordion">
     <div class="accordion-item">
@@ -133,7 +143,7 @@
 </div>
 <div class="card">
     <div class="card-body pb-4">
-      <table class="styled-sprint-table sprint-table custom">
+    <table class="styled-sprint-table sprint-table custom">
     <thead>
         <tr style="color: #297bab;">
             <th>S.No</th>
@@ -148,66 +158,73 @@
     </thead>
     <tbody>
         @php
-            $rowsCount = $tasks->count();
-            $minRows = 5;
+            $rowsCount = $taskss->count();
         @endphp
-        @foreach ($tasks as $index => $task)
-            <tr  data-created-at="{{ $task->created_at->format('Y-m-d') }}" data-created-by="{{ $task->created_by ? $task->created_by : '' }}" onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }" style="cursor: pointer;">
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $task->job_title }}</td>
-                <td class="actions-cell">
-                    @if($task->job_link)
-                        <a href="{{ $task->job_link }}" target="_blank" rel="noopener noreferrer">Link</a>
-                    @else
-                        ---
-                    @endif
-                </td>
-                <td>{{ $task->source ?? '---' }}</td>
-                <td>{{ $task->profile ?? '---' }}</td>
-                <td>{{ $task->creator ? $task->creator->first_name . ' ' . $task->creator->last_name : 'N/A' }}</td>
-               <td class="actions-cell"> 
-                @php
-                    $statusClasses = [
-                        'applied' => 'bg-primary',
-                        'viewed' => 'bg-info',
-                        'replied' => 'bg-warning',
-                        'success' => 'bg-success',
-                    ];
-                    $badgeClass = $statusClasses[$task->status] ?? 'bg-secondary';
-                @endphp
 
-                <div class="dropdown">
-                    <span class="badge rounded-pill dropdown-toggle {{ $badgeClass }}"
-                        data-bs-toggle="dropdown"
-                        role="button"
-                        aria-expanded="false"
-                        style="cursor: pointer;">
-                        {{ ucfirst($task->status) }}
-                    </span>
-                    <ul class="dropdown-menu status-options" data-task-id="{{ $task->id }}">
-                        @foreach(['applied', 'viewed', 'replied', 'success'] as $status)
-                            <li>
-                                <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                                    {{ ucfirst($status) }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </td>
-                <td class="actions-cell">
-                    <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
-                        <i class="fa fa-eye fa-fw pointer" style="color:#4154f1;"></i>
-                    </a>
-                    <a href="{{ route('tasks.edit', $task->id) }}" title="Edit">
-                        <i class="fa fa-edit fa-fw pointer"></i>
-                    </a>
-                    <a href="#" onclick="deleteTask({{ $task->id }})" title="Delete">
-                        <i class="fa fa-trash fa-fw pointer" style="color:#4154f1;"></i>
-                    </a>
-                </td>
-            </tr>
-        @endforeach
+        @if ($rowsCount > 0)
+            @foreach ($taskss as $index => $task)
+                <tr 
+                    data-created-at="{{ $task->created_at->format('Y-m-d') }}"
+                    data-created-by="{{ $task->created_by ?? '' }}"
+                    onclick="if (!event.target.closest('.actions-cell') && !event.target.closest('.status-group')) { window.open('{{ url('/view/task/'.$task->id) }}', '_blank'); }"
+                    style="cursor: pointer;"
+                >
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $task->job_title }}</td>
+                    <td class="actions-cell">
+                        @if ($task->job_link)
+                            <a href="{{ $task->job_link }}" target="_blank" rel="noopener noreferrer">Link</a>
+                        @else
+                            ---
+                        @endif
+                    </td>
+                    <td>{{ $task->source ?? '---' }}</td>
+                    <td>{{ $task->profile ?? '---' }}</td>
+                    <td>{{ $task->creator ? $task->creator->first_name . ' ' . $task->creator->last_name : 'N/A' }}</td>
+                    <td class="actions-cell">
+                        @php
+                            $statusClasses = [
+                                'applied' => 'bg-primary',
+                                'viewed' => 'bg-info',
+                                'replied' => 'bg-warning',
+                                'success' => 'bg-success',
+                            ];
+                            $badgeClass = $statusClasses[$task->status] ?? 'bg-secondary';
+                        @endphp
+
+                        <div class="dropdown status-group">
+                            <span class="badge rounded-pill dropdown-toggle {{ $badgeClass }}"
+                                  data-bs-toggle="dropdown"
+                                  role="button"
+                                  aria-expanded="false"
+                                  style="cursor: pointer;">
+                                {{ ucfirst($task->status) }}
+                            </span>
+                            <ul class="dropdown-menu status-options" data-task-id="{{ $task->id }}">
+                                @foreach (['applied', 'viewed', 'replied', 'success'] as $status)
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                            {{ ucfirst($status) }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </td>
+                    <td class="actions-cell">
+                        <a href="{{ route('tasks.show', $task->id) }}" title="View Task">
+                            <i class="fa fa-eye fa-fw pointer" style="color:#4154f1;"></i>
+                        </a>
+                        <a href="{{ route('tasks.edit', $task->id) }}" title="Edit">
+                            <i class="fa fa-edit fa-fw pointer"></i>
+                        </a>
+                        <a href="#" onclick="deleteTask({{ $task->id }})" title="Delete">
+                            <i class="fa fa-trash fa-fw pointer" style="color:#4154f1;"></i>
+                        </a>
+                    </td>
+                </tr>
+            @endforeach
+        @endif
     </tbody>
 </table>
     </div>
@@ -585,50 +602,15 @@ $('#createdByFilterSelectBox, #dateFilterSelectBox').on('change', function () {
 });
 </script>
 <script>
-  function filterTasksByDateAndCreator() {
-    const dateFilterSelectBox = document.getElementById('dateFilterSelectBox');
-    const customDateDiv = document.getElementById('customDateRange');
-    if (dateFilterSelectBox.value === 'custom') {
-      customDateDiv.style.display = 'block';
-    } else {
-      customDateDiv.style.display = 'none';
+    function toggleCustomDateRange() {
+        const selected = document.getElementById('dateFilterSelectBox').value;
+        const show = selected === 'custom';
+
+        document.getElementById('customDateRange').style.display = show ? 'flex' : 'none';
     }
-  }
 
- document.addEventListener('DOMContentLoaded', function () {
-  const filterBtn = document.getElementById('applyFilterBtn');
-  const startDateInput = document.getElementById('startDate');
-  const endDateInput = document.getElementById('endDate');
+    document.addEventListener('DOMContentLoaded', toggleCustomDateRange);
 
-  filterBtn.addEventListener('click', function () {
-  const startDate = startDateInput?.value;
-  const endDate = endDateInput?.value;
-
-  if (!startDate || !endDate) {
-    // Show all rows if dates are not selected
-    document.querySelectorAll('.sprint-table tbody tr').forEach(row => {
-      row.style.display = '';
-    });
-  } else {
-    const start = new Date(`${startDate}T00:00:00`);
-    const end = new Date(`${endDate}T23:59:59`);
-
-    document.querySelectorAll('.sprint-table tbody tr').forEach(row => {
-      const createdAtStr = row.getAttribute('data-created-at');
-      const createdAt = new Date(`${createdAtStr}T00:00:00`);
-
-      if (createdAt >= start && createdAt <= end) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  }
-
-  const counts = getStatusCountsForVisibleRows();
-  updateChartAndBadges(counts);
-});
-});
 function getStatusCountsForVisibleRows() {
   const rows = document.querySelectorAll('.sprint-table tbody tr');
   const counts = {
