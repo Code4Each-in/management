@@ -3,59 +3,59 @@
 @section('subtitle', 'Show')
 @section('content')
 
-<div class="row row-design mb-4 mt-2">
-  <div class="col-md-4 d-flex justify-content-start gap-3">
-    <button class="btn btn-primary" onclick="addtask()">Add Record</button>
-     <a href="{{ url('bid-sprints') }}" class="btn btn-primary">Back to Sprint</a>
-  </div>
-
- <div class="row align-items-end mt-3">
-    {{-- Filter By Date --}}
-    <div class="col-md-3 form-group">
-        <label for="dateFilterSelectBox"><strong>Filter By Date</strong></label>
-        <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="toggleCustomDateRange(); filterTasksByDateAndCreator();">
-            <option value="" selected>Select Date Range</option>
-            <option value="today" {{ request()->input('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
-            <option value="this_week" {{ request()->input('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
-            <option value="this_month" {{ request()->input('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
-            <option value="custom" {{ request()->input('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
-        </select>
-        @if ($errors->has('date_filter'))
-            <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
-        @endif
-    </div>
-
-    {{-- Created By --}}
-    <div class="col-md-3 form-group">
-        <label for="createdByFilterSelectBox"><strong>Created By</strong></label>
-        <select class="form-control" id="createdByFilterSelectBox" name="created_by_filter" onchange="filterTasksByDateAndCreator()">
-            <option value="" selected>Select User</option>
-            @foreach ($user as $u)
-                <option value="{{ $u->id }}" {{ request()->input('created_by_filter') == $u->id ? 'selected' : '' }}>
-                    {{ $u->first_name . ' ' . $u->last_name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-</div>
-
-{{-- Custom Date Range Section (separate form) --}}
 <form method="GET" action="{{ url()->current() }}">
-    <div class="row align-items-end mt-2" id="customDateRange" style="display: none;">
-        <div class="col-md-3">
-            <label for="startDate"><strong>Start Date</strong></label>
-            <input type="date" class="form-control" name="start_date" id="startDate" value="{{ request()->input('start_date') }}">
+    <div class="row row-design mb-4 mt-2">
+        <div class="col-md-4 d-flex justify-content-start gap-3">
+            <button class="btn btn-primary" type="button" onclick="addtask()">Add Record</button>
+            <a href="{{ url('bid-sprints') }}" class="btn btn-primary">Back to Sprint</a>
         </div>
-        <div class="col-md-3">
-            <label for="endDate"><strong>End Date</strong></label>
-            <input type="date" class="form-control" name="end_date" id="endDate" value="{{ request()->input('end_date') }}">
+
+        <div class="row align-items-end mt-3">
+            {{-- Filter By Date --}}
+            <div class="col-md-3 form-group">
+                <label for="dateFilterSelectBox"><strong>Filter By Date</strong></label>
+                <select class="form-control" id="dateFilterSelectBox" name="date_filter" onchange="toggleCustomDateRange()">
+                    <option value="" selected>Select Date Range</option>
+                    <option value="today" {{ request('date_filter') == 'today' ? 'selected' : '' }}>Today</option>
+                    <option value="this_week" {{ request('date_filter') == 'this_week' ? 'selected' : '' }}>This Week</option>
+                    <option value="this_month" {{ request('date_filter') == 'this_month' ? 'selected' : '' }}>This Month</option>
+                    <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                </select>
+                @if ($errors->has('date_filter'))
+                    <span style="font-size: 10px;" class="text-danger">{{ $errors->first('date_filter') }}</span>
+                @endif
+            </div>
+
+            {{-- Created By --}}
+            <div class="col-md-3 form-group">
+                <label for="createdByFilterSelectBox"><strong>Created By</strong></label>
+                <select class="form-control" id="createdByFilterSelectBox" name="created_by_filter">
+                    <option value="" selected>Select User</option>
+                    @foreach ($user as $u)
+                        <option value="{{ $u->id }}" {{ request('created_by_filter') == $u->id ? 'selected' : '' }}>
+                            {{ $u->first_name . ' ' . $u->last_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+
+        {{-- Custom Date Range Section --}}
+        <div class="row align-items-end mt-2" id="customDateRange" style="display: none;">
+            <div class="col-md-3">
+                <label for="startDate"><strong>Start Date</strong></label>
+                <input type="date" class="form-control" name="start_date" id="startDate" value="{{ request('start_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate"><strong>End Date</strong></label>
+                <input type="date" class="form-control" name="end_date" id="endDate" value="{{ request('end_date') }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+            </div>
         </div>
     </div>
 </form>
-</div>
 <div class="accordion mt-4 mb-3" id="sprintAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingInfo">
@@ -159,11 +159,11 @@
     </thead>
     <tbody>
         @php
-            $rowsCount = $taskss->count();
+            $rowsCount = $tasks->count();
         @endphp
 
         @if ($rowsCount > 0)
-            @foreach ($taskss as $index => $task)
+            @foreach ($tasks as $index => $task)
                 <tr 
                     data-created-at="{{ $task->created_at->format('Y-m-d') }}"
                     data-created-by="{{ $task->created_by ?? '' }}"
@@ -605,13 +605,18 @@ $('#createdByFilterSelectBox, #dateFilterSelectBox').on('change', function () {
 </script>
 <script>
     function toggleCustomDateRange() {
-        const selected = document.getElementById('dateFilterSelectBox').value;
-        const show = selected === 'custom';
-
-        document.getElementById('customDateRange').style.display = show ? 'flex' : 'none';
+        const filter = document.getElementById('dateFilterSelectBox').value;
+        const customRange = document.getElementById('customDateRange');
+        if (filter === 'custom') {
+            customRange.style.display = 'flex';
+        } else {
+            customRange.style.display = 'none';
+        }
     }
 
-    document.addEventListener('DOMContentLoaded', toggleCustomDateRange);
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleCustomDateRange();
+    });
 
 function getStatusCountsForVisibleRows() {
   const rows = document.querySelectorAll('.sprint-table tbody tr');
