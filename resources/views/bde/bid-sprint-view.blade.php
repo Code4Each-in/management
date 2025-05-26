@@ -152,6 +152,7 @@
             <th>Source</th>
             <th>Profile</th>
             <th>Created By</th>
+            <th>Created At</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -181,6 +182,7 @@
                     <td>{{ $task->source ?? '---' }}</td>
                     <td>{{ $task->profile ?? '---' }}</td>
                     <td>{{ $task->creator ? $task->creator->first_name . ' ' . $task->creator->last_name : 'N/A' }}</td>
+                    <td>{{ $task->created_at ?? '---' }}</td>
                     <td class="actions-cell">
                         @php
                             $statusClasses = [
