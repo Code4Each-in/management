@@ -182,7 +182,7 @@
                     <td>{{ $task->source ?? '---' }}</td>
                     <td>{{ $task->profile ?? '---' }}</td>
                     <td>{{ $task->creator ? $task->creator->first_name . ' ' . $task->creator->last_name : 'N/A' }}</td>
-                    <td>{{ $task->created_at ?? '---' }}</td>
+                    <td>{{ $task->created_at ? $task->created_at->format('d/m/Y') : '---' }}</td>
                     <td class="actions-cell">
                         @php
                             $statusClasses = [
