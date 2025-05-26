@@ -68,7 +68,7 @@ public function destroy($id)
     return response()->json(['message' => 'Bid Sprint deleted successfully.']);
 }
 
-public function view($id)
+public function view(Request $request,$id)
 {
    
     $tasks = Task::with('creator')->where('bdesprint_id', $id)->get();
@@ -87,6 +87,21 @@ public function view($id)
         ->pluck('created_by');
 
     $user = Users::whereIn('id', $creatorIds)->get();
+    // Get inputs for date filtering
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $tasksQuery = Task::where('bdesprint_id', $id);
+
+    if ($startDate && $endDate) {
+        $tasksQuery->whereBetween('created_at', [
+            $startDate . ' 00:00:00',
+            $endDate . ' 23:59:59',
+        ]);
+    }
+
+    $taskss = $tasksQuery->get();
+
    $tasksJson = $tasks->map(function ($task) {
         return [
             'status' => $task->status,
@@ -97,7 +112,7 @@ public function view($id)
     return view('bde.bid-sprint-view', compact(
         'tasks', 'bdeSprints', 'bdeSprint',
         'applied', 'viewed', 'replied', 'success',
-        'total','user','tasksJson'
+        'total','user','tasksJson','taskss'
     ));
 }
 
