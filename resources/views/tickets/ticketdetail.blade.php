@@ -288,6 +288,7 @@
                     <div id="editor" style="height: 300px;"></div>
                     <input type="hidden" name="comment" id="comment_input" value="{{ old('comment') }}">
 
+
                     @if ($errors->has('comment'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                     @endif
@@ -322,8 +323,17 @@ document.addEventListener('DOMContentLoaded', function () {
     theme: 'snow',
     modules: {
       toolbar: '#toolbar-container'
-    }
+    },
+    placeholder: 'Type your comment here...'
   });
+      // Initialize with old content if available
+    const oldComment = document.getElementById('comment_input').value.trim();
+if (oldComment) {
+    quill.root.innerHTML = oldComment;
+} else {
+    quill.setContents([{ insert: '\n' }]); // sets a single empty line
+}
+
 
   editor.__quillInstance = quill;
 
