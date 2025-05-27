@@ -560,56 +560,58 @@
         }
 
         $('#commentsData').on('submit', function(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            document.getElementById('comment_input').value = quill.root.innerHTML;
-            $('.alert-danger').hide().html('');
+    const commentHtml = quill.root.innerHTML.trim();
+    const commentText = quill.getText().trim();
+    document.getElementById('comment_input').value = commentHtml;
+    $('.alert-danger').hide().html('');
 
-            const fileInput = document.getElementById('comment_file');
-            const hasText = quill.getText().trim().length > 0;
-            const hasFile = fileInput.files && fileInput.files.length > 0;
+    const fileInput = document.getElementById('comment_file');
+    const hasFile = fileInput.files && fileInput.files.length > 0;
+    const hasMedia = /<img|<video|<iframe|<audio/.test(commentHtml);
+    const hasText = commentText.length > 0;
 
-            if (hasText || hasFile) {
-                // Create the form data for the request
-                const formData = new FormData(this);
-                const currentUserId = {{ Auth::id() }};
-                const clientName = @json($client->name ?? 'Project Not Assigned');
+    if (hasText || hasMedia || hasFile) {
+        const formData = new FormData(this);
+        const currentUserId = {{ Auth::id() }};
+        const clientName = @json($client->name ?? 'Project Not Assigned');
 
-                $('#loader').show();
+        $('#loader').show();
 
-                $.ajax({
-                    url: '{{ route('message.add') }}',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                    console.log(response);
-                        if (response.status === 200) {
-                            $('#comment').val('');
-                            $('#comment_file').val('');
-                            quill.root.innerHTML = "";
-                            displayMessages(response.message, false);
-                        }else if(response.errors){
-                            $('.alert-danger').html(response.errors).fadeIn();
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorHtml = 'An error occurred while submitting the comment.';
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            errorHtml = errors.join('<br>');
-                        }
-                        $('.alert-danger').html(errorHtml).fadeIn();
-                    },
-                    complete: function() {
-                        $('#loader').hide();
-                    }
-                });
-            }else{
-                $('.alert-danger').html('Kindly type a message or attach a file before submitting..').fadeIn();
+        $.ajax({
+            url: '{{ route('message.add') }}',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                console.log(response);
+                if (response.status === 200) {
+                    $('#comment').val('');
+                    $('#comment_file').val('');
+                    quill.root.innerHTML = "";
+                    displayMessages(response.message, false);
+                } else if (response.errors) {
+                    $('.alert-danger').html(response.errors).fadeIn();
+                }
+            },
+            error: function(xhr) {
+                let errorHtml = 'An error occurred while submitting the comment.';
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    errorHtml = errors.join('<br>');
+                }
+                $('.alert-danger').html(errorHtml).fadeIn();
+            },
+            complete: function() {
+                $('#loader').hide();
             }
         });
+    } else {
+        $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+    }
+});
     });
 
     function loadMessages(projectId) {
