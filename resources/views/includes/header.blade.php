@@ -185,6 +185,14 @@
                     <span>Reminders</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
+                    <i class="bi bi-people"></i>
+                    <div class="position-relative">
+                        <span>Team Chat</span>
+                    </div>
+                </a>
+            </li>
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
@@ -224,6 +232,14 @@
                         <span>Reminders</span>
                     </a>
                 </li>
+                 <li class="nav-item">
+                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
+                    <i class="bi bi-people"></i>
+                    <div class="position-relative">
+                        <span>Team Chat</span>
+                    </div>
+                </a>
+            </li>
             @endif
 
           @if(auth()->user()->role->name == 'Super Admin')
@@ -300,6 +316,14 @@
                 <i class="bi bi-person-badge"></i>
                 <span>BDE Panel</span>
             </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
+                    <i class="bi bi-people"></i>
+                    <div class="position-relative">
+                        <span>Team Chat</span>
+                    </div>
+                </a>
             </li>
           @endif
           @if (auth()->user()->designation == 'BDE')

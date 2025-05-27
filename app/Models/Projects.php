@@ -48,6 +48,12 @@ class Projects extends Model
     {
         return $this->hasMany(Message::class, 'project_id');
     }
+    
+    public function groupMessages()
+    {
+        return $this->hasMany(GroupMessage::class);
+    }
+ 
 
 
     
