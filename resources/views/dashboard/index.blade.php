@@ -671,7 +671,13 @@ use Carbon\Carbon;
 
 
     <!-- Employee Of The Month Section -->
-    @include('votes.index', ['winners' => $winners])
+    @php
+    $currentDay = now()->day;
+    @endphp
+    @if ($currentDay <= 7)
+        @include('votes.index', ['winners' => $winners])
+    @endif
+
     <!-- End of Employee Of The Month Section -->
 
 
