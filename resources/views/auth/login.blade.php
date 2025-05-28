@@ -66,6 +66,9 @@
                                             <button class="btn btn-primary w-100" type="submit">Login</button>
                                         </div>
                                     </form>
+                                    <div class="col-12 text-end mt-3">
+                                    <a href="{{ route('password.request') }}" class="small text-primary">Forgot Password?</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

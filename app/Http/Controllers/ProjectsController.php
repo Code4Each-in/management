@@ -369,7 +369,10 @@ class ProjectsController extends Controller
             ->whereIn('ticket_id', $ticketIds)
             ->distinct()
             ->pluck('user_id');
-        $developers = Users::whereIn('id', $developerIds)->get();
+        $developers = Users::whereIn('id', $developerIds)
+                   ->where('status', 1)
+                   ->get();
+
         return view('developer.developer-listing', compact('developers'));
     }
 

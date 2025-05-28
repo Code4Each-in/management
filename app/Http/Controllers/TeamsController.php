@@ -19,239 +19,225 @@ class TeamsController extends Controller
     /**
      * Display the Team Chat page.
      */
- public function index()
-{
-    $user = Auth::user();
-    $client = null;
-    $roleid = $user->role_id;
+    public function index()
+    {
+        $user = Auth::user();
+        $client = null;
+        $roleid = $user->role_id;
 
-    if ($roleid == 1) {
-        $projects = Projects::orderBy('id', 'desc')->get();
-        if ($projects->isNotEmpty()) {
-            $client = Client::find($projects->first()->client_id);
+        if ($roleid == 1) {
+            $projects = Projects::orderBy('id', 'desc')->get();
+            if ($projects->isNotEmpty()) {
+                $client = Client::find($projects->first()->client_id);
+            }
+        } elseif ($roleid == 6) {
+            $clientId = $user->client_id;
+            $projects = Projects::where('client_id', $clientId)
+                ->orderBy('id', 'desc')
+                ->get();
+            $client = Client::find($clientId);
+        } elseif (in_array($roleid, [2, 3])) {
+            $ticketIds = DB::table('ticket_assigns')
+                ->where('user_id', $user->id)
+                ->pluck('ticket_id');
+
+            $projectIds = Tickets::whereIn('id', $ticketIds)
+                ->pluck('project_id')
+                ->unique();
+
+            $projects = Projects::whereIn('id', $projectIds)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            if ($projects->isNotEmpty()) {
+                $client = Client::find($projects->first()->client_id);
+            }
+        } else {
+            $projects = collect();
         }
-    } elseif ($roleid == 6) {
-        $clientId = $user->client_id;
-        $projects = Projects::where('client_id', $clientId)
-            ->orderBy('id', 'desc')
-            ->get();
-        $client = Client::find($clientId);
-    } elseif (in_array($roleid, [2, 3])) {
-        $ticketIds = DB::table('ticket_assigns')
-            ->where('user_id', $user->id)
-            ->pluck('ticket_id');
 
-        $projectIds = Tickets::whereIn('id', $ticketIds)
-            ->pluck('project_id')
-            ->unique();
+        $projects = $projects->unique('project_name')->values();
 
-        $projects = Projects::whereIn('id', $projectIds)
-            ->orderBy('id', 'desc')
-            ->get();
+        foreach ($projects as $project) {
+            $project->last_message = GroupMessage::where('project_id', $project->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-        if ($projects->isNotEmpty()) {
-            $client = Client::find($projects->first()->client_id);
+        $alreadyRead = DB::table('group_message_reads')
+        ->where('project_id', $project->id)
+        ->where('user_id', $user->id)
+        ->exists();
+
+    $project->unread_count = $alreadyRead ? 0 : GroupMessage::where('project_id', $project->id)->count();
+
+
+            $project->client = Client::find($project->client_id);
         }
-    } else {
-        $projects = collect();
+        $projects = $projects->sortByDesc(function ($project) {
+            return optional($project->last_message)->created_at;
+        })->values();
+
+        return view('teamchat.index', compact('projects', 'client', 'roleid'));
     }
 
-    $projects = $projects->unique('project_name')->values();
+    public function addMessages(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'message' => 'nullable|string',
+        ], [
+            'comment_file.*.file' => 'Each file must be a valid file.',
+            'comment_file.*.mimes' => 'Each file must be of an allowed type.',
+            'comment_file.*.max' => 'Each file must not be larger than 10MB.',
+            'message.string' => 'The message must be a valid string.'
+        ]);
+        $validator->setAttributeNames([
+            'comment_file.*' => 'document',
+        ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
 
-    foreach ($projects as $project) {
-        $project->last_message = GroupMessage::where('project_id', $project->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
+            foreach ($errors as $error) {
+                if (Str::contains($error, '10MB')) {
+                    return response()->json([
+                        'errors' => [
+                            'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
+                        ]
+                    ]);
+                }
+            }
+            return response()->json(['errors' => $errors]);
+        }
 
-       $alreadyRead = DB::table('group_message_reads')
-    ->where('project_id', $project->id)
-    ->where('user_id', $user->id)
-    ->exists();
+        $user = auth()->user();
+        $projectId = $request->input('project_id');
+        $project = Projects::find($projectId);
 
-$project->unread_count = $alreadyRead ? 0 : GroupMessage::where('project_id', $project->id)->count();
+        if (!$project) {
+            return response()->json(['errors' => ['Project not found.']]);
+        }
+        $documentPaths = [];
+        if ($request->hasFile('comment_file')) {
+            foreach ($request->file('comment_file') as $file) {
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $fileName = now()->format('YmdHis') . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('assets/img/ticketAssets'), $fileName);
+                $documentPaths[] = 'ticketAssets/' . $fileName;
+            }
+        }
+        if ($request->filled('comment_id')) {
+            $existingMessage = GroupMessage::find($request->comment_id);
+            if ($existingMessage) {
+                $existingMessage->message = $request->input('message');
+                if (!empty($documentPaths)) {
+                    $existingMessage->document = implode(',', $documentPaths);
+                }
+                $existingMessage->save();
 
-
-        $project->client = Client::find($project->client_id);
-    }
-
-    $projects = $projects->sortByDesc(function ($project) {
-        return optional($project->last_message)->created_at;
-    })->values();
-
-    return view('teamchat.index', compact('projects', 'client', 'roleid'));
-}
-
-   public function addMessages(Request $request)
-{
-   
-    $validator = Validator::make($request->all(), [
-        'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
-        'message' => 'nullable|string',
-    ], [
-        'comment_file.*.file' => 'Each file must be a valid file.',
-        'comment_file.*.mimes' => 'Each file must be of an allowed type.',
-        'comment_file.*.max' => 'Each file must not be larger than 10MB.',
-        'message.string' => 'The message must be a valid string.'
-    ]);
-
-    $validator->setAttributeNames([
-        'comment_file.*' => 'document',
-    ]);
-
-    if ($validator->fails()) {
-        $errors = $validator->errors()->all();
-
-        foreach ($errors as $error) {
-            if (Str::contains($error, '10MB')) {
                 return response()->json([
-                    'errors' => [
-                        'One or more files exceed the 10MB limit. If you want to upload files larger than 10MB, please visit: <a href="https://files.code4each.com/" target="_blank">https://files.code4each.com/</a>'
-                    ]
+                    'status' => 200,
+                    'message' => $existingMessage->load('user'),
+                    'is_updated' => true,
+                    'Commentmessage' => 'Message updated successfully.'
                 ]);
             }
         }
-        return response()->json(['errors' => $errors]);
-    }
-
-   
-
-    $user = auth()->user();
-    $projectId = $request->input('project_id');
-    $project = Projects::find($projectId);
-
-    if (!$project) {
-        return response()->json(['errors' => ['Project not found.']]);
-    }
-
-    $documentPaths = [];
-    if ($request->hasFile('comment_file')) {
-        foreach ($request->file('comment_file') as $file) {
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $fileName = now()->format('YmdHis') . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('assets/img/ticketAssets'), $fileName);
-            $documentPaths[] = 'ticketAssets/' . $fileName;
-        }
-    }
-
-    if ($request->filled('comment_id')) {
-        $existingMessage = GroupMessage::find($request->comment_id);
-        if ($existingMessage) {
-            $existingMessage->message = $request->input('message');
-            if (!empty($documentPaths)) {
-                $existingMessage->document = implode(',', $documentPaths);
-            }
-            $existingMessage->save();
-
-            return response()->json([
-                'status' => 200,
-                'message' => $existingMessage->load('user'),
-                'is_updated' => true,
-                'Commentmessage' => 'Message updated successfully.'
-            ]);
-        }
-    }
-
-    $newMessage = GroupMessage::create([
-        'message' => $request->input('message'),
-        'project_id' => $projectId,
-        'user_id' => $user->id,
-        'document' => !empty($documentPaths) ? implode(',', $documentPaths) : null,
-    ]);
-
-    $exists = GroupMessageRead::where('project_id', $projectId)
-    ->where('user_id', $user->id)
-    ->exists();
-
-    if (!$exists) {
-        GroupMessageRead::create([
+        $newMessage = GroupMessage::create([
+            'message' => $request->input('message'),
             'project_id' => $projectId,
             'user_id' => $user->id,
+            'document' => !empty($documentPaths) ? implode(',', $documentPaths) : null,
+        ]);
+        $exists = GroupMessageRead::where('project_id', $projectId)
+        ->where('user_id', $user->id)
+        ->exists();
+        if (!$exists) {
+            GroupMessageRead::create([
+                'project_id' => $projectId,
+                'user_id' => $user->id,
+            ]);
+        }
+        // try {
+        //     $notificationData = [
+        //         "greeting-text" => "Hello!",
+        //         "subject" => "New Message received from - {$user->first_name}",
+        //         "title" => "You've received a new message from <strong>{$user->first_name}</strong>.",
+        //         "body-text" => $project->project_name,
+        //         "url-title" => "View Message",
+        //         "url" => "/messages?project_id={$projectId}",
+        //     ];
+
+        //     $recipients = Users::where('id', '!=', $user->id)->get();
+        //     foreach ($recipients as $recipient) {
+        //         $recipient->notify(new MessageNotification($notificationData));
+        //     }
+        // } catch (\Exception $e) {
+        //     \Log::error("Notification error: " . $e->getMessage());
+        // }
+        return response()->json([
+            'status' => 200,
+            'message' => $newMessage->load('user'),
+            'Commentmessage' => 'Message added successfully.'
+        ]);
+    }
+
+    public function getMessagesByProjects(Request $request, $projectId)
+    {
+        $limit = 15;
+        $offset = $request->input('offset', 0); 
+        $messages = GroupMessage::where('project_id', $projectId)
+            ->with('user', 'project')
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+        return response()->json(['messages' => $messages]);
+    }
+
+    public function markAsRead(Request $request, $messageId)
+    {
+        $userId = auth()->id();
+        $alreadyRead = DB::table('group_message_reads')
+            ->where('project_id', $messageId)
+            ->where('user_id', $userId)
+            ->exists();
+        if (!$alreadyRead) {
+            DB::table('group_message_reads')->insert([
+                'project_id' => $messageId,
+                'user_id' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        return response()->json([
+            'status' => 'success',
+            'updatedUnreadCount' => 0
         ]);
     }
 
 
-    // try {
-    //     $notificationData = [
-    //         "greeting-text" => "Hello!",
-    //         "subject" => "New Message received from - {$user->first_name}",
-    //         "title" => "You've received a new message from <strong>{$user->first_name}</strong>.",
-    //         "body-text" => $project->project_name,
-    //         "url-title" => "View Message",
-    //         "url" => "/messages?project_id={$projectId}",
-    //     ];
-
-    //     $recipients = Users::where('id', '!=', $user->id)->get();
-    //     foreach ($recipients as $recipient) {
-    //         $recipient->notify(new MessageNotification($notificationData));
-    //     }
-    // } catch (\Exception $e) {
-    //     \Log::error("Notification error: " . $e->getMessage());
-    // }
-
-    return response()->json([
-        'status' => 200,
-        'message' => $newMessage->load('user'),
-        'Commentmessage' => 'Message added successfully.'
-    ]);
-}
-
- public function getMessagesByProjects(Request $request, $projectId)
-{
-    $limit = 15;
-    $offset = $request->input('offset', 0); 
-
-    $messages = GroupMessage::where('project_id', $projectId)
-        ->with('user', 'project')
-        ->orderBy('created_at', 'desc')
-        ->skip($offset)
-        ->take($limit)
-        ->get();
-
-    return response()->json(['messages' => $messages]);
-}
-
-public function markAsRead(Request $request, $messageId)
-{
-    $userId = auth()->id();
-    // Check if the user has already marked the project as read
-    $alreadyRead = DB::table('group_message_reads')
-        ->where('project_id', $messageId)
-        ->where('user_id', $userId)
-        ->exists();
-
-    // If not read, insert a new record
-    if (!$alreadyRead) {
-        DB::table('group_message_reads')->insert([
-            'project_id' => $messageId,
-            'user_id' => $userId,
-            'created_at' => now(),
-            'updated_at' => now(),
+    public function getUnreadMessageCount($projectId)
+    {
+        $userId = auth()->id();
+        $hasRead = DB::table('group_message_reads')
+            ->where('project_id', $projectId)
+            ->where('user_id', $userId)
+            ->exists();
+        $unreadCount = $hasRead ? 0 : GroupMessage::where('project_id', $projectId)->count();
+        return response()->json([
+            'status' => 'success',
+            'unreadCount' => $unreadCount
         ]);
     }
 
-    return response()->json([
-        'status' => 'success',
-        'updatedUnreadCount' => 0
-    ]);
-}
+    public function destroy($id)
 
+    {
+        $comment = GroupMessage::findOrFail($id);
+        $comment->delete();
+        return response()->json(['status' => 200, 'message' => 'Comment deleted successfully.']);
+    }
 
-public function getUnreadMessageCount($projectId)
-{
-    $userId = auth()->id();
-
-    $hasRead = DB::table('group_message_reads')
-        ->where('project_id', $projectId)
-        ->where('user_id', $userId)
-        ->exists();
-
-    $unreadCount = $hasRead ? 0 : GroupMessage::where('project_id', $projectId)->count();
-
-    return response()->json([
-        'status' => 'success',
-        'unreadCount' => $unreadCount
-    ]);
-}
 
 }
 
