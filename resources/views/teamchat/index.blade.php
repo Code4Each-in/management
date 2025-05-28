@@ -617,12 +617,12 @@
                     ${(message.user?.first_name?.substring(0, 2).toUpperCase()) || 'NA'}
                 </div>`;
 
-        const deleteBtn = message.from === currentUserId
+        const deleteBtn = message.user_id === currentUserId
             ? `<button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="${message.id}" title="Delete Comment" style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px; margin-left: 8px;">
                     <i class="fa-solid fa-trash"></i>
                 </button>` : '';
 
-        const editBtn = message.from === currentUserId
+        const editBtn = message.user_id === currentUserId
             ? `<button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
                         data-comment-id="${message.id}"
                         data-content="${encodeURIComponent(message.message)}"
@@ -651,7 +651,6 @@
                 </div>
                 <div class="text">
                     ${deleteBtn}
-                    ${editBtn}
                     <p>${message.message}</p>
                     ${documentLinks}
                 </div>
@@ -796,5 +795,94 @@ function fetchUnreadCount(projectId) {
             badge.style.display = 'none';
         }
     }
-</script>    
+    function deleteComment(commentId, commentElement) {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    $.ajax({
+        url: `/comments/${commentId}`, // uses the RESTful route
+        type: 'DELETE',
+        data: {
+            _token: token
+        },
+        success: function (response) {
+            if (response.status === 200) {
+                commentElement.fadeOut(300, function () {
+                    $(this).remove();
+                });
+
+                location.reload();
+            } else {
+                alert(response.message || 'Failed to delete comment.');
+            }
+        },
+        error: function () {
+            alert('An error occurred while deleting the comment.');
+        }
+    });
+}
+
+// Delegated event listener
+$(document).on('click', '.delete-comment', function () {
+    const commentId = $(this).data('id');
+    const commentItem = $(this).closest('.post-item');
+
+    if (confirm('Are you sure you want to delete this comment?')) {
+        deleteComment(commentId, commentItem);
+    }
+});
+
+</script> 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editor = document.querySelector('#editor');
+    if (!editor) {
+        console.error('Editor element not found!');
+        return;
+    }
+
+    const quill = new Quill(editor, {
+        theme: 'snow',
+        modules: {
+            toolbar: '#toolbar-container'
+        },
+        placeholder: 'Type your comment here...'
+    });
+
+    // Initialize with old content if available
+    const oldComment = document.getElementById('comment_input').value.trim();
+    if (oldComment) {
+        quill.root.innerHTML = oldComment;
+    } else {
+        quill.setContents([{ insert: '\n' }]);
+    }
+
+    editor.__quillInstance = quill;
+
+    function decodeHTMLEntities(str) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = str;
+        return txt.value;
+    }
+
+    // Bind edit-comment buttons after DOM is ready
+    document.querySelectorAll('.edit-comment').forEach(button => {
+        button.addEventListener('click', function () {
+            const commentId = this.getAttribute('data-comment-id');
+            let commentContent = this.getAttribute('data-content') || '';
+            commentContent = decodeHTMLEntities(decodeHTMLEntities(commentContent));
+
+            document.getElementById('comment_input').value = commentContent;
+
+            const commentIdInput = document.querySelector('#comment_id');
+            if (commentIdInput) commentIdInput.value = commentId;
+
+            if (quill) {
+                quill.root.innerHTML = commentContent;
+            }
+
+            editor.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+});
+</script>   
 @endsection

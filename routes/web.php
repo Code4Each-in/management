@@ -33,6 +33,9 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BDEController;
 use App\Http\Controllers\SearchDataController;
 use App\Http\Controllers\TeamsController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -53,6 +56,11 @@ use App\Http\Controllers\TeamsController;
 */
 Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
+//route for password forgot
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 Route::group(['middleware' => ['auth']], function() {
 Route::resource('/dashboard', DashboardController::class);
 //Permission Routes Starts
@@ -359,5 +367,8 @@ Route::middleware(['role_permission'])->group(function () {
      Route::get('/get/project/group-messages/{projectId}', [TeamsController::class, 'getMessagesByProjects'])->name('get.project.group-messages');
      Route::post('/group-messages/{message}/read', [TeamsController::class, 'markAsRead'])->name('group-messages.read');
      Route::get('/project-messages/{projectId}/unread-count', [TeamsController::class, 'getUnreadMessageCount'])->name('project-messages.unreadCount');
+     Route::delete('/comments/{comment}', [TeamsController::class, 'destroy'])->name('comments.destroy');
 
+
+	 
 });
