@@ -288,6 +288,7 @@
                     <div id="editor" style="height: 300px;"></div>
                     <input type="hidden" name="comment" id="comment_input" value="{{ old('comment') }}">
 
+
                     @if ($errors->has('comment'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('comment') }}</span>
                     @endif
@@ -322,8 +323,17 @@ document.addEventListener('DOMContentLoaded', function () {
     theme: 'snow',
     modules: {
       toolbar: '#toolbar-container'
-    }
+    },
+    placeholder: 'Type your comment here...'
   });
+      // Initialize with old content if available
+    const oldComment = document.getElementById('comment_input').value.trim();
+if (oldComment) {
+    quill.root.innerHTML = oldComment;
+} else {
+    quill.setContents([{ insert: '\n' }]); // sets a single empty line
+}
+
 
   editor.__quillInstance = quill;
 
@@ -354,57 +364,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Submit Form
   $('#commentsData').on('submit', function(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 👇 Update hidden input with editor HTML
-    const commentHtml = quill.root.innerHTML.trim();
-    const commentText = quill.getText().trim();
-    console.log('Submitting Comment:', commentHtml);
+  const commentHtml = quill.root.innerHTML.trim();
+  const commentText = quill.getText().trim();
+  console.log('Submitting Comment:', commentHtml);
 
-    document.getElementById('comment_input').value = commentHtml;
-    $('.alert-danger').hide().html('');
+  document.getElementById('comment_input').value = commentHtml;
+  $('.alert-danger').hide().html('');
 
-    const fileInput = document.getElementById('comment_file');
-    const hasText = commentText.length > 0;
-    const hasFile = fileInput.files && fileInput.files.length > 0;
+  const fileInput = document.getElementById('comment_file');
+  const hasFile = fileInput.files && fileInput.files.length > 0;
 
-    if (hasText || hasFile) {
-      const formData = new FormData(this);
-      $('#loader').show();
+  // Allow submission if there's either file or HTML with visible content
+  const hasValidContent = commentText.length > 0 || /<img|<video|<iframe|<audio/.test(commentHtml);
 
-      $.ajax({
-        url: '{{ route('comments.add') }}',
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-          if (response.status === 200) {
-            $('#comment').val('');
-            $('#comment_file').val('');
-            location.reload();
-          } else if (response.errors) {
-            let errorHtml = '<ul>';
-            response.errors.forEach(function(error) {
-              errorHtml += '<li>' + error + '</li>';
-            });
-            errorHtml += '</ul>';
-            $('.alert-danger').show().html(errorHtml);
-          } else {
-            $('.alert-danger').show().html('Something went wrong.');
-          }
-        },
-        error: function(xhr) {
-          $('.alert-danger').show().html('An error occurred while submitting the comment.');
-        },
-        complete: function() {
-          $('#loader').hide();
+  if (hasValidContent || hasFile) {
+    const formData = new FormData(this);
+    $('#loader').show();
+
+    $.ajax({
+      url: '{{ route('comments.add') }}',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function(response) {
+        if (response.status === 200) {
+          $('#comment').val('');
+          $('#comment_file').val('');
+          location.reload();
+        } else if (response.errors) {
+          let errorHtml = '<ul>';
+          response.errors.forEach(function(error) {
+            errorHtml += '<li>' + error + '</li>';
+          });
+          errorHtml += '</ul>';
+          $('.alert-danger').show().html(errorHtml);
+        } else {
+          $('.alert-danger').show().html('Something went wrong.');
         }
-      });
-    } else {
-      $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
-    }
-  });
+      },
+      error: function(xhr) {
+        $('.alert-danger').show().html('An error occurred while submitting the comment.');
+      },
+      complete: function() {
+        $('#loader').hide();
+      }
+    });
+  } else {
+    $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+  }
+});
 });
 </script>
 <script>

@@ -4469,4 +4469,20 @@ form#searchForm {
 #Projectsdata .btn:hover .ticketfile {
   color: #fff !important; /* Still red */
 }
+#editor {
+  min-height: 120px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.ql-editor {
+  padding: 10px;
+  line-height: 1.5;
+}
+
+.ql-editor p {
+  margin: 0;
+}
+
+
  

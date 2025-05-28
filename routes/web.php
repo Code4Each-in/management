@@ -32,7 +32,7 @@ use App\Http\Controllers\StickyNoteController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BDEController;
 use App\Http\Controllers\SearchDataController;
-
+use App\Http\Controllers\TeamsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -351,4 +351,13 @@ Route::middleware(['role_permission'])->group(function () {
 
 	// Routes for search functionality
 	Route::match(['get', 'post'], '/search', [SearchDataController::class, 'searchList'])->name('search.index');
+
+	//Routes for Team Messages
+	 Route::get('/teamchat', [TeamsController::class, 'index'])->name('teamchat');
+	 Route::post('/add/messages', [TeamsController::class, 'addMessages'])->name('message.adds'); 
+	 Route::get('/get/latest-message/{projectId}', [TeamsController::class, 'getLatestMessage'])->name('get.latest.message');
+     Route::get('/get/project/group-messages/{projectId}', [TeamsController::class, 'getMessagesByProjects'])->name('get.project.group-messages');
+     Route::post('/group-messages/{message}/read', [TeamsController::class, 'markAsRead'])->name('group-messages.read');
+     Route::get('/project-messages/{projectId}/unread-count', [TeamsController::class, 'getUnreadMessageCount'])->name('project-messages.unreadCount');
+
 });

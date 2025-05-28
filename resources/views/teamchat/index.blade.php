@@ -1,5 +1,5 @@
 @extends('layout')
-@section('title', 'Messages')
+@section('title', 'TeamChat')
 @section('subtitle', 'Chat')
 @section('show_title', 'false')
 @section('content')
@@ -307,7 +307,7 @@
   </style>
 <div class="container chat-wrapper">
     <div class="chatsidebar">
-        <div class="sidebar-header">Messages</div>
+        <div class="sidebar-header">Team Chat</div>
         <div class="contact-list">
             @foreach($projects->where('status', 'active') as $project)
                 <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }}); handleProjectClick({{ $project->id }});" id="contact-{{ $project->id }}">
@@ -326,11 +326,9 @@
                 <div class="time">
                     {{ $project->last_message ? $project->last_message->created_at->timezone('Asia/Kolkata')->format('g:i a') : '' }}
                 </div>
-                @if($project->unread_count > 0)
-                <div class="badge" id="unread-count-{{ $project->id }}">
+                <div class="badge" id="unread-count-{{ $project->id }}" style="{{ $project->unread_count > 0 ? '' : 'display: none;' }}">
                     {{ $project->unread_count }}
                 </div>
-                @endif
             </div>
             @endforeach
             @foreach($projects->where('status', '!=', 'active') as $project)
@@ -369,7 +367,7 @@
 
         </div>
         <div class="card mt-0 card-designform">
-          <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
+          <form method="POST" id="commentsData" action="{{ route('message.adds') }}">
             @csrf
             <div class="post-item clearfix mb-3 mt-0">
               <label for="comment" class="col-sm-3 col-form-label">Comment</label>
@@ -446,107 +444,50 @@
 @endsection
 @section('js_scripts')
 <script>
-    function handleProjectClick(projectId) {
-        const newUrl = `${window.location.origin}${window.location.pathname}?project_id=${projectId}`;
-        window.history.pushState({ path: newUrl }, '', newUrl);
+    function loadMessages(projectId) {
+    offset = 0;
+    allMessagesLoaded = false;
+
+    const $chatContainer = $(".chat-container");
+    $chatContainer.off("scroll").empty();
+
+    $(".contact").removeClass("active");
+    const $contact = $("#contact-" + projectId);
+    if ($contact.length > 0) {
+        $contact.addClass("active");
+    } else {
+        console.warn(`#contact-${projectId} not found`);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const projectId = urlParams.get('project_id');
-        if (projectId) {
-            document.querySelectorAll('.contact').forEach(el => el.classList.remove('active'));
-            const contactDiv = document.getElementById(`contact-${projectId}`);
-            if (contactDiv) {
-                contactDiv.classList.add('active');
-                handleProjectClick(projectId);
-            }
-        }
-    });
-</script>
-<script>
-    function hideUnreadCount(projectId) {
-        const badge = document.getElementById('unread-count-' + projectId);
-        if (badge) {
-            badge.style.display = 'none';
-        }
+    if (typeof quill !== 'undefined' && quill.root) {
+        quill.root.innerHTML = "";
+    } else {
+        console.warn("Quill is not initialized or missing.");
     }
-</script>
-<script>
-    function markMessageAsRead(messageId, projectId) {
-        fetch(`/project-messages/${messageId}/mark-as-read`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const unreadCountElement = document.getElementById('unread-count-' + projectId);
-                const unreadCount = data.updatedUnreadCount;
 
-                if (unreadCountElement) {
-                    if (unreadCount > 0) {
-                        unreadCountElement.textContent = unreadCount;
-                        unreadCountElement.style.display = 'inline-block';
-                    } else {
-                        unreadCountElement.style.display = 'none';
-                    }
-                }
+    $('#comment_file').val('');
+    $('#project_id').val(projectId);
+
+    $.ajax({
+        url: `/get/project/group-messages/${projectId}?offset=${offset}`,
+        type: "GET",
+        cache: false,
+        success: function(data) {
+            if (data.messages && Array.isArray(data.messages)) {
+                offset += data.messages.length;
+                displayMessages(data.messages, true);
+                setupInfiniteScroll(projectId);
             } else {
-                console.warn(data.message);
+                console.error("Unexpected response format:", data);
             }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-        });
-    }
-</script>
-<script>
-    const csrfToken = '{{ csrf_token() }}';
-
-    function toggleTaskDetails(headerElement) {
-      const card = headerElement.closest('.task-card');
-      card.classList.toggle('expanded');
-    }
-
-    $(document).on('click', '.delete-comment', function() {
-        const commentId = $(this).data('id');
-        const commentItem = $(this).closest('.post-item');
-
-        if (confirm('Are you sure you want to delete this comment?')) {
-            $.ajax({
-                url: '/comments/' + commentId + '/delete',
-                type: 'DELETE',
-                data: {
-                _token: csrfToken
-            },
-                success: function(response) {
-                    if (response.status === 200) {
-                        commentItem.fadeOut(300, function() {
-                            $(this).remove();
-                        });
-
-                        location.reload();
-                    } else {
-                        alert(response.message || 'Failed to delete comment.');
-                    }
-                },
-                error: function() {
-                    alert('An error occurred while deleting the comment.');
-                }
-            });
+        },
+        error: function(error) {
+            console.error("Error loading messages:", error);
         }
     });
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-</script>
-<script>
+}
+
+
     let offset = 0;
     let isLoadingOlder = false;
     let allMessagesLoaded = false;
@@ -559,7 +500,7 @@
             loadMessages(projectId); // Call the function to load its messages
         }
 
-        $('#commentsData').on('submit', function(e) {
+     $('#commentsData').on('submit', function(e) {
     e.preventDefault();
 
     const commentHtml = quill.root.innerHTML.trim();
@@ -580,7 +521,7 @@
         $('#loader').show();
 
         $.ajax({
-            url: '{{ route('message.add') }}',
+            url: '{{ route('message.adds') }}', 
             type: 'POST',
             data: formData,
             contentType: false,
@@ -588,7 +529,7 @@
             success: function(response) {
                 console.log(response);
                 if (response.status === 200) {
-                    $('#comment').val('');
+                    $('#comment_input').val('');
                     $('#comment_file').val('');
                     quill.root.innerHTML = "";
                     displayMessages(response.message, false);
@@ -599,7 +540,7 @@
             error: function(xhr) {
                 let errorHtml = 'An error occurred while submitting the comment.';
                 if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                    const errors = xhr.responseJSON.errors;
+                    const errors = Object.values(xhr.responseJSON.errors).flat();
                     errorHtml = errors.join('<br>');
                 }
                 $('.alert-danger').html(errorHtml).fadeIn();
@@ -614,78 +555,25 @@
 });
     });
 
-    function loadMessages(projectId) {
-        offset = 0;
-        allMessagesLoaded = false;
-
-        const $chatContainer = $(".chat-container");
-        $chatContainer.off("scroll"); // Remove previous scroll event if any
-        $chatContainer.empty(); // Clear messages
-
-        $(".contact").removeClass("active");
-        $("#contact-" + projectId).addClass("active");
-
-        quill.root.innerHTML = "";
-        $('#comment_file').val('');
-
-        $.ajax({
-            url: `/get/project/messages/${projectId}?offset=${offset}`,
-            type: "GET",
-            success: function(data) {
-                offset += data.messages.length;
-                displayMessages(data.messages, true);
-                $('#project_id').val(projectId);
-
-                // Attach scroll listener after first load
-                setupInfiniteScroll(projectId);
-            },
-            error: function(error) {
-                console.error("Error loading messages:", error);
-            }
-        });
+      function handleProjectClick(projectId) {
+        const newUrl = `${window.location.origin}${window.location.pathname}?project_id=${projectId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
     }
 
-    function setupInfiniteScroll(projectId) {
-        const $chatContainer = $(".chat-container");
-
-        $chatContainer.on("scroll", function() {
-            if ($chatContainer.scrollTop() <= 50 && !isLoadingOlder && !allMessagesLoaded) {
-                isLoadingOlder = true;
-                $chatContainer.find('.loading-older').remove();
-                // Show loading message
-                const $loadingMessage = $(`
-                    <div class="loading-older text-center my-2"> <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i> </div> `
-                );
-                $chatContainer.prepend($loadingMessage);
-
-                const oldScrollHeight = $chatContainer[0].scrollHeight;
-
-                $.ajax({
-                    url: `/get/project/messages/${projectId}?offset=${offset}`,
-                    type: "GET",
-                    success: function(data) {
-                        setTimeout(() => {
-                            $loadingMessage.remove();
-                            if (data.messages.length === 0) {
-                                allMessagesLoaded = true;
-                                return;
-                            }
-
-                            offset += data.messages.length;
-
-                            displayMessages(data.messages, false, true); // Prepend older
-                            const newScrollHeight = $chatContainer[0].scrollHeight;
-                            $chatContainer.scrollTop(newScrollHeight - oldScrollHeight); // Preserve position
-                        }, 1000);
-                    },
-                    complete: function() {
-                        isLoadingOlder = false;
-                    }
-                });
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('project_id');
+        fetchUnreadCount(projectId);
+        if (projectId) {
+            document.querySelectorAll('.contact').forEach(el => el.classList.remove('active'));
+            const contactDiv = document.getElementById(`contact-${projectId}`);
+            if (contactDiv) {
+                contactDiv.classList.add('active');
+                handleProjectClick(projectId);
             }
-        });
-    }
-     
+        }
+    });
+    
     function displayMessages(messages, clearMessages = true, prepend = false) {
     const $chatContainer = $(".chat-container");
 
@@ -796,8 +684,93 @@
         $chatContainer.scrollTop($chatContainer.prop("scrollHeight"));
     }
 }
+    function markMessageAsRead(messageId, projectId) {
+    fetch(`/group-messages/${messageId}/read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ project_id: projectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const unreadCountElement = document.getElementById('unread-count-' + projectId);
+            const unreadCount = data.updatedUnreadCount;
 
-    function getDateLabel(date) {
+            if (unreadCountElement) {
+                unreadCountElement.textContent = unreadCount > 0 ? unreadCount : '';
+                unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+            }
+        } else {
+            console.warn(data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+    });
+}
+
+function fetchUnreadCount(projectId) {
+    fetch(`/project-messages/${projectId}/unread-count`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const badge = document.getElementById('unread-count-' + projectId);
+                if (data.unreadCount > 0) {
+                    badge.textContent = data.unreadCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        })
+        .catch(err => console.error('Error fetching unread count:', err));
+}
+
+
+     function setupInfiniteScroll(projectId) {
+        const $chatContainer = $(".chat-container");
+
+        $chatContainer.on("scroll", function() {
+            if ($chatContainer.scrollTop() <= 50 && !isLoadingOlder && !allMessagesLoaded) {
+                isLoadingOlder = true;
+                $chatContainer.find('.loading-older').remove();
+                // Show loading message
+                const $loadingMessage = $(`
+                    <div class="loading-older text-center my-2"> <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i> </div> `
+                );
+                $chatContainer.prepend($loadingMessage);
+
+                const oldScrollHeight = $chatContainer[0].scrollHeight;
+
+                $.ajax({
+                    url: `/get/project/group-messages/${projectId}?offset=${offset}`,
+                    type: "GET",
+                    success: function(data) {
+                        setTimeout(() => {
+                            $loadingMessage.remove();
+                            if (data.messages.length === 0) {
+                                allMessagesLoaded = true;
+                                return;
+                            }
+
+                            offset += data.messages.length;
+
+                            displayMessages(data.messages, false, true); // Prepend older
+                            const newScrollHeight = $chatContainer[0].scrollHeight;
+                            $chatContainer.scrollTop(newScrollHeight - oldScrollHeight); // Preserve position
+                        }, 1000);
+                    },
+                    complete: function() {
+                        isLoadingOlder = false;
+                    }
+                });
+            }
+        });
+    }
+     function getDateLabel(date) {
         const today = new Date();
         const yesterday = new Date();
         yesterday.setDate(today.getDate() - 1);
@@ -817,56 +790,11 @@
             }); // Example: 13 May 2025
         }
     }
-</script>
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-<script>
-document.addEventListener('click', function (e) {
-  // Check if the clicked element or its ancestor has the .edit-comment class
-  const button = e.target.closest('.edit-comment');
-
-  if (button) {
-    e.preventDefault(); // prevent link/button default behavior if needed
-
-    const commentId = button.getAttribute('data-comment-id');
-    let commentContent = button.getAttribute('data-content') || '';
-
-    // Decode the URL-encoded content first
-    commentContent = decodeURIComponent(commentContent);
-
-    // Decode HTML entities (if needed)
-    commentContent = decodeHTMLEntities(commentContent);
-
-    // Log the decoded content to ensure it's correct
-    console.log('Decoded Comment Content:', commentContent);
-
-    // Set comment ID and content to the hidden inputs
-    const hiddenInput = document.getElementById('comment_input');
-    const commentIdInput = document.getElementById('comment_id');
-    const editor = document.querySelector('#editor');
-
-    if (hiddenInput) hiddenInput.value = commentContent;
-    if (commentIdInput) commentIdInput.value = commentId;
-
-    // If Quill editor is initialized, set the content in Quill
-    if (quill) {
-      quill.root.innerHTML = commentContent;
+    function hideUnreadCount(projectId) {
+        const badge = document.getElementById('unread-count-' + projectId);
+        if (badge) {
+            badge.style.display = 'none';
+        }
     }
-
-    // Smooth scroll to the editor
-    if (editor) {
-      editor.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-});
-
-// Utility function for decoding HTML entities
-function decodeHTMLEntities(str) {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = str;
-  return txt.value;
-}
-
-
-</script>
+</script>    
 @endsection
