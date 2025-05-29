@@ -536,64 +536,66 @@ use Carbon\Carbon;
     </div>
 </div>
 <!-- Sticky Notes Started -->
-    <div class="col-lg-12 stickyNotes">
-        <div class="card">
-            <div class="sticky-card">
-                <div class="row">
-                    <!-- <div class="container"> -->
-                    <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-                    <div class="notes-wrapper" id="noteGrid"></div>
-                </div>
-                <!-- </div> -->
-            </div>
-        </div>
-    </div>
-    <!-- Sticky Notes Ended -->
-    <div class="col-lg-12 stickyNotes">
-        <div class="card">
-            <div class="sticky-card">
-                <h5 class="mt-4">Latest Comments</h5>
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Notification</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if($notifications->isEmpty())
-            <tr>
-                <td class="text-center text-muted">No recent comments found</td>
-            </tr>
-        @else
-            @foreach($notifications as $notification)
+               <div class="row">
+            @php
+                $validProjects = collect();
+
+                // Collect projects with comments
+                foreach ($projectMap as $projectId => $projectName) {
+                    $projectComments = $groupedNotifications->get($projectId, collect());
+                    $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
+                    if ($validComments->isNotEmpty()) {
+                        $validProjects->put($projectId, $projectName);
+                    }
+                }
+
+                // Limit to first 4 projects with comments
+                $limitedProjects = $validProjects->take(4);
+            @endphp
+
+            @foreach($limitedProjects as $projectId => $projectName)
                 @php
-                    $userName = $notification->user->first_name ?? 'Unknown User';
-                    $projectName = $notification->ticket->project->project_name ?? 'Unknown Project';
-                    $ticketId = $notification->ticket_id;
-                    $ticketUrl = url('/view/ticket/' . $ticketId);
+                    $projectComments = $groupedNotifications->get($projectId, collect());
+                    $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
                 @endphp
-                <tr>
-                    <td>
-                        <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
-                        You received a new comment on 
-                        <strong class="text-primary">#{{ $ticketId }}</strong> 
-                        in project <strong>{{ $projectName }}</strong> 
-                        by <strong>{{ $userName }}</strong> 
-                        on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
-                    </a>
-                    </td>
-                </tr>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ $projectName }}</h5>
+                        </div>
+                        <div class="card-body overflow-auto" style="max-height: 300px;">
+                            @foreach($validComments as $notification)
+                                @php
+                                    $userName = $notification->user->first_name ?? 'Unknown User';
+                                    $ticketId = $notification->ticket_id ?? 'N/A';
+                                    $ticketUrl = url('/view/ticket/' . $ticketId);
+                                @endphp
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
+                                       <small>
+                                    You received a new comment on 
+                                    <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                    <strong>{{ $projectName }}</strong> by 
+                                    <span class="fw-bold">{{ $userName }}</span> on 
+                                    <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                </small>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             @endforeach
-        @endif
-    </tbody>
-</table>  
- <div class="text-center">
-    <a href="{{ url('/comments') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1; padding: 6px 20px; font-weight: 600; border-radius: 10px;">
-        See All
-    </a>
-</div>
-            </div>
         </div>
+        @if($projectMap->count() > 4)
+            <div class="text-center mb-2">
+                <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
+                    See All
+                </a>
+            </div>
+        @endif
+
 
     <!-- ---------- ToDo List Started ---------------- -->
    @if($tasks->isNotEmpty())
@@ -1239,50 +1241,56 @@ use Carbon\Carbon;
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body pb-4">
-                        <h4 class="mb-3">Recent Comments</h4>
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Comments</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if($notifications->isEmpty())
-                                        <tr>
-                                            <td class="text-center text-muted">No notifications found</td>
-                                        </tr>
-                                    @else
-                                        @foreach($notifications as $notification)
-                                            @php
-                                                $ticket = \App\Models\Tickets::find($notification->ticket_id);
-                                                $projectName = $ticket ? ($projectMap[$ticket->project_id] ?? 'Unknown') : 'Unknown';
-                                                $creatorName = $notification->user->first_name ?? 'Unknown User';                              
-                                                $ticketUrl = url('/view/ticket/' . $notification->ticket_id);
-                                            @endphp
-                                            <tr>
-                                                <td>
-                                                    <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark">
-                                                            You received a new comment on 
-                                                            <strong class="text-primary">#{{ $notification->ticket_id }}</strong> 
-                                                            in project <strong>{{ $projectName }}</strong> 
-                                                            by <strong>{{ $creatorName }}</strong> 
-                                                            on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
-                                                        </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                </tbody>                                
-                            </table>                            
+            <div class="row">
+                @forelse($groupedNotifications as $projectId => $projectComments)
+                    @php
+                        $projectName = optional($projectComments->first()->ticket->project)->project_name ?? 'Unknown Project';
+                        $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
+                    @endphp
+
+                    @if($validComments->isNotEmpty())
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ $projectName }}</h5>
+                                </div>
+                                <div class="card-body overflow-auto" style="max-height: 300px;">
+                                    @foreach($validComments as $notification)
+                                        @php
+                                            $userName = $notification->user->first_name ?? 'Unknown User';
+                                            $ticketId = $notification->ticket_id ?? 'N/A';
+                                            $ticketUrl = url('/view/ticket/' . $ticketId);
+                                        @endphp
+
+                                        <div class="mb-3 pb-2 border-bottom">
+                                            <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark fw-semibold">
+                                                <small>
+                                                        You received a new comment on 
+                                                        <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                                        <strong>{{ $projectName }}</strong> by 
+                                                        <strong>{{ $userName }}</strong> on 
+                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                                    </small>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center mt-3">
-                            <a href="{{ url('/comments') }}" class="btn btn-primary" style="background-color:#4154F1; border: 2px solid #4154f1;padding: 6px  20px;font-weight: 600;border-radius: 10px;">See All</a>
-                        </div>
+                    @endif
+                @empty
+                    <div class="col-12 text-center text-muted py-5">
+                        No recent comments found
                     </div>
+                @endforelse
+            </div>
+            @if(!$groupedNotifications->isEmpty())
+                <div class="text-center mb-2">
+                    <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
+                        See All
+                    </a>
                 </div>
+            @endif
             </div>
             <div class="col-lg-4">
 

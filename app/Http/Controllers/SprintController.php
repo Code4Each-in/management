@@ -409,63 +409,78 @@ class SprintController extends Controller
         }
     }
 
-    public function allNotifications()
-{
-    $user = auth()->user();
-    $roleId = $user->role_id;
+        public function allNotifications()
+    {
+        $user = auth()->user();
+        $roleId = $user->role_id;
+        $notifications = collect();
+        $projectMap = collect();
 
-    if ($roleId == 6) {
-        // Clients
-        $clientId = $user->client_id;
-        $projectMap = Projects::where('client_id', $clientId)->pluck('project_name', 'id');
+        if ($roleId == 6) {
+            $clientId = $user->client_id;
+            $projectMap = Projects::where('client_id', $clientId)->pluck('project_name', 'id');
 
-        $projectIds = $projectMap->keys()->toArray();
-        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+            $projectIds = $projectMap->keys();
+            $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
 
-        $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
-            ->where('comments', '!=', '')
-            ->where('comment_by', '!=', $user->id)
-            ->whereYear('created_at', 2025)
-            ->with(['user', 'ticket.project'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-    } elseif (in_array($roleId, [2, 3])) {
-        $assignedTicketIds = DB::table('ticket_assigns')
-            ->where('user_id', $user->id)
-            ->pluck('ticket_id')
-            ->toArray();
+            $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+                ->where('comments', '!=', '')
+                ->where('comment_by', '!=', $user->id)
+                ->whereYear('created_at', 2025)
+                ->with(['user', 'ticket.project'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        $createdTicketIds = Tickets::where('created_by', $user->id)
-            ->pluck('id')
-            ->toArray();
-        $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
-        $projectIds = Tickets::whereIn('id', $ticketIds)
-            ->pluck('project_id')
-            ->unique()
-            ->toArray();
+        } elseif (in_array($roleId, [2, 3])) {
+            $assignedTicketIds = DB::table('ticket_assigns')
+                ->where('user_id', $user->id)
+                ->pluck('ticket_id')
+                ->toArray();
 
-        $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+            $createdTicketIds = Tickets::where('created_by', $user->id)
+                ->pluck('id')
+                ->toArray();
 
-        $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
-            ->where('comments', '!=', '')
-            ->where('comment_by', '!=', $user->id)
-            ->whereYear('created_at', 2025)
-            ->with(['user', 'ticket.project'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
+            $projectIds = Tickets::whereIn('id', $ticketIds)
+                ->pluck('project_id')
+                ->unique();
+            $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
 
-    } else {
-        $projectMap = '';
-        $notifications = TicketComments::where('comments', '!=', '')
-            ->where('comment_by', '!=', $user->id)
-            ->whereYear('created_at', 2025)
-            ->with(['user', 'ticket.project'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+                ->where('comments', '!=', '')
+                ->where('comment_by', '!=', $user->id)
+                ->whereYear('created_at', 2025)
+                ->with(['user', 'ticket.project'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+        } else {
+            $projectMap = Projects::pluck('project_name', 'id');
+
+            $notifications = TicketComments::where('comments', '!=', '')
+                ->where('comment_by', '!=', $user->id)
+                ->whereYear('created_at', 2025)
+                ->with(['user', 'ticket.project'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        $groupedNotifications = $notifications->filter(function ($comment) {
+            return optional($comment->ticket->project)->id !== null;
+        })->groupBy(function ($comment) {
+            return $comment->ticket->project->id;
+        });
+
+        if ($roleId == 1) {
+            foreach ($projectMap as $projectId => $projectName) {
+                if (!$groupedNotifications->has($projectId)) {
+                    $groupedNotifications->put($projectId, collect());
+                }
+            }
+            $groupedNotifications = $groupedNotifications->sortKeys();
+        }
+        return view('developer.notification', compact('notifications', 'groupedNotifications', 'projectMap', 'roleId'));
     }
-
-    return view('developer.notification', compact('notifications', 'projectMap', 'roleId'));
-}
-
 
     }
