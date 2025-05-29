@@ -550,7 +550,7 @@ use Carbon\Carbon;
                 }
 
                 // Limit to first 4 projects with comments
-                $limitedProjects = $validProjects->take(4);
+                $limitedProjects = $validProjects->take(2);
             @endphp
 
             @foreach($limitedProjects as $projectId => $projectName)
@@ -588,7 +588,7 @@ use Carbon\Carbon;
                 </div>
             @endforeach
         </div>
-        @if($projectMap->count() > 4)
+        @if($projectMap->count() > 2)
             <div class="text-center mb-2">
                 <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
                     See All
