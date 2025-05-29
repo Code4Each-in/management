@@ -573,11 +573,13 @@ use Carbon\Carbon;
                                 @endphp
                                 <div class="mb-3 pb-2 border-bottom">
                                     <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
-                                        <small>
-                                            New comment on <span class="text-primary">#{{ $ticketId }}</span> by 
-                                            <span class="fw-bold">{{ $userName }}</span> on 
-                                            <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
-                                        </small>
+                                       <small>
+                                    You received a new comment on 
+                                    <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                    <strong>{{ $projectName }}</strong> by 
+                                    <span class="fw-bold">{{ $userName }}</span> on 
+                                    <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                </small>
                                     </a>
                                 </div>
                             @endforeach
@@ -1263,10 +1265,12 @@ use Carbon\Carbon;
                                         <div class="mb-3 pb-2 border-bottom">
                                             <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark fw-semibold">
                                                 <small>
-                                                    New comment on <span class="text-primary">#{{ $ticketId }}</span> by 
-                                                    <strong>{{ $userName }}</strong> on 
-                                                    <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
-                                                </small>
+                                                        You received a new comment on 
+                                                        <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                                        <strong>{{ $projectName }}</strong> by 
+                                                        <strong>{{ $userName }}</strong> on 
+                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                                    </small>
                                             </a>
                                         </div>
                                     @endforeach

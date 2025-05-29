@@ -2,15 +2,15 @@
 @section('title', 'All Comments')
 @section('subtitle', 'Show')
 @section('content')
-                    @php
-                        $projectsWithComments = collect();
+                @php
+                    $projectsWithComments = collect();
 
-                        foreach ($projectMap as $projectId => $projectName) {
-                            if ($groupedNotifications->has($projectId) && $groupedNotifications->get($projectId)->isNotEmpty()) {
-                                $projectsWithComments->put($projectId, $projectName);
-                            }
+                    foreach ($projectMap as $projectId => $projectName) {
+                        if ($groupedNotifications->has($projectId) && $groupedNotifications->get($projectId)->isNotEmpty()) {
+                            $projectsWithComments->put($projectId, $projectName);
                         }
-                    @endphp
+                    }
+                @endphp
                 <div class="row">
                 @foreach($projectMap as $projectId => $projectName)
                     @php
@@ -34,10 +34,12 @@
                                         <div class="mb-3 pb-2 border-bottom">
                                             <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
                                                 <small>
-                                                    New comment on <span class="text-primary">#{{ $ticketId }}</span> by 
-                                                    <span class="fw-bold">{{ $userName }}</span> on 
-                                                    <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
-                                                </small>
+                                                You received a new comment on 
+                                                <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                                <span class="fw-bold">{{ $projectName }}</span> by 
+                                                <span class="fw-bold">{{ $userName }}</span> on 
+                                                <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                            </small>
                                             </a>
                                         </div>
                                     @endforeach
