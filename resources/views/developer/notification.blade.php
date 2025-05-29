@@ -2,45 +2,58 @@
 @section('title', 'All Comments')
 @section('subtitle', 'Show')
 @section('content')
-<div class="card">
-    <div class="card-body pb-4">
-        <table class="table table-striped table-bordered" id="notification">
-            <thead>
-                <tr>
-                    <th>Comments</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($notifications as $notification)
                     @php
-            
-                        if(auth()->user()->role_id == 6) {
-                            $projectName = $notification->ticket
-                                ? ($projectMap[$notification->ticket->project_id] ?? 'Unknown Project')
-                                : 'Unknown Project';
-                        } else {
-                            $projectName = $notification->ticket->project->project_name ?? 'Unknown Project';
+                        $projectsWithComments = collect();
+
+                        foreach ($projectMap as $projectId => $projectName) {
+                            if ($groupedNotifications->has($projectId) && $groupedNotifications->get($projectId)->isNotEmpty()) {
+                                $projectsWithComments->put($projectId, $projectName);
+                            }
                         }
-            
-                        $userName = $notification->user->first_name ?? 'Unknown User';
-                        $ticketUrl = url('/view/ticket/' . $notification->ticket_id);
                     @endphp
-                    <tr>
-                        <td>
-                       <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block">
-                            You received a new comment on 
-                            <strong class="text-primary">#{{ $notification->ticket_id }}</strong> 
-                            in project <strong>{{ $projectName }}</strong> 
-                            by <strong>{{ $userName }}</strong> 
-                            on <strong>{{ $notification->created_at->format('d-m-Y H:i') }}</strong>.
-                        </a>
-                        </td>
-                    </tr>
+                <div class="row">
+                @foreach($projectMap as $projectId => $projectName)
+                    @php
+                        $projectComments = $groupedNotifications->get($projectId, collect());
+                    @endphp
+
+                    @if($projectComments->isNotEmpty())
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ $projectName }}</h5>
+                                </div>
+                                <div class="card-body overflow-auto" style="max-height: 300px;">
+                                    @foreach($projectComments as $notification)
+                                        @php
+                                            $userName = $notification->user->first_name ?? 'Unknown User';
+                                            $ticketId = $notification->ticket_id ?? 'N/A';
+                                            $ticketUrl = url('/view/ticket/' . $ticketId);
+                                        @endphp
+
+                                        <div class="mb-3 pb-2 border-bottom">
+                                            <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
+                                                <small>
+                                                    New comment on <span class="text-primary">#{{ $ticketId }}</span> by 
+                                                    <span class="fw-bold">{{ $userName }}</span> on 
+                                                    <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                                </small>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endforeach
-            </tbody>                       
-        </table>        
-</div>
-</div>
+            </div>
+        @if($projectsWithComments->count() > 4)
+            <div class="text-center mb-2">
+                <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
+                    See All
+                </a>
+            </div>
+        @endif
 @endsection
 @section('js_scripts')
 <script>

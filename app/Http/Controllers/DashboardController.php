@@ -38,58 +38,78 @@ class DashboardController extends Controller
         ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
         ->get();
-        $notifications  = 0;
+       $notifications = collect(); 
         $projectMap = '';
+
         if ($user->role_id == 6) {
             $clientId = $user->client_id;
 
             $projectMap = Projects::where('client_id', $clientId)
-            ->pluck('project_name', 'id');
+                ->pluck('project_name', 'id');
 
-        $projectIds = $projectMap->keys();
+            $projectIds = $projectMap->keys();
 
-        $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+            $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
 
-        $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
-        ->where('comments', '!=', '')
-        ->where('comment_by', '!=', auth()->id())
-        ->with('user')
-        ->orderBy('created_at', 'desc')
-        ->take(10)
-        ->get();
-        }
-      elseif (in_array($user->role_id, [2, 3])) {
-    $assignedTicketIds = DB::table('ticket_assigns')
-        ->where('user_id', $user->id)
-        ->pluck('ticket_id')
-        ->toArray();
-
-    $createdTicketIds = Tickets::where('created_by', $user->id)
-        ->pluck('id')
-        ->toArray();
-    $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
-    $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
-        ->where('comments', '!=', '')
-        ->where('comment_by', '!=', auth()->id())
-        ->with(['user', 'ticket.project'])
-        ->orderBy('created_at', 'desc')
-        ->take(10)
-        ->get();
-}
-
-        else{
-            $projectMap = null; // Not needed
-            $notifications = TicketComments::where('comments', '!=', '')
+            $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+                ->where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
-                ->with(['user', 'ticket.project']) // Load relations
+                ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
-                ->take(10)
                 ->get();
         }
+        elseif (in_array($user->role_id, [2, 3])) {
+            $assignedTicketIds = DB::table('ticket_assigns')
+                ->where('user_id', $user->id)
+                ->pluck('ticket_id')
+                ->toArray();
+
+            $createdTicketIds = Tickets::where('created_by', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
+
+            $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
+                ->where('comments', '!=', '')
+                ->where('comment_by', '!=', auth()->id())
+                ->with(['user', 'ticket.project'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+                 $projectIds = Tickets::whereIn('id', $ticketIds)->pluck('project_id')->unique();
+                 $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+        }
+        else {
+            $projectMap = Projects::pluck('project_name', 'id');
+
+            $notifications = TicketComments::where('comments', '!=', '')
+                ->where('comment_by', '!=', auth()->id())
+                ->with(['user', 'ticket.project'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        $groupedNotifications = $notifications
+            ->groupBy(function ($comment) {
+                return optional($comment->ticket->project)->id ?? 'unknown';
+            })
+            ->map(function ($group) {
+                return $group->take(5); 
+            });
+
+        if (in_array($user->role_id, [1])) {
+            foreach ($projectMap as $projectId => $projectName) {
+                if (!$groupedNotifications->has($projectId)) {
+                    $groupedNotifications->put($projectId, collect());
+                }
+            }
+
+            $groupedNotifications = $groupedNotifications->sortKeys();
+        }
+     
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
-        // Convert the joining_date attribute to a Carbon date instance
         $probationEndDate = Carbon::parse($user->joining_date)->addMonths(3);
 
         $today = Carbon::now();
@@ -424,6 +444,7 @@ class DashboardController extends Controller
             'projectMap',
             'allEmployees',
             'allClients',
+            'groupedNotifications'
         ));
     }
 
