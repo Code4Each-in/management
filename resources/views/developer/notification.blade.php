@@ -49,13 +49,6 @@
                     @endif
                 @endforeach
             </div>
-        @if($projectsWithComments->count() > 4)
-            <div class="text-center mb-2">
-                <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
-                    See All
-                </a>
-            </div>
-        @endif
 @endsection
 @section('js_scripts')
 <script>
