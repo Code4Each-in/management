@@ -536,6 +536,7 @@ use Carbon\Carbon;
     </div>
 </div>
 <!-- Sticky Notes Started -->
+<h4 class="fw-bold mb-4 text-dark">Recent Project Comments</h4>
                <div class="row">
             @php
                 $validProjects = collect();
@@ -1241,6 +1242,7 @@ use Carbon\Carbon;
                         </div>
                     </div>
                 </div>
+                <h4 class="fw-bold mb-4 text-dark">Recent Project Comments</h4>
             <div class="row">
                 @forelse($groupedNotifications as $projectId => $projectComments)
                     @php
