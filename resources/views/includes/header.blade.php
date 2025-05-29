@@ -185,14 +185,14 @@
                     <span>Reminders</span>
                 </a>
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
                     <i class="bi bi-people"></i>
                     <div class="position-relative">
                         <span>Team Chat</span>
                     </div>
                 </a>
-            </li>
+            </li> --}}
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">
