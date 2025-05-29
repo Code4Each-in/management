@@ -536,6 +536,7 @@ use Carbon\Carbon;
     </div>
 </div>
 <!-- Sticky Notes Started -->
+@if(auth()->user()->role_id != 4)
 <h4 class="fw-bold mb-4 text-dark">Recent Project Comments</h4>
                <div class="row">
             @php
@@ -596,7 +597,7 @@ use Carbon\Carbon;
                 </a>
             </div>
         @endif
-
+@endif
 
     <!-- ---------- ToDo List Started ---------------- -->
    @if($tasks->isNotEmpty())
