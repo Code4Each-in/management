@@ -18,6 +18,9 @@ use App\Models\Sprint;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification as NotificationFacade;
+
+
 //use Dotenv\Validator;
 
 
@@ -615,7 +618,7 @@ class TicketsController extends Controller
                         }
     
                         // Notify admin (user ID 1)
-                        $admin = Users::find(2);
+                        $admin = Users::find(1);
                         if ($admin) {
                             $admin->notify(new TicketNotification($messages));
                         }
@@ -644,8 +647,15 @@ class TicketsController extends Controller
                             $clientId = $project->client_id;
                         }
                         $client = Users::where('client_id', $clientId)->first();
+                        $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
+                       
                         if ($client) {
                             $client->notify(new TicketNotification($messages));
+
+                            if (!empty($secondaryEmail)) {
+                                NotificationFacade::route('mail', $secondaryEmail)
+                                    ->notify(new TicketNotification($messages));
+                            }
                         }
     
                     } catch (\Exception $e) {

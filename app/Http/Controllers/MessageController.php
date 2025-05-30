@@ -11,6 +11,8 @@ use App\Models\Projects;
 use App\Models\Client;
 use Illuminate\Support\Str;
 use App\Notifications\MessageNotification;
+use Illuminate\Support\Facades\Notification as NotificationFacade;
+
 class MessageController extends Controller
 {
     /**
@@ -195,10 +197,16 @@ public function addMessage(Request $request)
             "url-title"     => "View Message",
             "url"           => "/messages?project_id={$projectId}",
         ];
-
+        $secondaryEmail = Client::where('id', $project->client_id)->value('secondary_email');
         $recipient = Users::find($to_id);
         if ($recipient) {
             $recipient->notify(new MessageNotification($notificationData));
+
+            // Notify the secondary email if it exists
+            if ($user->role_id != 6 && !empty($secondaryEmail)) {
+                NotificationFacade::route('mail', $secondaryEmail)
+                    ->notify(new MessageNotification($notificationData));
+            }
         }
     } catch (\Exception $e) {
         \Log::error("Notification error: " . $e->getMessage());
