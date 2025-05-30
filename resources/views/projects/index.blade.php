@@ -35,14 +35,12 @@ use App\Models\Projects;?>
                                     <th>End Date</th>
                                     @endif
                                     <th>Status</th>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)   
                                     <th>Action</th>
-                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($projects as $data)
-                                <tr>
+                                <tr onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
                                     <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->project_name )}}</td>
                                     <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
@@ -77,8 +75,10 @@ use App\Models\Projects;?>
                                     @endif
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
                                     </td>
-                                    @if (auth()->user()->role['name'] == 'Super Admin' || auth()->user()->role['name'] == 'HR Manager' || auth()->user()->role_id == 6)    
-                                    <td> 
+                                    <td class="actions-cell"> 
+                                         <a href="{{ url('/project/'.$data->id)}}">
+                                            <i class="fa fa-eye fa-fw pointer"></i>
+                                        </a>
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
@@ -86,7 +86,6 @@ use App\Models\Projects;?>
                                         <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i>
                                         @endif
                                     </td>
-                                    @endif
                                 </tr>
                                 @empty
                                 @endforelse

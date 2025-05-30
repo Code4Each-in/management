@@ -4483,6 +4483,36 @@ form#searchForm {
 .ql-editor p {
   margin: 0;
 }
-
-
+.notification-entry {
+  display: flex;
+  align-items: start;
+  gap: 0px;
+}
  
+.notification-icon {
+  font-size: 1rem;
+  margin-top: 4px;
+  color: #297bab !important;
+}
+ 
+/* Bounce Animation */
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+ 
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+.project-toggle-icon i {
+  transition: transform 0.3s ease;
+}
+
+.project-task-card.expanded .project-toggle-icon i {
+  transform: rotate(180deg); /* Arrow points up when expanded */
+}

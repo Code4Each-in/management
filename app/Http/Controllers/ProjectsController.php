@@ -7,6 +7,7 @@ use App\Models\ProjectAssigns;
 use App\Models\ProjectFiles;
 use App\Models\Projects;
 use App\Models\Tickets;
+use App\Models\TicketComments;
 use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
@@ -355,7 +356,26 @@ class ProjectsController extends Controller
         $projects = Projects::with('client')->find($projectId); 
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
-        return view('projects.show',compact('projects','projectAssigns','ProjectDocuments'));
+        $sprints = Sprint::where('project', $projectId)
+        ->orderBy('start_date', 'asc')
+        ->get();
+         $ticketIds = Tickets::whereIn('sprint_id', $sprints->pluck('sprint_id'))->pluck('sprint_id');
+
+        $ticketComments = TicketComments::whereIn('ticket_id', $ticketIds)
+        ->where('comments', '!=', '') 
+        ->with(['user', 'ticket.project']) 
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+
+    return view('projects.show', compact(
+        'projects',
+        'projectAssigns',
+        'ProjectDocuments',
+        'sprints',
+        'ticketComments'
+    ));
+       
     }
    
 
