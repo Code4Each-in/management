@@ -3845,7 +3845,7 @@ div#notification_length {
     top: 6px;
     right: 8px;
     color: #c0392b;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
   }
   
@@ -4515,4 +4515,12 @@ form#searchForm {
 
 .project-task-card.expanded .project-toggle-icon i {
   transform: rotate(180deg); /* Arrow points up when expanded */
+}
+.copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 35px;
+    color: #1a62b1eb;
+    font-size: 1.2rem;
+    cursor: pointer;
 }

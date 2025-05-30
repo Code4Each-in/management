@@ -1707,6 +1707,7 @@ use Carbon\Carbon;
                 <input type="hidden" class="note-id" value="${id}">
                 <input type="hidden" class="user-id" value="${userid}">
                 <div class="note-inner-container">
+                    <div class="copy-btn" title="Copy Note"><i class="fa-solid fa-copy"></i></i></div>
                     <div class="delete-btn"><i class="fas fa-trash"></i></div>
                     <div class="note-content">
                         <div class="note-saved-message" style="display: none;">
@@ -1724,6 +1725,27 @@ use Carbon\Carbon;
 
             note.querySelector('.note-title').addEventListener('blur', updateNote);
             note.querySelector('.note-body').addEventListener('blur', updateNote);
+
+            
+            note.querySelector('.copy-btn').onclick = function () {
+                const title = note.querySelector('.note-title').innerText.trim();
+                const body = note.querySelector('.note-body').innerText.trim();
+                const textToCopy = `Title: ${title}\n\n${body}`;
+
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        const copyBtn = note.querySelector('.copy-btn i');
+                        const originalClass = copyBtn.className;
+                        copyBtn.className = 'fas fa-check'; // feedback icon
+                        setTimeout(() => {
+                            copyBtn.className = originalClass;
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        alert('Failed to copy note text.');
+                        console.error('Copy failed', err);
+                    });
+            };
 
             // Add delete button functionality
             note.querySelector('.delete-btn').onclick = function() {
@@ -1835,6 +1857,7 @@ use Carbon\Carbon;
                     });
             }, 1000);
         }
+        
 
         createAddBtn();
     $(document).on('click', '.reminder-close-btn', function() {
