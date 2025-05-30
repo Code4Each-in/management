@@ -72,28 +72,27 @@
                   @endphp
                 @if ($firstRole != 6)
                 <td>
-    @php
-        // Calculate only if eta is present
-        $daysLeft = $eta ? $now->diffInDays($eta, false) : null;
-    @endphp
+                    @php
+                        // Calculate only if eta is present
+                        $daysLeft = $eta ? $now->diffInDays($eta, false) : null;
+                    @endphp
 
-    @if (!is_null($daysLeft))
-        <p>
-            @if ($daysLeft < 0)
-                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is overdue!"></i>
-                Overdue: {{ abs($daysLeft) }} days
-            @elseif ($daysLeft <= 2 && $daysLeft >= 0)
-                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>
-                Days Left: {{ $daysLeft }}
-            @else
-                Days Left: {{ $daysLeft }}
-            @endif
-        </p>
-    @else
-        Ongoing
-    @endif
-</td>
-        
+                    @if (!is_null($daysLeft))
+                        <p>
+                            @if ($daysLeft < 0)
+                                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is overdue!"></i>
+                                Overdue: {{ abs($daysLeft) }} days
+                            @elseif ($daysLeft <= 2 && $daysLeft >= 0)
+                                <i class="fas fa-exclamation-circle" style="color: red;" title="Task is approaching!"></i>
+                                Days Left: {{ $daysLeft }}
+                            @else
+                                Days Left: {{ $daysLeft }}
+                            @endif
+                        </p>
+                    @else
+                        Ongoing
+                    @endif
+                </td>
                     <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
                     <td>{{ $eta ? $eta->format('d/m/Y') : '---' }}</td>
                 @endif

@@ -19,8 +19,8 @@
 
                     @if($projectComments->isNotEmpty())
                         <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <div class="notification  card shadow-sm h-100">
+                                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: #297bab;">
                                     <h5 class="mb-0">{{ $projectName }}</h5>
                                 </div>
                                 <div class="card-body overflow-auto" style="max-height: 300px;">
