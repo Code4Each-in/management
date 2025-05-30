@@ -35,8 +35,7 @@ class TicketNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        // dd($this->messages);
-        return (new MailMessage)
+            return (new MailMessage)
             ->subject($this->messages['subject'] ?? 'Notification Email')
             ->view('Email.custom_ticket_template', ['messages' => $this->messages]);
     }
