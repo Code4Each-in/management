@@ -466,10 +466,10 @@ class SprintController extends Controller
                 ->get();
         }
 
-        $groupedNotifications = $notifications->filter(function ($comment) {
-            return optional($comment->ticket->project)->id !== null;
+       $groupedNotifications = $notifications->filter(function ($comment) {
+            return optional(optional($comment->ticket)->project)->id !== null;
         })->groupBy(function ($comment) {
-            return $comment->ticket->project->id;
+            return optional(optional($comment->ticket)->project)->id;
         });
 
         if ($roleId == 1) {
