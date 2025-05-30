@@ -91,7 +91,7 @@ class DashboardController extends Controller
 
         $groupedNotifications = $notifications
             ->groupBy(function ($comment) {
-                return optional($comment->ticket->project)->id ?? 'unknown';
+                return optional(optional($comment->ticket)->project)->id ?? 'unknown';
             })
             ->map(function ($group) {
                 return $group->take(5); 
