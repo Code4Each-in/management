@@ -24,15 +24,21 @@ class CheckReminders extends Command
 
         $reminders = Reminder::whereNotNull('reminder_date')
             ->where('reminder_date', '<=', $now)
-            ->whereNotNull('clicked_at')
             ->get();
 
         Log::info("Found " . $reminders->count() . " reminders due.");
 
         foreach ($reminders as $reminder) {
-            Log::info('Triggering reminder: ' . $reminder->description);
-            $this->triggerReminderNotification($reminder);
-            $this->updateNextReminderDate($reminder);
+            if ($reminder->clicked_at) {
+                // Manual close
+                Log::info('Triggering reminder: ' . $reminder->description);
+                $this->triggerReminderNotification($reminder);
+                $this->updateNextReminderDate($reminder);
+            } else {
+                // Missed reminder
+                Log::info('Auto-closing missed reminder: ' . $reminder->description);
+                $this->autoUpdateMissedReminderAndMarkClicked($reminder);
+            }
         }
 
         $this->info('Reminder check completed!');
@@ -61,5 +67,48 @@ class CheckReminders extends Command
         $reminder->save();
 
         Log::info('Updated next reminder date to: ' . $nextDate->toDateTimeString());
+    }
+
+    protected function autoUpdateMissedReminderAndMarkClicked($reminder)
+    {
+        $now = Carbon::now()->startOfDay();
+        $reminderDate = Carbon::parse($reminder->reminder_date)->startOfDay();
+
+        if ($reminderDate->gte($now)) {
+            return;
+        }
+
+        switch ($reminder->type) {
+            case 'daily':
+                while ($reminderDate->lt($now)) {
+                    $reminderDate->addDay();
+                }
+                break;
+
+            case 'weekly':
+                if (!empty($reminder->weekly_day)) {
+                    $targetDay = ucfirst(strtolower($reminder->weekly_day));
+                    $reminderDate = Carbon::parse('next ' . $targetDay);
+                } else {
+                    $reminderDate->addWeek();
+                }
+                break;
+
+            case 'monthly':
+                while ($reminderDate->lt($now)) {
+                    $reminderDate->addMonth();
+                }
+                break;
+
+            default:
+                Log::warning("Unknown reminder type for auto update: " . $reminder->type);
+                return;
+        }
+
+        $reminder->reminder_date = $reminderDate->startOfDay();
+        $reminder->clicked_at = Carbon::now(); 
+        $reminder->save();
+
+        Log::info("Auto-updated missed reminder ({$reminder->description}), next date: " . $reminderDate . ", marked clicked_at as now.");
     }
 }
