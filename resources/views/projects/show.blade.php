@@ -79,7 +79,7 @@
                 ];
                 $status = $statusMap[$projects->status] ?? ['label' => ucfirst($projects->status), 'color' => 'secondary'];
               @endphp
-              <span class="badge bg-{{ $status['color'] }}">{{ $status['label'] }}</span>
+              <span class="badge rounded-pill bg-{{ $status['color'] }}" style="flex:0 !important;">{{ $status['label'] }}</span>
             </div>
           </div>
           <div class="mt-2">
@@ -91,8 +91,12 @@
 
     <!-- Right Column: Developer Listing -->
     <div class="col-md-5 d-flex">
-      <div class="card shadow rounded-4 flex-fill">
-        <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+      <div class="card shadow rounded-4 flex-fill"  style="
+    max-height: 380px;
+    overflow: overlay;
+">
+        <div class="card-header text-white rounded-top-4 d-flex align-items-center" style="
+    background-color: #012970;">
           <i class="fa-solid fa-users me-2"></i><strong>Developer Listing</strong>
         </div>
         <div class="card-body">
@@ -149,7 +153,9 @@
                                 <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
                                     <i class="fa fa-edit fa-fw pointer"></i>
                                 </a>
+                                @if (auth()->user()->role->id != 6)
                                 <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                                @endif
                             </td>
                             <td style="text-align: center;">
                       <div class="d-flex justify-content-center status-group">
