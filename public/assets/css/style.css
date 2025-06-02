@@ -4532,13 +4532,13 @@ form#searchForm {
     align-items: center;
     gap: 6px;
 }
-.accordion-header .accordion-button::after {
+.comment-section .accordion-header .accordion-button::after {
     filter: brightness(13.5);
 }
-.accordion-button:not(.collapsed){
+.comment-section .accordion-button:not(.collapsed){
   background: #2b7ca9 !important;
 }
-button.accordion-button.text-white.fw-bold.collapsed {
+.comment-section button.accordion-button.text-white.fw-bold.collapsed {
     background: #2b7ca9 !important;
 }
 

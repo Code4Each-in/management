@@ -106,7 +106,7 @@ class CheckReminders extends Command
         }
 
         $reminder->reminder_date = $reminderDate->startOfDay();
-        $reminder->clicked_at = Carbon::now(); 
+        $reminder->clicked_at = null; 
         $reminder->save();
 
         Log::info("Auto-updated missed reminder ({$reminder->description}), next date: " . $reminderDate . ", marked clicked_at as now.");
