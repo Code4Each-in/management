@@ -3,9 +3,11 @@
 @section('subtitle', 'Show')
 @section('content')
 <div class="d-flex justify-content-end mb-3">
+    @if (!in_array(auth()->user()->role->id, [2, 3, 4]))
     <a href="{{ url('/edit/project/'.$projects->id)}}" class="btn btn-outline-primary me-2">
         <i class="fa-solid fa-pen-to-square me-1"></i> Edit Project
     </a>
+@endif
     <a href="{{ url('messages?project_id=' . $projects->id) }}" class="btn btn-outline-success">
     <i class="fa-solid fa-comments me-1"></i> Chat
     </a>
@@ -93,8 +95,7 @@
     <div class="col-md-5 d-flex">
       <div class="card shadow rounded-4 flex-fill"  style="
     max-height: 380px;
-    overflow: overlay;
-">
+    overflow: overlay;">
         <div class="card-header text-white rounded-top-4 d-flex align-items-center" style="
     background-color: #012970;">
           <i class="fa-solid fa-users me-2"></i><strong>Developer Listing</strong>
@@ -264,7 +265,9 @@
     </div>
 </div>
 </div>
-<h4 class="mb-4 projectComment mt-3">Recent Project Comments</h4>
+@if($latestComments->isNotEmpty())
+    <h4 class="mb-4 projectComment mt-3">Recent Project Comments</h4>
+@endif
 <div class="row mt-4">
     @foreach($projectMap as $projectId => $projectName)
         @php
