@@ -73,17 +73,29 @@ class DashboardController extends Controller
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
+                ->whereYear('created_at', 2025)
+                ->whereHas('ticket.project', function ($query) {
+                    $query->where('client_id', '!=', 10); // added condition
+                })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
-                 $projectIds = Tickets::whereIn('id', $ticketIds)->pluck('project_id')->unique();
-                 $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+                  
+                $projectIds = Tickets::whereIn('id', $ticketIds)
+                ->whereHas('project', function ($query) {
+                    $query->where('client_id', '!=', 10); // also apply same condition here
+                })
+                ->pluck('project_id')
+                ->unique();
+
+                $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
         }
         else {
             $projectMap = Projects::pluck('project_name', 'id');
 
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
+                ->whereYear('created_at', 2025)
                 ->whereHas('ticket.project', function ($query) {
                     $query->where('client_id', '!=', 10);
                 })
@@ -97,7 +109,7 @@ class DashboardController extends Controller
                 return optional(optional($comment->ticket)->project)->id ?? 'unknown';
             })
             ->map(function ($group) {
-                return $group->take(5); 
+                return $group->take(10); 
             });
 
         if (in_array($user->role_id, [1])) {
