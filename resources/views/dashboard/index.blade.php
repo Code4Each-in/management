@@ -1720,29 +1720,29 @@ use Carbon\Carbon;
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
     // jQuery for handling the cross button click
-    $(document).on('click', '.close', function() {
-    var reminderId = $(this).data('id');  // Get the reminder ID
-    var currentTime = new Date().toISOString();  // Get current time in ISO format
+    // $(document).on('click', '.close', function() {
+    // var reminderId = $(this).data('id');  // Get the reminder ID
+    // var currentTime = new Date().toISOString();  // Get current time in ISO format
 
-    // Send the AJAX request to the route defined above
-    $.ajax({
-        url: '/reminder/mark-as-read',  // The URL of the route you defined
-        method: 'POST',
-        data: {
-            id: reminderId,  // Pass the reminder ID
-            clicked_at: currentTime,  // Pass the current time as clicked_at
-            _token: '{{ csrf_token() }}'  // CSRF token for security
-        },
-        success: function(response) {
-            console.log(response); // Log the response to check success
-            $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr.responseText); // Log the error details
-            alert('Failed to save the click time');
-        }
-    });
-});
+    // // Send the AJAX request to the route defined above
+    // $.ajax({
+    //     url: '/reminder/mark-as-read',  // The URL of the route you defined
+    //     method: 'POST',
+    //     data: {
+    //         id: reminderId,  // Pass the reminder ID
+    //         clicked_at: currentTime,  // Pass the current time as clicked_at
+    //         _token: '{{ csrf_token() }}'  // CSRF token for security
+    //     },
+    //     success: function(response) {
+    //         console.log(response); // Log the response to check success
+    //         $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
+    //     },
+    //     error: function(xhr, status, error) {
+    //         console.log(xhr.responseText); // Log the error details
+    //         alert('Failed to save the click time');
+    //     }
+    // });
+// });
 
         // sticky notes js started //
         let updateTimeout;
@@ -1937,26 +1937,26 @@ use Carbon\Carbon;
         
 
         createAddBtn();
-    $(document).on('click', '.reminder-close-btn', function() {
-        let reminderId = $(this).data('id');
-        $(this).closest('.container').fadeOut(); // or remove()
+    // $(document).on('click', '.reminder-close-btn', function() {
+    //     let reminderId = $(this).data('id');
+    //     $(this).closest('.container').fadeOut(); // or remove()
 
-        // Optional: Send AJAX request to mark reminder as closed
-        $.ajax({
-            url: '/reminders/close', // adjust this URL as needed
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                id: reminderId
-            },
-            success: function(response) {
-                console.log('Reminder closed.');
-            },
-            error: function(xhr) {
-                console.error('Error closing reminder.');
-            }
-        });
-    });
+    //     // Optional: Send AJAX request to mark reminder as closed
+    //     $.ajax({
+    //         url: '/reminders/close', // adjust this URL as needed
+    //         method: 'POST',
+    //         data: {
+    //             _token: '{{ csrf_token() }}',
+    //             id: reminderId
+    //         },
+    //         success: function(response) {
+    //             console.log('Reminder closed.');
+    //         },
+    //         error: function(xhr) {
+    //             console.error('Error closing reminder.');
+    //         }
+    //     });
+    // });
     </script>
 
     @endsection
