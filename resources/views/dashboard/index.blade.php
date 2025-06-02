@@ -602,16 +602,16 @@ use Carbon\Carbon;
                                 <h2 class="accordion-header" id="heading{{ $accordionId }}">
                                     <button class="accordion-button collapsed text-white fw-bold" type="button"
                                         data-bs-toggle="collapse" data-bs-target="#collapse{{ $accordionId }}"
-                                        aria-expanded="false" aria-controls="collapse{{ $accordionId }}">
+                                        aria-expanded="true" aria-controls="collapse{{ $accordionId }}">
                                         {{ $projectName }}
                                     </button>
                                 </h2>
-                                <div id="collapse{{ $accordionId }}" class="accordion-collapse collapse"
+                                <div id="collapse{{ $accordionId }}" class="accordion-collapse collapse show"
                                     aria-labelledby="heading{{ $accordionId }}" data-bs-parent="#projectCommentsAccordion{{ $projectId }}">
                                     <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
                                         @foreach($groupedByDate as $label => $comments)
                                             <div class="text-center mb-2">
-                                                <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 800; font-size: 15px;">
+                                                <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 600; font-size: 12px;">
                                                     {{ $label }}
                                                 </span>
                                             </div>
@@ -643,7 +643,7 @@ use Carbon\Carbon;
                 @endforeach
             </div>
 
-            @if($projectMap->count() > 6)
+            @if($projectMap->count() > 2)
                 <div class="text-center mt-3">
                     <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill"
                        style="background-color:#297bab; border: 2px solid #297bab;">
@@ -1254,58 +1254,92 @@ use Carbon\Carbon;
         </div>
     </div>
         <!-- Sticky Notes Ended -->
-        <h4 class="fw-bold mb-4 text-dark">Recent Project Comments</h4>
-            <div class="row">
-                @forelse($groupedNotifications as $projectId => $projectComments)
-                    @php
-                        $projectName = optional($projectComments->first()->ticket->project)->project_name ?? 'Unknown Project';
-                        $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
-                    @endphp
+<div class="comment-section">
+    <h4 class="mb-4 projectComment">Recent Project Comments</h4>
+    <div class="row">
+        @forelse($groupedNotifications as $projectId => $projectComments)
+            @php
+                $projectName = optional($projectComments->first()->ticket->project)->project_name ?? 'Unknown Project';
+                $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments))
+                    ->sortByDesc('created_at');
+                $accordionId = 'accordionItem' . $projectId;
+                $groupedByDate = $validComments->groupBy(function ($comment) {
+                    $commentDate = $comment->created_at->copy()->setTimezone('Asia/Kolkata')->startOfDay();
+                    $today = now('Asia/Kolkata')->startOfDay();
+                    $yesterday = now('Asia/Kolkata')->subDay()->startOfDay();
 
-                    @if($validComments->isNotEmpty())
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: #297bab;">
-                                    <h5 class="mb-0">{{ $projectName }}</h5>
-                                </div>
-                                <div class="card-body overflow-auto" style="max-height: 300px;">
-                                    @foreach($validComments as $notification)
-                                        @php
-                                            $userName = $notification->user->first_name ?? 'Unknown User';
-                                            $ticketId = $notification->ticket_id ?? 'N/A';
-                                            $ticketUrl = url('/view/ticket/' . $ticketId);
-                                        @endphp
+                    if ($commentDate->eq($today)) {
+                        return 'Today';
+                    }
+                    if ($commentDate->eq($yesterday)) {
+                        return 'Yesterday';
+                    }
+                    return $commentDate->format('d-M-Y');
+                });
+            @endphp
 
-                                        <div class="notification-entry notification-label mb-3 pb-2 border-bottom">
-                                            <i class="fa-solid fa-bell notification-icon animate-bounce text-warning me-2"></i>
-                                            <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark fw-semibold">
-                                                <small>
-                                                        You received a new comment on 
-                                                        <span class="text-primary">#{{ $ticketId }}</span> in project 
-                                                        <strong>{{ $projectName }}</strong> by 
-                                                        <strong>{{ $userName }}</strong> on 
-                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
-                                                    </small>
-                                            </a>
+            @if($validComments->isNotEmpty())
+                <div class="col-md-6 mb-4">
+                    <div class="accordion" id="projectCommentsAccordion{{ $projectId }}">
+                        <div class="accordion-item border rounded shadow-sm">
+                            <h2 class="accordion-header" id="heading{{ $accordionId }}">
+                                <button class="accordion-button collapsed text-white fw-bold" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#collapse{{ $accordionId }}"
+                                    aria-expanded="true" aria-controls="collapse{{ $accordionId }}">
+                                    {{ $projectName }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ $accordionId }}" class="accordion-collapse collapse show"
+                                aria-labelledby="heading{{ $accordionId }}" data-bs-parent="#projectCommentsAccordion{{ $projectId }}">
+                                <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
+                                    @foreach($groupedByDate as $label => $comments)
+                                        <div class="text-center mb-2">
+                                            <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 600; font-size: 12px;">
+                                                {{ $label }}
+                                            </span>
                                         </div>
+                                        @foreach($comments as $notification)
+                                            @php
+                                                $userName = $notification->user->first_name ?? 'Unknown User';
+                                                $ticketId = $notification->ticket_id ?? 'N/A';
+                                                $ticketUrl = url('/view/ticket/' . $ticketId);
+                                            @endphp
+                                            <div class="notification-entry mb-3 pb-2 border-bottom">
+                                                <i class="fa-solid fa-bell notification-icon animate-bounce text-warning me-2"></i>
+                                                <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
+                                                    <small>
+                                                        You received a new comment on
+                                                        <span class="text-primary">#{{ $ticketId }}</span> in project
+                                                        <strong>{{ $projectName }}</strong> by
+                                                        <span class="fw-bold">{{ $userName }}</span> on
+                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span> .
+                                                    </small>
+                                                </a>
+                                            </div>
+                                        @endforeach
                                     @endforeach
                                 </div>
                             </div>
                         </div>
-                    @endif
-                @empty
-                    <div class="col-12 text-center text-muted py-5">
-                        No recent comments found
                     </div>
-                @endforelse
-            </div>
-            @if(!$groupedNotifications->isEmpty())
-                <div class="text-center mb-2">
-                    <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
-                        See All
-                    </a>
                 </div>
             @endif
+        @empty
+            <div class="col-12 text-center text-muted py-5">
+                No recent comments found
+            </div>
+        @endforelse
+    </div>
+
+    @if(!$groupedNotifications->isEmpty())
+        <div class="text-center mb-2">
+            <a href="{{ url('/comments') }}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill" style="background-color:#4154F1; border: 2px solid #4154F1;">
+                See All
+            </a>
+        </div>
+    @endif
+</div>
+
         <div class="row">
             <!-- Left 8-column block for both tables -->
             <div class="col-lg-8">
