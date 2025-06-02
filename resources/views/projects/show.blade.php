@@ -229,7 +229,9 @@
                                 <a href="{{ url('/edit/sprint/'.$sprints->id) }}">
                                     <i class="fa fa-edit fa-fw pointer"></i>
                                 </a>
+                                @if (auth()->user()->role->id != 6)
                                 <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprints->id }}')"></i>
+                                @endif
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center status-group">
