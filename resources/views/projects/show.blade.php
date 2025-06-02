@@ -137,7 +137,7 @@
                 </thead>
                 <tbody>
                     @forelse($sprints as $sprint)
-                        <tr>
+                            <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprint->id) }}'">
                             <td>{{ $sprint->name }}</td>
                            <td>
                             <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
@@ -146,7 +146,7 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($sprint->start_date)->format('d-m-Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($sprint->end_date)->format('d-m-Y') }}</td>
-                            <td>
+                            <td class="actions-cell">
                                 <a href="{{ route('sprint.view', $sprint->id) }}">
                                     <i class="fa fa-eye"></i>
                                 </a>
@@ -213,7 +213,7 @@
                 </thead>
                 <tbody>
                     @forelse($completedsprints as $sprints)
-                        <tr>
+                        <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprints->id) }}'">
                             <td>{{ $sprints->name }}</td>
                             <td>
                                 <span class="badge {{ $sprints->status == 1 ? 'active' : 'inactive' }}">
@@ -222,7 +222,7 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($sprints->start_date)->format('d-m-Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($sprints->end_date)->format('d-m-Y') }}</td>
-                            <td>
+                            <td class="actions-cell">
                                 <a href="{{ route('sprint.view', $sprints->id) }}">
                                     <i class="fa fa-eye"></i>
                                 </a>
