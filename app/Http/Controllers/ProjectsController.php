@@ -413,17 +413,19 @@ class ProjectsController extends Controller
         ->get();
 
         
-        $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
-        ->where('comments', '!=', '')
-        ->whereIn('id', function ($query) {
-            $query->select(DB::raw('MAX(id)'))
-                ->from('ticket_comments')
-                ->where('comments', '!=', '')
-                ->groupBy('ticket_id');
-        })
-        ->with(['user', 'ticket.project'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+       $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
+            ->where('comments', '!=', '')
+            ->where('comment_by', '!=', auth()->id())  // <-- added here
+            ->whereIn('id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('ticket_comments')
+                    ->where('comments', '!=', '')  
+                    ->groupBy('ticket_id');
+            })
+            ->with(['user', 'ticket.project'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $projectMap = $latestComments
         ->pluck('ticket.project')        
         ->unique('id')                    
