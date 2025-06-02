@@ -1233,7 +1233,7 @@ use Carbon\Carbon;
                                             $ticketUrl = url('/view/ticket/' . $ticketId);
                                         @endphp
 
-                                        <div class="notification-entry mb-3 pb-2 border-bottom">
+                                        <div class="notification-entry notification-label mb-3 pb-2 border-bottom">
                                             <i class="fa-solid fa-bell notification-icon animate-bounce text-warning me-2"></i>
                                             <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark fw-semibold">
                                                 <small>

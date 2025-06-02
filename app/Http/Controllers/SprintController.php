@@ -461,10 +461,13 @@ class SprintController extends Controller
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', $user->id)
                 ->whereYear('created_at', 2025)
+                ->whereHas('ticket.project', function ($query) {
+                    $query->where('client_id', '!=', 10);
+                })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
-        }
+            }
 
        $groupedNotifications = $notifications->filter(function ($comment) {
             return optional(optional($comment->ticket)->project)->id !== null;

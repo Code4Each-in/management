@@ -353,14 +353,69 @@ class ProjectsController extends Controller
     }
     public function showProject($projectId)
     {
+        $user = Auth::user();
+        $clientId = $user->client_id;
         $projects = Projects::with('client')->find($projectId); 
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
-        $sprints = Sprint::where('project', $projectId)
-        ->orderBy('start_date', 'asc')
-        ->get();
-         $ticketIds = Tickets::whereIn('sprint_id', $sprints->pluck('sprint_id'))->pluck('sprint_id');
+        $ticketIds = Tickets::where('project_id', $projectId)->pluck('id');
 
+        $developerIds = DB::table('ticket_assigns')
+            ->whereIn('ticket_id', $ticketIds)
+            ->distinct()
+            ->pluck('user_id');
+
+        $developers = Users::whereIn('id', $developerIds)
+            ->where('status', 1)
+            ->get();
+
+         $sprints = Sprint::with('projectDetails')
+        ->withCount([
+            'tickets',
+            'tickets as completed_tickets_count' => function ($query) {
+                $query->where('status', 'complete');
+            },
+            'tickets as todo_tickets_count' => function ($query) {
+                $query->where('status', 'to_do');
+            },
+            'tickets as in_progress_tickets_count' => function ($query) {
+                $query->where('status', 'in_progress');
+            },
+            'tickets as deployed_tickets_count' => function ($query) {
+                $query->where('status', 'deployed');
+            },
+            'tickets as ready_tickets_count' => function ($query) {
+                $query->where('status', 'ready');
+            },
+        ])
+        ->where('status', 1) 
+        ->where('project', $projectId) 
+        ->get();
+
+        $completedsprints = Sprint::with('projectDetails')
+        ->withCount([
+            'tickets',
+            'tickets as completed_tickets_count' => function ($query) {
+                $query->where('status', 'complete');
+            },
+            'tickets as todo_tickets_count' => function ($query) {
+                $query->where('status', 'to_do');
+            },
+            'tickets as in_progress_tickets_count' => function ($query) {
+                $query->where('status', 'in_progress');
+            },
+            'tickets as deployed_tickets_count' => function ($query) {
+                $query->where('status', 'deployed');
+            },
+            'tickets as ready_tickets_count' => function ($query) {
+                $query->where('status', 'ready');
+            },
+        ])
+        ->where('status', 2) 
+        ->where('project', $projectId) 
+        ->get();
+
+        $ticketIds = Tickets::whereIn('sprint_id', $sprints->pluck('sprint_id'))->pluck('sprint_id');
         $ticketComments = TicketComments::whereIn('ticket_id', $ticketIds)
         ->where('comments', '!=', '') 
         ->with(['user', 'ticket.project']) 
@@ -373,7 +428,9 @@ class ProjectsController extends Controller
         'projectAssigns',
         'ProjectDocuments',
         'sprints',
-        'ticketComments'
+        'ticketComments',
+        'completedsprints',
+        'developers'
     ));
        
     }
