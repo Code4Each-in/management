@@ -1708,7 +1708,7 @@ use Carbon\Carbon;
                 },
                 success: function(response) {
                     console.log(response); // Log the response to check success
-                    $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
+                    $('[data-id="' + reminderId + '"]').closest('.reminder-box').fadeOut();
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseText); // Log the error details
