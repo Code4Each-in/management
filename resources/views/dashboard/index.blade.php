@@ -589,7 +589,7 @@ use Carbon\Carbon;
                             if ($commentDate->eq($yesterday)) {
                                 return 'Yesterday';
                             }
-                            return 'Earlier';
+                            return $commentDate->format('d-M-Y');
                         });
                     @endphp
 
@@ -605,8 +605,11 @@ use Carbon\Carbon;
                             aria-labelledby="heading{{ $accordionId }}" data-bs-parent="#projectCommentsAccordion">
                             <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
                                 @foreach($groupedByDate as $label => $comments)
-                                    <div class="text-center text-secondary fw-bold mt-3 mb-2">{{ $label }}</div>
-
+                                    <div class="text-center mb-2">
+                                        <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 800; font-size: 15px;">
+                                            {{ $label }}
+                                        </span>
+                                    </div>
                                     @foreach($comments as $notification)
                                         @php
                                             $userName = $notification->user->first_name ?? 'Unknown User';
