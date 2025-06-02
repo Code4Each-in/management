@@ -41,7 +41,7 @@ use App\Models\Projects;?>
                                 @forelse($projects as $data)
                                 <tr class="cursor-pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
                                     <td>{{($data->project_name )}}</td>
-                                    <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
+                                    <td class="actions-cell"> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
                                             <img src="{{asset('assets/img/').'/'.$assign->profile_picture}}" width="20" height="20" class="rounded-circle " alt="">
                                             @else <img src="assets/img/blankImage" alt="Profile" width="20" height="20" class="rounded-circle">
