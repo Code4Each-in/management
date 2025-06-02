@@ -101,7 +101,6 @@ class ReminderController extends Controller
 
     public function markAsRead(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'id' => 'required|exists:reminders,id',
             'clicked_at' => 'required|date',
