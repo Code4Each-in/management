@@ -4532,3 +4532,26 @@ form#searchForm {
         align-items: center;
         gap: 6px;
     }
+h2#headingaccordionItem16 .accordion-button::after {
+    filter: brightness(13.5);
+}
+.accordion-button:not(.collapsed){
+  background: #2b7ca9 !important;
+}
+button.accordion-button.text-white.fw-bold.collapsed {
+    background: #2b7ca9 !important;
+}
+
+.projectComment {
+  font-size: 24px;
+  font-weight: 600;
+  color: #012970;
+}
+.comment-section {
+    margin-bottom: 30px;
+    border: none;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+    padding: 21px;
+}
