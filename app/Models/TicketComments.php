@@ -24,4 +24,8 @@ class TicketComments extends Model
 {
     return $this->belongsTo(Tickets::class, 'ticket_id');
 }
+public function project()
+{
+    return $this->belongsTo(Projects::class, 'project'); 
+}
 }

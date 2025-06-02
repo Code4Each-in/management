@@ -45,7 +45,7 @@
                 @endif
                 <th>Actions</th>
                 <th>Status</th>
-                <th>Workflow Stage</th>
+                <th>ToDo|InProgress|Ready|Deployed|Complete</th>
               </tr>
             </thead>
             <tbody>
@@ -166,7 +166,7 @@
                 @endif
                 <th>Actions</th>
                 <th>Status</th>
-                <th>Workflow Stage</th>
+                <th>ToDo|InProgress|Ready|Deployed|Complete</th>
               </tr>
             </thead>
            <tbody>
@@ -277,7 +277,7 @@
                 @endif
               <th>Actions</th>
               <th>Status</th>
-              <th>Workflow Stage</th>
+              <th>ToDo|InProgress|Ready|Deployed|Complete</th>
             </tr>
           </thead>
           <tbody>
