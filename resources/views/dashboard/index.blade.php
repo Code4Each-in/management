@@ -611,7 +611,7 @@ use Carbon\Carbon;
                                     <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
                                         @foreach($groupedByDate as $label => $comments)
                                             <div class="text-center mb-2">
-                                                <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 800; font-size: 15px;">
+                                                <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 600; font-size: 12px;">
                                                     {{ $label }}
                                                 </span>
                                             </div>
@@ -1285,16 +1285,16 @@ use Carbon\Carbon;
                             <h2 class="accordion-header" id="heading{{ $accordionId }}">
                                 <button class="accordion-button collapsed text-white fw-bold" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#collapse{{ $accordionId }}"
-                                    aria-expanded="false" aria-controls="collapse{{ $accordionId }}">
+                                    aria-expanded="true" aria-controls="collapse{{ $accordionId }}">
                                     {{ $projectName }}
                                 </button>
                             </h2>
-                            <div id="collapse{{ $accordionId }}" class="accordion-collapse collapse"
+                            <div id="collapse{{ $accordionId }}" class="accordion-collapse collapse show"
                                 aria-labelledby="heading{{ $accordionId }}" data-bs-parent="#projectCommentsAccordion{{ $projectId }}">
                                 <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
                                     @foreach($groupedByDate as $label => $comments)
                                         <div class="text-center mb-2">
-                                            <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 800; font-size: 15px;">
+                                            <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 600; font-size: 12px;">
                                                 {{ $label }}
                                             </span>
                                         </div>

@@ -4528,11 +4528,11 @@ form#searchForm {
     padding-top: 10px;
 }
 .notification-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-h2#headingaccordionItem16 .accordion-button::after {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.accordion-header .accordion-button::after {
     filter: brightness(13.5);
 }
 .accordion-button:not(.collapsed){
