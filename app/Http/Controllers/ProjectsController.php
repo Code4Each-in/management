@@ -359,16 +359,13 @@ class ProjectsController extends Controller
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
         $ticketIds = Tickets::where('project_id', $projectId)->pluck('id');
-
         $developerIds = DB::table('ticket_assigns')
             ->whereIn('ticket_id', $ticketIds)
             ->distinct()
             ->pluck('user_id');
-
         $developers = Users::whereIn('id', $developerIds)
             ->where('status', 1)
             ->get();
-
          $sprints = Sprint::with('projectDetails')
         ->withCount([
             'tickets',
@@ -415,22 +412,33 @@ class ProjectsController extends Controller
         ->where('project', $projectId) 
         ->get();
 
-        $ticketIds = Tickets::whereIn('sprint_id', $sprints->pluck('sprint_id'))->pluck('sprint_id');
-        $ticketComments = TicketComments::whereIn('ticket_id', $ticketIds)
-        ->where('comments', '!=', '') 
-        ->with(['user', 'ticket.project']) 
+        
+        $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
+        ->where('comments', '!=', '')
+        ->whereIn('id', function ($query) {
+            $query->select(DB::raw('MAX(id)'))
+                ->from('ticket_comments')
+                ->where('comments', '!=', '')
+                ->groupBy('ticket_id');
+        })
+        ->with(['user', 'ticket.project'])
         ->orderBy('created_at', 'desc')
         ->get();
-        
-
-    return view('projects.show', compact(
+        $projectMap = $latestComments
+        ->pluck('ticket.project')        
+        ->unique('id')                    
+        ->mapWithKeys(function($project) {
+            return [$project->id => $project->name];
+        });
+        return view('projects.show', compact(
         'projects',
         'projectAssigns',
         'ProjectDocuments',
         'sprints',
-        'ticketComments',
+        'latestComments',
         'completedsprints',
-        'developers'
+        'developers',
+        'projectMap'
     ));
        
     }

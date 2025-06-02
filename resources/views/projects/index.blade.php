@@ -26,7 +26,6 @@ use App\Models\Projects;?>
                     <table class="styled-sprint-table sprint-table" id="projects">
                             <thead>
                                 <tr>
-                                    <th>Project Id</th>
                                     <th>Project Name</th>
                                     <th>Assign</th>
                                     <th>Client Name</th>
@@ -40,8 +39,7 @@ use App\Models\Projects;?>
                             </thead>
                             <tbody>
                                 @forelse($projects as $data)
-                                <tr onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
-                                    <td><a href="{{ url('/project/'.$data->id)}}">#{{$data->id}}</a>
+                                <tr class="cursor-pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
                                     <td>{{($data->project_name )}}</td>
                                     <td> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
