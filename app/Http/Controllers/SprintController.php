@@ -445,12 +445,17 @@ class SprintController extends Controller
             $projectIds = Tickets::whereIn('id', $ticketIds)
                 ->pluck('project_id')
                 ->unique();
-            $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+            $projectMap = Projects::whereIn('id', $projectIds)
+            ->where('client_id', '!=', 10)
+            ->pluck('project_name', 'id');
 
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
                 ->where('comment_by', '!=', $user->id)
                 ->whereYear('created_at', 2025)
+                ->whereHas('ticket.project', function ($query) {
+                    $query->where('client_id', '!=', 10);
+                })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -483,6 +488,14 @@ class SprintController extends Controller
             }
             $groupedNotifications = $groupedNotifications->sortKeys();
         }
+        $sortedProjectIds = $groupedNotifications->map(function ($comments) {
+            return $comments->max('created_at');
+        })->sortDesc()->keys();
+
+        // Reorder projectMap based on sorted IDs
+        $projectMap = $sortedProjectIds->mapWithKeys(function ($projectId) use ($projectMap) {
+            return [$projectId => $projectMap[$projectId] ?? 'Unknown Project'];
+        });
         return view('developer.notification', compact('notifications', 'groupedNotifications', 'projectMap', 'roleId'));
     }
 
