@@ -61,7 +61,7 @@
                         <div class="accordion-body" style="max-height: 300px; overflow-y: auto;">
                             @foreach($groupedByDate as $label => $comments)
                                 <div class="text-center mb-2">
-                                    <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 800; font-size: 15px;">
+                                    <span class="badge px-3 py-1 rounded-pill" style="background-color: #e0e0e0; color: #333; font-weight: 600; font-size: 12px;">
                                         {{ $label }}
                                     </span>
                                 </div>
