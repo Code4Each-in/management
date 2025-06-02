@@ -4555,3 +4555,13 @@ button.accordion-button.text-white.fw-bold.collapsed {
     box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
     padding: 21px;
 }
+  .truncated {
+  max-height: 120px;
+  overflow: hidden;
+  position: relative;
+}
+.task-details {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
