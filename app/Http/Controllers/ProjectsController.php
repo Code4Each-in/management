@@ -365,6 +365,7 @@ class ProjectsController extends Controller
             ->pluck('user_id');
         $developers = Users::whereIn('id', $developerIds)
             ->where('status', 1)
+            ->whereNotIn('role_id', [1, 6])
             ->get();
          $sprints = Sprint::with('projectDetails')
         ->withCount([
