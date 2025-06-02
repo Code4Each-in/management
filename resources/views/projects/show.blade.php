@@ -2,117 +2,63 @@
 @section('title', 'Projects')
 @section('subtitle', 'Show')
 @section('content')
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ url('/edit/project/'.$projects->id)}}" class="btn btn-outline-primary me-2">
+        <i class="fa-solid fa-pen-to-square me-1"></i> Edit Project
+    </a>
+    <a href="{{ url('messages?project_id=' . $projects->id) }}" class="btn btn-outline-success">
+    <i class="fa-solid fa-comments me-1"></i> Chat
+    </a>
+</div>
 <div class="container">
-    <div class="row">
-      <div class="col-md-7">
-        <div class="task-card collapsed">
-          <div class="task-header d-flex justify-content-between align-items-center" onclick="toggleTaskDetails(this)">
-            <div class="d-flex align-items-center">
-              <div class="task-icon me-2">
-                <i class="fa-solid fa-folder-open"></i>
-              </div>
-              <div class="task-title">
-                <h4 class="mb-0">{{ $projects->project_name }}</h4>
-              </div>
+  <div class="row d-flex align-items-stretch">
+    <div class="col-md-7 d-flex">
+      <div class="task-card  flex-fill expanded">
+        <div class="task-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="task-icon me-2">
+              <i class="fa-solid fa-folder-open"></i>
             </div>
-            <div class="task-toggle-icon">
-              <i class="fa-solid fa-chevron-down"></i>
+            <div class="task-title">
+              <h4 class="mb-0">{{ $projects->project_name }}</h4>
             </div>
           </div>
-          <div class="task-details">
-            <div class="detail-item">
-              <i class="fa-solid fa-user-tie"></i>
-              <strong>Client:</strong>
-              <span>{{ $projects->client->name ?? '---' }}</span>
-            </div>
+          {{-- <div class="task-toggle-icon">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div> --}}
+        </div>
+        <div class="task-details">
+          {{-- Always visible --}}
+          <div class="detail-item"><i class="fa-solid fa-user-tie"></i><strong>Client:</strong> <span>{{ $projects->client->name ?? '---' }}</span></div>
+          <div class="detail-item"><i class="fa-solid fa-users"></i><strong>Assigned To:</strong> <span>{{ $projectAssigns->pluck('user.first_name')->join(', ') ?: '---' }}</span></div>
+          <div class="detail-item"><i class="fa-solid fa-link"></i><strong>Live URL:</strong> {!! $projects->live_url ? "<a href='{$projects->live_url}' target='_blank'>{$projects->live_url}</a>" : '<span>---</span>' !!}</div>
+          <div class="detail-item"><i class="fa-solid fa-code"></i><strong>Dev URL:</strong> {!! $projects->dev_url ? "<a href='{$projects->dev_url}' target='_blank'>{$projects->dev_url}</a>" : '<span>---</span>' !!}</div>
+          <div class="detail-item"><i class="fa-brands fa-git-alt"></i><strong>Git Repo:</strong> {!! $projects->git_repo ? "<a href='{$projects->git_repo}' target='_blank'>{$projects->git_repo}</a>" : '<span>---</span>' !!}</div>
 
-            <div class="detail-item">
-              <i class="fa-solid fa-users"></i>
-              <strong>Assigned To:</strong>
-              <span>
-                {{ $projectAssigns->pluck('user.first_name')->join(', ') ?: '---' }}
-              </span>
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-solid fa-link"></i>
-              <strong>Live URL:</strong>
-              @if($projects->live_url)
-                <a href="{{ $projects->live_url }}" target="_blank">{{ $projects->live_url }}</a>
-              @else
-                <span>---</span>
-              @endif
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-solid fa-code"></i>
-              <strong>Dev URL:</strong>
-              @if($projects->dev_url)
-                <a href="{{ $projects->dev_url }}" target="_blank">{{ $projects->dev_url }}</a>
-              @else
-                <span>---</span>
-              @endif
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-brands fa-git-alt"></i>
-              <strong>Git Repo:</strong>
-              @if($projects->git_repo)
-                <a href="{{ $projects->git_repo }}" target="_blank">{{ $projects->git_repo }}</a>
-              @else
-                <span>---</span>
-              @endif
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-solid fa-layer-group"></i>
-              <strong>Tech Stacks:</strong>
-              <span>{{ $projects->tech_stacks ?? '---' }}</span>
-            </div>
+          {{-- Hidden by default --}}
+          <div class="extra-details {{ request()->has('expanded') ? '' : 'd-none' }}">
+            <div class="detail-item"><i class="fa-solid fa-layer-group"></i><strong>Tech Stacks:</strong> <span>{{ $projects->tech_stacks ?? '---' }}</span></div>
 
             <div class="detail-item">
               <i class="fa-solid fa-align-left"></i>
               <strong>Description:</strong>
-              <div>{!! $projects->description ?? '---' !!}</div>
+              <div class="project-description">{!! $projects->description ?? '---' !!}</div>
             </div>
 
-            <div class="detail-item">
-              <i class="fa-solid fa-calendar-days"></i>
-              <strong>Start Date:</strong>
-              <span>{{ \Carbon\Carbon::parse($projects->start_date)->format('d-m-Y') }}</span>
-            </div>
+            <div class="detail-item"><i class="fa-solid fa-calendar-days"></i><strong>Start Date:</strong> <span>{{ \Carbon\Carbon::parse($projects->start_date)->format('d-m-Y') }}</span></div>
+            <div class="detail-item"><i class="fa-solid fa-calendar-check"></i><strong>End Date:</strong> <span>{{ $projects->end_date ? \Carbon\Carbon::parse($projects->end_date)->format('d-m-Y') : '---' }}</span></div>
+
+            <div class="detail-item"><i class="fa-solid fa-key"></i><strong>Credentials:</strong><div>{!! $projects->credentials ?? '---' !!}</div></div>
 
             <div class="detail-item">
-              <i class="fa-solid fa-calendar-check"></i>
-              <strong>End Date:</strong>
-              <span>{{ $projects->end_date ? \Carbon\Carbon::parse($projects->end_date)->format('d-m-Y') : '---' }}</span>
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-solid fa-key"></i>
-              <strong>Credentials:</strong>
-              <div>{!! $projects->credentials ?? '---' !!}</div>
-            </div>
-
-            <div class="detail-item">
-              <i class="fa-solid fa-file-alt"></i>
-              <strong>Documents:</strong>
+              <i class="fa-solid fa-file-alt"></i><strong>Documents:</strong>
               @if ($ProjectDocuments->isEmpty())
                 <span>No documents uploaded</span>
               @else
                 @foreach ($ProjectDocuments as $doc)
                   @php
                     $ext = pathinfo($doc->document, PATHINFO_EXTENSION);
-                    $icons = [
-                      'pdf' => 'fa-file-pdf',
-                      'doc' => 'fa-file-word',
-                      'docx' => 'fa-file-word',
-                      'xls' => 'fa-file-excel',
-                      'xlsx' => 'fa-file-excel',
-                      'jpg' => 'fa-file-image',
-                      'jpeg' => 'fa-file-image',
-                      'png' => 'fa-file-image',
-                    ];
+                    $icons = ['pdf' => 'fa-file-pdf', 'doc' => 'fa-file-word', 'docx' => 'fa-file-word', 'xls' => 'fa-file-excel', 'xlsx' => 'fa-file-excel', 'jpg' => 'fa-file-image', 'jpeg' => 'fa-file-image', 'png' => 'fa-file-image'];
                     $icon = $icons[$ext] ?? 'fa-file';
                   @endphp
                   <button class="btn btn-outline-primary btn-sm mb-1" onclick="window.open('{{ asset('assets/img/'.$doc->document) }}', '_blank')">
@@ -122,9 +68,8 @@
               @endif
             </div>
 
-            <div class="detail-items">
-              <i class="fa-solid fa-circle-info"></i>
-              <strong>Status:</strong>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle-info"></i><strong>Status:</strong>
               @php
                 $statusMap = [
                   'not_started' => ['label' => 'Not Started', 'color' => 'primary'],
@@ -137,27 +82,34 @@
               <span class="badge bg-{{ $status['color'] }}">{{ $status['label'] }}</span>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="col-md-5">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            <i class="fa-solid fa-users"></i> Developer Listing
-          </div>
-          <div class="card-body">
-            @forelse($developers as $assign)
-              <div class="mb-2">
-                <i class="fa-solid fa-user"></i>
-                {{ $assign->user->first_name ?? 'N/A' }} {{ $assign->user->last_name ?? '' }}
-              </div>
-            @empty
-              <p>No developers assigned.</p>
-            @endforelse
+          <div class="mt-2">
+            <a href="javascript:void(0);" class="text-primary small" onclick="toggleExtraDetails(this)">See more</a>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Right Column: Developer Listing -->
+    <div class="col-md-5 d-flex">
+      <div class="card shadow rounded-4 flex-fill">
+        <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+          <i class="fa-solid fa-users me-2"></i><strong>Developer Listing</strong>
+        </div>
+        <div class="card-body">
+          @forelse($developers as $assign)
+            <div class="d-flex align-items-center mb-3">
+              <img src="{{ asset('assets/img/' . ($assign->profile_picture ?? 'default-avatar.png')) }}"
+                alt="Profile" class="rounded-circle me-3 border" width="35" height="35">
+              <div><div class="fw-semibold">{{ $assign->first_name ?? 'N/A' }} {{ $assign->last_name ?? '' }}</div></div>
+            </div>
+          @empty
+            <p class="text-muted mb-0">No developers assigned.</p>
+          @endforelse
+        </div>
+      </div>
+    </div>
   </div>
+</div>
     <div class="sprint-section">
         <div class="sprint-header production">
             <div class="section-left">
@@ -352,21 +304,19 @@
 function toggleTaskDetails(headerElement) {
   const taskCard = headerElement.closest('.task-card');
   const isExpanded = taskCard.classList.contains('expanded');
-  const details = taskCard.querySelector('.task-details');
   const arrow = headerElement.querySelector('.arrow');
 
   if (isExpanded) {
     taskCard.classList.remove('expanded');
     taskCard.classList.add('collapsed');
-    if (details) details.style.display = 'none';
-    if (arrow) arrow.innerHTML = '&#9654;'; 
+    if (arrow) arrow.innerHTML = '&#9654;'; // Right arrow
   } else {
     taskCard.classList.add('expanded');
     taskCard.classList.remove('collapsed');
-    if (details) details.style.display = 'block';
-    if (arrow) arrow.innerHTML = '&#9660;'; 
+    if (arrow) arrow.innerHTML = '&#9660;'; // Down arrow
   }
 }
+
  function deleteSprint(id) {
                 $('#sprint_id').val(id);
                 if (confirm("Are you sure ?") == true) {
@@ -383,5 +333,19 @@ function toggleTaskDetails(headerElement) {
                     });
                 }
             }
+</script>
+<script>
+function toggleExtraDetails(link) {
+  const card = link.closest('.task-card');
+  const extra = card.querySelector('.extra-details');
+
+  if (extra.classList.contains('d-none')) {
+    extra.classList.remove('d-none');
+    link.textContent = 'See less';
+  } else {
+    extra.classList.add('d-none');
+    link.textContent = 'See more';
+  }
+}
 </script>
 @endsection
