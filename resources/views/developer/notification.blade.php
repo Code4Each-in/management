@@ -75,7 +75,7 @@
 
                                     <div class="notification-entry mb-3 pb-2 border-bottom">
                                         <i class="fa-solid fa-bell notification-icon animate-bounce text-warning me-2"></i>
-                                        <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
+                                        <a href="{{ $ticketUrl }}" target="_blank" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
                                             <small>
                                                 You received a new comment on 
                                                 <span class="text-primary">#{{ $ticketId }}</span> in project 

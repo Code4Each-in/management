@@ -39,7 +39,7 @@ use App\Models\Projects;?>
                             </thead>
                             <tbody>
                                 @forelse($projects as $data)
-                                <tr class="cursor-pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
+                                <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
                                     <td>{{($data->project_name )}}</td>
                                     <td class="actions-cell"> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
