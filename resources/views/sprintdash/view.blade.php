@@ -52,19 +52,19 @@
     <div id="pieChart" style="min-height: 300px;"></div>
     <dfiv class="row mt-0 justify-content-center gap-2">
         <div class="col-auto">
-            <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" data-status="to_do">To Do: {{ $todo }}</span>
+            <span class="badge bg-purple text-white status-filter" style="background-color: #948979;" title="To Do" data-status="to_do">To Do: {{ $todo }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge text-white status-filter" data-status="in_progress" style="background-color: #3fa6d7;">In Progress: {{ $progress }}</span>
+            <span class="badge text-white status-filter" data-status="in_progress" style="background-color: #3fa6d7;" title="In Progress">In Progress: {{ $progress }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge text-white status-filter" data-status="ready" style="background-color: #e09f3e;">Ready: {{ $ready }}</span>
+            <span class="badge text-white status-filter" data-status="ready" style="background-color: #e09f3e;" title="Ready">Ready: {{ $ready }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge text-white status-filter" data-status="deployed" style="background-color: #e76f51;">Deployed: {{ $deployed }}</span>
+            <span class="badge text-white status-filter" data-status="deployed" style="background-color: #e76f51;" title="Deployed">Deployed: {{ $deployed }}</span>
         </div>
         <div class="col-auto">
-            <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;">Complete: {{ $complete }}</span>
+            <span class="badge status-filter" data-status="complete" style="background-color: #2a9d8f;" title="Complete">Complete: {{ $complete }}</span>
         </div>
     </dfiv>
 </div>    
@@ -295,16 +295,8 @@
 @endsection
 @section('js_scripts')
 <script>
- $(document).ready(function() {
-        $('#allsprint').DataTable({
-            "order": []
-            });
-        });
         $(document).ready(function () {
         var table1 = $('#allsprint').DataTable();
-        var table1Height = $('#allsprint').height();
-        var maxHeight = Math.max(table1Height);
-        $('#allsprint').height(maxHeight);
 
         $.ajaxSetup({
                     headers: {
@@ -408,62 +400,62 @@
       });
     });
   </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const chart = echarts.init(document.querySelector("#pieChart"));
-    
-        const chartOptions = {
-            title: {
-                text: 'Ticket Status Overview',
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item'
-            },
-            legend: {
-                orient: 'vertical',
-                left: 'left'
-            },
-            series: [{
-                name: 'Tickets',
-                type: 'pie',
-                radius: '50%',
-                data: [
-                    { value: {{ $todo }}, name: 'To Do', itemStyle: { color: '#948979' }, status: 'to_do' },
-                    { value: {{ $progress }}, name: 'In Progress', itemStyle: { color: '#3fa6d7' }, status: 'in_progress' },
-                    { value: {{ $ready }}, name: 'Ready', itemStyle: { color: '#e09f3e' }, status: 'ready' },
-                    { value: {{ $deployed }}, name: 'Deployed', itemStyle: { color: '#e76f51' }, status: 'deployed' },
-                    { value: {{ $complete }}, name: 'Complete', itemStyle: { color: '#2a9d8f' }, status: 'complete' }
-                ],
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }]
-        };
-    
-        chart.setOption(chartOptions);
-        chart.on('click', function (params) {
-            const clickedStatus = params.data.status;
-            filterTableByStatus(clickedStatus);
-        });
-        document.querySelectorAll('.status-filter').forEach(badge => {
-            badge.addEventListener('click', function () {
-                const selectedStatus = this.getAttribute('data-status');
-                filterTableByStatus(selectedStatus);
-            });
-        });
-        function filterTableByStatus(status) {
-            document.querySelectorAll('.ticket-row').forEach(row => {
-                const rowStatus = row.getAttribute('data-status');
-                row.style.display = (rowStatus === status) ? '' : 'none';
-            });
-        }
+   <script>
+document.addEventListener("DOMContentLoaded", () => {
+    window.table = $('#allsprint').DataTable({
+        order: []
     });
-    </script>    
+
+    const chart = echarts.init(document.querySelector("#pieChart"));
+    const chartOptions = {
+        title: { text: 'Ticket Status Overview', left: 'center' },
+        tooltip: { trigger: 'item' },
+        legend: { orient: 'vertical', left: 'left' },
+        series: [{
+            name: 'Tickets',
+            type: 'pie',
+            radius: '50%',
+            data: [
+                { value: {{ $todo ?? 0 }}, name: 'To Do', itemStyle: { color: '#948979' }, status: 'to_do' },
+                { value: {{ $progress ?? 0 }}, name: 'In Progress', itemStyle: { color: '#3fa6d7' }, status: 'in_progress' },
+                { value: {{ $ready ?? 0 }}, name: 'Ready', itemStyle: { color: '#e09f3e' }, status: 'ready' },
+                { value: {{ $deployed ?? 0 }}, name: 'Deployed', itemStyle: { color: '#e76f51' }, status: 'deployed' },
+                { value: {{ $complete ?? 0 }}, name: 'Complete', itemStyle: { color: '#2a9d8f' }, status: 'complete' }
+            ],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+    chart.setOption(chartOptions);
+
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const selectedStatus = window.selectedStatus || '';
+        const rowNode = table.row(dataIndex).node();
+        const rowStatus = rowNode ? rowNode.getAttribute('data-status') : '';
+        return !selectedStatus || rowStatus === selectedStatus;
+    });
+
+    function filterTableByStatus(status) {
+        window.selectedStatus = status;
+        table.draw();
+    }
+
+    chart.on('click', function (params) {
+        filterTableByStatus(params.data.status);
+    });
+
+    document.querySelectorAll('.status-filter').forEach(badge => {
+        badge.addEventListener('click', function () {
+            filterTableByStatus(this.getAttribute('data-status'));
+        });
+    });
+});
+</script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

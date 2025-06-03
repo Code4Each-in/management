@@ -416,7 +416,8 @@ class ProjectsController extends Controller
         
        $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
-            ->where('comment_by', '!=', auth()->id())  // <-- added here
+            ->where('comment_by', '!=', auth()->id())
+            ->whereYear('created_at', 2025)
             ->whereIn('id', function ($query) {
                 $query->select(DB::raw('MAX(id)'))
                     ->from('ticket_comments')

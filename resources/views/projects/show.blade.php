@@ -30,14 +30,11 @@
           </div> --}}
         </div>
         <div class="task-details">
-          {{-- Always visible --}}
           <div class="detail-item"><i class="fa-solid fa-user-tie"></i><strong>Client:</strong> <span>{{ $projects->client->name ?? '---' }}</span></div>
           <div class="detail-item"><i class="fa-solid fa-users"></i><strong>Assigned To:</strong> <span>{{ $projectAssigns->pluck('user.first_name')->join(', ') ?: '---' }}</span></div>
           <div class="detail-item"><i class="fa-solid fa-link"></i><strong>Live URL:</strong> {!! $projects->live_url ? "<a href='{$projects->live_url}' target='_blank'>{$projects->live_url}</a>" : '<span>---</span>' !!}</div>
           <div class="detail-item"><i class="fa-solid fa-code"></i><strong>Dev URL:</strong> {!! $projects->dev_url ? "<a href='{$projects->dev_url}' target='_blank'>{$projects->dev_url}</a>" : '<span>---</span>' !!}</div>
           <div class="detail-item"><i class="fa-brands fa-git-alt"></i><strong>Git Repo:</strong> {!! $projects->git_repo ? "<a href='{$projects->git_repo}' target='_blank'>{$projects->git_repo}</a>" : '<span>---</span>' !!}</div>
-
-          {{-- Hidden by default --}}
           <div class="extra-details {{ request()->has('expanded') ? '' : 'd-none' }}">
             <div class="detail-item"><i class="fa-solid fa-layer-group"></i><strong>Tech Stacks:</strong> <span>{{ $projects->tech_stacks ?? '---' }}</span></div>
 
@@ -101,29 +98,33 @@
           <i class="fa-solid fa-users me-2"></i><strong>Developer Listing</strong>
         </div>
         <div class="card-body">
-          @forelse($developers as $assign)
-            <div class="d-flex align-items-center mb-3">
-              <img src="{{ asset('assets/img/' . ($assign->profile_picture ?? 'default-avatar.png')) }}"
-                alt="Profile" class="rounded-circle me-3 border" width="35" height="35">
-              <div><div class="fw-semibold">{{ $assign->first_name ?? 'N/A' }} {{ $assign->last_name ?? '' }}</div></div>
-            </div>
-          @empty
-            <p class="text-muted mb-0">No developers assigned.</p>
-          @endforelse
+         @forelse($developers as $assign)
+          <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+            <img src="{{ asset('assets/img/' . ($assign->profile_picture ?? 'default-avatar.png')) }}"
+              alt="Profile" class="rounded-circle me-3 border" width="35" height="35">
+            <div><div class="fw-semibold">{{ $assign->first_name ?? 'N/A' }} {{ $assign->last_name ?? '' }}</div></div>
+          </div>
+        @empty
+          <p class="text-muted mb-0">No developers assigned.</p>
+        @endforelse
         </div>
       </div>
     </div>
   </div>
 </div>
-    <div class="sprint-section">
-        <div class="sprint-header production">
-            <div class="section-left">
-                <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
-                <div class="section-title" style="color: #297bab;">Active Sprints</div>
-                <div class="section-title">• {{ $sprints->count() }} Sprints</div>
-            </div>
+ <div class="sprint-section">
+    <div class="sprint-header production" data-bs-toggle="collapse" data-bs-target="#activeSprintsTable" aria-expanded="false" style="cursor: pointer;">
+        <div class="section-left">
+            <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
+            <div class="section-title" style="color: #297bab;">Active Sprints</div>
+            <div class="section-title">• {{ $sprints->count() }} Sprints</div>
         </div>
+        <div>
+            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+    </div>
 
+    <div id="activeSprintsTable" class="collapse">
         <div class="table-responsive">
             <table class="table table-bordered mb-0">
                 <thead class="table-light">
@@ -138,12 +139,12 @@
                 </thead>
                 <tbody>
                     @forelse($sprints as $sprint)
-                            <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprint->id) }}'">
+                        <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprint->id) }}'">
                             <td>{{ $sprint->name }}</td>
-                           <td>
-                            <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
-                                {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
-                            </span>
+                            <td>
+                                <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
+                                    {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
+                                </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($sprint->start_date)->format('d-m-Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($sprint->end_date)->format('d-m-Y') }}</td>
@@ -155,28 +156,28 @@
                                     <i class="fa fa-edit fa-fw pointer"></i>
                                 </a>
                                 @if (auth()->user()->role->id != 6)
-                                <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
+                                    <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
                                 @endif
                             </td>
-                            <td style="text-align: center;">
-                      <div class="d-flex justify-content-center status-group">
-                          <div class="status-box text-white" title="To Do" style="background-color: #948979;">
-                              {{ $sprint->todo_tickets_count ?? 0 }}
-                          </div>
-                          <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
-                              {{ $sprint->in_progress_tickets_count ?? 0 }}
-                          </div>
-                          <div class="status-box bg-success text-white" title="Ready" style="background-color: #e09f3e !important;">
-                              {{ $sprint->ready_tickets_count ?? 0 }}
-                          </div>
-                          <div class="status-box bg-info text-white" title="Deployed" style="background-color: #e76f51 !important;">
-                            {{ $sprint->deployed_tickets_count ?? 0 }}
-                        </div>
-                          <div class="status-box bg-warning text-white" title="Complete" style="background-color: #2a9d8f !important;">
-                              {{ $sprint->completed_tickets_count ?? 0 }}
-                          </div>
-                      </div>
-                  </td>  
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center status-group">
+                                    <div class="status-box text-white" title="To Do" style="background-color: #948979;">
+                                        {{ $sprint->todo_tickets_count ?? 0 }}
+                                    </div>
+                                    <div class="status-box text-white" title="In Progress" style="background-color: #3fa6d7;">
+                                        {{ $sprint->in_progress_tickets_count ?? 0 }}
+                                    </div>
+                                    <div class="status-box text-white" title="Ready" style="background-color: #e09f3e;">
+                                        {{ $sprint->ready_tickets_count ?? 0 }}
+                                    </div>
+                                    <div class="status-box text-white" title="Deployed" style="background-color: #e76f51;">
+                                        {{ $sprint->deployed_tickets_count ?? 0 }}
+                                    </div>
+                                    <div class="status-box text-white" title="Complete" style="background-color: #2a9d8f;">
+                                        {{ $sprint->completed_tickets_count ?? 0 }}
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -187,6 +188,7 @@
             </table>
         </div>
     </div>
+</div>
     <div class="sprint-section">
     <div class="sprint-header production" data-bs-toggle="collapse" data-bs-target="#completedSprintsTable" aria-expanded="true" style="cursor: pointer;">
         <div class="section-left">
@@ -266,51 +268,53 @@
 </div>
 </div>
 @if($latestComments->isNotEmpty())
-    <h4 class="mb-4 projectComment mt-3">Recent Project Comments</h4>
-@endif
-<div class="row mt-4">
-    @foreach($projectMap as $projectId => $projectName)
-        @php
-            // Filter comments for this project
-            $projectComments = $latestComments->where('ticket.project.id', $projectId);
-        @endphp
+    <div class="row mt-4">
+        @foreach($projectMap as $projectId => $projectName)
+            @php
+                // Filter comments for this project
+                $projectComments = $latestComments->where('ticket.project.id', $projectId);
+            @endphp
 
-        @if($projectComments->isNotEmpty())
-            <div class="col-md-12 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: #297bab;">
-                        <h5 class="mb-0">{{ $projectName }}</h5>
-                    </div>
-                    <div class="card-body overflow-auto" style="max-height: 300px;">
-                        @foreach($projectComments as $comment)
-                            @php
-                                $userName = $comment->user->first_name ?? 'Unknown User';
-                                $ticketId = $comment->ticket_id ?? 'N/A';
-                                $ticketUrl = url('/view/ticket/' . $ticketId);
-                                $commentDate = $comment->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i');
-                            @endphp
-
-                            <div class="mb-3 pb-2 border-bottom">
-                                <a href="{{ $ticketUrl }}" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
-                                    <small>
-                                        You received a new comment on 
-                                        <span class="text-primary">#{{ $ticketId }}</span> in project 
-                                        <span class="fw-bold">{{ $projectName }}</span> by 
-                                        <span class="fw-bold">{{ $userName }}</span> on 
-                                        <span class="text-muted">{{ $commentDate }}</span>.
-                                    </small>
-                                </a>
-                                <p class="mb-0 small text-muted">
-                                    {!! Str::limit(strip_tags($comment->comments), 100) !!}
-                                </p>
+            @if($projectComments->isNotEmpty())
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: #297bab;">
+                            <div>
+                                <h5 class="mb-0">{{ $projectName }}</h5>
+                                <h5 class="text-light">Recent Project Comments</h5>
                             </div>
-                        @endforeach
+                        </div>
+                        <div class="card-body overflow-auto" style="max-height: 300px;">
+                            @foreach($projectComments as $comment)
+                                @php
+                                    $userName = $comment->user->first_name ?? 'Unknown User';
+                                    $ticketId = $comment->ticket_id ?? 'N/A';
+                                    $ticketUrl = url('/view/ticket/' . $ticketId);
+                                    $commentDate = $comment->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y h:i A');
+                                @endphp
+
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <a href="{{ $ticketUrl }}" target="_blank" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
+                                        <small>
+                                            You received a new comment on 
+                                            <span class="text-primary">#{{ $ticketId }}</span> in project 
+                                            <span class="fw-bold">{{ $projectName }}</span> by 
+                                            <span class="fw-bold">{{ $userName }}</span> on 
+                                            <span class="text-muted">{{ $commentDate }}</span>.
+                                        </small>
+                                    </a>
+                                    <p class="mb-0 small text-muted">
+                                        {!! Str::limit(strip_tags($comment->comments), 100) !!}
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
-    @endforeach
-</div>
+            @endif
+        @endforeach
+    </div>
+@endif
 @endsection
 @section('js_scripts')
 <script>

@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table class="styled-sprint-table sprint-table">
+          <table id="sprintDataTable" class="styled-sprint-table sprint-table">
             <thead>
               <tr style="color: #297bab;">
                 <th>S.No</th>
@@ -115,7 +115,7 @@
                     </td>
                     <td style="text-align: center;">
                       <div class="d-flex justify-content-center status-group">
-                          <div class="status-box text-white" title="To Do" style="background-color: #948979;">
+                          <div class="status-box text-white" title="To Do"  style="background-color: #948979;">
                               {{ $sprint->todo_tickets_count ?? 0 }}
                           </div>
                           <div class="status-box bg-info text-white" title="In Progress" style="background-color: #3fa6d7 !important;">
@@ -153,7 +153,7 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table class="styled-sprint-table sprint-table">
+          <table class="styled-sprint-table sprint-table" id="sprintDataTablein">
             <thead>
               <tr style="color: #b00000d1;">
                 <th>S.No</th> <!-- Added S.No column -->
@@ -177,7 +177,7 @@
             $now = \Carbon\Carbon::now('Asia/Kolkata');
             $firstRole = explode(' ', $role_id)[0] ?? 0;
         @endphp
-        <tr>
+        <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank');">
             <td>{{ $loop->iteration }}</td>
             <td>{{ $sprint->name }}</td>
             <td>{{ $sprint->projectDetails->project_name ?? '---' }}</td>
@@ -265,7 +265,7 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table class="styled-sprint-table sprint-table">
+        <table class="styled-sprint-table sprint-table" id="sprintDataTablecom">
           <thead>
             <tr style="color: #3f996b">
               <th>S.No</th>
@@ -291,7 +291,7 @@
                 $completed = $sprint->completed_tickets_count ?? 0;
                 $progress = $total > 0 ? ($completed / $total) * 100 : 0;
               @endphp
-              <tr>
+              <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank');">
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $sprint->name }}</td>
                 <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
@@ -501,6 +501,35 @@
     <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading.......">
 </div>
 <script>
+$(document).ready(function() {
+    $('#sprintDataTable').DataTable({
+        "paging": true,
+        "ordering": true,
+        "info": true,
+        "searching": true,
+        "lengthChange": false,
+    });
+});
+$(document).ready(function() {
+    $('#sprintDataTablein').DataTable({
+        "paging": true,
+        "ordering": true,
+        "info": true,
+        "searching": true,
+        "lengthChange": false,
+    });
+});
+$(document).ready(function() {
+    $('#sprintDataTablecom').DataTable({
+        "paging": true,
+        "ordering": true,
+        "info": true,
+        "searching": true,
+        "lengthChange": false,
+    });
+});
+</script>
+<script>
     document.querySelectorAll('tr.clickable-row').forEach(row => {
   row.addEventListener('click', (event) => {
     if (!event.target.closest('.actions-cell')) {
@@ -560,7 +589,6 @@ function opensprintModal() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-    $(".alert-danger").text(xhr.responseJSON.message).fadeIn();
 
 setTimeout(() => {
     $(".alert-danger").fadeOut();
