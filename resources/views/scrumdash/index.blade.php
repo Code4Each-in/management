@@ -10,16 +10,14 @@
     
             <div class="blockquote-wrapper">
                 <div class="blockquote">
-                    @if($quotes->isNotEmpty())
-                        <h1>
-                            {{ $quotes->first()->quote_text }} 
-                        </h1>
+                    @if($quotes)
+                        <h1>{{ $quotes->quote_text }}</h1>
                         <h4>—One Thought, One Change</h4>
                     @else
                         <h1>No quote available for today.</h1>
                     @endif
                 </div>
-            </div>            
+            </div>  
     </div>
 
 <div class="row">
