@@ -4538,7 +4538,7 @@ form#searchForm {
 .comment-section .accordion-button:not(.collapsed){
   background: #2b7ca9 !important;
 }
-.comment-section button.accordion-button.text-white.fw-bold.collapsed {
+.comment-section button.accordion-button{
     background: #2b7ca9 !important;
 }
 
