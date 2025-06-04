@@ -207,9 +207,7 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
-                               <div style="white-space: pre-line; word-break: normal; overflow-wrap: break-word;">
-                                  {!! strip_tags(preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments), '<br><b><strong><i><em><ul><ol><li><a>') !!}
-                              </div>
+                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                 @php
                                     $documents = explode(',', $data->document);
                                 @endphp
