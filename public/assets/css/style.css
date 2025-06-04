@@ -4533,7 +4533,7 @@ form#searchForm {
     gap: 6px;
 }
 .comment-section .accordion-header .accordion-button::after {
-    filter: brightness(13.5);
+    filter: brightness(13.5) !important;
 }
 .comment-section .accordion-button:not(.collapsed){
   background: #2b7ca9 !important;
