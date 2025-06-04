@@ -310,7 +310,7 @@
         <div class="sidebar-header">Team Chat</div>
         <div class="contact-list">
             @foreach($projects->where('status', 'active') as $project)
-                <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }}); handleProjectClick({{ $project->id }});" id="contact-{{ $project->id }}">
+                <div class="contact {{ $loop->first ? 'active' : '' }}" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->last_message->id ?? 'null' }}, {{ $project->id }}); hideUnreadCount({{ $project->id }}); handleProjectClick({{ $project->id }});" id="contact-{{ $project->id }}">
                            <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                     {{ strtoupper(substr($project->project_name, 0, 2)) }}
                 </div>
@@ -332,7 +332,7 @@
             </div>
             @endforeach
             @foreach($projects->where('status', '!=', 'active') as $project)
-            <div class="contact" style="background-color: #d4d4d4;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->id ?? 'null' }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
+            <div class="contact" style="background-color: #d4d4d4;" onClick="loadMessages({{ $project->id }}); markMessageAsRead({{ $project->last_message->id ?? 'null' }}, {{ $project->id }}); hideUnreadCount({{ $project->id }});" id="contact-{{ $project->id }}">
                 <div class="avatar" style="background-color: #27ae60; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                     {{ strtoupper(substr($project->project_name, 0, 2)) }}
                 </div>
@@ -499,59 +499,86 @@
             const projectId = $activeChat.attr("id").replace("contact-", "");
             loadMessages(projectId); // Call the function to load its messages
         }
+     const quill = new Quill(editor, {
+        theme: 'snow',
+        modules: {
+            toolbar: '#toolbar-container'
+        },
+        placeholder: 'Type your comment here...'
+    });
 
-     $('#commentsData').on('submit', function(e) {
-    e.preventDefault();
+   $(document).on('submit', '#commentsData', function(e) {
+  e.preventDefault();
+ 
 
-    const commentHtml = quill.root.innerHTML.trim();
-    const commentText = quill.getText().trim();
-    document.getElementById('comment_input').value = commentHtml;
-    $('.alert-danger').hide().html('');
+  // Check if Quill is initialized
+  if (typeof quill === 'undefined') {
+    console.error('[ERROR] Quill editor is not initialized.');
+    return;
+  }
 
-    const fileInput = document.getElementById('comment_file');
-    const hasFile = fileInput.files && fileInput.files.length > 0;
-    const hasMedia = /<img|<video|<iframe|<audio/.test(commentHtml);
-    const hasText = commentText.length > 0;
+  const commentHtml = quill.root.innerHTML.trim();
+  const commentText = quill.getText().trim();
+  
 
-    if (hasText || hasMedia || hasFile) {
-        const formData = new FormData(this);
-        const currentUserId = {{ Auth::id() }};
-        const clientName = @json($client->name ?? 'Project Not Assigned');
+  const commentInput = document.getElementById('comment_input');
+  if (!commentInput) {
+    console.error('[ERROR] Hidden input #comment_input not found');
+    return;
+  }
+  commentInput.value = commentHtml;
 
-        $('#loader').show();
+  $('.alert-danger').hide().html('');
 
-        $.ajax({
-            url: '{{ route('message.adds') }}', 
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                console.log(response);
-                if (response.status === 200) {
-                    $('#comment_input').val('');
-                    $('#comment_file').val('');
-                    quill.root.innerHTML = "";
-                    displayMessages(response.message, false);
-                } else if (response.errors) {
-                    $('.alert-danger').html(response.errors).fadeIn();
-                }
-            },
-            error: function(xhr) {
-                let errorHtml = 'An error occurred while submitting the comment.';
-                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                    const errors = Object.values(xhr.responseJSON.errors).flat();
-                    errorHtml = errors.join('<br>');
-                }
-                $('.alert-danger').html(errorHtml).fadeIn();
-            },
-            complete: function() {
-                $('#loader').hide();
-            }
-        });
-    } else {
-        $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
-    }
+  const fileInput = document.getElementById('comment_file');
+  const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+  const hasValidContent = commentText.length > 0 || /<img|<video|<iframe|<audio/.test(commentHtml);
+  
+
+  if (hasValidContent || hasFile) {
+    const formData = new FormData(this);
+    $('#loader').show();
+
+    $.ajax({
+      url: '{{ route('message.adds') }}', // If this is an external JS file, replace this with a JS variable
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function(response) {
+        console.log('[DEBUG] AJAX success:', response);
+
+        if (response.status === 200) {
+          console.log('[DEBUG] Submission successful');
+          $('#comment').val('');
+          $('#comment_file').val('');
+          location.reload();
+        } else if (response.errors) {
+          console.warn('[WARNING] Server returned validation errors:', response.errors);
+          let errorHtml = '<ul>';
+          response.errors.forEach(function(error) {
+            errorHtml += '<li>' + error + '</li>';
+          });
+          errorHtml += '</ul>';
+          $('.alert-danger').show().html(errorHtml);
+        } else {
+          console.error('[ERROR] Unexpected response format:', response);
+          $('.alert-danger').show().html('Something went wrong.');
+        }
+      },
+      error: function(xhr) {
+        console.error('[ERROR] AJAX request failed:', xhr);
+        $('.alert-danger').show().html('An error occurred while submitting the comment.');
+      },
+      complete: function() {
+        console.log('[DEBUG] AJAX request complete');
+        $('#loader').hide();
+      }
+    });
+  } else {
+    console.warn('[WARNING] No valid content or file to submit');
+    $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+  }
 });
     });
 
@@ -683,16 +710,26 @@
         $chatContainer.scrollTop($chatContainer.prop("scrollHeight"));
     }
 }
-    function markMessageAsRead(messageId, projectId) {
+   function markMessageAsRead(messageId, projectId) {
     fetch(`/group-messages/${messageId}/read`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // important to ask for JSON response
         },
         body: JSON.stringify({ project_id: projectId })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            // If status is not OK, try to get text for debugging
+            return res.text().then(text => {
+                console.error('Server response (not JSON):', text);
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            });
+        }
+        return res.json(); // parse JSON only if status is OK
+    })
     .then(data => {
         if (data.status === 'success') {
             const unreadCountElement = document.getElementById('unread-count-' + projectId);
@@ -703,11 +740,11 @@
                 unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
             }
         } else {
-            console.warn(data.message);
+            console.warn(data.message || 'Unknown error from server');
         }
     })
     .catch(err => {
-        console.error('Error:', err);
+        console.error('Fetch error:', err);
     });
 }
 
@@ -717,12 +754,18 @@ function fetchUnreadCount(projectId) {
         .then(data => {
             if (data.status === 'success') {
                 const badge = document.getElementById('unread-count-' + projectId);
-                if (data.unreadCount > 0) {
-                    badge.textContent = data.unreadCount;
-                    badge.style.display = 'inline-block';
+                if (badge) {
+                    if (data.unreadCount > 0) {
+                        badge.textContent = data.unreadCount;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
                 } else {
-                    badge.style.display = 'none';
+                    console.warn('Badge element not found for project ID:', projectId);
                 }
+            } else {
+                console.warn('Unexpected response:', data);
             }
         })
         .catch(err => console.error('Error fetching unread count:', err));
@@ -839,14 +882,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Editor element not found!');
         return;
     }
-
-    const quill = new Quill(editor, {
-        theme: 'snow',
-        modules: {
-            toolbar: '#toolbar-container'
-        },
-        placeholder: 'Type your comment here...'
-    });
 
     // Initialize with old content if available
     const oldComment = document.getElementById('comment_input').value.trim();

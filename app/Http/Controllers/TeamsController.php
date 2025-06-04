@@ -148,15 +148,18 @@ class TeamsController extends Controller
             'user_id' => $user->id,
             'document' => !empty($documentPaths) ? implode(',', $documentPaths) : null,
         ]);
-        $exists = GroupMessageRead::where('project_id', $projectId)
-        ->where('user_id', $user->id)
-        ->exists();
+      $exists = GroupMessageRead::where('message_id', $newMessage->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
         if (!$exists) {
             GroupMessageRead::create([
                 'project_id' => $projectId,
                 'user_id' => $user->id,
+                'message_id' => $newMessage->id,
             ]);
-        }
+        }   
+
         // try {
         //     $notificationData = [
         //         "greeting-text" => "Hello!",
@@ -194,41 +197,54 @@ class TeamsController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
-    public function markAsRead(Request $request, $messageId)
-    {
-        $userId = auth()->id();
-        $alreadyRead = DB::table('group_message_reads')
-            ->where('project_id', $messageId)
-            ->where('user_id', $userId)
-            ->exists();
-        if (!$alreadyRead) {
-            DB::table('group_message_reads')->insert([
-                'project_id' => $messageId,
-                'user_id' => $userId,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-        return response()->json([
-            'status' => 'success',
-            'updatedUnreadCount' => 0
-        ]);
-    }
+   public function markAsRead(Request $request, GroupMessage $message)
+{
+    $userId = auth()->id();
+    $projectId = $message->project_id;
+
+    GroupMessageRead::updateOrCreate(
+        [
+            'project_id' => $projectId,
+            'user_id' => $userId,
+        ],
+        [
+            'message_id' => $message->id,
+            'updated_at' => now(),
+        ]
+    );
+
+    // Calculate updated unread count
+    $unreadCount = GroupMessage::where('project_id', $projectId)
+        ->where('id', '>', $message->id)
+        ->count();
+
+    return response()->json([
+        'status' => 'success',
+        'updatedUnreadCount' => $unreadCount,
+    ]);
+}
 
 
-    public function getUnreadMessageCount($projectId)
-    {
-        $userId = auth()->id();
-        $hasRead = DB::table('group_message_reads')
-            ->where('project_id', $projectId)
-            ->where('user_id', $userId)
-            ->exists();
-        $unreadCount = $hasRead ? 0 : GroupMessage::where('project_id', $projectId)->count();
-        return response()->json([
-            'status' => 'success',
-            'unreadCount' => $unreadCount
-        ]);
-    }
+   public function getUnreadMessageCount($projectId)
+{
+    $userId = auth()->id();
+
+    $lastReadId = DB::table('group_message_reads')
+        ->where('project_id', $projectId)
+        ->where('user_id', $userId)
+        ->value('message_id');
+
+    $unreadCount = GroupMessage::where('project_id', $projectId)
+        ->when($lastReadId, function ($query) use ($lastReadId) {
+            $query->where('id', '>', $lastReadId);
+        })
+        ->count();
+
+    return response()->json([
+        'status' => 'success',
+        'unreadCount' => $unreadCount,
+    ]);
+}
 
     public function destroy($id)
 
