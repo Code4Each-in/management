@@ -14,6 +14,7 @@ class GroupMessageRead extends Model
     protected $fillable = [
         'project_id',
         'user_id',
+        'message_id'
     ];
 
     // Relationships (optional but useful)
