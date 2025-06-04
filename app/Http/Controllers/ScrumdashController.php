@@ -106,11 +106,7 @@ $assignedUserNames = $taskss->pluck('assigned_user_name')->toArray();
                 ->select('users.*', 'users.first_name as assigned_user_name')
                 ->get();
     
-                $today = Carbon::now(); 
-                $dateOnly = $today->toDateString(); 
-                $quotes = Quote::whereDate('start_date', $dateOnly)
-               ->whereDate('end_date', $dateOnly)
-               ->get();
+                $quotes = Quote::inRandomOrder()->first();
                $projects = Projects::all();
         $clients = Client::where('status',1)->orderBy('name', 'asc')  
         ->get();
