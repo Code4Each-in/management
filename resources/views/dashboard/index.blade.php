@@ -629,7 +629,7 @@ use Carbon\Carbon;
                                                             <span class="text-primary">#{{ $ticketId }}</span> in project
                                                             <strong>{{ $projectName }}</strong> by
                                                             <span class="fw-bold">{{ $userName }}</span> on
-                                                            <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span>.
+                                                            <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y h:i A') }}</span>.
                                                         </small>
                                                     </a>
                                                 </div>
@@ -1312,7 +1312,7 @@ use Carbon\Carbon;
                                                         <span class="text-primary">#{{ $ticketId }}</span> in project
                                                         <strong>{{ $projectName }}</strong> by
                                                         <span class="fw-bold">{{ $userName }}</span> on
-                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y H:i') }}</span> .
+                                                        <span class="text-muted">{{ $notification->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y h:i A') }}</span>.
                                                     </small>
                                                 </a>
                                             </div>
