@@ -8,7 +8,7 @@
         <i class="fa-solid fa-pen-to-square me-1"></i> Edit Project
     </a>
 @endif
-    <a href="{{ url('messages?project_id=' . $projects->id) }}" class="btn btn-outline-success">
+    <a href="{{ url('teamchat?project_id=' . $projects->id) }}" class="btn btn-outline-success">
     <i class="fa-solid fa-comments me-1"></i> Chat
     </a>
 </div>
