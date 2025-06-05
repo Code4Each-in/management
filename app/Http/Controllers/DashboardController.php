@@ -177,60 +177,79 @@ class DashboardController extends Controller
                     ->count();
             }
 
-       $thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
 
-// Online Employees
-$onlineUsers = Users::where('status', 1)
-    ->whereNotIn('role_id', [2, 6])
-    ->where('last_seen_at', '>=', $thresholdTime)
-    ->get()
-    ->each(function ($user) {
-        $user->status_rank = 1; // Online
-    });
+        $thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
 
-// Offline Employees
-$offlineUsers = Users::where('status', 1)
-    ->whereNotIn('role_id', [2, 6])
-    ->where(function ($query) use ($thresholdTime) {
-        $query->where('last_seen_at', '<', $thresholdTime)
-              ->orWhereNull('last_seen_at');
-    })
-    ->get()
-    ->each(function ($user) {
-        if ($user->last_seen_at) {
-            $user->status_rank = 2; // Away
-        } else {
-            $user->status_rank = 3; // Offline
-        }
-    });
+        // Online Employees
+        $onlineUsers = Users::where('status', 1)
+            ->whereNotIn('role_id', [2, 6])
+            ->where('last_seen_at', '>=', $thresholdTime)
+            ->get()
+            ->each(function ($user) {
+                $user->status_rank = 1; // Online
+                $user->sort_time = now()->timestamp;
+            });
 
-// Online Clients
-$onlineClients = Users::where('status', 1)
-    ->where('role_id', 6)
-    ->where('last_seen_at', '>=', $thresholdTime)
-    ->get()
-    ->each(function ($user) {
-        $user->status_rank = 1; // Online
-    });
+        // Offline Employees
+        $offlineUsers = Users::where('status', 1)
+            ->whereNotIn('role_id', [2, 6])
+            ->where(function ($query) use ($thresholdTime) {
+                $query->where('last_seen_at', '<', $thresholdTime)
+                    ->orWhereNull('last_seen_at');
+            })
+            ->get()
+            ->each(function ($user) {
+                if ($user->last_seen_at) {
+                    $user->status_rank = 2; // Away
+                    $user->sort_time = Carbon::parse($user->last_seen_at)->timestamp;
+                } else {
+                    $user->status_rank = 3; // Offline
+                    $user->sort_time = 0;
+                }
+            });
 
-// Offline Clients
-$offlineClients = Users::where('status', 1)
-    ->where('role_id', 6)
-    ->where(function ($query) use ($thresholdTime) {
-        $query->where('last_seen_at', '<', $thresholdTime)
-              ->orWhereNull('last_seen_at');
-    })
-    ->get()
-    ->each(function ($user) {
-        if ($user->last_seen_at) {
-            $user->status_rank = 2; // Away
-        } else {
-            $user->status_rank = 3; // Offline
-        }
-    });
+        // Online Clients
+        $onlineClients = Users::where('status', 1)
+            ->where('role_id', 6)
+            ->where('last_seen_at', '>=', $thresholdTime)
+            ->get()
+            ->each(function ($user) {
+                $user->status_rank = 1; // Online
+                $user->sort_time = now()->timestamp;
+            });
 
-$allEmployees = $onlineUsers->merge($offlineUsers)->sortBy('status_rank')->values();
-$allClients = $onlineClients->merge($offlineClients)->sortBy('status_rank')->values();
+        // Offline Clients
+        $offlineClients = Users::where('status', 1)
+            ->where('role_id', 6)
+            ->where(function ($query) use ($thresholdTime) {
+                $query->where('last_seen_at', '<', $thresholdTime)
+                    ->orWhereNull('last_seen_at');
+            })
+            ->get()
+            ->each(function ($user) {
+                if ($user->last_seen_at) {
+                    $user->status_rank = 2; // Away
+                    $user->sort_time = Carbon::parse($user->last_seen_at)->timestamp;
+                } else {
+                    $user->status_rank = 3; // Offline
+                    $user->sort_time = 0;
+                }
+            });
+
+        // Merge and sort
+        $allEmployees = $onlineUsers->merge($offlineUsers)
+            ->sortBy([
+                ['status_rank', 'asc'],
+                ['sort_time', 'desc'], // More recent last_seen_at first
+            ])
+            ->values();
+
+        $allClients = $onlineClients->merge($offlineClients)
+            ->sortBy([
+                ['status_rank', 'asc'],
+                ['sort_time', 'desc'],
+            ])
+            ->values();
 
 
         if (auth()->user()->role->name == 'Super Admin') {
