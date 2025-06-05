@@ -34,6 +34,7 @@ use App\Models\Projects;?>
                                     <th>End Date</th>
                                     @endif
                                     <th>Status</th>
+                                    <th>Active|Inactive|Completed</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -72,6 +73,19 @@ use App\Models\Projects;?>
                                     <span class="badge rounded-pill  bg-success">Completed</span>
                                     @endif
                                     <!-- <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;">  By: {{ $projectstatusData->first_name ?? '' }} </p> -->
+                                    </td>
+                                   <td style="text-align: center;">
+                                        <div class="d-flex justify-content-center status-group">
+                                            <div class="status-box text-white" title="Active" style="background-color: #2a9d8f;">
+                                                {{ $data->active_sprints }}
+                                            </div>
+                                            <div class="status-box text-white" title="Inactive" style="background-color: #e76f51;">
+                                                {{ $data->inactive_sprints }}
+                                            </div>
+                                            <div class="status-box text-white" title="Completed" style="background-color: #264653;">
+                                                {{ $data->completed_sprints }}
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="actions-cell"> 
                                          <a href="{{ url('/project/'.$data->id)}}">

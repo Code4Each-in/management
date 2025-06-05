@@ -177,39 +177,61 @@ class DashboardController extends Controller
                     ->count();
             }
 
-        $thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
+       $thresholdTime = Carbon::now('Asia/Kolkata')->subMinutes(2);
 
-        // Online Employees
-        $onlineUsers = Users::where('status', 1)
-            ->whereNotIn('role_id', [2, 6])
-            ->where('last_seen_at', '>=', $thresholdTime)
-            ->get();
+// Online Employees
+$onlineUsers = Users::where('status', 1)
+    ->whereNotIn('role_id', [2, 6])
+    ->where('last_seen_at', '>=', $thresholdTime)
+    ->get()
+    ->each(function ($user) {
+        $user->status_rank = 1; // Online
+    });
 
-        // Offline Employees
-        $offlineUsers = Users::where('status', 1)
-            ->whereNotIn('role_id', [2, 6])
-            ->where(function ($query) use ($thresholdTime) {
-                $query->where('last_seen_at', '<', $thresholdTime)
-                    ->orWhereNull('last_seen_at');
-            })
-            ->get();
+// Offline Employees
+$offlineUsers = Users::where('status', 1)
+    ->whereNotIn('role_id', [2, 6])
+    ->where(function ($query) use ($thresholdTime) {
+        $query->where('last_seen_at', '<', $thresholdTime)
+              ->orWhereNull('last_seen_at');
+    })
+    ->get()
+    ->each(function ($user) {
+        if ($user->last_seen_at) {
+            $user->status_rank = 2; // Away
+        } else {
+            $user->status_rank = 3; // Offline
+        }
+    });
 
-        // Online Clients
-        $onlineClients = Users::where('status', 1)
-            ->where('role_id', 6)
-            ->where('last_seen_at', '>=', $thresholdTime)
-            ->get();
+// Online Clients
+$onlineClients = Users::where('status', 1)
+    ->where('role_id', 6)
+    ->where('last_seen_at', '>=', $thresholdTime)
+    ->get()
+    ->each(function ($user) {
+        $user->status_rank = 1; // Online
+    });
 
-        // Offline Clients
-        $offlineClients = Users::where('status', 1)
-            ->where('role_id', 6)
-            ->where(function ($query) use ($thresholdTime) {
-                $query->where('last_seen_at', '<', $thresholdTime)
-                    ->orWhereNull('last_seen_at');
-            })
-            ->get();
-            $allEmployees = $onlineUsers->merge($offlineUsers);
-            $allClients = $onlineClients->merge($offlineClients);
+// Offline Clients
+$offlineClients = Users::where('status', 1)
+    ->where('role_id', 6)
+    ->where(function ($query) use ($thresholdTime) {
+        $query->where('last_seen_at', '<', $thresholdTime)
+              ->orWhereNull('last_seen_at');
+    })
+    ->get()
+    ->each(function ($user) {
+        if ($user->last_seen_at) {
+            $user->status_rank = 2; // Away
+        } else {
+            $user->status_rank = 3; // Offline
+        }
+    });
+
+$allEmployees = $onlineUsers->merge($offlineUsers)->sortBy('status_rank')->values();
+$allClients = $onlineClients->merge($offlineClients)->sortBy('status_rank')->values();
+
 
         if (auth()->user()->role->name == 'Super Admin') {
             // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
