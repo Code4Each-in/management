@@ -8,6 +8,7 @@ use App\Models\ProjectFiles;
 use App\Models\Projects;
 use App\Models\Tickets;
 use App\Models\TicketComments;
+
 use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 //use Dotenv\Validator;
@@ -22,62 +23,79 @@ class ProjectsController extends Controller
 {
  
     public function index()
-    {
-        $user = Auth::user();
-        $clientId = $user->client_id;
-        
-    
-        $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
-            ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
-            ->where('users.status', '!=', 0)
-            ->where('users.role_id', '!=', 6)
-            ->select('users.*', 'roles.name as role_name')
-            ->orderBy('first_name', 'asc')
-            ->get();
-        if ($user->role_id == 6) {
-            $projectIds = Projects::where('client_id', $clientId)
-                ->pluck('id')
-                ->toArray();
-                
-            $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
-                $query->whereIn('id', $projectIds);
-                if (!is_null($clientId)) {
-                    $query->where('client_id', $clientId); 
-                }
-            })->orderBy('id', 'desc')->get();
-            $projectCount = $projects->count();
-            $clients = Client::where('id', $clientId)
-                        ->where('status', 1)
-                        ->orderBy('name', 'asc')
-                        ->get();
-        } else {
-            $projectsQuery = Projects::query();
+{
+    $user = Auth::user();
+    $clientId = $user->client_id;
+
+    $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
+        ->whereNotIn('roles.name', ['Super Admin', 'HR Manager'])
+        ->where('users.status', '!=', 0)
+        ->where('users.role_id', '!=', 6)
+        ->select('users.*', 'roles.name as role_name')
+        ->orderBy('first_name', 'asc')
+        ->get();
+
+    if ($user->role_id == 6) {
+        $projectIds = Projects::where('client_id', $clientId)
+            ->pluck('id')
+            ->toArray();
+
+        $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
+            $query->whereIn('id', $projectIds);
             if (!is_null($clientId)) {
-                $projectsQuery->where('client_id', $clientId);
+                $query->where('client_id', $clientId); 
             }
-            $projects = $projectsQuery->orderBy('id', 'desc')->get();
-            $projectCount = $projects->count();
-            $clients = Client::where('status', 1)
-                        ->orderBy('name', 'asc')
-                        ->get();
+        })->orderBy('id', 'desc')->get();
+
+        $projectCount = $projects->count();
+
+        $clients = Client::where('id', $clientId)
+            ->where('status', 1)
+            ->orderBy('name', 'asc')
+            ->get();
+    } else {
+        $projectsQuery = Projects::query();
+
+        if (!is_null($clientId)) {
+            $projectsQuery->where('client_id', $clientId);
         }
 
-        foreach ($projects as $key => $data) {
-            $projectAssigns = ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')
-                ->where('project_id', $data->id)
-                ->orderBy('project_assigns.id', 'desc')
-                ->get(['project_assigns.*', 'users.first_name', 'users.profile_picture']);
-    
-            $clientName = Client::where('id', $data->client_id)->pluck('name')->first();
-    
-            $projects[$key]->projectassign = $projectAssigns ?: null;
-            $projects[$key]->client_name = $clientName;
-        }
-    
-        return view('projects.index', compact('users', 'projects', 'clients', 'projectCount'));
+        $projects = $projectsQuery->orderBy('id', 'desc')->get();
+        $projectCount = $projects->count();
+
+        $clients = Client::where('status', 1)
+            ->orderBy('name', 'asc')
+            ->get();
     }
-    
 
+    foreach ($projects as $key => $data) {
+        $projectAssigns = ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')
+            ->where('project_id', $data->id)
+            ->orderBy('project_assigns.id', 'desc')
+            ->get(['project_assigns.*', 'users.first_name', 'users.profile_picture']);
+
+        $clientName = Client::where('id', $data->client_id)->pluck('name')->first();
+
+        $projects[$key]->projectassign = $projectAssigns ?: null;
+        $projects[$key]->client_name = $clientName;
+
+        // Get sprint counts grouped by status
+        $sprintCountsRaw = Sprint::select('status', DB::raw('count(*) as total'))
+            ->where('project', $data->id)
+            ->groupBy('status')
+            ->get()
+            ->pluck('total', 'status');
+
+        // Ensure all three statuses are present
+        $projects[$key]->active_sprints = $sprintCountsRaw->get(1, 0);
+        $projects[$key]->inactive_sprints = $sprintCountsRaw->get(0, 0);
+        $projects[$key]->completed_sprints = $sprintCountsRaw->get(2, 0);
+    }
+
+    return view('projects.index', compact('users', 'projects', 'clients', 'projectCount'));
+}
+
+        
     public function create(Client $client)
     {
         return view('projects.create', compact('client'));

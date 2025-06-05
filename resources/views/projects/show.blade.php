@@ -219,8 +219,9 @@
                         <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprints->id) }}'">
                             <td>{{ $sprints->name }}</td>
                             <td>
-                                <span class="badge {{ $sprints->status == 1 ? 'active' : 'inactive' }}">
-                                    {{ $sprints->status == 1 ? 'Active' : 'Inactive' }}
+                                <span class="badge 
+                                    {{ $sprints->status == 1 ? 'active' : ($sprints->status == 2 ? 'completed' : 'inactive') }}">
+                                    {{ $sprints->status == 1 ? 'Active' : ($sprints->status == 2 ? 'Completed' : 'Inactive') }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($sprints->start_date)->format('d-m-Y') }}</td>
