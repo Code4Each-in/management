@@ -4532,7 +4532,7 @@ form#searchForm {
     align-items: center;
     gap: 6px;
 }
-.comment-section .accordion-header .accordion-button::after {
+.accordion-header .accordion-button::after {
     filter: brightness(13.5) !important;
 }
 .comment-section .accordion-button:not(.collapsed){
