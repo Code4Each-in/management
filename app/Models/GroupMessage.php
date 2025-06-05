@@ -19,6 +19,10 @@ class GroupMessage extends Model
     {
         return $this->belongsTo(Projects::class);
     }
+    public function reads()
+    {
+        return $this->hasMany(GroupMessageRead::class, 'message_id');
+    }
 
    
     

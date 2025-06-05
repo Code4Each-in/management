@@ -12,9 +12,9 @@ class GroupMessageRead extends Model
     protected $table = 'group_message_reads';
 
     protected $fillable = [
-        'project_id',
         'user_id',
-        'message_id'
+        'message_id',
+        'read_at'
     ];
 
     // Relationships (optional but useful)
@@ -27,4 +27,10 @@ class GroupMessageRead extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function message()
+    {
+        return $this->belongsTo(GroupMessage::class, 'message_id');
+    }
+
 }

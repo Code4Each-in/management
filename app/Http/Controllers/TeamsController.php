@@ -19,66 +19,68 @@ class TeamsController extends Controller
     /**
      * Display the Team Chat page.
      */
-    public function index()
-    {
-        $user = Auth::user();
-        $client = null;
-        $roleid = $user->role_id;
+   public function index()
+{
+    $user = Auth::user();
+    $client = null;
+    $roleid = $user->role_id;
 
-        if ($roleid == 1) {
-            $projects = Projects::orderBy('id', 'desc')->get();
-            if ($projects->isNotEmpty()) {
-                $client = Client::find($projects->first()->client_id);
-            }
-        } elseif ($roleid == 6) {
-            $clientId = $user->client_id;
-            $projects = Projects::where('client_id', $clientId)
-                ->orderBy('id', 'desc')
-                ->get();
-            $client = Client::find($clientId);
-        } elseif (in_array($roleid, [2, 3])) {
-            $ticketIds = DB::table('ticket_assigns')
-                ->where('user_id', $user->id)
-                ->pluck('ticket_id');
-
-            $projectIds = Tickets::whereIn('id', $ticketIds)
-                ->pluck('project_id')
-                ->unique();
-
-            $projects = Projects::whereIn('id', $projectIds)
-                ->orderBy('id', 'desc')
-                ->get();
-
-            if ($projects->isNotEmpty()) {
-                $client = Client::find($projects->first()->client_id);
-            }
-        } else {
-            $projects = collect();
+    if ($roleid == 1) {
+        $projects = Projects::orderBy('id', 'desc')->get();
+        if ($projects->isNotEmpty()) {
+            $client = Client::find($projects->first()->client_id);
         }
+    } elseif ($roleid == 6) {
+        $clientId = $user->client_id;
+        $projects = Projects::where('client_id', $clientId)
+            ->orderBy('id', 'desc')
+            ->get();
+        $client = Client::find($clientId);
+    } elseif (in_array($roleid, [2, 3])) {
+        $ticketIds = DB::table('ticket_assigns')
+            ->where('user_id', $user->id)
+            ->pluck('ticket_id');
 
-        $projects = $projects->unique('project_name')->values();
+        $projectIds = Tickets::whereIn('id', $ticketIds)
+            ->pluck('project_id')
+            ->unique();
 
-        foreach ($projects as $project) {
-            $project->last_message = GroupMessage::where('project_id', $project->id)
-                ->orderBy('created_at', 'desc')
-                ->first();
+        $projects = Projects::whereIn('id', $projectIds)
+            ->orderBy('id', 'desc')
+            ->get();
 
-        $alreadyRead = DB::table('group_message_reads')
-        ->where('project_id', $project->id)
-        ->where('user_id', $user->id)
-        ->exists();
-
-    $project->unread_count = $alreadyRead ? 0 : GroupMessage::where('project_id', $project->id)->count();
-
-
-            $project->client = Client::find($project->client_id);
+        if ($projects->isNotEmpty()) {
+            $client = Client::find($projects->first()->client_id);
         }
-        $projects = $projects->sortByDesc(function ($project) {
-            return optional($project->last_message)->created_at;
-        })->values();
-
-        return view('teamchat.index', compact('projects', 'client', 'roleid'));
+    } else {
+        $projects = collect();
     }
+
+    $projects = $projects->unique('project_name')->values();
+
+    foreach ($projects as $project) {
+        $project->last_message = GroupMessage::where('project_id', $project->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $project->unread_count = GroupMessage::where('project_id', $project->id)
+            ->where('user_id', '!=', $user->id)
+            ->whereDoesntHave('reads', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->count();
+
+        $project->client = Client::find($project->client_id);
+    }
+
+    // Sort projects by last message date descending
+    $projects = $projects->sortByDesc(function ($project) {
+        return optional($project->last_message)->created_at;
+    })->values();
+
+    return view('teamchat.index', compact('projects', 'client', 'roleid'));
+}
+
 
     public function addMessages(Request $request)
     {
@@ -160,23 +162,45 @@ class TeamsController extends Controller
             ]);
         }   
 
-        // try {
-        //     $notificationData = [
-        //         "greeting-text" => "Hello!",
-        //         "subject" => "New Message received from - {$user->first_name}",
-        //         "title" => "You've received a new message from <strong>{$user->first_name}</strong>.",
-        //         "body-text" => $project->project_name,
-        //         "url-title" => "View Message",
-        //         "url" => "/messages?project_id={$projectId}",
-        //     ];
+       try {
+    $notificationData = [
+        "greeting-text" => "Hello!",
+        "subject" => "New Message received from - {$user->first_name}",
+        "title" => "You've received a new message from <strong>{$user->first_name}</strong>.",
+        "body-text" => $project->project_name,
+        "url-title" => "View Message",
+        "url" => "/teamchat?project_id={$projectId}",
+    ];
 
-        //     $recipients = Users::where('id', '!=', $user->id)->get();
-        //     foreach ($recipients as $recipient) {
-        //         $recipient->notify(new MessageNotification($notificationData));
-        //     }
-        // } catch (\Exception $e) {
-        //     \Log::error("Notification error: " . $e->getMessage());
-        // }
+            $recipientIds = [];
+            $recipientIds[] = 1;
+            
+
+            if ($project->client_id) {
+                $clientUser = Users::where('client_id', $project->client_id)->first();
+                if ($clientUser && $clientUser->id != $user->id) {
+                    $recipientIds[] = $clientUser->id;
+                }
+            }
+
+            $ticketIds = Tickets::where('project_id', $projectId)->pluck('id');
+
+            $developerIds = DB::table('ticket_assigns')
+                ->whereIn('ticket_id', $ticketIds)
+                ->pluck('user_id')
+                ->unique()
+                ->filter(fn ($id) => $id != $user->id); 
+
+            $recipientIds = array_merge($recipientIds, $developerIds->toArray());
+            $recipientIds = array_unique($recipientIds);
+            $recipients = Users::whereIn('id', $recipientIds)->get();
+            foreach ($recipients as $recipient) {
+                $recipient->notify(new MessageNotification($notificationData));
+            }
+        } catch (\Exception $e) {
+            \Log::error("Notification error: " . $e->getMessage());
+        }
+
         return response()->json([
             'status' => 200,
             'message' => $newMessage->load('user'),
@@ -197,25 +221,36 @@ class TeamsController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
-   public function markAsRead(Request $request, GroupMessage $message)
+  public function markAsRead(Request $request, GroupMessage $message)
 {
     $userId = auth()->id();
     $projectId = $message->project_id;
 
-    GroupMessageRead::updateOrCreate(
-        [
-            'project_id' => $projectId,
-            'user_id' => $userId,
-        ],
-        [
-            'message_id' => $message->id,
-            'updated_at' => now(),
-        ]
-    );
+    // Get all unread messages up to this message ID
+    $messagesToMark = GroupMessage::where('project_id', $projectId)
+        ->where('id', '<=', $message->id)
+        ->where('user_id', '!=', $userId)
+        ->whereDoesntHave('reads', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->pluck('id');
 
-    // Calculate updated unread count
+    // Bulk insert missing read records
+    foreach ($messagesToMark as $msgId) {
+        GroupMessageRead::firstOrCreate([
+            'message_id' => $msgId,
+            'user_id' => $userId,
+        ], [
+            'read_at' => now(),
+        ]);
+    }
+
+    // Recalculate unread count
     $unreadCount = GroupMessage::where('project_id', $projectId)
-        ->where('id', '>', $message->id)
+        ->where('user_id', '!=', $userId)
+        ->whereDoesntHave('reads', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
         ->count();
 
     return response()->json([
@@ -225,18 +260,14 @@ class TeamsController extends Controller
 }
 
 
-   public function getUnreadMessageCount($projectId)
+public function getUnreadMessageCount($projectId)
 {
     $userId = auth()->id();
 
-    $lastReadId = DB::table('group_message_reads')
-        ->where('project_id', $projectId)
-        ->where('user_id', $userId)
-        ->value('message_id');
-
     $unreadCount = GroupMessage::where('project_id', $projectId)
-        ->when($lastReadId, function ($query) use ($lastReadId) {
-            $query->where('id', '>', $lastReadId);
+        ->where('user_id', '!=', $userId) // Exclude own messages
+        ->whereDoesntHave('reads', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
         })
         ->count();
 
@@ -245,6 +276,7 @@ class TeamsController extends Controller
         'unreadCount' => $unreadCount,
     ]);
 }
+
 
     public function destroy($id)
 
