@@ -15,7 +15,7 @@
                 Login Now
             </a>
         </p>
-        <p style="font-size: 14px; color: #888;">Thank you,<br>The Admin Team</p>
+        <p style="font-size: 14px; color: #888;">Regards,<br>PMS</p>
     </div>
 </body>
 </html>
