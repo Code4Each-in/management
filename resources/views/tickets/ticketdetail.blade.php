@@ -207,7 +207,10 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
-                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                                <div style="word-break: auto-phrase;">
+                                  {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                              </div>
+
                                 @php
                                     $documents = explode(',', $data->document);
                                 @endphp
