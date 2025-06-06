@@ -325,6 +325,14 @@
                     </div>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('client-access-requests.*') ? '' : 'collapsed' }}" href="{{ route('client-access-requests.index') }}">
+                    <i class="bi bi-person-check"></i>
+                    <div class="position-relative">
+                        <span>Client Access Requests</span>
+                    </div>
+                </a>
+            </li>
           @endif
           @if (auth()->user()->designation == 'BDE')
            <li class="nav-item">

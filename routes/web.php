@@ -35,7 +35,7 @@ use App\Http\Controllers\SearchDataController;
 use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
-
+use App\Http\Controllers\ClientAccessRequestController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -368,6 +368,12 @@ Route::middleware(['role_permission'])->group(function () {
      Route::post('/group-messages/{message}/read', [TeamsController::class, 'markAsRead'])->name('group-messages.read');
      Route::get('/project-messages/{projectId}/unread-count', [TeamsController::class, 'getUnreadMessageCount'])->name('project-messages.unreadCount');
      Route::delete('/comments/{comment}', [TeamsController::class, 'destroy'])->name('comments.destroy');
+  
+	 //for request access
+    Route::middleware('auth')->post('/client/request-access', [LoginController::class, 'requestAccess'])->name('client.request-access');
+    Route::get('/admin/client-access-requests', [ClientAccessRequestController::class, 'index'])->name('client-access-requests.index');
+    Route::post('/admin/client-access-requests/{id}/approve', [ClientAccessRequestController::class, 'approve'])->name('client-access-requests.approve');
+    Route::delete('/admin/client-access-requests/{id}', [ClientAccessRequestController::class, 'destroy'])->name('client-access-requests.destroy');
 
 
 	 

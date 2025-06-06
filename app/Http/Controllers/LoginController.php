@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\Users;
+use App\Models\ClientAccessRequest;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ClientAccessRequested;
+
 
 class LoginController extends Controller
 {
@@ -51,15 +55,10 @@ class LoginController extends Controller
             $user = Auth::user();
             if ($user->role_id == 6) {
                 $clientStatus = \App\Models\Client::where('id', $user->client_id)->value('status');
-
                 if ($clientStatus != 1) {
-                    Auth::logout(); 
-                    return back()->withErrors([
-                        'credentials_error' => 'Your account is currently inactive. Please contact support.',
-                    ])->onlyInput('email');
+                    return view('auth.inactive-client', ['user' => $user]);
                 }
             }
-
             return redirect()->intended('dashboard');
         }
 
@@ -68,6 +67,33 @@ class LoginController extends Controller
         ])->onlyInput('email');
     }
 }
+
+public function requestAccess(Request $request)
+{
+    $user = Users::findOrFail($request->user_id);
+
+    $alreadyRequested = ClientAccessRequest::where('user_id', $user->id)
+        ->where('is_approved', false)
+        ->exists();
+     
+    if (!$alreadyRequested) {
+        ClientAccessRequest::create([
+            'user_id' => $user->id,
+        ]);
+        
+        $admins = Users::where('role_id', 1)->get();
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new ClientAccessRequested($user));
+        }
+    }
+
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return view('auth.inactive-request-sent');
+}
+
 
 	
 	public function logOut() 
