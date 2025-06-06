@@ -5,6 +5,11 @@
 @section('content')
 <div class="card">
     <div class="card-body pb-4">
+        @if($requests->isEmpty())
+            <div class="text-center text-muted py-5">
+                <h5>No access requests found.</h5>
+            </div>
+        @else
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -30,7 +35,7 @@
                             <span class="badge bg-warning text-dark">Pending</span>
                         @endif
                     </td>
-                   <td class="text-center">
+                    <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
                             @if(!$request->is_approved)
                                 <form method="POST" action="{{ route('client-access-requests.approve', $request->id) }}">
@@ -53,6 +58,7 @@
                 @endforeach
             </tbody>
         </table>
+        @endif
     </div>
 </div>
 @endsection
