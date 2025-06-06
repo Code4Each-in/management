@@ -3,19 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Client Access Approved</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f4f4f4;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        strong {
+            color: #333333;
+        }
+        p {
+            color: #555555;
+        }
+        .button {
+            display: inline-block;
+            background-color:#555555;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-align: center !important;
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 40px;">
-    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #4154F1;">Hello <strong style="color: #000;">{{ $user->first_name }}</strong>,</h2>
-        <p style="font-size: 16px; color: #333;">
-            Your request for client access has been <strong>approved</strong>. You can now log in and access the platform.
-        </p>
-        <p style="text-align: center; margin: 30px 0;">
-            <a href="https://hr.code4each.com/" style="background-color: #FF7777; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+<body>
+    <div class="container">
+        <p><strong>Hello {{ $user->first_name }}</strong></p>
+        <p>Your request for client access has been <strong>approved</strong>. You can now log in and access the platform.</p>
+        <p>
+            <a href="https://pms.code4each.com/" class="button">
                 Login Now
             </a>
         </p>
-        <p style="font-size: 14px; color: #888;">Regards,<br>PMS</p>
+         <p>Regards,<br>PMS</p>
+            <hr>
+            <p class="footer">
+                If you're having trouble clicking the "Login Now" button, copy and paste the URL below into your web browser: <a href="https://pms.code4each.com/">https://pms.code4each.com/</a>
+            </p>
     </div>
 </body>
 </html>
