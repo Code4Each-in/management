@@ -53,12 +53,16 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            if ($user->role_id == 6) {
-                $clientStatus = \App\Models\Client::where('id', $user->client_id)->value('status');
-                if ($clientStatus != 1) {
-                    return view('auth.inactive-client', ['user' => $user]);
-                }
+              if ($user->role_id == 6) {
+            $clientStatus = \App\Models\Users::where('id', $user->id)->value('status');
+            if ($clientStatus != 1) {
+                Auth::logout(); 
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return view('auth.inactive-client', ['user' => $user]);
             }
+        }
             return redirect()->intended('dashboard');
         }
 
