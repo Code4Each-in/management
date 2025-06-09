@@ -209,6 +209,14 @@
                     <span>Scrum Dashboard</span>
                 </a>
             </li>
+           <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('ticket-logs.*') ? '' : 'collapsed' }}" href="{{ route('ticket-logs.index') }}">
+                    <i class="bi bi-journal-text"></i>
+                    <div class="position-relative">
+                        <span>Ticket Logs</span>
+                    </div>
+                </a>
+            </li>
 
             @if(in_array(auth()->user()->role_id, [2, 3]))
                 <li class="nav-item">

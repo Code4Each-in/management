@@ -152,7 +152,7 @@
                                 Progress
                             </option>
                             <option value="ready" {{$tickets->status == 'ready' ? 'selected' : ' ' }}>Ready</option>
-                            <option value="ready" {{$tickets->status == 'deployed' ? 'selected' : ' ' }}>Deployed</option>
+                            <option value="deployed" {{$tickets->status == 'deployed' ? 'selected' : ' ' }}>Deployed</option>
                             <option value="complete" {{$tickets->status == 'complete' ? 'selected' : ' ' }}>
                                 Complete </option>
                         </select>
@@ -161,6 +161,47 @@
                         @endif
                     </div>
                 </div>
+                 
+                <div class="row mb-5">
+                    <label for="edit_category" class="col-sm-3 col-form-label">Ticket Category</label>
+                    <div class="col-sm-9">
+                        <select name="ticket_category" class="form-select" id="edit_category">
+                            <option value="Technical" {{ $tickets->ticket_category == 'Technical' ? 'selected' : '' }}>Technical</option>
+                            <option value="Design" {{ $tickets->ticket_category == 'Design' ? 'selected' : '' }}>Design</option>
+                            <option value="Data Entry" {{ $tickets->ticket_category == 'Data Entry' ? 'selected' : '' }}>Data Entry</option>
+                            <option value="Others" {{ $tickets->ticket_category == 'Others' ? 'selected' : '' }}>Others</option>
+                        </select>
+                        @if ($errors->has('ticket_category'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('ticket_category') }}</span>
+                        @endif
+                    </div>
+                </div>
+
+                @php
+                    $role_id = auth()->user()->role_id;
+                @endphp
+
+                @if ($role_id != 6)
+                <div class="row mb-5">
+                    <label for="edit_time_estimation" class="col-sm-3 col-form-label">Time Estimation (hours)</label>
+                    <div class="col-sm-9">
+                        <input
+                            type="number"
+                            name="time_estimation"
+                            id="edit_time_estimation"
+                            class="form-control"
+                            min="0"
+                            step="0.25"
+                            placeholder="Enter estimated time (e.g. 1.5 for 1h 30m)"
+                            value="{{ old('time_estimation', $tickets->time_estimation) }}"
+                        >
+                        @if ($errors->has('time_estimation'))
+                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('time_estimation') }}</span>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
 
 
                 <div class="row mb-5">

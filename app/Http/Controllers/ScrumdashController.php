@@ -83,7 +83,7 @@ class ScrumdashController extends Controller
 
     $taskss = Tickets::join('ticket_assigns', 'tickets.id', '=', 'ticket_assigns.ticket_id')
     ->join('users', 'ticket_assigns.user_id', '=', 'users.id')
-    ->whereRaw("LOWER(tickets.status) NOT IN (?, ?)", ['complete', 'ready'])
+    ->whereRaw("LOWER(tickets.status) NOT IN (?, ?, ?)", ['complete', 'ready','deployed'])
     ->where('users.status', 1)
     ->where('tickets.ticket_priority', 1)
     ->groupBy('users.first_name', 'users.designation') 

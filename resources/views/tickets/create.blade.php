@@ -173,6 +173,32 @@
                 </div>
 
                 <div class="row mb-5">
+                    <label class="col-sm-3 col-form-label">Ticket Category</label>
+                    <div class="col-sm-9">
+                        <select name="ticket_category" class="form-select">
+                            <option value="Technical">Select Category</option>
+                            <option value="Technical">Technical</option>
+                            <option value="Design">Design</option>
+                            <option value="Data Entry">Data Entry</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                
+                @php
+                    $role_id = auth()->user()->role_id;
+                @endphp
+
+                @if ($role_id != 6)
+                <div class="row mb-5">
+                    <label class="col-sm-3 col-form-label">Time Estimation</label>
+                    <div class="col-sm-9">
+                        <input type="number" name="time_estimation" class="form-control" min="0" step="0.25" placeholder="Enter estimated time (e.g. 1.5 for 1h 30m)">
+                    </div>
+                </div>
+                @endif
+
+                <div class="row mb-5">
                     <label class="col-sm-3 col-form-label">Upload Document</label>
                     <div class="col-sm-9">
                         <input type="file" name="document[]" class="form-control" multiple>
@@ -192,41 +218,19 @@
 @endsection
 
 @section('js_scripts')
-<script>
-    document.getElementById('title').addEventListener('input', checkCharLength);
-    function checkCharLength() {
-    const titleInput = document.getElementById('title');
-    const charCountError = document.getElementById('wordCountError');
-    const charLength = titleInput.value.trim().length;
+    <script>
+        document.getElementById('title').addEventListener('input', checkCharLength);
+        function checkCharLength() {
+        const titleInput = document.getElementById('title');
+        const charCountError = document.getElementById('wordCountError');
+        const charLength = titleInput.value.trim().length;
 
-    if (charLength < 15) { 
-        charCountError.style.display = 'block';  
-    } else {
-        charCountError.style.display = 'none';   
+        if (charLength < 15) { 
+            charCountError.style.display = 'block';  
+        } else {
+            charCountError.style.display = 'none';   
+        }
     }
-}
-    //  $('#project_id').on('change', function () {
-    //     var projectId = $(this).val();
-    //     $('#sprint_id_ticket').empty().append('<option value="">Loading...</option>');
-
-    //     if (projectId) {
-    //         $.ajax({
-    //             url: '/get-sprints-by-project/' + projectId,
-    //             type: 'GET',
-    //             success: function (response) {
-    //                 $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
-    //                 $.each(response, function (key, sprint) {
-    //                     $('#sprint_id_ticket').append('<option value="' + sprint.id + '">' + sprint.name + '</option>');
-    //                 });
-    //             },
-    //             error: function () {
-    //                 $('#sprint_id_ticket').empty().append('<option value="">Error loading sprints</option>');
-    //             }
-    //         });
-    //     } else {
-    //         $('#sprint_id_ticket').empty().append('<option value="">Select Sprint</option>');
-    //     }
-    // });
      $("#addTicketsForm").submit(function(event) {
                     event.preventDefault();    
                     $('#description_input').val(quill.root.innerHTML);             

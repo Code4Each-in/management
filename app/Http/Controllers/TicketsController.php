@@ -39,6 +39,7 @@ class TicketsController extends Controller
             ->where('role_id', '!=', 6)
             ->orderBy('first_name', 'asc')
             ->get();
+            $role_id = auth()->user()->role_id;
             $sprints = Sprint::where('status', 1)->get();
             $projects = Projects::all();
             $auth_user =  auth()->user()->id;
@@ -88,7 +89,7 @@ class TicketsController extends Controller
             }
         }
 
-            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints'));
+            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints', 'role_id'));
     }
 
         public function create(Request $request)
@@ -169,6 +170,8 @@ class TicketsController extends Controller
                 'status'=> $validate ['status'],
                 'priority'=> $validate ['priority'],
                 'ticket_priority'=> $validate ['ticket_priority'],
+                'ticket_category'=> $validate ['ticket_category'],
+                'time_estimation'=> $validate ['time_estimation'],
                 'eta'=> $eta,
                 'status_changed_by'=> auth()->user()->id,
                 'created_by'=> auth()->user()->id,
@@ -308,6 +311,7 @@ class TicketsController extends Controller
         ->orderBy('first_name', 'asc')
         ->orderBy('id', 'desc')
         ->get();
+        $role_id = auth()->user()->role_id;
         foreach($user as $key1=> $data1)
         {
             foreach($ticketsAssign as $key2=> $data2){
@@ -324,7 +328,7 @@ class TicketsController extends Controller
         $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
         // dd($ticketsCreatedByUser);
-        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser', 'sprints'));
+        return view('tickets.edit',compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser', 'sprints','role_id'));
      }
      public function updateTicket( Request $request ,$ticketId)
      {
@@ -366,6 +370,8 @@ class TicketsController extends Controller
             'project_id' => $validate['edit_project_id'],
             'sprint_id' => $validate['edit_sprint_id'],
             'ticket_priority'=> $validate ['ticket_priority'],
+            'ticket_category'=> $validate ['ticket_category'],
+            'time_estimation'=> $validate ['time_estimation'],
             'status' => $validate['status'],
             'status_changed_by'=> auth()->user()->id,
             'priority' => $validate['priority'],
