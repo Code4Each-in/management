@@ -60,6 +60,7 @@
                         <option value="1" {{ old('status', $sprint->status) == 1 ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ old('status', $sprint->status) == 0 ? 'selected' : '' }}>Inactive</option>
                         <option value="2" {{ old('status', $sprint->status) == 2 ? 'selected' : '' }}>Completed</option>
+                        <option value="3" {{ old('status', $sprint->status) == 3 ? 'selected' : '' }}>Invoice Done</option>
                     </select>                
             </div> 
             <div class="form-group mb-3">

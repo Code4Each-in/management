@@ -61,6 +61,22 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
+      
+      <div class="detail-item">
+        <i class="fa-solid fa-diagram-project"></i>
+        <strong>Time Est.:</strong>
+          <span>
+            {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <i class="fa-solid fa-diagram-project"></i>
+        <strong>Category:</strong>
+          <span>
+            {{ $tickets->ticket_category ? trim($tickets->ticket_category, '{}') : '---' }}
+        </span>
+      </div>
 
       <div class="detail-item">
         <i class="fa-solid fa-user"></i>

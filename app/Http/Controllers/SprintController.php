@@ -131,6 +131,34 @@ class SprintController extends Controller
         // ->havingRaw('tickets_count = completed_tickets_count')
         ->get();
 
+        $invoiceDoneSprints = Sprint::with('projectDetails')
+    ->withCount([
+        'tickets',
+        'tickets as completed_tickets_count' => function ($query) {
+            $query->where('status', 'complete');
+        },
+        'tickets as todo_tickets_count' => function ($query) {
+            $query->where('status', 'to_do');
+        },
+        'tickets as in_progress_tickets_count' => function ($query) {
+            $query->where('status', 'in_progress');
+        },
+        'tickets as deployed_tickets_count' => function ($query) {
+            $query->where('status', 'deployed');
+        },
+        'tickets as ready_tickets_count' => function ($query) {
+            $query->where('status', 'ready');
+        },
+    ])
+    ->where('sprints.status', 3) // <-- status 3 for invoice done
+    ->when(!is_null($clientId), function ($query) use ($projectIds) {
+        $query->whereIn('project', $projectIds);
+    })
+    ->when($projectFilter, function ($query) use ($projectFilter) {
+        $query->where('project', $projectFilter);
+    })
+    ->get();
+
         $totalSprintCount = $sprints->count();
         $totalinSprintCount = $inactivesprints->count();
         $role_id = auth()->user()->role_id;
@@ -143,7 +171,8 @@ class SprintController extends Controller
             'totalinSprintCount',
             'completedsprints',
             'role_id',
-            'user'
+            'user',
+            'invoiceDoneSprints'
         ));
     }
 
