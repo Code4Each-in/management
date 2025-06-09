@@ -36,6 +36,7 @@ use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
+use App\Http\Controllers\TicketLogController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -374,6 +375,9 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/admin/client-access-requests', [ClientAccessRequestController::class, 'index'])->name('client-access-requests.index');
     Route::post('/admin/client-access-requests/{id}/approve', [ClientAccessRequestController::class, 'approve'])->name('client-access-requests.approve');
     Route::delete('/admin/client-access-requests/{id}', [ClientAccessRequestController::class, 'destroy'])->name('client-access-requests.destroy');
+
+	//ticket logs section
+	    Route::get('/ticket-logs', [TicketLogController::class, 'index'])->name('ticket-logs.index');
 
 
 	 

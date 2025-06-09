@@ -21,6 +21,8 @@ class Tickets extends Model
         'assign',
         'eta',
         'ticket_priority', 
+        'ticket_category',
+        'time_estimation',
         'upload',   
         'status', 
         'status_changed_by', 
