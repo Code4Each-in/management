@@ -82,8 +82,16 @@ public function requestAccess(Request $request)
         ]);
         
         $admins = Users::where('role_id', 1)->get();
+        $messages = [
+            "greeting-text" => "New Client Access Request",
+            "subject" => "Client Access Request From - {$user->first_name} {$user->last_name}",
+            "title" => "A client has requested access to the platform. Details are below:",
+            "body-text" => "Please log in to the admin panel to approve or reject the request.",
+            "url-title" => "View Requests",
+            "url" => "/admin/client-access-requests",
+        ];
         foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new ClientAccessRequested($user));
+            Mail::to($admin->email)->send(new ClientAccessRequested($user, $messages));
         }
     }
 

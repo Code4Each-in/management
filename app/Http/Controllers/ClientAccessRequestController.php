@@ -29,7 +29,14 @@ public function approve($id)
     }
 
     if ($user && $user->email) {
-        Mail::to($user->email)->send(new ClientAccessApproved($user));
+        $messages = [
+            "greeting-text" => "Hello {$user->first_name}",
+            "subject" => "Your Client Access Has Been Approved",
+            "body-text" => "Your request for client access has been",
+            "url-title" => "Login Now",
+            "url" => "/",
+        ];
+        Mail::to($user->email)->send(new ClientAccessApproved($user, $messages));
     }
 
     return back()->with('success', 'Client access approved.');

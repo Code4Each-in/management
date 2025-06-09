@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Access Request</title>
+    <title>{{ $messages['subject'] ?? 'Client Access Request' }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,24 +41,24 @@
 </head>
 <body>
     <div class="container">
-        <p><strong>New Client Access Request</strong></p>
-        <p>A client has requested access to the platform. Details are below:</p>
+        <p><strong>{{ $messages['greeting-text'] ?? 'Hello!' }}</strong></p>
+        <p>{{ $messages['title'] ?? '' }}</p>
         <p>
-            <strong>Name:</strong> <span>{{ $user->first_name }} {{ $user->last_name }}</span><br>
-            <strong>Email:</strong> <span>{{ $user->email }}</span>
+            <strong>Name:</strong> {{ $user->first_name }} {{ $user->last_name }}<br>
+            <strong>Email:</strong> {{ $user->email }}
         </p>
         <p>
-            Please log in to the admin panel to approve or reject the request.
+            {{ $messages['body-text'] ?? '' }}
         </p>
         <p>
-            <a href="https://pms.code4each.com/admin/client-access-requests" class="button">
-                View Requests
+            <a href="{{ url($messages['url'] ?? '/') }}" class="button">
+                {{ $messages['url-title'] ?? 'View' }}
             </a>
         </p>
          <p>Regards,<br>PMS</p>
             <hr>
             <p class="footer">
-                If you're having trouble clicking the "View Requests" button, copy and paste the URL below into your web browser: <a href="https://pms.code4each.com/admin/client-access-requests">https://pms.code4each.com/admin/client-access-requests</a>
+                If you're having trouble clicking the "{{ $messages['url-title'] ?? 'View' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($messages['url'] ?? '/') }}">{{ url($messages['url'] ?? '/') }}</a>
             </p>
     </div>
 </body>
