@@ -123,6 +123,7 @@ class ClientController extends Controller
                     $user->password = $request->edit_password;
                 }
                 $user->gender = $request->gender;
+                $user->status = $request->status;
                 $user->save();
             }
     
