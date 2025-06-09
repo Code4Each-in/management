@@ -348,6 +348,93 @@
     </div>
 </div>
 @endif
+@if(isset($invoiceDoneSprints) && count($invoiceDoneSprints) > 0)
+<div class="sprint-section mt-5">
+  <div class="sprint-header qa">
+    <div class="section-left">
+      <div class="section-icon" style="background-color: #6c5ce7">I</div>
+      <div class="section-title" style="color: #6c5ce7">Invoice Done Sprints</div>
+      <div class="section-title">• {{ count($invoiceDoneSprints) }} Sprint{{ count($invoiceDoneSprints) > 1 ? 's' : '' }}</div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="styled-sprint-table sprint-table" id="sprintDataTableInvoice">
+      <thead>
+        <tr style="color: #6c5ce7">
+          <th>S.No</th>
+          <th>Name</th>
+          <th>Project</th>
+          @if ($role_id != 6)
+              <th>Started At</th>
+              <th>End Date (d/m/y)</th>
+          @endif
+          <th>Actions</th>
+          <th>Status</th>
+          <th>ToDo|InProgress|Ready|Deployed|Complete</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($invoiceDoneSprints as $sprint)
+          @php
+            $eta      = \Carbon\Carbon::parse($sprint->eta);
+            $start    = $sprint->start_date ? \Carbon\Carbon::parse($sprint->start_date) : null;
+            $now      = \Carbon\Carbon::now('Asia/Kolkata');
+            $daysLeft = $eta->diffInDays($now);
+            $total    = $sprint->tickets_count ?? 0;
+            $completed = $sprint->completed_tickets_count ?? 0;
+            $progress = $total > 0 ? ($completed / $total) * 100 : 0;
+            $firstRole = explode(' ', $role_id)[0] ?? 0;
+          @endphp
+          <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/view/sprint/'.$sprint->id) }}', '_blank');">
+            <td>{{ $loop->iteration }}</td>
+            <td>{{ $sprint->name }}</td>
+            <td>{{ $sprint->projectDetails->project_name ?? '–' }}</td>
+            @if ($firstRole != 6)
+              <td>{{ $start ? $start->format('d/m/Y') : '---' }}</td>
+              <td>{{ $eta->format('d/m/Y') }}</td>
+            @endif
+            <td class="actions-cell" style="text-align: center;">
+              <a href="{{ url('/view/sprint/'.$sprint->id) }}">
+                <i class="fa fa-eye fa-fw pointer"></i>
+              </a>
+              <a href="{{ url('/edit/sprint/'.$sprint->id) }}">
+                <i class="fa fa-edit fa-fw pointer"></i>
+              </a>
+              @if ($firstRole != 6)
+                <i class="fa fa-trash fa-fw pointer"
+                  onclick="deleteSprint('{{ $sprint->id }}')"></i>
+              @endif
+            </td>
+            <td>
+                <span class="badge active">Invoice Done</span>
+            </td>
+
+            <td style="text-align: center;">
+              <div class="d-flex justify-content-center status-group">
+                <div class="status-box text-white" title="To Do" style="background-color: #948979;">
+                  {{ $sprint->todo_tickets_count ?? 0 }}
+                </div>
+                <div class="status-box text-white" title="In Progress" style="background-color: #3fa6d7;">
+                  {{ $sprint->in_progress_tickets_count ?? 0 }}
+                </div>
+                <div class="status-box text-white" title="Ready" style="background-color: #e09f3e;">
+                  {{ $sprint->ready_tickets_count ?? 0 }}
+                </div>
+                <div class="status-box text-white" title="Deployed" style="background-color: #e76f51;">
+                  {{ $sprint->deployed_tickets_count ?? 0 }}
+                </div>
+                <div class="status-box text-white" title="Complete" style="background-color: #2a9d8f;">
+                  {{ $sprint->completed_tickets_count ?? 0 }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>     
+  </div> 
+</div>
+@endif
         <div class="modal fade" id="addSprints" tabindex="-1" aria-labelledby="role" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content" style="width: 630px;">
@@ -416,6 +503,7 @@
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
                                         <option value="2">Completed</option>
+                                        <option value="3">Invoice Done</option>
                                     </select>
                                 </div>
                             </div>                            
