@@ -12,20 +12,19 @@ class ClientAccessApproved extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
+    public $messages;
 
-    public function __construct(Users $user)
+    public function __construct(Users $user, $messages)
     {
         $this->user = $user;
+        $this->messages = $messages;
     }
 
    public function build()
-{
-    return $this->subject('Your Client Access Has Been Approved')
-                ->view('Email.client-access-approved') 
-                ->with([
-                    'user' => $this->user,
-                ]);
-}
+    {
+        return $this->subject($this->messages['subject'] ?? 'Client Access Approved')
+                        ->view('Email.client-access-approved');
+    }
 
 }
 

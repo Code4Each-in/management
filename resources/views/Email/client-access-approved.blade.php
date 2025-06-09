@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Client Access Approved</title>
+    <title>{{ $messages['subject'] ?? 'Client Access Approved' }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,17 +41,17 @@
 </head>
 <body>
     <div class="container">
-        <p><strong>Hello {{ $user->first_name }}</strong></p>
-        <p>Your request for client access has been <strong>approved</strong>. You can now log in and access the platform.</p>
+        <p><strong>{{ $messages['greeting-text'] ?? 'Hello!' }}</strong></p>
+        <p>{{ $messages['body-text'] ?? '' }} <strong>approved</strong>. You can now log in and access the platform.</p>
         <p>
-            <a href="https://pms.code4each.com/" class="button">
-                Login Now
+            <a href="{{ url($messages['url'] ?? '/') }}" class="button">
+                {{ $messages['url-title'] ?? 'Login' }}
             </a>
         </p>
          <p>Regards,<br>PMS</p>
             <hr>
             <p class="footer">
-                If you're having trouble clicking the "Login Now" button, copy and paste the URL below into your web browser: <a href="https://pms.code4each.com/">https://pms.code4each.com/</a>
+                If you're having trouble clicking the "{{ $messages['url-title'] ?? 'Login' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($messages['url'] ?? '/') }}">{{ url($messages['url'] ?? '/') }}</a>
             </p>
     </div>
 </body>
