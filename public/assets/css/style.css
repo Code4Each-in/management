@@ -2816,9 +2816,9 @@ table.styled-sprint-table th {
   border-bottom: 2px solid #dddbdb;
   width: 10%;
 }
-table.styled-sprint-table.sprint-table {
+/* table.styled-sprint-table.sprint-table {
   text-align: center;
-} 
+}  */
 span.badge.bg-success {
   background: #3f996b !important;
 }
@@ -4565,3 +4565,13 @@ form#searchForm {
   overflow-y: auto;
   padding-right: 8px;
 }
+
+/* .styled-sprints-table  thead, th, tbody, td {
+    text-align: center;
+} */
+ .text-center{
+text-align: center;
+ }
+ .text-left{
+text-align: left;
+ }

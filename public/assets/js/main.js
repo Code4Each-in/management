@@ -118,65 +118,36 @@
   /**
    * Initiate quill editors
    */
-  if (select('.quill-editor-default')) {
-    new Quill('.quill-editor-default', {
-      theme: 'snow'
-    });
-  }
+document.querySelectorAll('.quill-editor-default, .quill-editor-bubble, .quill-editor-full').forEach(el => {
+  const theme = el.classList.contains('quill-editor-bubble') ? 'bubble' : 'snow';
 
-  if (select('.quill-editor-bubble')) {
-    new Quill('.quill-editor-bubble', {
-      theme: 'bubble'
-    });
-  }
+  const modules = el.classList.contains('quill-editor-full') ? {
+    toolbar: [
+      [{ font: [] }, { size: [] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ color: [] }, { background: [] }],
+      [{ script: 'super' }, { script: 'sub' }],
+      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+      ['direction', { align: [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ]
+  } : {};
 
-  if (select('.quill-editor-full')) {
-    new Quill(".quill-editor-full", {
-      modules: {
-        toolbar: [
-          [{
-            font: []
-          }, {
-            size: []
-          }],
-          ["bold", "italic", "underline", "strike"],
-          [{
-              color: []
-            },
-            {
-              background: []
-            }
-          ],
-          [{
-              script: "super"
-            },
-            {
-              script: "sub"
-            }
-          ],
-          [{
-              list: "ordered"
-            },
-            {
-              list: "bullet"
-            },
-            {
-              indent: "-1"
-            },
-            {
-              indent: "+1"
-            }
-          ],
-          ["direction", {
-            align: []
-          }],
-          ["link", "image", "video"],
-          ["clean"]
-        ]
-      },
-      theme: "snow"
-    });
-  }
+  const quillInstance = new Quill(el, {
+    theme: theme,
+    modules: modules
+  });
+
+  el.__quillInstance = quillInstance;
+});
+
+// If you want to expose the first instance globally:
+const firstEditor = document.querySelector('.quill-editor-default, .quill-editor-bubble, .quill-editor-full');
+if (firstEditor) {
+  window.quill = firstEditor.__quillInstance;
+}
+
 
 
   const useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -258,6 +229,16 @@ $(document).ready(function(){
         }
     ]
 });
+
+ // Find the table element
+  var table = $('.styled-sprint-table.sprint-table');
+  const columns = table.find('tbody tr').first().find('td').length;
+  if (columns >= 9) {
+    table.addClass('text-center');
+  }
+  else if (columns <= 7) {
+    table.addClass('text-left');
+  }
 });
 $(document).ready(function() {
   var $slider = $('.testimonial-slider');

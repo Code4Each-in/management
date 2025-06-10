@@ -134,11 +134,6 @@
                   </td>                                         
                   </tr>
               @endforeach
-              @if($sprints->isEmpty())
-              <tr>
-                  <td colspan="8" class="text-center">No records to show</td>
-              </tr>
-              @endif
             </tbody>
           </table>              
         </div>     
