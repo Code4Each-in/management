@@ -57,6 +57,21 @@ use App\Http\Controllers\TicketLogController;
 */
 Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
+// Inactive client page — no auth middleware so user can see this after logout
+    Route::get('/client/inactive', [LoginController::class, 'inactiveClient'])
+    ->name('client.inactive');
+	Route::get('/client/request-sent', function () {
+    return view('auth.inactive-request-sent');
+    })->name('client.request-sent');
+	 //for request access
+     Route::post('/client/request-access', [LoginController::class, 'requestAccess'])
+    ->middleware('web') // ensure session middleware is present
+    ->name('client.request-access');
+    Route::get('/admin/client-access-requests', [ClientAccessRequestController::class, 'index'])->name('client-access-requests.index');
+    Route::post('/admin/client-access-requests/{id}/approve', [ClientAccessRequestController::class, 'approve'])->name('client-access-requests.approve');
+    Route::delete('/admin/client-access-requests/{id}', [ClientAccessRequestController::class, 'destroy'])->name('client-access-requests.destroy');
+    Route::get('/client/inactive/{user}', [LoginController::class, 'showInactiveClient'])->name('client.inactive');
+
 //route for password forgot
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -369,12 +384,6 @@ Route::middleware(['role_permission'])->group(function () {
      Route::post('/group-messages/{message}/read', [TeamsController::class, 'markAsRead'])->name('group-messages.read');
      Route::get('/project-messages/{projectId}/unread-count', [TeamsController::class, 'getUnreadMessageCount'])->name('project-messages.unreadCount');
      Route::delete('/comments/{comment}', [TeamsController::class, 'destroy'])->name('comments.destroy');
-  
-	 //for request access
-    Route::middleware('auth')->post('/client/request-access', [LoginController::class, 'requestAccess'])->name('client.request-access');
-    Route::get('/admin/client-access-requests', [ClientAccessRequestController::class, 'index'])->name('client-access-requests.index');
-    Route::post('/admin/client-access-requests/{id}/approve', [ClientAccessRequestController::class, 'approve'])->name('client-access-requests.approve');
-    Route::delete('/admin/client-access-requests/{id}', [ClientAccessRequestController::class, 'destroy'])->name('client-access-requests.destroy');
 
 	//ticket logs section
 	    Route::get('/ticket-logs', [TicketLogController::class, 'index'])->name('ticket-logs.index');

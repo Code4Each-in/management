@@ -32,12 +32,8 @@ class LoginController extends Controller
 	public function login(Request $request)
 {
     if ($request->isMethod('get')) {
-        $userId = request()->user()->id ?? null;
-        if ($userId) {
-            return redirect()->route('dashboard.index');
-        } else {
-            return view('auth.login');
-        }
+        $userId = $request->user()->id ?? null;
+        return $userId ? redirect()->route('dashboard.index') : view('auth.login');
     }
 
     if ($request->isMethod('post')) {
@@ -45,24 +41,22 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
         $credentials['email'] = trim($credentials['email']);
         $credentials['password'] = trim($credentials['password']);
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
             $user = Auth::user();
-              if ($user->role_id == 6) {
-            $clientStatus = \App\Models\Users::where('id', $user->id)->value('status');
-            if ($clientStatus != 1) {
-                Auth::logout(); 
+
+           if ($user->role_id == 6 && $user->status != 1) {
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return view('auth.inactive-client', ['user' => $user]);
+                return redirect()->route('client.inactive', ['user' => $user->id])
+                                ->with('request_sent', false); 
             }
-        }
+
+
+            $request->session()->regenerate();
             return redirect()->intended('dashboard');
         }
 
@@ -72,6 +66,18 @@ class LoginController extends Controller
     }
 }
 
+
+
+public function inactiveClient(Request $request)
+{
+    $userName = session('inactive_user_name');
+    if (!$userName) {
+        return redirect()->route('login');
+    }
+
+    return view('auth.inactive-client', ['userName' => $userName]);
+}
+
 public function requestAccess(Request $request)
 {
     $user = Users::findOrFail($request->user_id);
@@ -79,14 +85,14 @@ public function requestAccess(Request $request)
     $alreadyRequested = ClientAccessRequest::where('user_id', $user->id)
         ->where('is_approved', false)
         ->exists();
-     
+
     if (!$alreadyRequested) {
         ClientAccessRequest::create([
             'user_id' => $user->id,
         ]);
-        
+
         $admins = Users::where('role_id', 1)->get();
-        $messages = [
+          $messages = [
             "greeting-text" => "New Client Access Request",
             "subject" => "Client Access Request From - {$user->first_name} {$user->last_name}",
             "title" => "A client has requested access to the platform. Details are below:",
@@ -98,14 +104,21 @@ public function requestAccess(Request $request)
             Mail::to($admin->email)->send(new ClientAccessRequested($user, $messages));
         }
     }
-
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return view('auth.inactive-request-sent');
+    return redirect()->route('client.request-sent');
 }
 
+
+public function showInactiveClient(Users $user)
+{
+    if (session('request_sent')) {
+        return view('auth.inactive-request-sent');
+    }
+    return view('auth.inactive-client', compact('user'));
+}
 
 	
 	public function logOut() 
