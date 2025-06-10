@@ -22,23 +22,24 @@ public function approve($id)
     $request = ClientAccessRequest::findOrFail($id);
     $request->is_approved = true;
     $request->save();
-
     $user = Users::find($request->user_id);
-    if ($user && $user->client_id) {
-        \App\Models\Client::where('id', $user->client_id)->update(['status' => 1]);
+    if ($user) {
+        $user->status = 1;
+        $user->save();
+        if ($user->client_id) {
+            \App\Models\Client::where('id', $user->client_id)->update(['status' => 1]);
+        }
+        if ($user->email) {
+            $messages = [
+                "greeting-text" => "Hello {$user->first_name}",
+                "subject" => "Your Client Access Has Been Approved",
+                "body-text" => "Your request for client access has been approved. You can now log in and access your dashboard.",
+                "url-title" => "Login Now",
+                "url" => "/",
+            ];
+            Mail::to($user->email)->send(new ClientAccessApproved($user, $messages));
+        }
     }
-
-    if ($user && $user->email) {
-        $messages = [
-            "greeting-text" => "Hello {$user->first_name}",
-            "subject" => "Your Client Access Has Been Approved",
-            "body-text" => "Your request for client access has been",
-            "url-title" => "Login Now",
-            "url" => "/",
-        ];
-        Mail::to($user->email)->send(new ClientAccessApproved($user, $messages));
-    }
-
     return back()->with('success', 'Client access approved.');
 }
 
