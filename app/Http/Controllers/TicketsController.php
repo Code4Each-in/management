@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
+use Carbon\Carbon;
 
 
 //use Dotenv\Validator;
@@ -171,7 +172,7 @@ class TicketsController extends Controller
                 'priority'=> $validate ['priority'],
                 'ticket_priority'=> $validate ['ticket_priority'],
                 'ticket_category'=> $validate ['ticket_category'],
-                'time_estimation'=> $validate['time_estimation'] ?? null,
+                'time_estimation'=> $validate ['time_estimation'],
                 'eta'=> $eta,
                 'status_changed_by'=> auth()->user()->id,
                 'created_by'=> auth()->user()->id,
@@ -371,7 +372,7 @@ class TicketsController extends Controller
             'sprint_id' => $validate['edit_sprint_id'],
             'ticket_priority'=> $validate ['ticket_priority'],
             'ticket_category'=> $validate ['ticket_category'],
-            'time_estimation'=> $validate['time_estimation'] ?? null,
+            'time_estimation'=> $validate ['time_estimation'],
             'status' => $validate['status'],
             'status_changed_by'=> auth()->user()->id,
             'priority' => $validate['priority'],
@@ -732,9 +733,17 @@ class TicketsController extends Controller
        $projectId = $tickets->project_id;
        $projects = Projects::where('id', $projectId)->get();
        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
-       $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
+        $CommentsData = TicketComments::with('user')
+                        ->where('ticket_id', $ticketId)
+                        ->orderBy('id', 'desc')
+                        ->take(10)
+                        ->get()
+                        ->sortBy('id') // to maintain ascending order in UI
+                        ->values(); // reset keys
+
        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
-        return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client'));
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client'));
+
     }
     public function viewDocument($filename)
 {
@@ -889,6 +898,37 @@ public function deleteComment($id)
         'id' => $id
     ]);
 }
+public function loadMoreComments($ticketId, Request $request)
+{
+    $lastId = $request->last_id;
 
+    $comments = TicketComments::with('user')
+        ->where('ticket_id', $ticketId)
+        ->where('id', '<', $lastId)
+        ->orderBy('id', 'desc')
+        ->limit(10)
+        ->get()
+        ->sortBy('id')
+        ->values();
+
+    $comments->each(function ($comment) {
+        $carbonDate = Carbon::parse($comment->created_at)->timezone('Asia/Kolkata');
+        $comment->created_at_formatted = $carbonDate->format('M d, Y h:i A');
+
+        $today = Carbon::now()->startOfDay();
+        $yesterday = Carbon::yesterday()->startOfDay();
+        $commentDate = $carbonDate->startOfDay();
+
+        if ($commentDate->eq($today)) {
+            $comment->created_date_label = 'Today';
+        } elseif ($commentDate->eq($yesterday)) {
+            $comment->created_date_label = 'Yesterday';
+        } else {
+            $comment->created_date_label = $commentDate->format('M d, Y');
+        }
+    });
+
+    return response()->json(['comments' => $comments]);
+}
 
 }

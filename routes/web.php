@@ -388,6 +388,6 @@ Route::middleware(['role_permission'])->group(function () {
 	//ticket logs section
 	    Route::get('/ticket-logs', [TicketLogController::class, 'index'])->name('ticket-logs.index');
 
+	Route::get('/load-more-comments/{ticketId}', [TicketsController::class, 'loadMoreComments'])->name('ticket.comments.load');
 
-	 
 });
