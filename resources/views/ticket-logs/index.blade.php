@@ -33,7 +33,7 @@
             <div class="col-md-4">
                 <label for="project_filter" class="form-label">Filter by Project</label>
                 <select name="project_filter" id="project_filter" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Projects</option>
+                    <option value="">Select Project</option>
                     @foreach ($projects as $project)
                         <option value="{{ $project->id }}" {{ request('project_filter') == $project->id ? 'selected' : '' }}>
                             {{ $project->project_name }}
@@ -43,7 +43,7 @@
             </div>
         </form>
     </div>
-
+<div id="sprint-content-wrapper" class="d-none">
     @foreach ($sprintData as $statusKey => $categories)
         <div class="mb-5">
             <h5 class="mb-4">{{ $statusTitles[$statusKey] ?? ucfirst($statusKey) }}</h5>
@@ -74,7 +74,7 @@
                                 @endphp
 
                                 <p class="fs-4 fw-bold text-{{ $badgeColors[$catKey] ?? 'dark' }}">
-                                    {{ count($tickets) }} Tickets
+                                    {{ count($tickets) }} Ticket{{ count($tickets) > 1 ? 's' : '' }}
                                 </p>
                                 <p class="text-muted small mb-0">
                                     Estimation: {{ $totalEstimation > 0 ? $totalEstimation . ' hrs' : '---' }}
@@ -93,6 +93,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Ticket Title</th>
+                                <th>Sprint Name</th>
                                 <th>Project</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -106,28 +107,47 @@
             </div>
         </div>
     @endforeach
-
+</div>
 </div>
 @endsection
 @section('js_scripts')
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Check if ?project_filter is present in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('project_filter') && urlParams.get('project_filter') !== '') {
+        const wrapper = document.getElementById('sprint-content-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('d-none');
+        }
+    }
+
     const cards = document.querySelectorAll('.card-filter');
 
     cards.forEach(card => {
         card.addEventListener('click', function () {
             const category = card.dataset.category;
             const group = card.dataset.group;
+            const tableWrapper = document.getElementById(`${group}_table`);
 
-            console.log('--- CARD CLICKED ---');
-            console.log('Category:', category);
-            console.log('Group:', group);
+            // Check if this card is already active (toggle logic)
+            const isActive = card.classList.contains('active-card');
 
             // Remove active styles from all in this group
             document.querySelectorAll(`.card-filter[data-group="${group}"]`).forEach(c => 
-                c.classList.remove('border-4', 'border-dark-subtle', 'shadow')
+                c.classList.remove('border-4', 'border-dark-subtle', 'shadow', 'active-card')
             );
-            card.classList.add('border-4', 'border-dark-subtle', 'shadow');
+
+            if (tableWrapper) {
+                tableWrapper.classList.add('d-none');
+            }
+
+            // If the card was already active, just return after hiding
+            if (isActive) {
+                return;
+            }
+
+            card.classList.add('border-4', 'border-dark-subtle', 'shadow', 'active-card');
 
             // Set label text
             const labelMap = {
@@ -143,8 +163,6 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 labelEl.innerText = label;
             }
-
-            
 
             const ticketGroups = window[`${group}_data`];
             if (!ticketGroups) {
@@ -182,10 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            const tableWrapper = document.getElementById(`${group}_table`);
-            if (!tableWrapper) {
-                console.error(`Table wrapper not found: ${group}_table`);
-            } else {
+            if (tableWrapper) {
                 tableWrapper.classList.remove('d-none');
             }
         });
