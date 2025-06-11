@@ -186,7 +186,7 @@
               use Carbon\Carbon;
               $lastGroupDate = null;
             @endphp
-            <div class="chat-container" id="comment-scroll" style="height: 400px; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+            <div class="chat-container" id="comment-scroll"  style="height: {{ count($CommentsData) ? '800px' : 'auto' }}; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
                <div id="spinner_loader" style="display:none; text-align:center; padding: 10px;">
                   <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i>
               </div>
