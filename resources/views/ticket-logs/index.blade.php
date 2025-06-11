@@ -62,24 +62,46 @@
                             <div class="col">
                                 <div class="card h-100 shadow-sm border-start border-4 border-{{ $badgeColors[$catKey] ?? 'dark' }} card-filter"
                                      data-category="{{ $catKey }}" data-group="{{ $status }}" style="cursor:pointer;">
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ $categoryLabels[$catKey] ?? $catKey }}</h6>
+                                  <div class="card-body">
+                                    <h6 class="card-title text-uppercase fw-semibold mb-3">
+                                        {{ $categoryLabels[$catKey] ?? $catKey }}
+                                    </h6>
 
-                                        @php
-                                            $totalEstimation = collect($tickets)
-                                                ->pluck('time_estimation')
-                                                ->filter()
-                                                ->map(fn($val) => (float) trim($val, '{}'))
-                                                ->sum();
-                                        @endphp
+                                    @php
+                                        $totalEstimation = collect($tickets)
+                                            ->pluck('time_estimation')
+                                            ->filter()
+                                            ->map(fn($val) => (float) trim($val, '{}'))
+                                            ->sum();
+                                    @endphp
 
-                                        <p class="fs-4 fw-bold text-{{ $badgeColors[$catKey] ?? 'dark' }}">
-                                            {{ count($tickets) }} Ticket{{ count($tickets) > 1 ? 's' : '' }}
-                                        </p>
-                                        <p class="text-muted small mb-0">
-                                            Estimation: {{ $totalEstimation > 0 ? $totalEstimation . ' hrs' : '---' }}
-                                        </p>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="text-muted small">
+                                            <i class="bi bi-collection"></i>
+                                            {{ count($tickets) }} {{ count($tickets) > 1 ? 'Tickets' : 'Ticket' }}
+                                        </div>
+
+                                        <div class="text-end">
+                                            <div class="fs-5 fw-bold text-{{ $badgeColors[$catKey] ?? 'primary' }}">
+                                                <i class="bi bi-clock-history me-1"></i>
+                                                {{ $totalEstimation > 0 ? $totalEstimation . ' hrs' : '---' }}
+                                            </div>
+                                            <div class="small text-muted">Estimated Time</div>
+                                        </div>
                                     </div>
+
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-{{ $badgeColors[$catKey] ?? 'primary' }}" 
+                                            role="progressbar" 
+                                            style="width: {{ min($totalEstimation, 100) }}%;" 
+                                            aria-valuenow="{{ $totalEstimation }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 </div>
                             </div>
                        
