@@ -155,6 +155,7 @@
                             <option value="deployed" {{$tickets->status == 'deployed' ? 'selected' : ' ' }}>Deployed</option>
                             <option value="complete" {{$tickets->status == 'complete' ? 'selected' : ' ' }}>
                                 Complete </option>
+                                <option value="invoice_done" {{$tickets->status == 'invoice_done' ? 'selected' : ' ' }}>Invoice Done</option>
                         </select>
                         @if ($errors->has('status'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('status') }}</span>

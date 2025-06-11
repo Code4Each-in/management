@@ -61,15 +61,15 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
-      
+      @if(Auth::user()->role_id != 6)
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
-        <strong>Time Est.:</strong>
+        <strong>Time Estimation:</strong>
           <span>
             {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
         </span>
       </div>
-
+       @endif
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Category:</strong>
@@ -186,7 +186,7 @@
               use Carbon\Carbon;
               $lastGroupDate = null;
             @endphp
-            <div class="chat-container" id="comment-scroll"  style="height: {{ count($CommentsData) ? '800px' : 'auto' }}; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+            <div class="chat-container" id="comment-scroll"  style="height: {{ count($CommentsData) ? '600px' : 'auto' }}; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
                <div id="spinner_loader" style="display:none; text-align:center; padding: 10px;">
                   <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i>
               </div>

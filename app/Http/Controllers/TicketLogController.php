@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Projects;
+use App\Models\Tickets;
 use App\Models\Client;
 use App\Models\Sprint;
 use Illuminate\Support\Facades\Auth;
 
 class TicketLogController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
 {
     $projectFilter = $request->input('project_filter');
     $user = Auth::user();
@@ -24,50 +25,46 @@ class TicketLogController extends Controller
         $projectIds = $projects->pluck('id')->toArray();
     }
 
-    $statuses = [
-        'active' => 1,
-        'inactive' => 0,
-        'completed' => 2,
-        'invoice_done' => 3,
-    ];
+    $ticketStatuses = ['in_progress', 'to_do', 'invoice_done'];
+    $ticketData = [];
 
-    $sprintData = [];
-
-    foreach ($statuses as $label => $status) {
-    $sprints = Sprint::with(['tickets', 'projectDetails'])
-        ->where('sprints.status', $status)
-        ->when($clientId, fn($q) => $q->whereIn('project', $projectIds))
-        ->when($projectFilter, fn($q) => $q->where('project', $projectFilter))
-        ->get();
-
-            $categories = [
+    foreach ($ticketStatuses as $status) {
+        $categories = [
             'Technical' => [],
             'Design' => [],
             'Data Entry' => [],
             'Others' => [],
         ];
 
-        foreach ($sprints as $sprint) {
-            foreach ($sprint->tickets as $ticket) {
-                $cat = ucwords(strtolower(trim($ticket->ticket_category)));
-                $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
+        $tickets = Tickets::with(['sprintDetails.projectDetails'])
+            ->where('status', $status)
+            ->when($clientId, function ($query) use ($projectIds) {
+                $query->whereIn('project_id', $projectIds);
+            })
+            ->when($projectFilter, function ($query) use ($projectFilter) {
+                $query->where('project_id', $projectFilter);
+            })
+            ->get();
 
-                $ticket->sprint_name = $sprint->name;
-                $ticket->project_name = $sprint->projectDetails->project_name ?? 'No Project';
+        foreach ($tickets as $ticket) {
+            $cat = ucwords(strtolower(trim($ticket->ticket_category)));
+            $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
 
-                $categories[$category][] = $ticket;
-            }
+            // ✅ Add Sprint and Project Name
+            $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
+            $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
+
+            $categories[$category][] = $ticket;
         }
 
-     
-    $sprintData[$label] = $categories; // store categories directly under status
-}
-    
+        $ticketData[$status] = $categories;
+    }
+
     $role_id = $user->role_id;
 
     return view('ticket-logs.index', compact(
         'projects',
-        'sprintData',
+        'ticketData',
         'role_id',
         'user'
     ));
