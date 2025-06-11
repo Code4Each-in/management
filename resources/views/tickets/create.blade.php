@@ -176,7 +176,7 @@
                     <label class="col-sm-3 col-form-label">Ticket Category</label>
                     <div class="col-sm-9">
                         <select name="ticket_category" class="form-select">
-                            <option value="Technical">Select Category</option>
+                            <option value="">Select Category</option>
                             <option value="Technical">Technical</option>
                             <option value="Design">Design</option>
                             <option value="Data Entry">Data Entry</option>
