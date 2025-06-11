@@ -61,7 +61,7 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
-      @if(Auth::user()->role_id != 6)
+      
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Time Est.:</strong>
@@ -69,7 +69,7 @@
             {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
         </span>
       </div>
-      @endif
+
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Category:</strong>
@@ -182,10 +182,37 @@
                 <h1>Comments</h1>
                 <i class="fas fa-comment icon"></i>
             </div>
-            <div class="chat-container" style="overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+            @php
+              use Carbon\Carbon;
+              $lastGroupDate = null;
+            @endphp
+            <div class="chat-container" id="comment-scroll" style="height: 400px; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
+               <div id="spinner_loader" style="display:none; text-align:center; padding: 10px;">
+                  <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i>
+              </div>
                 @if(count($CommentsData) != 0)
+                  <div id="comments-list">
                     @foreach ($CommentsData as $data)
-                        <div class="message">
+                      @php
+                        $commentDate = Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->startOfDay();
+                        $today = Carbon::now()->startOfDay();
+                        $yesterday = Carbon::yesterday()->startOfDay();
+
+                        if ($commentDate->eq($today)) {
+                            $groupDateLabel = 'Today';
+                        } elseif ($commentDate->eq($yesterday)) {
+                            $groupDateLabel = 'Yesterday';
+                        } else {
+                            $groupDateLabel = $commentDate->format('M d, Y');
+                        }
+                      @endphp
+                      @if ($lastGroupDate !== $groupDateLabel)
+                          <div class="text-center text-muted my-2 date-label" style="font-weight: bold; font-size: 14px;">
+                              {{ $groupDateLabel }}
+                          </div>
+                          @php $lastGroupDate = $groupDateLabel; @endphp
+                      @endif
+                        <div class="message" data-id="{{ $data->id }}">
                             <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
                             <div class="user">
                                 @if(!empty($data->user->profile_picture))
@@ -246,6 +273,7 @@
 
                         </div>
                     @endforeach
+                  </div>
                 @else
                     <div class="center text-center mt-2">
                         <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
@@ -331,6 +359,11 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
+$(document).ready(function () {
+  const commentSection = document.getElementById('comment-scroll'); 
+  commentSection.scrollTop = commentSection.scrollHeight;
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   const editor = document.querySelector('#editor');
   if (!editor) {
@@ -435,6 +468,62 @@ if (oldComment) {
     $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
   }
 });
+let loading = false;
+let doneLoadingAll = false;
+
+$('#comment-scroll').on('scroll', function () {
+    const container = $(this);
+
+    if (container.scrollTop() <= 50 && !loading && !doneLoadingAll) {
+        const firstComment = $('#comments-list .message').first();
+        const lastId = firstComment.data('id');
+
+        loading = true;
+        $('#spinner_loader').show();
+
+        const prevScrollHeight = container[0].scrollHeight;
+
+        setTimeout(() => {
+            $.ajax({
+                url: '{{ route('ticket.comments.load', ['ticketId' => $tickets->id]) }}',
+                method: 'GET',
+                data: { last_id: lastId },
+                success: function (res) {
+                    if (res.comments && res.comments.length > 0) {
+                        let html = '';
+                        let lastDateGroup = $('#comments-list .date-label').first().text().trim();
+
+                        res.comments.forEach(function (data) {
+                            const currentGroupDate = data.created_date_label;
+                            let showDateLabel = false;
+
+                            if (currentGroupDate !== lastDateGroup) {
+                                showDateLabel = true;
+                                lastDateGroup = currentGroupDate;
+                            }
+
+                            html += buildCommentHTML(data, showDateLabel);
+                        });
+
+                        $('#comments-list').prepend(html);
+
+                        // After prepending, adjust scroll to preserve position
+                        const newScrollHeight = container[0].scrollHeight;
+                        const scrollDiff = newScrollHeight - prevScrollHeight;
+                        container.scrollTop(scrollDiff);
+                    } else {
+                        doneLoadingAll = true;
+                    }
+                },
+                complete: function () {
+                    loading = false;
+                    $('#spinner_loader').hide();
+                }
+            });
+        }, 3000);
+    }
+});
+
 });
 </script>
 <script>
@@ -534,6 +623,56 @@ if (oldComment) {
       });
     });
   });
+
+function buildCommentHTML(data, showDateLabel = false) {
+  const firstName = data.user?.first_name ?? 'N/A';
+  const initials = firstName.substring(0, 2).toUpperCase();
+
+  const profilePic = data.user?.profile_picture
+    ? `<div class="avatar" style="background-color: #27ae60;">
+         <img src="/assets/img/${data.user.profile_picture}" class="rounded-circle" width="35" height="35" alt="Profile">
+       </div>`
+    : `<div class="avatar" style="background-color: #27ae60;">${initials}</div>`;
+
+  const role = data.user?.role_id === 6 ? (data.project_name ?? 'Project Not Assigned') : 'Code4Each';
+
+  const documentsHTML = (data.document ?? '')
+    .split(',')
+    .filter(doc => doc.trim() !== '')
+    .map(doc => `
+      <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+        <a href="/assets/img/${doc}" target="_blank">${doc.split('/').pop()}</a>
+      </p>
+    `).join('');
+
+  const dateLabelHTML = showDateLabel
+    ? `<div class="text-center text-muted my-2 date-label" style="font-weight: bold; font-size: 14px;">
+         ${data.created_date_label}
+       </div>`
+    : '';
+
+  return `
+    ${dateLabelHTML}
+    <div class="message" data-id="${data.id}">
+      <div class="info">${data.created_at_formatted ?? ''}</div>
+      <div class="user">
+        ${profilePic}
+        <div>
+          <span class="name">${firstName}</span>
+          <span class="role">${role}</span>
+        </div>
+      </div>
+      <div class="text">
+        <div style="word-break: auto-phrase;">
+          ${data.comments ?? ''}
+        </div>
+        ${documentsHTML}
+      </div>
+    </div>
+  `;
+}
+
+
 </script>
 
 

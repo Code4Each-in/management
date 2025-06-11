@@ -4575,3 +4575,11 @@ text-align: center;
  .text-left{
 text-align: left;
  }
+ #comment-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+}
+#spinner_loader {
+  font-size: 0.9rem;
+  color: #555;
+}
