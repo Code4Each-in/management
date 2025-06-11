@@ -140,6 +140,7 @@
                             <option value="ready">Ready</option>
                             <option value="deployed">Deployed</option>
                             <option value="complete">Complete</option>
+                            <option value="invoice_done">Invoice Done</option>
                         </select>
                         @error('status')
                             <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>

@@ -44,68 +44,70 @@
         </form>
     </div>
 <div id="sprint-content-wrapper" class="d-none">
-    @foreach ($sprintData as $statusKey => $categories)
-        <div class="mb-5">
-            <h5 class="mb-4">{{ $statusTitles[$statusKey] ?? ucfirst($statusKey) }}</h5>
+    @foreach ($ticketData as $status => $categories)
+        @php
+            $totalTicketsInSection = collect($categories)->flatten()->count();
+        @endphp
+        <script>
+            window["{{ $status }}_data"] = @json($categories);
+        </script>
 
-            @php
-                $groupId = 'group_' . $statusKey;
-            @endphp
+        @if ($totalTicketsInSection > 0)
+            <div class="mb-5">
+                <h5 class="mb-4">{{ strtoupper(str_replace('_', ' ', $status)) }} Tickets</h5>
 
-            <script>
-                window["{{ $groupId }}_data"] = @json($categories);
-            </script>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+                    @foreach ($categories as $catKey => $tickets)
+                        
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-start border-4 border-{{ $badgeColors[$catKey] ?? 'dark' }} card-filter"
+                                     data-category="{{ $catKey }}" data-group="{{ $status }}" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ $categoryLabels[$catKey] ?? $catKey }}</h6>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
-                @foreach ($categories as $catKey => $tickets)
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-start border-4 border-{{ $badgeColors[$catKey] ?? 'dark' }} card-filter"
-                             data-category="{{ $catKey }}" data-group="{{ $groupId }}" style="cursor:pointer;">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ $categoryLabels[$catKey] ?? $catKey }}</h6>
-                                @php
-                                    $totalEstimation = collect($tickets)
-                                        ->pluck('time_estimation')
-                                        ->filter() // Remove nulls
-                                        ->map(function ($val) {
-                                            return (float) trim($val, '{}');
-                                        })
-                                        ->sum();
-                                @endphp
+                                        @php
+                                            $totalEstimation = collect($tickets)
+                                                ->pluck('time_estimation')
+                                                ->filter()
+                                                ->map(fn($val) => (float) trim($val, '{}'))
+                                                ->sum();
+                                        @endphp
 
-                                <p class="fs-4 fw-bold text-{{ $badgeColors[$catKey] ?? 'dark' }}">
-                                    {{ count($tickets) }} Ticket{{ count($tickets) > 1 ? 's' : '' }}
-                                </p>
-                                <p class="text-muted small mb-0">
-                                    Estimation: {{ $totalEstimation > 0 ? $totalEstimation . ' hrs' : '---' }}
-                                </p>
+                                        <p class="fs-4 fw-bold text-{{ $badgeColors[$catKey] ?? 'dark' }}">
+                                            {{ count($tickets) }} Ticket{{ count($tickets) > 1 ? 's' : '' }}
+                                        </p>
+                                        <p class="text-muted small mb-0">
+                                            Estimation: {{ $totalEstimation > 0 ? $totalEstimation . ' hrs' : '---' }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+                       
+                    @endforeach
+                </div>
 
-            <div id="{{ $groupId }}_table" class="mt-4 d-none">
-                <h6 class="text-secondary mb-3">Tickets (<span class="text-uppercase" id="{{ $groupId }}_status_label"></span>)</h6>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Ticket Title</th>
-                                <th>Sprint Name</th>
-                                <th>Project</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="{{ $groupId }}_table_body">
-                            {{-- Filled dynamically by JavaScript --}}
-                        </tbody>
-                    </table>
+                <div id="{{ $status }}_table" class="mt-4 d-none">
+                    <h6 class="text-secondary mb-3">Tickets (<span class="text-uppercase" id="{{ $status }}_status_label"></span>)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Ticket Title</th>
+                                    <th>Sprint Name</th>
+                                    <th>Project</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="{{ $status }}_table_body">
+                                {{-- Filled dynamically by JavaScript --}}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     @endforeach
 </div>
 </div>

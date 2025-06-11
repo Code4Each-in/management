@@ -49,4 +49,9 @@ class Tickets extends Model
     {
         return $this->belongsTo(Projects::class);
     }
+    public function sprintDetails()
+{
+    return $this->belongsTo(Sprint::class, 'sprint_id');
+}
+
 }
