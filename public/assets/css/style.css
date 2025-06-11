@@ -4560,11 +4560,11 @@ form#searchForm {
   overflow: hidden;
   position: relative;
 }
-.task-details {
+/* .task-details {
   max-height: 600px;
   overflow-y: auto;
   padding-right: 8px;
-}
+} */
 
 /* .styled-sprints-table  thead, th, tbody, td {
     text-align: center;
