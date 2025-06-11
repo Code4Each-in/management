@@ -61,7 +61,7 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
-      
+      @if(Auth::user()->role_id != 6)
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Time Est.:</strong>
@@ -69,7 +69,7 @@
             {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
         </span>
       </div>
-
+      @endif
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Category:</strong>
