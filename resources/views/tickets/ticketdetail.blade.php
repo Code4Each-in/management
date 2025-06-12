@@ -3,22 +3,6 @@
 @section('subtitle', 'Ticket')
 @section('content')
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
-
-    @php
-        $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
-    @endphp
-
-    {{-- Show Approved Badge or Approve Button --}}
-    @if($isApproved)
-        <span class="btn btn-sm btn-success disabled" style="pointer-events: none;">
-            <i class="fa-solid fa-check-circle me-1"></i> Approved
-        </span>
-    @elseif(in_array(Auth::user()->role_id, [1, 6]) && $tickets->time_estimation)
-        <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="btn btn-sm btn-success">
-            <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
-        </a>
-    @endif
-
     {{-- Back To Sprint Button --}}
     @if(!empty($tickets->sprint_id))
         <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
@@ -90,15 +74,28 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
-      
-      @if(Auth::user()->role_id != 6)
-          @if($tickets->time_estimation)
-              <div class="detail-item">
-                  <i class="fa-solid fa-diagram-project"></i>
-                  <strong>Time Estimation:</strong>
-                  <span>{{ trim($tickets->time_estimation, '{}') . ' hours' }}</span>
-              </div>
-          @endif
+     @if($tickets->time_estimation)
+          <div class="detail-item d-flex align-items-center gap-2">
+              <i class="fa-solid fa-diagram-project"></i>
+              <strong>Time Estimation:</strong>
+              <span>
+                  {{ trim($tickets->time_estimation, '{}') . ' hours' }}
+
+                  @php
+                      $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
+                  @endphp
+
+                  @if($isApproved)
+                      <span class="badge bg-success ms-2">
+                          <i class="fa-solid fa-check-circle me-1"></i> Approved
+                      </span>
+                  @elseif($tickets->time_estimation)
+                      <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
+                          <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
+                      </a>
+                  @endif
+              </span>
+          </div>
       @endif
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
@@ -291,18 +288,23 @@
                                 @endphp
 
                                 <!-- Display Documents -->
-                                @foreach ($documents as $doc)
-                                    @if (!empty($doc))
-                                        <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                            <a href="{{ asset('assets/img/' . $doc) }}" target="_blank">
-                                                {{ basename($doc) }}
-                                            </a>
-                                        </p>
-                                    @endif
-                                @endforeach
+                               @foreach ($documents as $doc)
+                                  @if (!empty($doc))
+                                      @php
+                                          $fileName = basename($doc);
+                                          $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
+                                      @endphp
+                                      <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                                          <a href="{{ asset('assets/img/' . $doc) }}"
+                                            target="_blank"
+                                            {{ $isCsv ? 'download' : '' }}>
+                                              {{ $fileName }}
+                                          </a>
+                                      </p>
+                                  @endif
+                              @endforeach
                             </div>
                             <!-- Delete button (only for the comment owner) -->
-
                         </div>
                     @endforeach
                   </div>
