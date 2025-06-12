@@ -288,16 +288,17 @@
                                 @endphp
 
                                 <!-- Display Documents -->
-                               @foreach ($documents as $doc)
+                              @foreach ($documents as $doc)
                                   @if (!empty($doc))
                                       @php
                                           $fileName = basename($doc);
                                           $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
+                                          $downloadUrl = route('public.file.download', ['filename' => $fileName]);
                                       @endphp
                                       <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                          <a href="{{ asset('assets/img/' . $doc) }}"
+                                          <a href="{{ $downloadUrl }}"
                                             target="_blank"
-                                            {{ $isCsv ? 'download' : '' }}>
+                                            @if ($isCsv) download @endif>
                                               {{ $fileName }}
                                           </a>
                                       </p>

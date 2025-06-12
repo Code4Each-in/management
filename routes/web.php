@@ -37,6 +37,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
 use App\Http\Controllers\TicketLogController;
+use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -390,5 +391,12 @@ Route::middleware(['role_permission'])->group(function () {
 	    Route::get('/load-more-comments/{ticketId}', [TicketsController::class, 'loadMoreComments'])->name('ticket.comments.load');
     //approve ticket estimation 
 	Route::get('/ticket/{id}/approve-estimation', [TicketsController::class, 'approveEstimation'])->name('ticket.approveEstimation');
+		Route::get('/download-file/{filename}', function ($filename) {
+		$path = public_path('assets/img/ticketAssets/' . $filename);
 
+		if (!file_exists($path)) {
+			abort(404, 'File not found');
+		}
+		return response()->download($path);
+	})->name('public.file.download')->where('filename', '.*');
 });
