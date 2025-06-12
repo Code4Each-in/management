@@ -13,6 +13,7 @@ class TicketComments extends Model
         'comments',
         'document',
         'comment_by',
+        'is_system'
 
     ];
 

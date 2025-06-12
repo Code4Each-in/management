@@ -387,7 +387,8 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//ticket logs section
 	    Route::get('/ticket-logs', [TicketLogController::class, 'index'])->name('ticket-logs.index');
-
-	Route::get('/load-more-comments/{ticketId}', [TicketsController::class, 'loadMoreComments'])->name('ticket.comments.load');
+	    Route::get('/load-more-comments/{ticketId}', [TicketsController::class, 'loadMoreComments'])->name('ticket.comments.load');
+    //approve ticket estimation 
+	Route::get('/ticket/{id}/approve-estimation', [TicketsController::class, 'approveEstimation'])->name('ticket.approveEstimation');
 
 });

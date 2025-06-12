@@ -47,7 +47,7 @@
     </div>
 
     <div class="task-details"> <!-- Always visible -->
-    <div class="detail-item">
+     <div class="detail-item">
         <i class="fa-solid fa-align-left"></i>
         <strong>Description:</strong>
         
@@ -81,6 +81,25 @@
           <span>
             {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
         </span>
+        @if($tickets->time_estimation)
+
+          {{-- @if(auth()->user()->role_id == 6) --}}
+            <div class="mt-2">
+          @php
+              $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
+          @endphp
+
+          @if(!$isApproved)
+              <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="btn btn-sm btn-success">
+                  Approve Estimation
+              </a>
+          @else
+              <span class="badge bg-success">Approved</span>
+          @endif
+      </div>
+
+          {{-- @endif --}}
+        @endif
       </div>
        @endif
       <div class="detail-item">
@@ -249,6 +268,7 @@
                                 </div>
                             </div>
                             <div class="text">
+                              @if(!$data->is_system)
                               @if(Auth::user()->id == $data->comment_by)
                                 <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 8px;">
                                   <i class="fa-solid fa-trash"></i>
@@ -262,6 +282,7 @@
                                       style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px;">
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
+                            @endif
                             @endif
                                 <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
