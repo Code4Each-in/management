@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Carbon\Carbon;
 use App\Models\TicketEstimationApproval;
+use App\Notifications\EstimationApprovedNotification;
+use Illuminate\Support\Facades\Log;
 
 //use Dotenv\Validator;
 
@@ -954,27 +956,34 @@ public function approveEstimation($id)
         'is_system'  => true,          
     ]);
     
-    // $messages = [
-    //     "greeting-text" => "Hello!",
-    //     "subject"       => "Time Estimation Approved for Ticket #{$id}",
-    //     "title"         => "Estimation Approved",
-    //     "body-text"     => "Time estimation has been approved for Ticket #{$id} by {$user->first_name}.",
-    //     "url-title"     => "View Ticket",
-    //     "url"           => "/view/ticket/" . $id,
-    // ];
+    $messages = [
+    "greeting-text" => "Hello!",
+    "subject"       => "Time Estimation Approved for Ticket #{$id}",
+    "title"         => "Estimation Approved",
+    "body-text"     => "Time estimation has been approved for Ticket #{$id} by {$user->first_name}.",
+    "url-title"     => "View Ticket",
+    "url"           => "/view/ticket/" . $id,
+];
 
-    
-    // try {
-    //     $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-    //         ->where('ticket_assigns.ticket_id', $id)
-    //         ->get(['users.id', 'users.email']);
-    //     foreach ($assignedUsers as $assignedUser) {
-    //         $assignedUser->notify(new \App\Notifications\TicketNotification($messages));
-    //     }
+try {
+    $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+        ->where('ticket_assigns.ticket_id', $id)
+        ->get(['users.id', 'users.email']);
 
-    // } catch (\Exception $e) {
-    //     \Log::error("Error sending estimation approval notification: " . $e->getMessage());
-    // }
+    $superAdmin = Users::find(1); 
+
+    foreach ($assignedUsers as $assignedUser) {
+        $assignedUser->notify(new EstimationApprovedNotification($messages));
+    }
+
+    if ($user->role_id == 6 && $superAdmin) {
+        $superAdmin->notify(new EstimationApprovedNotification($messages));
+    }
+
+
+} catch (\Exception $e) {
+    \Log::error("Error sending estimation approval notification: " . $e->getMessage());
+}
 
     return back()->with('success', 'Estimation approved successfully.');
 }

@@ -2,19 +2,35 @@
 @section('title', 'Ticket Details')
 @section('subtitle', 'Ticket')
 @section('content')
-<div class="action_btn">
-    @if(!empty($tickets->sprint_id))
-    <div class="backToSprint">
-        <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
-        Back To Sprint <i style="color:#4154f1;"></i>
+<div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
+
+    @php
+        $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
+    @endphp
+
+    {{-- Show Approved Badge or Approve Button --}}
+    @if($isApproved)
+        <span class="btn btn-sm btn-success disabled" style="pointer-events: none;">
+            <i class="fa-solid fa-check-circle me-1"></i> Approved
+        </span>
+    @elseif(in_array(Auth::user()->role_id, [1, 6]) && $tickets->time_estimation)
+        <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="btn btn-sm btn-success">
+            <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
         </a>
-    </div>
     @endif
-  <div class="editticket">
-      <a href="{{ url('/edit/ticket/'.$tickets->id)}}?source=sprint" class="btn btn-primary">Edit Ticket
-      <i style="color:#4154f1;"></i>
-  </a>
-  </div>
+
+    {{-- Back To Sprint Button --}}
+    @if(!empty($tickets->sprint_id))
+        <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
+            Back To Sprint
+        </a>
+    @endif
+
+    {{-- Edit Ticket Button --}}
+    <a href="{{ url('/edit/ticket/'.$tickets->id) }}?source=sprint" class="btn btn-primary">
+        Edit Ticket
+    </a>
+
 </div>
 <div id="loader">
   <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
@@ -74,34 +90,16 @@
           <span>{{ $project['project_name'] ?? '---' }}</span>
         @endforeach
       </div>
+      
       @if(Auth::user()->role_id != 6)
-      <div class="detail-item">
-        <i class="fa-solid fa-diagram-project"></i>
-        <strong>Time Estimation:</strong>
-          <span>
-            {{ $tickets->time_estimation ? trim($tickets->time_estimation, '{}') . ' hours' : '---' }}
-        </span>
-        @if($tickets->time_estimation)
-
-          {{-- @if(auth()->user()->role_id == 6) --}}
-            <div class="mt-2">
-          @php
-              $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
-          @endphp
-
-          @if(!$isApproved)
-              <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="btn btn-sm btn-success">
-                  Approve Estimation
-              </a>
-          @else
-              <span class="badge bg-success">Approved</span>
+          @if($tickets->time_estimation)
+              <div class="detail-item">
+                  <i class="fa-solid fa-diagram-project"></i>
+                  <strong>Time Estimation:</strong>
+                  <span>{{ trim($tickets->time_estimation, '{}') . ' hours' }}</span>
+              </div>
           @endif
-      </div>
-
-          {{-- @endif --}}
-        @endif
-      </div>
-       @endif
+      @endif
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
         <strong>Category:</strong>
