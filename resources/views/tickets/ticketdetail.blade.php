@@ -79,21 +79,21 @@
               <i class="fa-solid fa-diagram-project"></i>
               <strong>Time Estimation:</strong>
               <span>
-                  {{ trim($tickets->time_estimation, '{}') . ' hours' }}
+                  {{ rtrim(rtrim(number_format((float) $tickets->time_estimation, 2, '.', ''), '0'), '.') . ' hours' }}
 
                   @php
                       $isApproved = \App\Models\TicketEstimationApproval::where('ticket_id', $tickets->id)->exists();
                   @endphp
 
-                  @if($isApproved)
-                      <span class="badge bg-success ms-2">
-                          <i class="fa-solid fa-check-circle me-1"></i> Approved
-                      </span>
-                  @elseif($tickets->time_estimation)
-                      <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
-                          <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
-                      </a>
-                  @endif
+                 @if($isApproved)
+                    <span class="badge bg-success ms-2">
+                        <i class="fa-solid fa-check-circle me-1"></i> Approved
+                    </span>
+                @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
+                    <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
+                        <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
+                    </a>
+                @endif
               </span>
           </div>
       @endif
