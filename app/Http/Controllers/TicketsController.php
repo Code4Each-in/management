@@ -20,7 +20,7 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Carbon\Carbon;
-
+use App\Models\TicketEstimationApproval;
 
 //use Dotenv\Validator;
 
@@ -233,7 +233,7 @@ class TicketsController extends Controller
                 {
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $dateString = date('YmdHis');
-                $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                $name = $dateString . '_' . $fileName . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('assets/img/ticketAssets'), $name);
                 $path='ticketAssets/'.$name;
                     $documents = TicketFiles::create([
@@ -455,7 +455,7 @@ class TicketsController extends Controller
                 {
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $dateString = date('YmdHis');
-                $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                $name = $dateString . '_' . $fileName . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('assets/img/ticketAssets'), $name);
                 $path='ticketAssets/'.$name;
                     $documents = TicketFiles::create([
@@ -526,7 +526,7 @@ class TicketsController extends Controller
                 foreach ($request->file('comment_file') as $file) {
                     $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $dateString = date('YmdHis');
-                    $name = $dateString . '_' . $fileName . '.' . $file->extension();
+                    $name = $dateString . '_' . $fileName . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('assets/img/ticketAssets'), $name);
                     $path = 'ticketAssets/' . $name;
 
@@ -930,5 +930,54 @@ public function loadMoreComments($ticketId, Request $request)
 
     return response()->json(['comments' => $comments]);
 }
+
+public function approveEstimation($id)
+{
+
+    $existing = TicketEstimationApproval::where('ticket_id', $id)->first();
+
+    if ($existing) {
+        return back()->with('error', 'Estimation has already been approved.');
+    }
+
+    TicketEstimationApproval::create([
+        'ticket_id'   => $id,
+        'approved_by' => auth()->id(),
+        'approved_at' => now(),
+    ]);
+
+    $user = auth()->user();
+    TicketComments::create([
+        'comments'   => "Time estimation approved by {$user->first_name}",
+        'ticket_id'  => $id,
+        'comment_by' => $user->id,
+        'is_system'  => true,          
+    ]);
+    
+    // $messages = [
+    //     "greeting-text" => "Hello!",
+    //     "subject"       => "Time Estimation Approved for Ticket #{$id}",
+    //     "title"         => "Estimation Approved",
+    //     "body-text"     => "Time estimation has been approved for Ticket #{$id} by {$user->first_name}.",
+    //     "url-title"     => "View Ticket",
+    //     "url"           => "/view/ticket/" . $id,
+    // ];
+
+    
+    // try {
+    //     $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+    //         ->where('ticket_assigns.ticket_id', $id)
+    //         ->get(['users.id', 'users.email']);
+    //     foreach ($assignedUsers as $assignedUser) {
+    //         $assignedUser->notify(new \App\Notifications\TicketNotification($messages));
+    //     }
+
+    // } catch (\Exception $e) {
+    //     \Log::error("Error sending estimation approval notification: " . $e->getMessage());
+    // }
+
+    return back()->with('success', 'Estimation approved successfully.');
+}
+
 
 }
