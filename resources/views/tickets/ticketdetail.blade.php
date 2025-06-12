@@ -47,12 +47,25 @@
     </div>
 
     <div class="task-details"> <!-- Always visible -->
-      <div class="detail-item">
-          <i class="fa-solid fa-align-left"></i>
-          <strong>Description:</strong>
-          <div>{!! $tickets->description !!}</div>
-      </div>
+    <div class="detail-item">
+        <i class="fa-solid fa-align-left"></i>
+        <strong>Description:</strong>
+        
+        @php
+            $description = strip_tags($tickets->description); // Strip HTML for word count
+            $words = explode(' ', $description);
+            $shortDescription = implode(' ', array_slice($words, 0, 100));
+            $isLong = count($words) > 100;
+        @endphp
 
+        <div>
+            <span class="short-description">{!! nl2br(e($shortDescription)) !!}@if($isLong)... @endif</span>
+            @if($isLong)
+                <span class="full-description" style="display: none;">{!! $tickets->description !!}</span>
+                <a href="javascript:void(0);" class="toggle-description" onclick="toggleDescription(this)">Show More</a>
+            @endif
+        </div>
+    </div>
 
       <div class="detail-item">
         <i class="fa-solid fa-diagram-project"></i>
@@ -671,7 +684,21 @@ function buildCommentHTML(data, showDateLabel = false) {
     </div>
   `;
 }
+function toggleDescription(link) {
+    const container = link.closest('div');
+    const shortDesc = container.querySelector('.short-description');
+    const fullDesc = container.querySelector('.full-description');
 
+    if (fullDesc.style.display === 'none') {
+        fullDesc.style.display = 'inline';
+        shortDesc.style.display = 'none';
+        link.textContent = 'Show Less';
+    } else {
+        fullDesc.style.display = 'none';
+        shortDesc.style.display = 'inline';
+        link.textContent = 'Show More';
+    }
+}
 
 </script>
 
