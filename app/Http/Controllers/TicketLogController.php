@@ -26,105 +26,136 @@ class TicketLogController extends Controller
         $projectIds = $projects->pluck('id')->toArray();
     }
 
-    $ticketStatuses = ['in_progress', 'to_do', 'invoice_done'];
     $ticketData = [];
 
-    foreach ($ticketStatuses as $status) {
-        $categories = [
-            'Technical' => [],
-            'Design' => [],
-            'Data Entry' => [],
-            'Others' => [],
-        ];
+    $needApprovalCategories = [
+        'Technical' => [],
+        'Design' => [],
+        'Data Entry' => [],
+        'Others' => [],
+    ];
 
-        $tickets = Tickets::with(['sprintDetails.projectDetails','estimationApproval'])
-            ->where('status', $status)
-            ->when($clientId, function ($query) use ($projectIds) {
-                $query->whereIn('project_id', $projectIds);
-            })
-            ->when($projectFilter, function ($query) use ($projectFilter) {
-                $query->where('project_id', $projectFilter);
-            })
-            ->get();
+    $needApprovalTickets = Tickets::with(['sprintDetails.projectDetails', 'estimationApproval'])
+        ->whereNotNull('time_estimation')
+        ->whereDoesntHave('estimationApproval')
+        ->when($clientId, function ($query) use ($projectIds) {
+            $query->whereIn('project_id', $projectIds);
+        })
+        ->when($projectFilter, function ($query) use ($projectFilter) {
+            $query->where('project_id', $projectFilter);
+        })
+        ->get();
 
-        foreach ($tickets as $ticket) {
-            $cat = ucwords(strtolower(trim($ticket->ticket_category)));
-            $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
+    foreach ($needApprovalTickets as $ticket) {
+        $cat = ucwords(strtolower(trim($ticket->ticket_category)));
+        $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
 
-            // ✅ Add Sprint and Project Name
-            $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
-            $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
-            $ticket->is_estimation_approved = $ticket->estimationApproval ? true : false;
+        $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
+        $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
+        $ticket->is_estimation_approved = false;
 
-            $categories[$category][] = $ticket;
-        }
-
-        $ticketData[$status] = $categories;
+        $needApprovalCategories[$category][] = $ticket;
     }
-            // ✅ Need Approval: time_estimation is not null AND not approved yet
-        $needApprovalCategories = [
-            'Technical' => [],
-            'Design' => [],
-            'Data Entry' => [],
-            'Others' => [],
-        ];
 
-        $needApprovalTickets = Tickets::with(['sprintDetails.projectDetails','estimationApproval'])
-            ->whereNotNull('time_estimation')
-            ->whereDoesntHave('estimationApproval') // Assuming relationship is defined
-            ->when($clientId, function ($query) use ($projectIds) {
-                $query->whereIn('project_id', $projectIds);
-            })
-            ->when($projectFilter, function ($query) use ($projectFilter) {
-                $query->where('project_id', $projectFilter);
-            })
-            ->get();
+    $ticketData['need_approval'] = $needApprovalCategories;
 
-        foreach ($needApprovalTickets as $ticket) {
-            $cat = ucwords(strtolower(trim($ticket->ticket_category)));
-            $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
 
-            $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
-            $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
-            $ticket->is_estimation_approved = $ticket->estimationApproval ? true : false;
+    $approvedNotStartedCategories = [
+        'Technical' => [],
+        'Design' => [],
+        'Data Entry' => [],
+        'Others' => [],
+    ];
 
-            $needApprovalCategories[$category][] = $ticket;
-        }
+    $approvedNotStartedTickets = Tickets::with(['sprintDetails.projectDetails', 'estimationApproval'])
+        ->whereNotNull('time_estimation')
+        ->whereHas('estimationApproval')
+        ->where('status', 'to_do')
+        ->when($clientId, function ($query) use ($projectIds) {
+            $query->whereIn('project_id', $projectIds);
+        })
+        ->when($projectFilter, function ($query) use ($projectFilter) {
+            $query->where('project_id', $projectFilter);
+        })
+        ->get();
 
-        $ticketData['need_approval'] = $needApprovalCategories;
+    foreach ($approvedNotStartedTickets as $ticket) {
+        $cat = ucwords(strtolower(trim($ticket->ticket_category)));
+        $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
 
-        // ✅ Approved but Not Started Yet: time_estimation is set, approval exists, but status is still 'to_do'
-        $approvedNotStartedCategories = [
-            'Technical' => [],
-            'Design' => [],
-            'Data Entry' => [],
-            'Others' => [],
-        ];
+        $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
+        $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
+        $ticket->is_estimation_approved = true;
 
-        $approvedNotStartedTickets = Tickets::with(['sprintDetails.projectDetails','estimationApproval'])
-            ->whereNotNull('time_estimation')
-            ->whereHas('estimationApproval') // Assuming relationship is defined
-            ->where('status', 'to_do')
-            ->when($clientId, function ($query) use ($projectIds) {
-                $query->whereIn('project_id', $projectIds);
-            })
-            ->when($projectFilter, function ($query) use ($projectFilter) {
-                $query->where('project_id', $projectFilter);
-            })
-            ->get();
+        $approvedNotStartedCategories[$category][] = $ticket;
+    }
 
-        foreach ($approvedNotStartedTickets as $ticket) {
-            $cat = ucwords(strtolower(trim($ticket->ticket_category)));
-            $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
+    $ticketData['approved_not_started'] = $approvedNotStartedCategories;
 
-            $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
-            $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
-            $ticket->is_estimation_approved = $ticket->estimationApproval ? true : false;
 
-            $approvedNotStartedCategories[$category][] = $ticket;
-        }
+    $inProgressCategories = [
+        'Technical' => [],
+        'Design' => [],
+        'Data Entry' => [],
+        'Others' => [],
+    ];
 
-        $ticketData['approved_not_started'] = $approvedNotStartedCategories;
+    $inProgressTickets = Tickets::with(['sprintDetails.projectDetails', 'estimationApproval'])
+        ->whereNotNull('time_estimation')
+        ->whereHas('estimationApproval')
+        ->whereNotIn('status', ['to_do', 'invoice_done'])
+        ->when($clientId, function ($query) use ($projectIds) {
+            $query->whereIn('project_id', $projectIds);
+        })
+        ->when($projectFilter, function ($query) use ($projectFilter) {
+            $query->where('project_id', $projectFilter);
+        })
+        ->get();
+
+    foreach ($inProgressTickets as $ticket) {
+        $cat = ucwords(strtolower(trim($ticket->ticket_category)));
+        $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
+
+        $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
+        $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
+        $ticket->is_estimation_approved = true;
+
+        $inProgressCategories[$category][] = $ticket;
+    }
+
+    $ticketData['in_progress'] = $inProgressCategories;
+
+    $invoiceDoneCategories = [
+        'Technical' => [],
+        'Design' => [],
+        'Data Entry' => [],
+        'Others' => [],
+    ];
+
+    $invoiceDoneTickets = Tickets::with(['sprintDetails.projectDetails', 'estimationApproval'])
+        ->where('status', 'invoice_done')
+        ->whereNotNull('time_estimation')
+        ->whereHas('estimationApproval')
+        ->when($clientId, function ($query) use ($projectIds) {
+            $query->whereIn('project_id', $projectIds);
+        })
+        ->when($projectFilter, function ($query) use ($projectFilter) {
+            $query->where('project_id', $projectFilter);
+        })
+        ->get();
+
+    foreach ($invoiceDoneTickets as $ticket) {
+        $cat = ucwords(strtolower(trim($ticket->ticket_category)));
+        $category = in_array($cat, ['Technical', 'Design', 'Data Entry']) ? $cat : 'Others';
+
+        $ticket->sprint_name = $ticket->sprintDetails->name ?? 'No Sprint';
+        $ticket->project_name = $ticket->sprintDetails->projectDetails->project_name ?? 'No Project';
+        $ticket->is_estimation_approved = true;
+
+        $invoiceDoneCategories[$category][] = $ticket;
+    }
+
+    $ticketData['invoice_done'] = $invoiceDoneCategories;
 
     $role_id = $user->role_id;
 
