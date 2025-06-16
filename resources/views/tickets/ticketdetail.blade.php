@@ -168,6 +168,7 @@
           'ready' => 'Ready',
           'deployed' => 'Deployed',
           'complete' => 'Complete',
+          'invoice_done' => 'Invoice Done'
       ];
       $statusColors = [
           'to_do' => '#948979',
@@ -175,6 +176,7 @@
           'ready' => '#e09f3e',
           'deployed' => '#e76f51',
           'complete' => '#2a9d8f',
+          'invoice_done' => '#e76f51'
       ];
       $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
   @endphp
@@ -603,7 +605,8 @@ $('#comment-scroll').on('scroll', function () {
         in_progress: '#3fa6d7',
         ready: '#e09f3e',
         deployed: '#e76f51',
-        complete: '#2a9d8f'
+        complete: '#2a9d8f',
+        invoice_done: '#e76f51'
     };
 
     document.body.addEventListener('click', function (e) {
@@ -643,13 +646,12 @@ $('#comment-scroll').on('scroll', function () {
                               statusButton.style.backgroundColor = newColor;
                               statusButton.style.borderColor = newColor;
           }
-
           // Always reload after a small delay (to let user briefly see change if needed)
           setTimeout(() => {
             location.reload(true);
           }, 300); // 300ms delay before reload
         } else {
-          alert('Failed to update status.');
+          alert('Your time estimation is not approved yet.');
         }
       })
       .catch(error => {

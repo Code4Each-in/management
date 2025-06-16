@@ -118,7 +118,8 @@
                                     <th>Ticket Title</th>
                                     <th>Sprint Name</th>
                                     <th>Project</th>
-                                    <th>Status</th>
+                                    <th>Ticket Status</th>
+                                    <th>Approval Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -218,6 +219,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${t.sprint_name || '-'}</td>
                             <td>${t.project_name || '-'}</td>
                             <td>${t.status.replace('_', ' ').toUpperCase()}</td>
+                            <td>
+                            ${t.is_estimation_approved
+                                ? '<span class="badge bg-success">Approved</span>'
+                                : '<span class="badge bg-warning text-dark">Not Approved</span>'}
+                            </td>
                             <td><a href="/view/ticket/${t.id}" class="btn btn-sm btn-outline-primary">View</a></td>
                         </tr>
                     `;

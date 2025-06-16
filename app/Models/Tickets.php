@@ -54,4 +54,10 @@ class Tickets extends Model
     return $this->belongsTo(Sprint::class, 'sprint_id');
 }
 
+public function estimationApproval()
+{
+    return $this->hasOne(\App\Models\TicketEstimationApproval::class, 'ticket_id');
+}
+
+
 }

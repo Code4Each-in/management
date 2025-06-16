@@ -399,4 +399,6 @@ Route::middleware(['role_permission'])->group(function () {
 		}
 		return response()->download($path);
 	})->name('public.file.download')->where('filename', '.*');
+	Route::get('/pending-approvals', [TicketLogController::class, 'pendingApprovals'])->name('client.pending.approvals');
+
 });

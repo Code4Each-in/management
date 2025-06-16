@@ -24,6 +24,7 @@ use App\Models\TicketEstimationApproval;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 
+
 //use Dotenv\Validator;
 
 
@@ -165,6 +166,17 @@ class TicketsController extends Controller
             $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
+            $requestedStatus = $validate['status'] ?? 'to_do';
+            $hasEstimation = !empty($validate['time_estimation']);
+            $isApproved = false; 
+
+            if ($hasEstimation && !$isApproved && $requestedStatus !== 'to_do') {
+                return response()->json([
+                    'status' => 403,
+                    'error' => 'Estimation is not approved yet. You cannot set the status other than "to_do".'
+                ]);
+            }
+
             $tickets =Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'],
@@ -365,6 +377,19 @@ class TicketsController extends Controller
            $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
+
+               $isStatusChanging = $ticketData->status !== $validate['status'];
+               // Block all status changes if time_estimation exists and is not approved
+                $isStatusChanging = isset($validate['status']) && $ticketData->status !== $validate['status'];
+                    $hasEstimation = !is_null($ticketData->time_estimation);
+                    $isApproved = TicketEstimationApproval::where('ticket_id', $ticketId)->exists();
+
+                    // Block changing status to anything other than 'to_do' if estimation exists and not approved
+                    if ($isStatusChanging && $hasEstimation && !$isApproved && $validate['status'] !== 'to_do') {
+                        return Redirect::back()->with('error', 'Estimation is not approved yet. You cannot change the status of this ticket.');
+                    }
+
+
 
             $tickets=   Tickets::where('id', $ticketId)
             ->update([
@@ -765,13 +790,31 @@ class TicketsController extends Controller
 
 public function updateStatus(Request $request, $id)
 {
-    $request->validate([
-        'status' => 'required|in:to_do,in_progress,ready,deployed,complete',
+        $request->validate([
+        'status' => 'required|in:to_do,in_progress,ready,deployed,complete,invoice_done',
     ]);
     $auth_user =  auth()->user()->id;
     $ticket = Tickets::findOrFail($id);
+
+    $isStatusChanging = isset($request->status) && $ticket->status !== $request->status;
+    $hasEstimation = !is_null($ticket->time_estimation);
+    $isApproved = TicketEstimationApproval::where('ticket_id', $id)->exists();
+
+    if (
+        $isStatusChanging &&
+        $hasEstimation &&
+        !$isApproved &&
+        $request->status !== 'to_do'
+    ) {
+       return response()->json([
+    'success' => false,
+    'error' => 'Estimation is not approved yet. You cannot change the status of this ticket.'
+     ]);
+    }
     $ticket->status = $request->status;
     $ticket->save();
+
+
 
     Notification::create([
         'user_id' => $auth_user,
