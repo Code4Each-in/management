@@ -44,6 +44,19 @@
         </form>
     </div>
 <div id="sprint-content-wrapper" class="d-none">
+    @php
+            $hasTickets = false;
+
+            foreach ($ticketData as $status => $categories) {
+                foreach ($categories as $tickets) {
+                    if (count($tickets) > 0) {
+                        $hasTickets = true;
+                        break 2;
+                    }
+                }
+            }
+        @endphp
+    @if ($hasTickets)
     @foreach ($ticketData as $status => $categories)
         @php
             $totalTicketsInSection = collect($categories)->flatten()->count();
@@ -132,6 +145,11 @@
             </div>
         @endif
     @endforeach
+    @else
+        <div class="alert alert-info text-center">
+            No tickets found for the selected project.
+        </div>
+    @endif
 </div>
 </div>
 @endsection
