@@ -232,40 +232,40 @@
             charCountError.style.display = 'none';   
         }
     }
-     $("#addTicketsForm").submit(function(event) {
-                    event.preventDefault();    
-                    $('#description_input').val(quill.root.innerHTML);             
-                    var formData = new FormData(this);
-                    $('#loader').show();
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ url('/add/tickets')}}",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(data) {
-                            $('#loader').hide();
+            $("#addTicketsForm").submit(function(event) {
+        event.preventDefault();    
 
-                            if (data.errors) {
-                                $('.alert-danger').html('');
-                                $.each(data.errors, function(key, value) {
-                                    $('.alert-danger').show().append('<li>' + value + '</li>');
-                                });
-                            } else if (data.redirect) {
-                                console.log(data.redirect);
-                                // Redirect to the sprint view page
-                                window.location.href = data.redirect;
-                            } else {
-                                // Fallback if no redirect
-                                $("#addTickets").modal('hide');
-                                location.reload(true);
-                            }
-                        },
-                        error: function(data) {
-                            $('#loader').hide();
-                        }
-                    });
-                });
+        $('#description_input').val(quill.root.innerHTML);             
+        var formData = new FormData(this);
+        $('#loader').show();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('/add/tickets')}}",
+            data: formData,
+            processData: false,
+            contentType: false,
+        success: function(data) {
+        $('#loader').hide();
+        if (data.status === 403 && data.error) {
+           alert(data.error); // 🔔 Simple alert
+           return;
+        }
+        if (data.error) {
+            $('.alert-danger').html('');
+            $.each(data.error, function(key, value) {
+                $('.alert-danger').show().append('<li>' + value + '</li>');
+            });
+        } else if (data.redirect) {
+            console.log("Debug F: Redirect to =>", data.redirect);
+            window.location.href = data.redirect;
+        } else {
+            $("#addTickets").modal('hide');
+            location.reload(true);
+        }
+    }
+    });
+});
 
     $(document).ready(function () {
         $('#add_assign').select2({ width: '100%', allowClear: true });
