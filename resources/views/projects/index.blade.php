@@ -23,7 +23,7 @@ use App\Models\Projects;?>
                 <div class="box-header with-border" id="filter-box">
                     <div class="box-body">
                         <div class="table-responsive">
-                    <table class="styled-sprint-table sprint-table" id="projects">
+                    <table class="styled-sprint-table sprint-table" id="projects" style="text-align: center;">
                             <thead>
                                 <tr>
                                     <th>Project Name</th>

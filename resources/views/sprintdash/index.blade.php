@@ -108,7 +108,7 @@
                       <i class="fa fa-trash fa-fw pointer" onclick="deleteSprint('{{ $sprint->id }}')"></i>
                   @endif
               </td>                       
-                    <td>
+                    <td style="text-align: center;">
                       <span class="badge {{ $sprint->status == 1 ? 'active' : 'inactive' }}">
                         {{ $sprint->status == 1 ? 'Active' : 'Inactive' }}
                       </span>

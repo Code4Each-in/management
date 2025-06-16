@@ -12,7 +12,13 @@
             'completed' => 'Completed Sprints',
             'invoice_done' => 'Invoice Done Sprints',
         ];
-       
+            $ticketStatusTitles = [
+            'need_approval' => 'Tickets Needing Approval',
+            'approved_not_started' => 'Approved but Not Started',
+            'in_progress' => 'Running Tickets', 
+            'to_do' => 'To Do Tickets',
+            'invoice_done' => 'Invoice Done Tickets'
+        ];
         $categoryLabels = [
             'Technical' => 'Technical',
             'Design' => 'Design',
@@ -64,11 +70,9 @@
         <script>
             window["{{ $status }}_data"] = @json($categories);
         </script>
-
         @if ($totalTicketsInSection > 0)
             <div class="mb-5">
-                <h5 class="mb-4">{{ strtoupper(str_replace('_', ' ', $status)) }} Tickets</h5>
-
+                <h4 class="mt-4">{{ $ticketStatusTitles[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}</h4>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
                     @foreach ($categories as $catKey => $tickets)
                         
