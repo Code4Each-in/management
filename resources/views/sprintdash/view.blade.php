@@ -234,6 +234,7 @@
                                         'ready' => '#e09f3e',
                                         'deployed' => '#e76f51',
                                         'complete' => '#2a9d8f',
+                                        'invoice_done' => '#e76f51'
                                     ];
                                     $color = $statusColors[$ticket->status] ?? ''; 
                                 @endphp
@@ -248,7 +249,7 @@
                                             {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
                                         </span>
                                         <ul class="dropdown-menu status-options" data-ticket-id="{{ $ticket->id }}">
-                                            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                                            @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete','invoice_done'] as $status)
                                                 <li>
                                                     <a class="dropdown-item" href="#" data-value="{{ $status }}">
                                                         {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -345,61 +346,85 @@
 
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  
-      document.body.addEventListener('click', function (e) {
-        const item = e.target.closest('.dropdown-item');
-        if (!item) return;
-  
-        e.preventDefault();
-  
-        const newStatus = item.getAttribute('data-value');
-        const ticketId = item.closest('.status-options')?.getAttribute('data-ticket-id');
-        const badge = item.closest('.dropdown').querySelector('.badge');
-  
-        if (!ticketId || !newStatus || !badge) return;
-  
-        fetch(`/tickets/${ticketId}/update-status`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-          },
-          body: JSON.stringify({ status: newStatus }),
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            badge.textContent = newStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-            location.reload(true);
-            // Remove existing status color classes
-            badge.classList.remove('bg-primary', 'bg-warning', 'text-dark', 'bg-info', 'bg-success');
-  
-            // Apply new one
-            if (newStatus === 'to_do') {
+  document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    document.body.addEventListener('click', function (e) {
+      const item = e.target.closest('.dropdown-item');
+      if (!item) return;
+
+      e.preventDefault();
+
+      const newStatus = item.getAttribute('data-value');
+      const statusOptions = item.closest('.status-options');
+      const ticketId = statusOptions?.getAttribute('data-ticket-id');
+      const badge = item.closest('.dropdown')?.querySelector('.badge');
+
+      if (!ticketId || !newStatus || !badge) return;
+
+      fetch(`/tickets/${ticketId}/update-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      .then(async res => {
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error("Server error:\n" + errorText.slice(0, 200));
+        }
+
+        if (contentType.includes("application/json")) {
+          return res.json();
+        } else {
+          const errorHtml = await res.text();
+          throw new Error("Invalid JSON response:\n" + errorHtml.slice(0, 200));
+        }
+      })
+      .then(data => {
+        if (data.success) {
+          badge.textContent = newStatus.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+          badge.classList.remove('bg-primary', 'bg-warning', 'text-dark', 'bg-info', 'bg-success');
+
+          switch (newStatus) {
+            case 'to_do':
               badge.classList.add('bg-primary');
-            } else if (newStatus === 'in_progress') {
+              break;
+            case 'in_progress':
               badge.classList.add('bg-warning', 'text-dark');
-            } else if (newStatus === 'ready') {
+              break;
+            case 'ready':
               badge.classList.add('bg-info', 'text-dark');
-            } else if (newStatus === 'complete') {
+              break;
+            case 'complete':
               badge.classList.add('bg-success');
-            }else if (newStatus === 'deployed') {
+              break;
+            case 'deployed':
               badge.classList.add('bg-warning');
-            }
-  
-          } else {
-            alert('Failed to update status.');
+              break;
+            case 'invoice_done':
+              badge.classList.add('bg-primary');
+              break;
           }
-        })
-        .catch(err => {
-          console.error(err);
-          alert('Something went wrong.');
-        });
+
+          location.reload(true); // Full reload to reflect backend state
+        } else {
+          alert(data.error || 'Your time estimation is not approved yet.');
+        }
+      })
+      .catch(err => {
+        console.error('Fetch failed:', err);
+        alert('Something went wrong:\n' + err.message);
       });
+
     });
-  </script>
+  });
+</script>
    <script>
 document.addEventListener("DOMContentLoaded", () => {
     window.table = $('#allsprint').DataTable({

@@ -193,6 +193,14 @@
                     </div>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('pending-approvals') ? '' : 'collapsed' }}" href="{{ route('client.pending.approvals') }}">
+                    <i class="bi bi-clock-history"></i>
+                    <div class="position-relative">
+                        <span>Pending Approvals</span>
+                    </div>
+                </a>
+            </li>
         @endif
         @if(auth()->user()->role_id != 6)
             <li class="nav-item">

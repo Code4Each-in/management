@@ -144,7 +144,8 @@
                                         'in_progress' => '#3fa6d7',   
                                         'ready' => '#e09f3e',   
                                         'deployed' => '#e76f51',   
-                                        'complete' => '#2a9d8f',   
+                                        'complete' => '#2a9d8f',
+                                        'invoice_done' => '#e76f51'  
                                     ];
                                     $bgColor = $statusColors[$data->status] ?? '#6c757d';
                                     @endphp
@@ -165,7 +166,7 @@
                                       </button>
                                   
                                       <ul class="dropdown-menu status-options" data-ticket-id="{{ $data->id }}">
-                                        @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete'] as $status)
+                                        @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete','invoice_done'] as $status)
                                           <li>
                                             <a class="dropdown-item" href="#" data-value="{{ $status }}">
                                               {{ ucfirst(str_replace('_', ' ', $status)) }}
@@ -789,7 +790,7 @@ document.getElementById('f').addEventListener('input', checkCharLength);
             // ✅ Now reload the page to apply new CSS/colors
             location.reload(true); // true = reload from server (force reload)
           } else {
-            alert('Failed to update status.');
+            alert('Your time estimation is not approved yet.');
           }
         })
         .catch(error => {
