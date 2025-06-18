@@ -988,6 +988,12 @@ public function loadMoreComments($ticketId, Request $request)
         } else {
             $comment->created_date_label = $commentDate->format('M d, Y');
         }
+
+        $comment->project_name = optional($comment->ticket->project)->project_name ?? 'Project Not Assigned';
+
+        $comment->role = $comment->user->role_id == 6
+            ? $comment->project_name
+            : 'Code4Each';
     });
 
     return response()->json(['comments' => $comments]);
