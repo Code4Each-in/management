@@ -627,17 +627,33 @@ class TicketsController extends Controller
 
             if ($ticket) {
                 $currentUser = auth()->user();
-    
+                $ticketModel = Tickets::find($validate['id']);
+                $ticketName = $ticketModel->title ?? "Ticket #{$validate['id']}";
+                $rawComment = $validate['comment'];
+
+                $ticketModel = Tickets::find($validate['id']);
+                $ticketName = $ticketModel->title ?? "Ticket #{$validate['id']}";
+                $documentText = '';
+                if (!empty($documentPaths)) {
+                    $documentText .= '<p><strong>Attached Document(s):</strong></p><ul>';
+                    foreach ($documentPaths as $docPath) {
+                        $fileName = basename($docPath);
+                        $documentText .= "<li>{$fileName}</li>"; 
+                    }
+                    $documentText .= '</ul>';
+                }
+                
                 // Determine who commented
                 if ($currentUser->role_id == 6) {
                     // Comment made by client
                     $clientId = $currentUser->client_id;
                     $user = Users::where('client_id', $clientId)->first();
-    
+
                     $messages["greeting-text"] = "Hello!";
-                    $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
-                    $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
-                    $messages["body-text"] = "{$validate['id']}";
+                    $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
+                    $messages["title"] = "A new comment has been added to Ticket # <strong>{$validate['id']}</strong>";
+                    $messages["title-ticketName"] = "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
+                    $messages["body-text"] = $rawComment;
                     $messages["url-title"] = "View Ticket";
                     $messages["url"] = "/view/ticket/" . $validate['id'];
     
@@ -648,13 +664,13 @@ class TicketsController extends Controller
                             ->get(['users.id', 'users.first_name', 'users.email']);
                         
                         foreach ($assignedUsers as $assignedUser) {
-                            $assignedUser->notify(new TicketNotification($messages));
+                            $assignedUser->notify(new TicketNotification($messages, $documentPaths));
                         }
     
                         // Notify admin (user ID 1)
                         $admin = Users::find(1);
                         if ($admin) {
-                            $admin->notify(new TicketNotification($messages));
+                            $admin->notify(new TicketNotification($messages, $documentPaths));
                         }
     
                     } catch (\Exception $e) {
@@ -664,13 +680,14 @@ class TicketsController extends Controller
                 } else {
                     // Comment made by admin or assigned user
                     $user = Users::find($currentUser->id);
+
                     $messages["greeting-text"] = "Hello!";
-                    $messages["subject"] = "New Comment On Ticket #{$validate['id']} By - {$user->first_name}";
-                    $messages["title"] = "A new comment has been added to Ticket #{$validate['id']}.";
-                    $messages["body-text"] = "{$validate['id']}";
+                    $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
+                    $messages["title"] = "A new comment has been added to Ticket # <strong>{$validate['id']}</strong>";
+                    $messages["title-ticketName"] = "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
+                    $messages["body-text"] = $rawComment;
                     $messages["url-title"] = "View Ticket";
                     $messages["url"] = "/view/ticket/" . $validate['id'];
-    
                     try {
                         // Notify client (get the user with the same client_id)
                         $ticketModel = Tickets::find($validate['id']);
@@ -684,11 +701,11 @@ class TicketsController extends Controller
                         $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
                        
                         if ($client) {
-                            $client->notify(new TicketNotification($messages));
+                            $client->notify(new TicketNotification($messages, $documentPaths));
 
                             if (!empty($secondaryEmail)) {
                                 NotificationFacade::route('mail', $secondaryEmail)
-                                    ->notify(new TicketNotification($messages));
+                                    ->notify(new TicketNotification($messages, $documentPaths));
                             }
                         }
     
