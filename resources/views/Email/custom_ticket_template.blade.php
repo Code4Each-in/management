@@ -42,7 +42,27 @@
 <body>
     <div class="container">
         <p><strong>{{ $messages['greeting-text'] ?? '' }}</strong></p>
-        <p>A new comment has been added to Ticket # <strong>{{ $messages['body-text'] ?? '' }}</strong>.<br> Please review the comment and provide a response if necessary.</p>
+        <p>{!! $messages['title'] ?? '' !!}</p>
+        <p>{!! $messages['title-ticketName'] ?? '' !!}</p>
+        <p><strong>Please see the comment below:</strong></p>
+        @php
+            $cleanedBody = preg_replace([
+                '/<p>\s*<\/p>/i',       
+                '/(<p>\s*<\/p>)+/i',   
+                '/<br\s*\/?>/i'       
+            ], [
+                '',
+                '',
+                ''
+            ], $messages['body-text']);
+        @endphp
+
+        @if(!empty(trim(strip_tags($cleanedBody))))
+            <div style="margin-bottom: 5px;">
+                {!! $cleanedBody !!}
+            </div>
+        @endif
+
         @if(!empty($messages['url']))
             <p>
                 <a href="{{ url($messages['url']) }}" class="button">
