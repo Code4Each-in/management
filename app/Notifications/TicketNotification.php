@@ -17,10 +17,11 @@ class TicketNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($messages, $attachments = [])
+    public function __construct($messages, $attachments = [], $bcc = null)
     {
         $this->messages = $messages;
-         $this->attachments = $attachments;
+        $this->attachments = $attachments;
+        $this->bcc = $bcc;
     }
 
     /**
@@ -48,6 +49,10 @@ class TicketNotification extends Notification
             if (file_exists($fullPath)) {
                 $mail->attach($fullPath);
             }
+        }
+
+        if (!empty($this->bcc)) {
+            $mail->bcc($this->bcc);
         }
 
         return $mail;
