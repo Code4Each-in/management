@@ -17,9 +17,11 @@ class TicketNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($messages)
+    public function __construct($messages, $attachments = [], $bcc = null)
     {
         $this->messages = $messages;
+        $this->attachments = $attachments;
+        $this->bcc = $bcc;
     }
 
     /**
@@ -35,9 +37,26 @@ class TicketNotification extends Notification
      */
     public function toMail($notifiable)
     {
-            return (new MailMessage)
-            ->subject($this->messages['subject'] ?? 'Notification Email')
-            ->view('Email.custom_ticket_template', ['messages' => $this->messages]);
+        $mail = (new MailMessage)
+        ->subject($this->messages['subject'] ?? 'Notification Email')
+        ->view('Email.custom_ticket_template', [
+                    'messages' => $this->messages
+                ]);
+
+        // Add attachments (absolute paths)
+         foreach ($this->attachments as $relativePath) {
+            $fullPath = public_path('assets/img/' . $relativePath);
+            if (file_exists($fullPath)) {
+                $mail->attach($fullPath);
+            }
+        }
+
+        if (!empty($this->bcc)) {
+            $mail->bcc($this->bcc);
+        }
+
+        return $mail;
+
     }
 
     /**
