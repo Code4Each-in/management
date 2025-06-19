@@ -291,21 +291,26 @@
 
                                 <!-- Display Documents -->
                               @foreach ($documents as $doc)
-                                  @if (!empty($doc))
-                                      @php
-                                          $fileName = basename($doc);
-                                          $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
-                                          $downloadUrl = route('public.file.download', ['filename' => $fileName]);
-                                      @endphp
-                                      <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                          <a href="{{ $downloadUrl }}"
-                                            target="_blank"
-                                            @if ($isCsv) download @endif>
-                                              {{ $fileName }}
-                                          </a>
-                                      </p>
-                                  @endif
-                              @endforeach
+                                @if (!empty($doc))
+                                    @php
+                                        $fileName = basename($doc);
+                                        $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
+                                        $isExternal = \Illuminate\Support\Str::startsWith($doc, 'http');
+
+                                        $downloadUrl = $isExternal
+                                            ? $doc
+                                            : route('public.file.download', ['filename' => $fileName]);
+                                    @endphp
+
+                                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+                                        <a href="{{ $downloadUrl }}"
+                                          target="_blank"
+                                          @if ($isCsv) download @endif>
+                                            {{ $fileName }}
+                                        </a>
+                                    </p>
+                                @endif
+                            @endforeach
                             </div>
                             <!-- Delete button (only for the comment owner) -->
                         </div>
@@ -383,6 +388,10 @@
                   <label for="comment_file" class="form-label">Attach File</label>
                   <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
               </div>
+              <div class="mb-3 post-item clearfix upload_chat">
+            <label for="comment_video" class="form-label">Upload Video File (larger than 10 MB)</label>
+            <input type="file" name="comment_video" id="comment_video" class="form-control comment-input" accept="video/*">
+              </div>
               <div class="alert alert-danger" style="display:none;"></div>
               <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">
               <div class="button-design">
@@ -451,25 +460,30 @@ if (oldComment) {
     });
   });
 
-  // Submit Form
-  $('#commentsData').on('submit', function(e) {
+// Submit Form
+$('#commentsData').on('submit', function (e) {
   e.preventDefault();
 
   const commentHtml = quill.root.innerHTML.trim();
   const commentText = quill.getText().trim();
-  console.log('Submitting Comment:', commentHtml);
 
+  console.log('Submitting Comment:', commentHtml);
   document.getElementById('comment_input').value = commentHtml;
   $('.alert-danger').hide().html('');
 
   const fileInput = document.getElementById('comment_file');
+  const videoInput = document.getElementById('comment_video');
+
   const hasFile = fileInput.files && fileInput.files.length > 0;
+  const hasVideo = videoInput.files && videoInput.files.length > 0;
 
-  // Allow submission if there's either file or HTML with visible content
-  const hasValidContent = commentText.length > 0 || /<img|<video|<iframe|<audio/.test(commentHtml);
+  // Check if at least comment text or any file/video is added
+  const hasValidContent =
+    commentText.length > 0 || /<img|<video|<iframe|<audio/.test(commentHtml) || hasFile || hasVideo;
 
-  if (hasValidContent || hasFile) {
-    const formData = new FormData(this);
+  if (hasValidContent) {
+    const formData = new FormData(this); // includes all form fields including file/video
+
     $('#loader').show();
 
     $.ajax({
@@ -478,14 +492,15 @@ if (oldComment) {
       data: formData,
       contentType: false,
       processData: false,
-      success: function(response) {
+      success: function (response) {
         if (response.status === 200) {
           $('#comment').val('');
           $('#comment_file').val('');
+          $('#comment_video').val('');
           location.reload();
         } else if (response.errors) {
           let errorHtml = '<ul>';
-          response.errors.forEach(function(error) {
+          response.errors.forEach(function (error) {
             errorHtml += '<li>' + error + '</li>';
           });
           errorHtml += '</ul>';
@@ -494,10 +509,10 @@ if (oldComment) {
           $('.alert-danger').show().html('Something went wrong.');
         }
       },
-      error: function(xhr) {
+      error: function (xhr) {
         $('.alert-danger').show().html('An error occurred while submitting the comment.');
       },
-      complete: function() {
+      complete: function () {
         $('#loader').hide();
       }
     });
