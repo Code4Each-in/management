@@ -514,23 +514,19 @@ class TicketsController extends Controller
         public function addComments(Request $request)
         {
             $validator = Validator::make($request->all(), [
-            'comment' => 'nullable|string',
-            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
-            'comment_video' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:51200',
-        ], [
-            'comment_file.*.file' => 'The :attribute must be a file.',
-            'comment_file.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
-            'comment_file.*.max' => 'The :attribute may not be greater than :max MB.',
-            'comment_video.mimes' => 'Only video formats (mp4, mov, avi, etc.) are allowed.',  
-            'comment_video.max' => 'Video file size cannot exceed 50MB.',
-        ]);
+                'comment' => 'nullable|string',
+                'comment_files.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:51200',
+            ], [
+                'comment_files.*.file' => 'Each file must be a valid file.',
+                'comment_files.*.mimes' => 'Each file must be one of the allowed types.',
+                'comment_files.*.max' => 'Each file may not be greater than :max kilobytes.',
+            ]);
         
-        $validator->after(function ($validator) use ($request) {
-            if (empty($request->comment) && !$request->hasFile('comment_file')) {
-                $validator->errors()->add('comment', 'Kindly type a message or attach a file before submitting.');
-            }
-        });
-
+            $validator->after(function ($validator) use ($request) {
+                if (empty($request->comment) && !$request->hasFile('comment_files')) {
+                    $validator->errors()->add('comment', 'Kindly type a message or attach a file before submitting.');
+                }
+            });
 
             if ($validator->fails()) {
                 $errors = $validator->errors();
@@ -551,49 +547,50 @@ class TicketsController extends Controller
 
             $validate = $validator->valid();
             $documentPaths = [];
+            if ($request->hasFile('comment_files')) {
+                
+                foreach ($request->file('comment_files') as $file) {
+                    $fileSizeInKB = $file->getSize() / 1024;
+                    $originalFilename = $file->getClientOriginalName();
 
-            if ($request->hasFile('comment_file')) {
-                foreach ($request->file('comment_file') as $file) {
-                    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $dateString = date('YmdHis');
-                    $name = $dateString . '_' . $fileName . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('assets/img/ticketAssets'), $name);
-                    $path = 'ticketAssets/' . $name;
+                    if ($fileSizeInKB <= 10240) { // ≤10MB → store locally
+                        $fileName = pathinfo($originalFilename, PATHINFO_FILENAME);
+                        $dateString = date('YmdHis');
+                        $name = $dateString . '_' . $fileName . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('assets/img/ticketAssets'), $name);
+                        $path = 'ticketAssets/' . $name;
 
-                    TicketFiles::create([
-                        'document' => $path,
-                        'ticket_id' => $validate['id'],
-                    ]);
+                        TicketFiles::create([
+                            'document' => $path,
+                            'ticket_id' => $validate['id'],
+                        ]);
 
-                    $documentPaths[] = $path;
+                        $documentPaths[] = $path;
+                    } else { // >10MB → upload via external API
+                        $fileUniqueId = Str::random(10);
+                        try {
+                            $apiResponse = Http::attach(
+                                'fileToTransfer',
+                                file_get_contents($file),
+                                $originalFilename
+                            )->post('https://files.code4each.com/api/upload-and-generate-link', [
+                                'file_unique_id' => $fileUniqueId,
+                                'original_filename' => $originalFilename,
+                                'file_type' => 'public',
+                                'source' => 'hr_portal',
+                            ]);
+
+                            if ($apiResponse->successful()) {
+                                $fileUniqueId = $apiResponse->json()['file_unique_id'] ?? $fileUniqueId;
+                                $fileLink = 'https://files.code4each.com/download-file/' . $fileUniqueId;
+                                $documentPaths[] = $fileLink;
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('Large file upload error: ' . $e->getMessage());
+                        }
+                    }
                 }
             }
-             if ($request->hasFile('comment_video')) {
-            $video = $request->file('comment_video');
-            $originalFilename = $video->getClientOriginalName();
-            $fileUniqueId = Str::random(10);
-
-            try {
-                $apiResponse = Http::attach(
-                    'fileToTransfer',            
-                    file_get_contents($video),  
-                    $originalFilename            
-                )->post('https://files.code4each.com/api/upload-and-generate-link', [
-                    'file_unique_id' => $fileUniqueId,
-                    'original_filename' => $originalFilename,
-                    'file_type' => 'public',
-                    'source' => 'hr_portal',
-                ]);
-
-                if ($apiResponse->successful()) {
-                    $fileUniqueId = $apiResponse->json()['file_unique_id'] ?? $fileUniqueId;
-                    $fileLink = 'https://files.code4each.com/download-file/' . $fileUniqueId;
-                    $documentPaths[] = $fileLink;
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to upload and generate video link: ' . $e->getMessage());
-            }
-        }
             if ($request->has('comment_id') && $request->comment_id != null) {
                 $existingComment = TicketComments::find($request->comment_id);
                 if ($existingComment) {
