@@ -1,6 +1,63 @@
 @extends('layout')
 @section('title', 'Ticket Logs')
 @section('subtitle', 'Logs')
+<style>
+    .custom-table {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #ffffff;
+        table-layout: fixed; 
+        width: 100%;
+    }
+
+    .custom-table thead th {
+        background-color: #297bab !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+    }
+
+    .custom-table tbody tr {
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f1f3f5;
+    }
+
+    .custom-table td, .custom-table th {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .custom-table .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .status-table {
+        box-shadow: 6px 6px 5px #28242429;
+        background: white;
+        padding: 10px 10px 10px 10px;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        margin: 0px auto;
+    }
+
+    .text-secondary {
+        font-size: 18px !important;
+        font-weight: 500 !important;
+        font-family: "Poppins", sans-serif !important;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        width: 16.66%; /* 100% / 6 columns = ~16.66% per column */
+        word-wrap: break-word;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+</style>
 
 @section('content')
 <div class="container mt-4">
@@ -13,8 +70,8 @@
             'invoice_done' => 'Invoice Done Sprints',
         ];
             $ticketStatusTitles = [
-            'need_approval' => 'Tickets Needing Approval',
-            'approved_not_started' => 'Approved but Not Started',
+            'need_approval' => 'Tickets Pending Approval',
+            'approved_not_started' => 'Approved But Not Started',
             'in_progress' => 'Running Tickets', 
             'to_do' => 'To Do Tickets',
             'invoice_done' => 'Invoice Done Tickets'
@@ -125,19 +182,19 @@
                     @endforeach
                 </div>
 
-                <div id="{{ $status }}_table" class="mt-4 d-none">
-                    <h6 class="text-secondary mb-3">Tickets (<span class="text-uppercase" id="{{ $status }}_status_label"></span>)</h6>
+                <div id="{{ $status }}_table" class="mt-4 d-none status-table">
+                    <h6 class="text-secondary mb-2">Tickets (<span class="text-uppercase" id="{{ $status }}_status_label"></span>)</h6>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm align-middle">
-                            <thead class="table-light">
+                        <table class="table table-bordered table-striped table-hover align-middle custom-table">
+                            <thead class="table text-white">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Ticket Title</th>
-                                    <th>Sprint Name</th>
-                                    <th>Project</th>
-                                    <th>Ticket Status</th>
-                                    <th>Approval Status</th>
-                                    <th>Action</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Ticket Title</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Sprint Name</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Project</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Time Estimation</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Ticket Status</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Approval Status</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="{{ $status }}_table_body">
@@ -236,19 +293,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 tickets.forEach((t, i) => {
                     tbody.innerHTML += `
                         <tr>
-                            <td>${i + 1}</td>
                             <td>${t.title}</td>
                             <td>${t.sprint_name || '-'}</td>
                             <td>${t.project_name || '-'}</td>
-                            <td>${t.status.replace('_', ' ').toUpperCase()}</td>
+                            <td>${formatTimeEstimation(t.time_estimation)}</td>
                             <td>
-                            ${t.is_estimation_approved
-                                ? '<span class="badge bg-success">Approved</span>'
-                                : '<span class="badge bg-warning text-dark">Not Approved</span>'}
+                                <span class="badge bg-info text-dark">${t.status.replace('_', ' ').toUpperCase()}</span>
                             </td>
-                            <td><a href="/view/ticket/${t.id}" class="btn btn-sm btn-outline-primary">View</a></td>
+                            <td>
+                                ${t.is_estimation_approved
+                                    ? '<span class="badge bg-success">Approved</span>'
+                                    : '<span class="badge bg-warning text-dark">Not Approved</span>'}
+                            </td>
+                            <td class="text-center">
+                                <a href="/view/ticket/${t.id}" title="View Ticket" target="_blank">
+                                    <i class="fa fa-eye fa-fw pointer"></i>
+                                </a>
+                            </td>
                         </tr>
                     `;
+
                 });
             }
 
@@ -258,5 +322,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+function formatTimeEstimation(value) {
+    if (!value || isNaN(value)) return '-';
+
+    const floatVal = parseFloat(value);
+    const hours = Math.floor(floatVal);
+    const minutesDecimal = floatVal - hours;
+    const minutes = Math.round(minutesDecimal * 100); // 0.20 → 20
+
+    let result = '';
+
+    if (hours > 0) {
+        result += `${hours} ${hours === 1 ? 'Hour' : 'Hours'}`;
+    }
+
+    if (minutes > 0) {
+        if (result) result += ' ';
+        result += `${minutes} Mins`;
+    }
+
+    return result || '-';
+}
+
 </script>
 @endsection
