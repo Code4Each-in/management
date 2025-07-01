@@ -4583,3 +4583,25 @@ text-align: left;
   font-size: 0.9rem;
   color: #555;
 }
+
+.approval-section {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin: 13px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 0px;
+  background: white;
+}
+.approval-header .production .section-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #000;
+}
+.approval-header.staged .icon {
+  background-color: #e91e63;
+}
+
+.styled-approval-table {
+  width: 100%;
+  border-collapse: collapse;
+}
