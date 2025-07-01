@@ -299,10 +299,24 @@
                                     $formattedTime = '-';
                                 } else {
                                     $hours = floor($estimation);
-                                    $minutes = ($estimation - $hours) * 100; // ✅ Assume user entered minutes directly
-                                    $minutes = str_pad($minutes, 2, '0', STR_PAD_LEFT);
+                                    $minutes = round(($estimation - $hours) * 100); // Get actual minutes
 
-                                    $formattedTime = "{$hours}:{$minutes} " . \Illuminate\Support\Str::plural('Hour', $hours);
+                                    $formattedTime = '';
+
+                                    if ($hours > 0) {
+                                        $formattedTime .= $hours . ' ' . \Illuminate\Support\Str::plural('Hour', $hours);
+                                    }
+
+                                    if ($minutes > 0) {
+                                        if ($formattedTime !== '') {
+                                            $formattedTime .= ' ';
+                                        }
+                                        $formattedTime .= $minutes . ' Mins';
+                                    }
+
+                                    if ($formattedTime === '') {
+                                        $formattedTime = '-';
+                                    }
                                 }
                             @endphp
                             <td>{{ $formattedTime }}</td>
