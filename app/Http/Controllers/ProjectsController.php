@@ -436,12 +436,6 @@ class ProjectsController extends Controller
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', auth()->id())
             ->whereYear('created_at', 2025)
-            ->whereIn('id', function ($query) {
-                $query->select(DB::raw('MAX(id)'))
-                    ->from('ticket_comments')
-                    ->where('comments', '!=', '')  
-                    ->groupBy('ticket_id');
-            })
             ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -452,6 +446,10 @@ class ProjectsController extends Controller
         ->mapWithKeys(function($project) {
             return [$project->id => $project->name];
         });
+
+        $pendingApprovals = $this->getPendingApprovalTicketsForProject($projectId);
+        $ticketsCount = $pendingApprovals->count();
+
         return view('projects.show', compact(
         'projects',
         'projectAssigns',
@@ -460,11 +458,23 @@ class ProjectsController extends Controller
         'latestComments',
         'completedsprints',
         'developers',
-        'projectMap'
+        'projectMap',
+        'pendingApprovals',
+        'ticketsCount',
     ));
        
     }
-   
+
+    private function getPendingApprovalTicketsForProject($projectId)
+    {
+        $tickets = Tickets::with(['sprintDetails', 'project'])
+            ->where('project_id', $projectId)
+            ->whereNotNull('time_estimation') 
+            ->whereDoesntHave('estimationApproval') 
+            ->get();
+
+        return $tickets;
+    }
 
     public function devlisting()
     {

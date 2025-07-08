@@ -385,13 +385,11 @@
             </div>
 
               <div class="mb-3 post-item clearfix upload_chat">
-                  <label for="comment_file" class="form-label">Attach File</label>
-                  <input type="file" name="comment_file[]" id="comment_file" class="form-control comment-input" multiple>
+                <label for="comment_files" class="form-label">Attach File</label>
+                <input type="file" name="comment_files[]" id="comment_files" class="form-control comment-input" multiple>
               </div>
-              <div class="mb-3 post-item clearfix upload_chat">
-            <label for="comment_video" class="form-label">Upload Video File (larger than 10 MB)</label>
-            <input type="file" name="comment_video" id="comment_video" class="form-control comment-input" accept="video/*">
-              </div>
+
+
               <div class="alert alert-danger" style="display:none;"></div>
               <input type="hidden" class="form-control" name="id" id="hidden_id" value="{{ $tickets->id }}">
               <div class="button-design">
@@ -467,22 +465,19 @@ $('#commentsData').on('submit', function (e) {
   const commentHtml = quill.root.innerHTML.trim();
   const commentText = quill.getText().trim();
 
-  console.log('Submitting Comment:', commentHtml);
   document.getElementById('comment_input').value = commentHtml;
   $('.alert-danger').hide().html('');
 
-  const fileInput = document.getElementById('comment_file');
-  const videoInput = document.getElementById('comment_video');
+  const fileInput = document.getElementById('comment_files');
+  const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
-  const hasFile = fileInput.files && fileInput.files.length > 0;
-  const hasVideo = videoInput.files && videoInput.files.length > 0;
-
-  // Check if at least comment text or any file/video is added
   const hasValidContent =
-    commentText.length > 0 || /<img|<video|<iframe|<audio/.test(commentHtml) || hasFile || hasVideo;
+    commentText.length > 0 ||
+    /<img|<video|<iframe|<audio/.test(commentHtml) ||
+    hasFile;
 
   if (hasValidContent) {
-    const formData = new FormData(this); // includes all form fields including file/video
+    const formData = new FormData(this);
 
     $('#loader').show();
 
@@ -495,8 +490,7 @@ $('#commentsData').on('submit', function (e) {
       success: function (response) {
         if (response.status === 200) {
           $('#comment').val('');
-          $('#comment_file').val('');
-          $('#comment_video').val('');
+          $('#comment_files').val('');
           location.reload();
         } else if (response.errors) {
           let errorHtml = '<ul>';
@@ -509,7 +503,7 @@ $('#commentsData').on('submit', function (e) {
           $('.alert-danger').show().html('Something went wrong.');
         }
       },
-      error: function (xhr) {
+      error: function () {
         $('.alert-danger').show().html('An error occurred while submitting the comment.');
       },
       complete: function () {
@@ -520,6 +514,7 @@ $('#commentsData').on('submit', function (e) {
     $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
   }
 });
+
 let loading = false;
 let doneLoadingAll = false;
 
