@@ -1042,7 +1042,7 @@ public function approveEstimation($id)
 
     $user = auth()->user();
     TicketComments::create([
-        'comments'   => "Time estimation approved by {$user->first_name}",
+        'comments'   => "Time estimation approved.",
         'ticket_id'  => $id,
         'comment_by' => $user->id,
         'is_system'  => true,          
