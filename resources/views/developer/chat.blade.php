@@ -305,6 +305,9 @@
     margin-bottom: 0;
 }
   </style>
+  <div id="loader">
+  <img class="loader-image" src="{{ asset('assets/img/loading.gif') }}" alt="Loading..">
+</div>
 <div class="container chat-wrapper">
     <div class="chatsidebar">
         <div class="sidebar-header">Messages</div>
@@ -559,7 +562,7 @@
             loadMessages(projectId); // Call the function to load its messages
         }
 
-        $('#commentsData').on('submit', function(e) {
+    $('#commentsData').on('submit', function(e) {
     e.preventDefault();
 
     const commentHtml = quill.root.innerHTML.trim();

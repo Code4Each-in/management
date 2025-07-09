@@ -243,27 +243,27 @@
                       @endif
                         <div class="message" data-id="{{ $data->id }}">
                             <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
-                            <div class="user">
-                                @if(!empty($data->user->profile_picture))
-                                    <div class="avatar" style="background-color: #27ae60;">
-                                        <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
-                                    </div>
-                                @else
-                                    <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
-                                @endif
-                                <div>
-                                    <span class="name">{{ $data->user->first_name }}</span>
-                                    <span class="role">
-                                      @if ($data->user->role_id == 6)
-                                          {{ $projectName ?? 'Project Not Assigned' }}
+                            @if(!$data->is_system)
+                                  <div class="user">
+                                      @if(!empty($data->user->profile_picture))
+                                          <div class="avatar" style="background-color: #27ae60;">
+                                              <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
+                                          </div>
                                       @else
-                                          Code4Each
+                                          <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                       @endif
-                                      @if(Auth::user()->id == $data->comment_by)
-                                      @endif
-                                  </span>
-                                </div>
-                            </div>
+                                      <div>
+                                          <span class="name">{{ $data->user->first_name }}</span>
+                                          <span class="role">
+                                              @if ($data->user->role_id == 6)
+                                                  {{ $projectName ?? 'Project Not Assigned' }}
+                                              @else
+                                                  Code4Each
+                                              @endif
+                                          </span>
+                                      </div>
+                                  </div>
+                              @endif
                             <div class="text">
                               @if(!$data->is_system)
                               @if(Auth::user()->id == $data->comment_by)
@@ -281,7 +281,7 @@
                               </button>
                             @endif
                             @endif
-                                <div style="word-break: auto-phrase;">
+                              <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                               </div>
 
