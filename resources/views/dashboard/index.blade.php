@@ -23,11 +23,11 @@ use Carbon\Carbon;
     color: #721c24; /* Slightly darker or alert-danger tone on hover */
     transform: scale(1.2);
 }
-.alert.alert-info {
+/* .alert.alert-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+} */
 .reminder-box {
       border-radius: 12px;
       overflow: hidden;
