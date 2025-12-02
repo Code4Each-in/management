@@ -28,6 +28,7 @@
                     <option value="">Select a reminder type</option>
                     <option value="daily" {{ old('type') == 'daily' ? 'selected' : '' }}>Daily</option>
                     <option value="weekly" {{ old('type') == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                     <option value="weekly" {{ old('type') == 'biweekly' ? 'selected' : '' }}>Bi-weekly</option>
                     <option value="monthly" {{ old('type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
                     <option value="custom" {{ old('type') == 'custom' ? 'selected' : '' }}>Custom</option>
                 </select>
