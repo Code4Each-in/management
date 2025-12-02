@@ -51,7 +51,7 @@
                     @foreach ($reminders as $reminder)
                     <tr>
                         <td>{{ ucfirst($reminder->type) }}</td>
-                        <td>{{ $reminder->type === 'weekly' ? $reminder->weekly_day : '-' }}</td>
+                        <td>{{ in_array($reminder->type, ['weekly', 'biweekly']) ? $reminder->weekly_day : '-' }}</td>
                         <td>{{ $reminder->type === 'monthly' ? $reminder->monthly_date : '-' }}</td>
                         <td>{{ $reminder->description }}</td>
                         <td>{{ $reminder->created_at->timezone('Asia/Kolkata')->format('Y-m-d') }}</td>
