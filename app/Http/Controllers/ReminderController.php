@@ -28,7 +28,7 @@ class ReminderController extends Controller
     public function store(Request $request)
 {
     $data = $request->validate([
-        'type' => 'required|in:daily,weekly,monthly,custom',  // Add 'custom' to validation
+        'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
         'description' => 'required',
         'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
         'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
@@ -60,6 +60,12 @@ class ReminderController extends Controller
         }
     } elseif ($data['type'] === 'weekly') {
         $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+    } elseif ($data['type'] === 'biweekly') {
+        // First find the next selected weekday (same as weekly)
+        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+
+        // Then add 1 extra week (so total = after 2 weeks)
+        $reminderDate = $reminderDate->addWeek();
     } elseif ($data['type'] === 'monthly') {
         $reminderDate = $now->day($data['monthly_date'])->startOfDay();
         if ($now->greaterThan($reminderDate)) {
@@ -158,7 +164,7 @@ class ReminderController extends Controller
     public function update(Request $request, $id)
 {
     $data = $request->validate([
-        'type' => 'required|in:daily,weekly,monthly,custom',  // Add 'custom' to validation
+        'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
         'description' => 'required',
         'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
         'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
@@ -194,7 +200,13 @@ class ReminderController extends Controller
         }
     } elseif ($data['type'] === 'weekly') {
         $reminderDate = $now->next($data['weekly_day'])->startOfDay();
-    } elseif ($data['type'] === 'monthly') {
+    } elseif ($data['type'] === 'biweekly') {
+        // First find the next selected weekday (same as weekly)
+        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+
+        // Then add 1 extra week (so total = after 2 weeks)
+        $reminderDate = $reminderDate->addWeek();
+    }elseif ($data['type'] === 'monthly') {
         $reminderDate = $now->day($data['monthly_date'])->startOfDay();
         if ($now->greaterThan($reminderDate)) {
             $reminderDate = $reminderDate->addMonth();

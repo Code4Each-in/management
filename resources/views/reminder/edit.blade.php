@@ -27,7 +27,7 @@
                     <option value="">Select a reminder type</option>
                     <option value="daily" {{ $reminder->type == 'daily' ? 'selected' : '' }}>Daily</option>
                     <option value="weekly" {{ $reminder->type == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                    <option value="weekly" {{ $reminder->type == 'biweekly' ? 'selected' : '' }}>Bi-weekly</option>
+                    <option value="biweekly" {{ $reminder->type == 'biweekly' ? 'selected' : '' }}>Bi-weekly</option>
                     <option value="monthly" {{ $reminder->type == 'monthly' ? 'selected' : '' }}>Monthly</option>
                     <option value="custom" {{ $reminder->type == 'custom' ? 'selected' : '' }}>Custom</option>
                 </select>
@@ -172,7 +172,7 @@
         document.getElementById('weeklyFields').classList.add('hidden');
         document.getElementById('monthlyFields').classList.add('hidden');
         document.getElementById('customDateField').classList.add('hidden');
-        if (type === 'weekly') {
+        if (type === 'weekly' || type === 'biweekly') {
             document.getElementById('weeklyFields').classList.remove('hidden');
         } else if (type === 'monthly') {
             document.getElementById('monthlyFields').classList.remove('hidden');
