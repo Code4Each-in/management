@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\QuarterlyLeaves::class,
         // Commands\TestScheduler::class,
+        Commands\CheckReminders::class
     ];
 
     /**

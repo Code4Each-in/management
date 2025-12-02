@@ -56,7 +56,10 @@ class CheckReminders extends Command
             $nextDate = $currentReminderDate->addDay()->startOfDay();
         } elseif ($reminder->type === 'weekly') {
             $nextDate = $currentReminderDate->addWeek()->startOfDay();
-        } elseif ($reminder->type === 'monthly') {
+        } elseif ($reminder->type === 'biweekly') {
+            $nextDate = $currentReminderDate->addWeeks(2)->startOfDay();
+        } 
+        elseif ($reminder->type === 'monthly') {
             $nextDate = $currentReminderDate->addMonth()->startOfDay();
         } else {
             Log::warning("Unknown reminder type: " . $reminder->type);
