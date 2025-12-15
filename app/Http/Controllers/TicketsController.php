@@ -705,7 +705,7 @@ class TicketsController extends Controller
                 } else {
                     // Comment made by admin or assigned user
                     $user = Users::find($currentUser->id);
-                    $bccEmail = 'harpreet.developer.02@gmail.com';
+                    // $bccEmail = 'harpreet.developer.02@gmail.com';
 
                     $messages["greeting-text"] = "Hello!";
                     $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
