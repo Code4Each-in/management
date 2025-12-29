@@ -706,6 +706,7 @@ class TicketsController extends Controller
                     // Comment made by admin or assigned user
                     $user = Users::find($currentUser->id);
                     // $bccEmail = 'harpreet.developer.02@gmail.com';
+                    $bccEmail = '';
 
                     $messages["greeting-text"] = "Hello!";
                     $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
@@ -725,6 +726,7 @@ class TicketsController extends Controller
                         }
                         $client = Users::where('client_id', $clientId)->first();
                         $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
+                        $additional_email = Client::where('id', $clientId)->value('additional_email');
                        
                         if ($client) {
                             $client->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
@@ -733,6 +735,10 @@ class TicketsController extends Controller
                                 NotificationFacade::route('mail', $secondaryEmail)
                                     ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
                             }
+                            if (!empty($additional_email)) {
+                                NotificationFacade::route('mail', $additional_email)
+                                    ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                            } 
                         }
     
                     } catch (\Exception $e) {
