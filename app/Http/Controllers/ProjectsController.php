@@ -372,6 +372,7 @@ class ProjectsController extends Controller
     public function showProject($projectId)
     {
         $user = Auth::user();
+        $currentYear = Carbon::now()->year;
         $clientId = $user->client_id;
         $projects = Projects::with('client')->find($projectId); 
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
@@ -435,7 +436,7 @@ class ProjectsController extends Controller
        $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', auth()->id())
-            ->whereYear('created_at', 2025)
+            // ->whereYear('created_at', 2025)
             ->with(['user', 'ticket.project'])
             ->orderBy('created_at', 'desc')
             ->get();

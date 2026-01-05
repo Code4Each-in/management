@@ -94,7 +94,7 @@
         <a href="https://in.linkedin.com/company/code-4-each"><i class="fab fa-linkedin-in" title="LinkedIn"></i></a>
         <a href="https://www.instagram.com/code.4each/"><i class="fab fa-instagram" title="Instagram"></i></a>
       </div>
-      <p class="mt-3 text-muted" style="font-size: 13px;">© 2025 Code4Each. All rights reserved.</p>
+      <p class="mt-3 text-muted" style="font-size: 13px;">© {{ date('Y') }} Code4Each. All rights reserved.</p>
     </div>
   </div>
 
