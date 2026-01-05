@@ -16,6 +16,7 @@
         $mergedVotes = $winnerVotes->merge($allVotes);
     @endphp
 
+    @if($mergedVotes->isNotEmpty())
     <section class="testimonial">
         <div class="container">
             <h5 class="card-title">Appreciations</h5>
@@ -53,4 +54,6 @@
             </div>
         </div>
     </section>
+@endif
+
 @endif

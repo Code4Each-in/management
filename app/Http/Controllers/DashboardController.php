@@ -34,6 +34,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $currentYear = Carbon::now()->year;
         $tasks = TodoList::where('user_id', Auth::id())
         ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
@@ -73,7 +74,7 @@ class DashboardController extends Controller
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
-                ->whereYear('created_at', 2025)
+                ->whereYear('created_at', $currentYear)
                 ->whereHas('ticket.project', function ($query) {
                     $query->where('client_id', '!=', 10); // added condition
                 })
@@ -95,7 +96,7 @@ class DashboardController extends Controller
 
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
-                ->whereYear('created_at', 2025)
+                ->whereYear('created_at', $currentYear)
                 ->whereHas('ticket.project', function ($query) {
                     $query->where('client_id', '!=', 10);
                 })
