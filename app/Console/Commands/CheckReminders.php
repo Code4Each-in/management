@@ -93,7 +93,15 @@ class CheckReminders extends Command
                     $targetDay = ucfirst(strtolower($reminder->weekly_day));
                     $reminderDate = Carbon::parse('next ' . $targetDay);
                 } else {
-                    $reminderDate->addWeek();
+                    while ($reminderDate->lt($now)) {
+                        $reminderDate->addWeek();
+                    }
+                }
+                break;
+
+            case 'biweekly':
+                while ($reminderDate->lt($now)) {
+                    $reminderDate->addWeeks(2);
                 }
                 break;
 
