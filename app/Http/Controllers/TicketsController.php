@@ -497,7 +497,7 @@ class TicketsController extends Controller
             $request->session()->flash('message','Ticket updated successfully.');
     		if ($source === 'ticket') {
                 return redirect()->route('tickets.index');
-            } elseif ($source === 'sprint') {
+            } elseif ($source === 'sprint' && !empty($request->input('edit_sprint_id'))) {
                 return redirect()->route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')]);
             } else {
                 return redirect()->route('tickets.index');
