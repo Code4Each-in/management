@@ -92,7 +92,7 @@
                             <tbody>
                                 @forelse($tickets as $data)
                                 <tr>
-                                    <td><a href="{{ url('/edit/ticket/'.$data->id)}}">#{{$data->id}}</a>
+                                    <td><a href="{{ url('/view/ticket/'.$data->id)}}">#{{$data->id}}</a>
                                     <td>{{($data->title )}}</td>
 
                                     <td>
