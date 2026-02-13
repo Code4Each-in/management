@@ -27,10 +27,10 @@ use App\Models\Client;
                 <div class="row mb-5 mt-4">
                     <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
                     <div class="col-sm-9">
-                        <select name="edit_client_id" class="form-select form-control" id="client_id">
-                            <option value="" {{ $projects->client_id == null ? 'selected' : '' }} disabled>Select Clients</option>
+                        <select name="edit_client_id[]" class="form-select form-control" id="client_id" multiple>
+                            <option value="" disabled>Select Clients</option>
                             @foreach ($clients as $client)
-                                <option value="{{ $client->id }}" {{ $client->id == $projects->client_id ? 'selected' : '' }}>
+                                <option value="{{ $client->id }}" {{ $projects->clients->contains($client->id) ? 'selected' : '' }}>
                                     {{ $client->name }}
                                 </option>
                             @endforeach
@@ -342,6 +342,10 @@ use App\Models\Client;
                     }
                 }
             });
+        });
+
+        $('#client_id').select2({
+            // dropdownParent: $('#editProjectsModal'),
         });
 
         $( '#edit_assign' ).select2( {

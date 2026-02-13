@@ -28,12 +28,22 @@ class Projects extends Model
 
     public function projectOnTicket()
     {
-        return $this->hasMany(Ticket::class, 'project_id', 'id');
+        return $this->hasMany(Tickets::class, 'project_id', 'id');
     }
 
-    public function client()
+    // public function client()
+    // {
+    //   return $this->belongsTo(Client::class);
+    // }
+
+    public function clients()
     {
-      return $this->belongsTo(Client::class);
+        return $this->belongsToMany(
+            Client::class,
+            'project_clients',
+            'project_id',
+            'client_id'
+        )->withTimestamps();
     }
     
 

@@ -16,7 +16,7 @@ use App\Models\Notification;
 use Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Client;
-
+use Illuminate\Database\Eloquent\Builder;
 
 class SprintController extends Controller
 {
@@ -32,7 +32,13 @@ class SprintController extends Controller
         $clientId = $user->client_id;
 
         if (!is_null($clientId)) {
-            $projects = Projects::where('client_id', $clientId)->get();
+            // $projects = Projects::where('client_id', $clientId)->get();
+            $projects = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->get();
             $clients = Client::where('id', $clientId)
             ->where('status', 1)
             ->orderBy('name', 'asc')
@@ -438,7 +444,7 @@ class SprintController extends Controller
         }
     }
 
-        public function allNotifications()
+    public function allNotifications()
     {
         $user = auth()->user();
         $roleId = $user->role_id;
@@ -447,18 +453,32 @@ class SprintController extends Controller
 
         if ($roleId == 6) {
             $clientId = $user->client_id;
-            $projectMap = Projects::where('client_id', $clientId)->pluck('project_name', 'id');
+            // $projectMap = Projects::where('client_id', $clientId)->pluck('project_name', 'id');
 
-            $projectIds = $projectMap->keys();
+            // $projectIds = $projectMap->keys();
+            // $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+             $projectIds = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->pluck('id');
+
+            $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+
+            // // $projectIds = $projectMap->keys();
+            
             $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+            // dd($ticketIds);
 
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
                 ->where('comment_by', '!=', $user->id)
-                // ->whereYear('created_at', 2025)
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+            //  dd($notifications);
 
         } elseif (in_array($roleId, [2, 3])) {
             $assignedTicketIds = DB::table('ticket_assigns')
@@ -501,7 +521,7 @@ class SprintController extends Controller
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
-            }
+        }
 
        $groupedNotifications = $notifications->filter(function ($comment) {
             return optional(optional($comment->ticket)->project)->id !== null;

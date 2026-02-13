@@ -70,21 +70,21 @@
         </div>
         <!-- Show Assign to User field only if user is Super Admin or Manager -->
         @if (auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager')
-    <div class="row mb-5 mt-4">
-        <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
-        <div class="col-sm-9">
-            <select name="user_id" class="form-select form-control">
-                <option value="{{ auth()->id() }}" selected>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</option>
-                @foreach (\App\Models\Users::where('status', 1)
-                        ->whereNull('client_id')
-                        ->where('id', '!=', auth()->id())
-                        ->get() as $user)
-                    <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-@endif
+            <div class="row mb-5 mt-4">
+                <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
+                <div class="col-sm-9">
+                    <select name="user_id[]" class="form-select form-control" id="user_id" multiple>
+                        <!-- <option value="{{ auth()->id() }}" selected>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</option> -->
+                        @foreach (\App\Models\Users::where('status', 1)
+                                ->whereNull('client_id')
+                                ->where('id', '!=', auth()->id())
+                                ->get() as $user)
+                            <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
         <div id="customDateField" class="row mb-5 mt-4 hidden">
             <label for="custom_date" class="col-sm-3 col-form-label">Custom Date</label>
             <div class="col-sm-9">
@@ -164,60 +164,65 @@
 </div>
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-   function toggleFields() {
-    const type = document.getElementById('type').value;
-    document.getElementById('weeklyFields').classList.add('hidden');
-    document.getElementById('monthlyFields').classList.add('hidden');
-    document.getElementById('customDateField').classList.add('hidden');
-    if (type === 'weekly' || type === 'biweekly') {
-        document.getElementById('weeklyFields').classList.remove('hidden');
-    } else if (type === 'monthly') {
-        document.getElementById('monthlyFields').classList.remove('hidden');
-    } else if (type === 'custom') {
-        document.getElementById('customDateField').classList.remove('hidden');
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    toggleFields();
-});
-document.addEventListener("DOMContentLoaded", function() {
-            // Initialize Quill
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: '#toolbar-container'
+
+    $('#user_id').select2();
+
+    function toggleFields() {
+        const type = document.getElementById('type').value;
+        document.getElementById('weeklyFields').classList.add('hidden');
+        document.getElementById('monthlyFields').classList.add('hidden');
+        document.getElementById('customDateField').classList.add('hidden');
+        if (type === 'weekly' || type === 'biweekly') {
+            document.getElementById('weeklyFields').classList.remove('hidden');
+        } else if (type === 'monthly') {
+            document.getElementById('monthlyFields').classList.remove('hidden');
+        } else if (type === 'custom') {
+            document.getElementById('customDateField').classList.remove('hidden');
         }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleFields();
     });
 
-    // Safe way to insert old content from Laravel
-    const oldContent = {!! json_encode(old('description')) !!};
-    if (oldContent && oldContent !== '') {
-        quill.root.innerHTML = oldContent;
-    }
-
-    function cleanHtml(html) {
-        const div = document.createElement('div');
-        div.innerHTML = html;
-
-        const paragraphs = div.querySelectorAll('p');
-        paragraphs.forEach(p => {
-            if (!p.innerHTML.trim()) {
-                p.remove();
-            } else {
-                p.innerHTML = p.innerHTML.replace(/<br>/g, '');
+    document.addEventListener("DOMContentLoaded", function() {
+                // Initialize Quill
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: '#toolbar-container'
             }
         });
 
-        const content = div.innerHTML.trim().replace(/<\/?p>/g, '');
+        // Safe way to insert old content from Laravel
+        const oldContent = {!! json_encode(old('description')) !!};
+        if (oldContent && oldContent !== '') {
+            quill.root.innerHTML = oldContent;
+        }
 
-        return content;
-    }
+        function cleanHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
 
-    document.querySelector('form').addEventListener('submit', function() {
-        let html = quill.root.innerHTML.trim();
-        html = cleanHtml(html);
-        document.getElementById('description-hidden').value = quill.getText().trim();
+            const paragraphs = div.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                if (!p.innerHTML.trim()) {
+                    p.remove();
+                } else {
+                    p.innerHTML = p.innerHTML.replace(/<br>/g, '');
+                }
+            });
+
+            const content = div.innerHTML.trim().replace(/<\/?p>/g, '');
+
+            return content;
+        }
+
+        document.querySelector('form').addEventListener('submit', function() {
+            let html = quill.root.innerHTML.trim();
+            html = cleanHtml(html);
+            document.getElementById('description-hidden').value = quill.getText().trim();
+        });
     });
-});
 </script>
 @endsection

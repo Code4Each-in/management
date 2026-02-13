@@ -89,6 +89,46 @@
                     <span class="badge bg-success ms-2">
                         <i class="fa-solid fa-check-circle me-1"></i> Approved
                     </span>
+
+                    @php
+                      function hoursToHM($decimal) {
+                          $hours = floor($decimal);
+                          $minutes = round(($decimal - $hours) * 60);
+
+                          return [
+                              'h' => $hours,
+                              'm' => $minutes
+                          ];
+                      }
+
+                      $spent = hoursToHM($spentHours);
+                      $remaining = hoursToHM(max($remainingHours, 0));
+                    @endphp
+
+                    <span class="badge bg-info ms-2">
+                        Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
+                    </span>
+
+                    <span class="badge bg-warning text-dark ms-2">
+                        Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
+                    </span>
+                    
+                    @if($remaining['m'] > 0)
+                    <span class="badge ">
+                      <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
+                          + Log Hours
+                      </button>
+                    </span>
+                    @endif
+                    
+                    @if(!empty($tickets->workLogs))
+                    <span class="badge ">
+                      <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
+                        Logs
+                      </button>
+                    </span>
+                    @endif
+                    
                 @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
                     <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
                         <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
@@ -110,7 +150,7 @@
         <strong>Client:</strong>
         <span>
           @if($client)
-              <span>{{ $client->name }}</span>
+              <span> {{ $client->pluck('name')->join(', ') }}</span>
           @else
               <span>---</span>
           @endif
@@ -206,6 +246,118 @@
   </div>
   </div>
 </div>
+
+<!-- Log Hours Modal -->
+<div class="modal fade" id="logHoursModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ route('ticket.logHours') }}">
+        @csrf
+        <input type="hidden" name="ticket_id" value="{{ $tickets->id }}">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Work Hours</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label>Date</label>
+                    <input type="date" name="log_date" class="form-control" required value="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="mb-3">
+                  <label>Hours Worked</label>
+
+                  <div class="d-flex gap-2">
+                      <select name="hours" id="hoursSelect" class="form-control" required>
+                          @for($i = 0; $i <= floor($remainingHours); $i++)
+                              <option value="{{ $i }}">{{ $i }} hr</option>
+                          @endfor
+                      </select>
+                      @if ($errors->has('hours'))
+                          <small class="text-danger">
+                              {{ $errors->first('hours') }}
+                          </small>
+                      @endif
+
+                      <select name="minutes" id="minutesSelect" class="form-control" required>
+                          <option value="0">00 min</option>
+                          <option value="15">15 min</option>
+                          <option value="30">30 min</option>
+                          <option value="45">45 min</option>
+                      </select>
+                  </div>
+
+                  <small class="text-muted">
+                      Remaining: {{ max($remainingHours, 0) }} hrs
+                  </small>
+
+                  <small class="text-danger d-none" id="timeError">
+                      Total time cannot exceed remaining hours
+                  </small>
+                </div>
+
+                <div class="mb-3">
+                    <label>Note (optional)</label>
+                    <textarea name="note" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Save Log</button>
+            </div>
+        </div>
+    </form>
+  </div>
+</div>
+
+<!-- Show Logs Modal -->
+<div class="modal fade" id="showWorkLogs" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Ticket Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Hours Logged</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($tickets->workLogs as $log)
+                      <tr>
+                          <td>{{ $log->log_date }}</td>
+                          <td>{{ $log->user->first_name }}</td>
+                          <td>{{ floor($log->hours) }} hr {{ ($log->hours - floor($log->hours)) * 60 }} min</td>
+                          <td>{{ $log->note ?? '-' }}</td>
+                      </tr>
+                      @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
           <div class="main-section">
             <div class="msger-header">
                 <h1>Comments</h1>
@@ -241,7 +393,7 @@
                           </div>
                           @php $lastGroupDate = $groupDateLabel; @endphp
                       @endif
-                        <div class="message" data-id="{{ $data->id }}">
+                        <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}">
                             <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
                             @if(!$data->is_system)
                                   <div class="user">
@@ -261,6 +413,10 @@
                                                   Code4Each
                                               @endif
                                           </span>
+
+                                          <button type="button" class="btn btn-sm btn-link p-0 ms-2 share-comment" data-comment-id="{{ $data->id }}" title="Copy comment link">
+                                        <i class="fa-solid fa-link"></i>
+                                    </button>
                                       </div>
                                   </div>
                               @endif
@@ -403,181 +559,256 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
-$(document).ready(function () {
-  const commentSection = document.getElementById('comment-scroll'); 
-  commentSection.scrollTop = commentSection.scrollHeight;
-});
+  let loading = false;
+  let doneLoadingAll = false;
 
-document.addEventListener('DOMContentLoaded', function () {
-  const editor = document.querySelector('#editor');
-  if (!editor) {
-    console.error('Editor element not found!');
-    return;
-  }
-
-  const quill = new Quill(editor, {
-    theme: 'snow',
-    modules: {
-      toolbar: '#toolbar-container'
-    },
-    placeholder: 'Type your comment here...'
-  });
-      // Initialize with old content if available
-    const oldComment = document.getElementById('comment_input').value.trim();
-if (oldComment) {
-    quill.root.innerHTML = oldComment;
-} else {
-    quill.setContents([{ insert: '\n' }]); // sets a single empty line
-}
-
-
-  editor.__quillInstance = quill;
-
-  function decodeHTMLEntities(str) {
-    const txt = document.createElement('textarea');
-    txt.innerHTML = str;
-    return txt.value;
-  }
-
-  // Edit Comment Click
-  document.querySelectorAll('.edit-comment').forEach(button => {
-    button.addEventListener('click', function () {
-      const commentId = this.getAttribute('data-comment-id');
-      let commentContent = this.getAttribute('data-content') || '';
-      commentContent = decodeHTMLEntities(decodeHTMLEntities(commentContent));
-
-      document.getElementById('comment_input').value = commentContent;
-      const commentIdInput = document.querySelector('#comment_id');
-      if (commentIdInput) commentIdInput.value = commentId;
-
-      if (quill) {
-        quill.root.innerHTML = commentContent;
-      }
-
-      editor.scrollIntoView({ behavior: 'smooth' });
-    });
+  $(document).ready(function () {
+    
+    const commentSection = document.getElementById('comment-scroll'); 
+    commentSection.scrollTop = commentSection.scrollHeight;
   });
 
-// Submit Form
-$('#commentsData').on('submit', function (e) {
-  e.preventDefault();
+  document.addEventListener('DOMContentLoaded', function () {
+    const editor = document.querySelector('#editor');
 
-  const commentHtml = quill.root.innerHTML.trim();
-  const commentText = quill.getText().trim();
-
-  document.getElementById('comment_input').value = commentHtml;
-  $('.alert-danger').hide().html('');
-
-  const fileInput = document.getElementById('comment_files');
-  const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
-
-  const hasValidContent =
-    commentText.length > 0 ||
-    /<img|<video|<iframe|<audio/.test(commentHtml) ||
-    hasFile;
-
-  if (hasValidContent) {
-    const formData = new FormData(this);
-
-    $('#loader').show();
-
-    $.ajax({
-      url: '{{ route('comments.add') }}',
-      type: 'POST',
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        if (response.status === 200) {
-          $('#comment').val('');
-          $('#comment_files').val('');
-          location.reload();
-        } else if (response.errors) {
-          let errorHtml = '<ul>';
-          response.errors.forEach(function (error) {
-            errorHtml += '<li>' + error + '</li>';
-          });
-          errorHtml += '</ul>';
-          $('.alert-danger').show().html(errorHtml);
-        } else {
-          $('.alert-danger').show().html('Something went wrong.');
-        }
-      },
-      error: function () {
-        $('.alert-danger').show().html('An error occurred while submitting the comment.');
-      },
-      complete: function () {
-        $('#loader').hide();
-      }
-    });
-  } else {
-    $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
-  }
-});
-
-let loading = false;
-let doneLoadingAll = false;
-
-$('#comment-scroll').on('scroll', function () {
-    const container = $(this);
-
-    if (container.scrollTop() <= 50 && !loading && !doneLoadingAll) {
-        const firstComment = $('#comments-list .message').first();
-        const lastId = firstComment.data('id');
-
-        loading = true;
-        $('#spinner_loader').show();
-
-        const prevScrollHeight = container[0].scrollHeight;
-
-        setTimeout(() => {
-            $.ajax({
-                url: '{{ route('ticket.comments.load', ['ticketId' => $tickets->id]) }}',
-                method: 'GET',
-                data: { last_id: lastId },
-                success: function (res) {
-                    if (res.comments && res.comments.length > 0) {
-                        let html = '';
-                        let lastDateGroup = $('#comments-list .date-label').first().text().trim();
-
-                        res.comments.forEach(function (data) {
-                            const currentGroupDate = data.created_date_label;
-                            let showDateLabel = false;
-
-                            if (currentGroupDate !== lastDateGroup) {
-                                showDateLabel = true;
-                                lastDateGroup = currentGroupDate;
-                            }
-
-                            html += buildCommentHTML(data, showDateLabel);
-                        });
-
-                        $('#comments-list').prepend(html);
-
-                        // After prepending, adjust scroll to preserve position
-                        const newScrollHeight = container[0].scrollHeight;
-                        const scrollDiff = newScrollHeight - prevScrollHeight;
-                        container.scrollTop(scrollDiff);
-                    } else {
-                        doneLoadingAll = true;
-                    }
-                },
-                complete: function () {
-                    loading = false;
-                    $('#spinner_loader').hide();
-                }
-            });
-        }, 3000);
+    if (!editor) {
+      console.error('Editor element not found!');
+      return;
     }
-});
 
-});
-</script>
-<script>
+    const quill = new Quill(editor, {
+      theme: 'snow',
+      modules: {
+        toolbar: '#toolbar-container'
+      },
+      placeholder: 'Type your comment here...'
+    });
+
+    // Initialize with old content if available
+    const oldComment = document.getElementById('comment_input').value.trim();
+    if (oldComment) {
+        quill.root.innerHTML = oldComment;
+    } else {
+        quill.setContents([{ insert: '\n' }]); // sets a single empty line
+    }
+
+    editor.__quillInstance = quill;
+
+    function decodeHTMLEntities(str) {
+      const txt = document.createElement('textarea');
+      txt.innerHTML = str;
+      return txt.value;
+    }
+
+    // Edit Comment Click
+    document.querySelectorAll('.edit-comment').forEach(button => {
+      button.addEventListener('click', function () {
+        const commentId = this.getAttribute('data-comment-id');
+        let commentContent = this.getAttribute('data-content') || '';
+        commentContent = decodeHTMLEntities(decodeHTMLEntities(commentContent));
+
+        document.getElementById('comment_input').value = commentContent;
+        const commentIdInput = document.querySelector('#comment_id');
+        if (commentIdInput) commentIdInput.value = commentId;
+
+        if (quill) {
+          quill.root.innerHTML = commentContent;
+        }
+
+        editor.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Submit Form
+    $('#commentsData').on('submit', function (e) {
+      e.preventDefault();
+
+      const commentHtml = quill.root.innerHTML.trim();
+      const commentText = quill.getText().trim();
+
+      document.getElementById('comment_input').value = commentHtml;
+      $('.alert-danger').hide().html('');
+
+      const fileInput = document.getElementById('comment_files');
+      const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+      const hasValidContent =
+        commentText.length > 0 ||
+        /<img|<video|<iframe|<audio/.test(commentHtml) ||
+        hasFile;
+
+      if (hasValidContent) {
+        const formData = new FormData(this);
+
+        $('#loader').show();
+
+        $.ajax({
+          url: '{{ route('comments.add') }}',
+          type: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function (response) {
+            if (response.status === 200) {
+              $('#comment').val('');
+              $('#comment_files').val('');
+              location.reload();
+            } else if (response.errors) {
+              let errorHtml = '<ul>';
+              response.errors.forEach(function (error) {
+                errorHtml += '<li>' + error + '</li>';
+              });
+              errorHtml += '</ul>';
+              $('.alert-danger').show().html(errorHtml);
+            } else {
+              $('.alert-danger').show().html('Something went wrong.');
+            }
+          },
+          error: function () {
+            $('.alert-danger').show().html('An error occurred while submitting the comment.');
+          },
+          complete: function () {
+            $('#loader').hide();
+          }
+        });
+      } else {
+        $('.alert-danger').html('Kindly type a message or attach a file before submitting.').fadeIn();
+      }
+    });
+
+    let loading = false;
+    let doneLoadingAll = false;
+
+    $('#comment-scroll').on('scroll', function () {
+        const container = $(this);
+
+        if (container.scrollTop() <= 50 && !loading && !doneLoadingAll) {
+            const firstComment = $('#comments-list .message').first();
+            const lastId = firstComment.data('id');
+
+            loading = true;
+            $('#spinner_loader').show();
+
+            const prevScrollHeight = container[0].scrollHeight;
+
+            setTimeout(() => {
+                $.ajax({
+                    url: '{{ route('ticket.comments.load', ['ticketId' => $tickets->id]) }}',
+                    method: 'GET',
+                    data: { last_id: lastId },
+                    success: function (res) {
+                        if (res.comments && res.comments.length > 0) {
+                            let html = '';
+                            let lastDateGroup = $('#comments-list .date-label').first().text().trim();
+
+                            res.comments.forEach(function (data) {
+                                const currentGroupDate = data.created_date_label;
+                                let showDateLabel = false;
+
+                                if (currentGroupDate !== lastDateGroup) {
+                                    showDateLabel = true;
+                                    lastDateGroup = currentGroupDate;
+                                }
+
+                                html += buildCommentHTML(data, showDateLabel);
+                            });
+
+                            $('#comments-list').prepend(html);
+
+                            // After prepending, adjust scroll to preserve position
+                            const newScrollHeight = container[0].scrollHeight;
+                            const scrollDiff = newScrollHeight - prevScrollHeight;
+                            container.scrollTop(scrollDiff);
+                        } else {
+                            doneLoadingAll = true;
+                        }
+                    },
+                    complete: function () {
+                        loading = false;
+                        $('#spinner_loader').hide();
+                    }
+                });
+            }, 3000);
+        }
+    });
+  });
+
   function toggleTaskDetails(headerElement) {
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
   }
+
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.share-comment');
+    if (!btn) return;
+
+    const commentId = btn.dataset.commentId;
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = baseUrl + '?comment=' + commentId;
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-link"></i>';
+        }, 1200);
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const targetCommentId = new URLSearchParams(window.location.search).get('comment');
+    if (!targetCommentId) return;
+
+    const container = $('#comment-scroll');
+
+    function highlight(el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.backgroundColor = '#fff3cd';
+        setTimeout(() => el.style.backgroundColor = '', 3000);
+    }
+
+    function loadUntilFound() {
+        const el = document.getElementById('comment-' + targetCommentId);
+        if (el) {
+            highlight(el);
+            return;
+        }
+
+        if (doneLoadingAll || loading) return;
+
+        container.scrollTop(0); // trigger lazy load
+
+        setTimeout(loadUntilFound, 800);
+    }
+
+    loadUntilFound();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+      const hoursSelect = document.getElementById('hoursSelect');
+      const minutesSelect = document.getElementById('minutesSelect');
+      const error = document.getElementById('timeError');
+
+      const remaining = parseFloat("{{ max($remainingHours, 0) }}");
+
+      function validateTime() {
+          const hours = parseInt(hoursSelect.value || 0);
+          const minutes = parseInt(minutesSelect.value || 0);
+
+          const total = hours + (minutes / 60);
+
+          if (total > remaining) {
+              error.classList.remove('d-none');
+              minutesSelect.value = 0;
+          } else {
+              error.classList.add('d-none');
+          }
+      }
+
+      hoursSelect.addEventListener('change', validateTime);
+      minutesSelect.addEventListener('change', validateTime);
+  });
+
   $(document).on('click', '.delete-comment', function() {
     const commentId = $(this).data('id');
     const commentItem = $(this).closest('.post-item');
@@ -606,7 +837,6 @@ $('#comment-scroll').on('scroll', function () {
         });
     }
 });
-
 
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -671,70 +901,72 @@ $('#comment-scroll').on('scroll', function () {
     });
   });
 
-function buildCommentHTML(data, showDateLabel = false) {
-  const firstName = data.user?.first_name ?? 'N/A';
-  const initials = firstName.substring(0, 2).toUpperCase();
+  function buildCommentHTML(data, showDateLabel = false) {
+    const firstName = data.user?.first_name ?? 'N/A';
+    const initials = firstName.substring(0, 2).toUpperCase();
 
-  const profilePic = data.user?.profile_picture
-    ? `<div class="avatar" style="background-color: #27ae60;">
-         <img src="/assets/img/${data.user.profile_picture}" class="rounded-circle" width="35" height="35" alt="Profile">
-       </div>`
-    : `<div class="avatar" style="background-color: #27ae60;">${initials}</div>`;
+    const profilePic = data.user?.profile_picture
+      ? `<div class="avatar" style="background-color: #27ae60;">
+          <img src="/assets/img/${data.user.profile_picture}" class="rounded-circle" width="35" height="35" alt="Profile">
+        </div>`
+      : `<div class="avatar" style="background-color: #27ae60;">${initials}</div>`;
 
-  const role = data.user?.role_id === 6 ? (data.project_name ?? 'Project Not Assigned') : 'Code4Each';
+    const role = data.user?.role_id === 6 ? (data.project_name ?? 'Project Not Assigned') : 'Code4Each';
 
-  const documentsHTML = (data.document ?? '')
-    .split(',')
-    .filter(doc => doc.trim() !== '')
-    .map(doc => `
-      <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-        <a href="/assets/img/${doc}" target="_blank">${doc.split('/').pop()}</a>
-      </p>
-    `).join('');
+    const documentsHTML = (data.document ?? '')
+      .split(',')
+      .filter(doc => doc.trim() !== '')
+      .map(doc => `
+        <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
+          <a href="/assets/img/${doc}" target="_blank">${doc.split('/').pop()}</a>
+        </p>
+      `).join('');
 
-  const dateLabelHTML = showDateLabel
-    ? `<div class="text-center text-muted my-2 date-label" style="font-weight: bold; font-size: 14px;">
-         ${data.created_date_label}
-       </div>`
-    : '';
+    const dateLabelHTML = showDateLabel
+      ? `<div class="text-center text-muted my-2 date-label" style="font-weight: bold; font-size: 14px;">
+          ${data.created_date_label}
+        </div>`
+      : '';
 
-  return `
-    ${dateLabelHTML}
-    <div class="message" data-id="${data.id}">
-      <div class="info">${data.created_at_formatted ?? ''}</div>
-      <div class="user">
-        ${profilePic}
-        <div>
-          <span class="name">${firstName}</span>
-          <span class="role">${role}</span>
+    return `
+      ${dateLabelHTML}
+      <div class="message" data-id="${data.id}" id="comment-${data.id}">
+        <div class="info">${data.created_at_formatted ?? ''}</div>
+        <div class="user">
+          ${profilePic}
+          <div>
+            <span class="name">${firstName}</span>
+            <span class="role">${role}</span>
+            <button type="button" class="btn btn-sm btn-link p-0 ms-2 share-comment" data-comment-id="${data.id}" title="Copy comment link">
+                <i class="fa-solid fa-link"></i>
+            </button>
+          </div>
+        </div>
+        <div class="text">
+          <div style="word-break: auto-phrase;">
+            ${data.comments ?? ''}
+          </div>
+          ${documentsHTML}
         </div>
       </div>
-      <div class="text">
-        <div style="word-break: auto-phrase;">
-          ${data.comments ?? ''}
-        </div>
-        ${documentsHTML}
-      </div>
-    </div>
-  `;
-}
-function toggleDescription(link) {
-    const container = link.closest('div');
-    const shortDesc = container.querySelector('.short-description');
-    const fullDesc = container.querySelector('.full-description');
+    `;
+  }
 
-    if (fullDesc.style.display === 'none') {
-        fullDesc.style.display = 'inline';
-        shortDesc.style.display = 'none';
-        link.textContent = 'Show Less';
-    } else {
-        fullDesc.style.display = 'none';
-        shortDesc.style.display = 'inline';
-        link.textContent = 'Show More';
-    }
-}
+  function toggleDescription(link) {
+      const container = link.closest('div');
+      const shortDesc = container.querySelector('.short-description');
+      const fullDesc = container.querySelector('.full-description');
 
+      if (fullDesc.style.display === 'none') {
+          fullDesc.style.display = 'inline';
+          shortDesc.style.display = 'none';
+          link.textContent = 'Show Less';
+      } else {
+          fullDesc.style.display = 'none';
+          shortDesc.style.display = 'inline';
+          link.textContent = 'Show More';
+      }
+  }
 </script>
-
 
 @endsection

@@ -26,72 +26,81 @@ class ReminderController extends Controller
 
 
     public function store(Request $request)
-{
-    $data = $request->validate([
-        'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
-        'description' => 'required',
-        'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
-        'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
-        'user_id' => 'nullable|exists:users,id', // Ensure this validation
-        'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
-    ], [
-        'type.required' => 'The type field is required.',
-        'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
-        'description.required' => 'The description field is required.',
-        'weekly_day.required_if' => 'The weekly day field is required when the type is weekly.',
-        'weekly_day.string' => 'The weekly day must be a valid string.',
-        'weekly_day.in' => 'The weekly day must be a valid day of the week.',
-        'monthly_date.required_if' => 'The monthly date field is required when the type is monthly.',
-        'monthly_date.integer' => 'The monthly date must be a valid integer.',
-        'monthly_date.min' => 'The monthly date must be at least 1.',
-        'monthly_date.max' => 'The monthly date must not be greater than 31.',
-        'user_id.exists' => 'The selected user does not exist.',
-        'custom_date.required_if' => 'The custom date field is required when the type is custom.',
-        'custom_date.date' => 'The custom date must be a valid date.',
-        'custom_date.after' => 'The custom date must be a date after today.',
-    ]);
-    $reminderDate = null;
-    $now = Carbon::now();
+    {
+        $data = $request->validate([
+            'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
+            'description' => 'required',
+            'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
+            'user_id' => 'nullable|exists:users,id', // Ensure this validation
+            'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
+        ], [
+            'type.required' => 'The type field is required.',
+            'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
+            'description.required' => 'The description field is required.',
+            'weekly_day.required_if' => 'The weekly day field is required when the type is weekly.',
+            'weekly_day.string' => 'The weekly day must be a valid string.',
+            'weekly_day.in' => 'The weekly day must be a valid day of the week.',
+            'monthly_date.required_if' => 'The monthly date field is required when the type is monthly.',
+            'monthly_date.integer' => 'The monthly date must be a valid integer.',
+            'monthly_date.min' => 'The monthly date must be at least 1.',
+            'monthly_date.max' => 'The monthly date must not be greater than 31.',
+            'user_id.exists' => 'The selected user does not exist.',
+            'custom_date.required_if' => 'The custom date field is required when the type is custom.',
+            'custom_date.date' => 'The custom date must be a valid date.',
+            'custom_date.after' => 'The custom date must be a date after today.',
+        ]);
+        $reminderDate = null;
+        $now = Carbon::now();
 
-    if ($data['type'] === 'daily') {
-        $reminderDate = $now->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            $reminderDate = $reminderDate->addDay();
-        }
-    } elseif ($data['type'] === 'weekly') {
-        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
-    } elseif ($data['type'] === 'biweekly') {
-        // First find the next selected weekday (same as weekly)
-        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+        if ($data['type'] === 'daily') {
+            $reminderDate = $now->startOfDay();
+            if ($now->greaterThan($reminderDate)) {
+                $reminderDate = $reminderDate->addDay();
+            }
+        } elseif ($data['type'] === 'weekly') {
+            $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+        } elseif ($data['type'] === 'biweekly') {
+            // First find the next selected weekday (same as weekly)
+            $reminderDate = $now->next($data['weekly_day'])->startOfDay();
 
-        // Then add 1 extra week (so total = after 2 weeks)
-        $reminderDate = $reminderDate->addWeek();
-    } elseif ($data['type'] === 'monthly') {
-        $reminderDate = $now->day($data['monthly_date'])->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            $reminderDate = $reminderDate->addMonth();
+            // Then add 1 extra week (so total = after 2 weeks)
+            $reminderDate = $reminderDate->addWeek();
+        } elseif ($data['type'] === 'monthly') {
+            $reminderDate = $now->day($data['monthly_date'])->startOfDay();
+            if ($now->greaterThan($reminderDate)) {
+                $reminderDate = $reminderDate->addMonth();
+            }
+        } elseif ($data['type'] === 'custom') {
+            $reminderDate = Carbon::parse($request->custom_date)->startOfDay();
+            if ($now->greaterThan($reminderDate)) {
+                return redirect()->back()->withErrors(['custom_date' => 'Custom date must be in the future.']);
+            }
         }
-    } elseif ($data['type'] === 'custom') {
-        $reminderDate = Carbon::parse($request->custom_date)->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            return redirect()->back()->withErrors(['custom_date' => 'Custom date must be in the future.']);
+        $data['reminder_date'] = $reminderDate;
+        if (auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager') {
+            // $data['user_id'] = $request->user_id;
+
+            $userIds = is_string($request->user_id)
+                ? json_decode($request->user_id, true)
+                : (array) $request->user_id;
+
+            $userIds = array_map('intval', $userIds);
+            $userIds[] = auth()->id();
+
+            $data['user_id'] = json_encode(array_values(array_unique($userIds)));
+        } else {
+            $data['user_id'] = auth()->id();
+        }
+
+        $reminder = Reminder::create($data);
+
+        if ($reminder) {
+            return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder set successfully!');
+        } else {
+            return redirect()->route('reminder.create')->with('error', 'Failed to set reminder.');
         }
     }
-    $data['reminder_date'] = $reminderDate;
-    if (auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager') {
-        $data['user_id'] = $request->user_id;
-    } else {
-        $data['user_id'] = auth()->id();
-    }
-
-    $reminder = Reminder::create($data);
-
-    if ($reminder) {
-        return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder set successfully!');
-    } else {
-        return redirect()->route('reminder.create')->with('error', 'Failed to set reminder.');
-    }
-}
 
     public function saveClickTime(Request $request, Reminder $reminder)
     {
@@ -160,73 +169,141 @@ class ReminderController extends Controller
             ]);
         }
     }
-
+    
     public function update(Request $request, $id)
-{
-    $data = $request->validate([
-        'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
-        'description' => 'required',
-        'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
-        'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
-        'user_id' => 'nullable|exists:users,id', // Ensure this validation
-        'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
-    ], [
-        'type.required' => 'The type field is required.',
-        'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
-        'description.required' => 'The description field is required.',
-        'weekly_day.required_if' => 'The weekly day field is required when the type is weekly.',
-        'weekly_day.string' => 'The weekly day must be a valid string.',
-        'weekly_day.in' => 'The weekly day must be a valid day of the week.',
-        'monthly_date.required_if' => 'The monthly date field is required when the type is monthly.',
-        'monthly_date.integer' => 'The monthly date must be a valid integer.',
-        'monthly_date.min' => 'The monthly date must be at least 1.',
-        'monthly_date.max' => 'The monthly date must not be greater than 31.',
-        'user_id.exists' => 'The selected user does not exist.',
-        'custom_date.required_if' => 'The custom date field is required when the type is custom.',
-        'custom_date.date' => 'The custom date must be a valid date.',
-        'custom_date.after' => 'The custom date must be a date after today.',
-    ]);
+    {
+        $data = $request->validate([
+            'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
+            'description' => 'required',
+            'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
+            'user_id' => 'nullable|exists:users,id', // Ensure this validation
+            'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
+        ], [
+            'type.required' => 'The type field is required.',
+            'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
+            'description.required' => 'The description field is required.',
+            'weekly_day.required_if' => 'The weekly day field is required when the type is weekly.',
+            'weekly_day.string' => 'The weekly day must be a valid string.',
+            'weekly_day.in' => 'The weekly day must be a valid day of the week.',
+            'monthly_date.required_if' => 'The monthly date field is required when the type is monthly.',
+            'monthly_date.integer' => 'The monthly date must be a valid integer.',
+            'monthly_date.min' => 'The monthly date must be at least 1.',
+            'monthly_date.max' => 'The monthly date must not be greater than 31.',
+            'user_id.exists' => 'The selected user does not exist.',
+            'custom_date.required_if' => 'The custom date field is required when the type is custom.',
+            'custom_date.date' => 'The custom date must be a valid date.',
+            'custom_date.after' => 'The custom date must be a date after today.',
+        ]);
 
+        $reminder = Reminder::findOrFail($id);
 
-    $reminder = Reminder::findOrFail($id);
+        $userIds = $data['user_id'] ?? [];
 
-    $reminderDate = null;
-    $now = Carbon::now();
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
 
-    if ($data['type'] === 'daily') {
-        $reminderDate = $now->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            $reminderDate = $reminderDate->addDay();
+        if (!in_array(auth()->id(), $userIds)) {
+            $userIds[] = auth()->id();
         }
-    } elseif ($data['type'] === 'weekly') {
-        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
-    } elseif ($data['type'] === 'biweekly') {
-        // First find the next selected weekday (same as weekly)
-        $reminderDate = $now->next($data['weekly_day'])->startOfDay();
 
-        // Then add 1 extra week (so total = after 2 weeks)
-        $reminderDate = $reminderDate->addWeek();
-    }elseif ($data['type'] === 'monthly') {
-        $reminderDate = $now->day($data['monthly_date'])->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            $reminderDate = $reminderDate->addMonth();
+        $data['user_id'] = $userIds;
+
+        $now = Carbon::now();
+
+        if ($data['type'] === 'daily') {
+            $reminderDate = $now->startOfDay();
+            if ($now->greaterThan($reminderDate)) {
+                $reminderDate = $reminderDate->addDay();
+            }
+        } elseif ($data['type'] === 'weekly') {
+            $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+        } elseif ($data['type'] === 'biweekly') {
+            $reminderDate = $now->next($data['weekly_day'])->startOfDay()->addWeek();
+        } elseif ($data['type'] === 'monthly') {
+            $reminderDate = $now->day($data['monthly_date'])->startOfDay();
+            if ($now->greaterThan($reminderDate)) {
+                $reminderDate = $reminderDate->addMonth();
+            }
+        } elseif ($data['type'] === 'custom') {
+            $reminderDate = Carbon::parse($request->custom_date)->startOfDay();
         }
-    } elseif ($data['type'] === 'custom') {
-        $reminderDate = Carbon::parse($request->custom_date)->startOfDay();
-        if ($now->greaterThan($reminderDate)) {
-            return redirect()->back()->withErrors(['custom_date' => 'Custom date must be in the future.']);
-        }
+
+        $data['reminder_date'] = $reminderDate;
+
+        $reminder->update($data);
+
+        return redirect()
+            ->route('reminder.create')
+            ->with('reminder_notice', 'Reminder updated successfully!');
     }
-    $data['reminder_date'] = $reminderDate;
 
-    $reminder->update($data);
+    // public function update(Request $request, $id)
+    // {
+    //     dd($request->all());
+    //     $data = $request->validate([
+    //         'type' => 'required|in:daily,weekly,monthly,biweekly,custom',  // Add 'custom' to validation
+    //         'description' => 'required',
+    //         'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+    //         'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
+    //         'user_id' => 'nullable|exists:users,id', // Ensure this validation
+    //         'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
+    //     ], [
+    //         'type.required' => 'The type field is required.',
+    //         'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
+    //         'description.required' => 'The description field is required.',
+    //         'weekly_day.required_if' => 'The weekly day field is required when the type is weekly.',
+    //         'weekly_day.string' => 'The weekly day must be a valid string.',
+    //         'weekly_day.in' => 'The weekly day must be a valid day of the week.',
+    //         'monthly_date.required_if' => 'The monthly date field is required when the type is monthly.',
+    //         'monthly_date.integer' => 'The monthly date must be a valid integer.',
+    //         'monthly_date.min' => 'The monthly date must be at least 1.',
+    //         'monthly_date.max' => 'The monthly date must not be greater than 31.',
+    //         'user_id.exists' => 'The selected user does not exist.',
+    //         'custom_date.required_if' => 'The custom date field is required when the type is custom.',
+    //         'custom_date.date' => 'The custom date must be a valid date.',
+    //         'custom_date.after' => 'The custom date must be a date after today.',
+    //     ]);
 
-    if ($reminder) {
-        return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder updated successfully!');
-    } else {
-        return redirect()->route('reminder.create')->with('error', 'Failed to update reminder.');
-    }
-}
+
+    //     $reminder = Reminder::findOrFail($id);
+
+    //     $reminderDate = null;
+    //     $now = Carbon::now();
+
+    //     if ($data['type'] === 'daily') {
+    //         $reminderDate = $now->startOfDay();
+    //         if ($now->greaterThan($reminderDate)) {
+    //             $reminderDate = $reminderDate->addDay();
+    //         }
+    //     } elseif ($data['type'] === 'weekly') {
+    //         $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+    //     } elseif ($data['type'] === 'biweekly') {
+    //         // First find the next selected weekday (same as weekly)
+    //         $reminderDate = $now->next($data['weekly_day'])->startOfDay();
+
+    //         // Then add 1 extra week (so total = after 2 weeks)
+    //         $reminderDate = $reminderDate->addWeek();
+    //     }elseif ($data['type'] === 'monthly') {
+    //         $reminderDate = $now->day($data['monthly_date'])->startOfDay();
+    //         if ($now->greaterThan($reminderDate)) {
+    //             $reminderDate = $reminderDate->addMonth();
+    //         }
+    //     } elseif ($data['type'] === 'custom') {
+    //         $reminderDate = Carbon::parse($request->custom_date)->startOfDay();
+    //         if ($now->greaterThan($reminderDate)) {
+    //             return redirect()->back()->withErrors(['custom_date' => 'Custom date must be in the future.']);
+    //         }
+    //     }
+    //     $data['reminder_date'] = $reminderDate;
+
+    //     $reminder->update($data);
+
+    //     if ($reminder) {
+    //         return redirect()->route('reminder.create')->with('reminder_notice', 'Reminder updated successfully!');
+    //     } else {
+    //         return redirect()->route('reminder.create')->with('error', 'Failed to update reminder.');
+    //     }
+    // }
     protected function isAdmin($user)
     {
         return $user->role_id == 1 || $user->role_id == 2; // Assuming 1 is Super Admin and 2 is Manager

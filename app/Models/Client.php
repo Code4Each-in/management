@@ -34,11 +34,14 @@ class Client extends Model
     const STATE_INACTIVE = 1;
     const STATE_TALKED = 2;
 
-   public function projects()
-   {
-      return $this->hasMany(Project::class);
-   }
-
+//    public function projects()
+//    {
+//       return $this->hasMany(Project::class);
+//    }
+    public function projects()
+    {
+        return $this->belongsToMany(Projects::class, 'project_clients', 'client_id', 'project_id')->withTimestamps();
+    }
 
     public static function getStatus($status) {
         switch($status) {
