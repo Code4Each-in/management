@@ -113,7 +113,7 @@
                         Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
                     </span>
                     
-                    @if($remaining['m'] > 0)
+                    @if($remainingHours > 0)
                     <span class="badge ">
                       <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
                           + Log Hours
