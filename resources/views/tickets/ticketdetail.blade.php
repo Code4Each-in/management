@@ -105,28 +105,30 @@
                       $remaining = hoursToHM(max($remainingHours, 0));
                     @endphp
 
-                    <span class="badge bg-info ms-2">
-                        Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
-                    </span>
+                    @if(Auth::user()->role_id != 6) 
+                      <span class="badge bg-info ms-2">
+                          Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
+                      </span>
 
-                    <span class="badge bg-warning text-dark ms-2">
-                        Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
-                    </span>
+                      <span class="badge bg-warning text-dark ms-2">
+                          Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
+                      </span>
                     
-                    @if($remainingHours > 0)
-                    <span class="badge ">
-                      <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
-                          + Log Hours
-                      </button>
-                    </span>
-                    @endif
+                      @if($remainingHours > 0)
+                        <span class="badge ">
+                          <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
+                              + Log Hours
+                          </button>
+                        </span>
+                      @endif
                     
-                    @if(!empty($tickets->workLogs))
-                    <span class="badge ">
-                      <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
-                        Logs History
-                      </button>
-                    </span>
+                      @if(!empty($tickets->workLogs))
+                        <span class="badge ">
+                          <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
+                            Logs History
+                          </button>
+                        </span>
+                      @endif
                     @endif
                     
                 @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
@@ -404,20 +406,26 @@
                                       @else
                                           <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                       @endif
-                                      <div>
-                                          <span class="name">{{ $data->user->first_name }}</span>
-                                          <span class="role">
-                                              @if ($data->user->role_id == 6)
-                                                  {{ $projectName ?? 'Project Not Assigned' }}
-                                              @else
-                                                  Code4Each
-                                              @endif
-                                          </span>
+                                      <div class="d-flex justify-content-between align-items-start w-100">
+                                        <div>
+                                            <span class="name">{{ $data->user->first_name }}</span>
+                                            <span class="role">
+                                                @if ($data->user->role_id == 6)
+                                                    {{ $projectName ?? 'Project Not Assigned' }}
+                                                @else
+                                                    Code4Each
+                                                @endif
+                                            </span>
+                                        </div>
 
-                                          <button type="button" class="btn btn-sm btn-link p-0 ms-2 share-comment" data-comment-id="{{ $data->id }}" title="Copy comment link">
-                                        <i class="fa-solid fa-link"></i>
-                                    </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-link p-0 share-comment"
+                                                data-comment-id="{{ $data->id }}"
+                                                title="Copy comment link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </button>
                                       </div>
+
                                   </div>
                               @endif
                             <div class="text">
@@ -715,7 +723,6 @@
 
                             $('#comments-list').prepend(html);
 
-                            // After prepending, adjust scroll to preserve position
                             const newScrollHeight = container[0].scrollHeight;
                             const scrollDiff = newScrollHeight - prevScrollHeight;
                             container.scrollTop(scrollDiff);
@@ -743,16 +750,99 @@
     if (!btn) return;
 
     const commentId = btn.dataset.commentId;
-
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = baseUrl + '?comment=' + commentId;
 
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    function showTooltip(message) {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = message;
+
+        tooltip.style.position = 'fixed';
+        tooltip.style.background = '#25581a';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '6px 12px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.borderRadius = '4px';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.whiteSpace = 'nowrap';
+
+        document.body.appendChild(tooltip);
+
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.top = (rect.top - 40) + "px";
+        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + "px";
+
+        setTimeout(() => tooltip.remove(), 2500);
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                showTooltip("Link copied successfully");
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-link"></i>';
+                }, 1500);
+            })
+            .catch(() => {
+                fallbackCopy(shareUrl);
+                showTooltip("Link copied successfully");
+            });
+    } else {
+        fallbackCopy(shareUrl);
+        showTooltip("Link copied successfully");
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const commentId = new URLSearchParams(window.location.search).get('comment');
+    if (!commentId) return;
+
+    const container = document.getElementById('comment-scroll');
+    if (!container) return;
+
+    const taskCard = document.querySelector('.task-card');
+    if (taskCard) {
+        taskCard.classList.remove('expanded');
+    }
+
+    function scrollToComment() {
+        const target = document.getElementById('comment-' + commentId);
+        if (!target) return false;
+
+        const containerTop = container.getBoundingClientRect().top;
+        const targetTop = target.getBoundingClientRect().top;
+
+        const scrollOffset = container.scrollTop + (targetTop - containerTop) - 20;
+
+        container.scrollTo({
+            top: scrollOffset,
+            behavior: 'smooth'
+        });
+
+        target.style.transition = "background-color 0.4s ease";
+        target.style.backgroundColor = "#fff3cd";
+
         setTimeout(() => {
-            btn.innerHTML = '<i class="fa-solid fa-link"></i>';
-        }, 1200);
-    });
+            target.style.backgroundColor = "";
+        }, 4000);
+
+        return true;
+    }
+
+    setTimeout(() => {
+        scrollToComment();
+    }, 400);
   });
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -762,10 +852,19 @@
     const container = $('#comment-scroll');
 
     function highlight(el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.style.backgroundColor = '#fff3cd';
-        setTimeout(() => el.style.backgroundColor = '', 3000);
-    }
+    const container = document.getElementById('comment-scroll');
+
+    const offsetTop = el.offsetTop - container.offsetTop;
+
+    container.scrollTo({
+        top: offsetTop - 20, // small spacing from top
+        behavior: 'smooth'
+    });
+
+    el.style.backgroundColor = '#fff3cd';
+    setTimeout(() => el.style.backgroundColor = '', 10000);
+  }
+
 
     function loadUntilFound() {
         const el = document.getElementById('comment-' + targetCommentId);
@@ -932,16 +1031,26 @@
       ${dateLabelHTML}
       <div class="message" data-id="${data.id}" id="comment-${data.id}">
         <div class="info">${data.created_at_formatted ?? ''}</div>
-        <div class="user">
+        <div class="user d-flex align-items-start w-100">
           ${profilePic}
-          <div>
-            <span class="name">${firstName}</span>
-            <span class="role">${role}</span>
-            <button type="button" class="btn btn-sm btn-link p-0 ms-2 share-comment" data-comment-id="${data.id}" title="Copy comment link">
+
+          <div class="d-flex justify-content-between align-items-start w-100 ms-2">
+            
+            <div>
+              <span class="name">${firstName}</span>
+              <span class="role">${role}</span>
+            </div>
+
+            <button type="button"
+                    class="btn btn-sm btn-link p-0 share-comment"
+                    data-comment-id="${data.id}"
+                    title="Copy comment link">
                 <i class="fa-solid fa-link"></i>
             </button>
+
           </div>
         </div>
+
         <div class="text">
           <div style="word-break: auto-phrase;">
             ${data.comments ?? ''}

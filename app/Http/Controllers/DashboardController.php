@@ -173,10 +173,13 @@ class DashboardController extends Controller
             $projects = 0;
             if ($clientId !== null) {
 
-                $projects = Projects::where('client_id', $clientId)->get();
-                $sprints = Sprint::whereIn('project', $projects->pluck('id'))
-                                ->where('status', 1)
-                                ->get();
+                // $projects = Projects::where('client_id', $clientId)->get();
+                
+                $projects = Projects::where(function (Builder $query) use ($clientId) {
+                    $query->where('client_id', $clientId)->orWhereHas('clients', function ($q) use ($clientId) {$q->where('clients.id', $clientId);});
+                })->get();
+
+                $sprints = Sprint::whereIn('project', $projects->pluck('id'))->where('status', 1)->get();
 
             }
         $clientId = $user->client_id;
@@ -480,6 +483,8 @@ class DashboardController extends Controller
                 ->whereNull('clicked_at')
                 ->get();
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
+
+        // dd($projectMap);
         return view('dashboard.index', compact(
             'userCount',
             'users',
