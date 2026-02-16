@@ -87,7 +87,7 @@
 
                  @if($isApproved)
                     <span class="badge bg-success ms-2">
-                        <i class="fa-solid fa-check-circle me-1"></i> Approved
+                        <i class="fa-solid fa-check-circle me-1 white-icon"></i> Approved
                     </span>
 
                     @php
@@ -124,14 +124,14 @@
                     @if(!empty($tickets->workLogs))
                     <span class="badge ">
                       <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
-                        Logs
+                        Logs History
                       </button>
                     </span>
                     @endif
                     
                 @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
                     <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
-                        <i class="fa-solid fa-check-circle me-1"></i> Approve Estimation
+                        <i class="fa-solid fa-check-circle me-1 white-icon"></i> Approve Estimation
                     </a>
                 @endif
               </span>

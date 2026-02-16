@@ -124,7 +124,7 @@ class TicketsController extends Controller
                 // Assuming there is a `user_id` or similar column in the `projects` table
                 $projects = Projects::where('client_id', $auth_user->client_id)->get(); // adjust column name if needed
             } else {
-                $projects = Projects::all();
+                $projects = Projects::where('status', 'active')->get();
             }
             $auth_user = auth()->user();
             $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
