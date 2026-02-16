@@ -116,10 +116,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
-	Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('ticket.logHours');
-
-
-
+	
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
 	Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
@@ -403,3 +400,5 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/pending-approvals', [TicketLogController::class, 'pendingApprovals'])->name('client.pending.approvals');
 
 });
+
+Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('ticket.logHours');
