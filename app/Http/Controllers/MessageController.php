@@ -11,6 +11,7 @@ use App\Models\Projects;
 use App\Models\Client;
 use Illuminate\Support\Str;
 use App\Notifications\MessageNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 
 class MessageController extends Controller
@@ -34,9 +35,17 @@ class MessageController extends Controller
         } else {
 
             $clientId = $user->client_id;
-            $projects = Projects::where('client_id', $clientId)
-                ->orderBy('id', 'desc')
-                ->get();
+            // $projects = Projects::where('client_id', $clientId)
+            //     ->orderBy('id', 'desc')
+            //     ->get();
+            $projects = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })
+            ->get();
+
 
             $client = Client::find($clientId);
         }

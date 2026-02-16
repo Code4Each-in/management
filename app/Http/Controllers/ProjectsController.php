@@ -19,6 +19,7 @@ use App\Notifications\EmailNotification;
 use Auth;
 use App\Models\Feedback;
 use App\Models\Sprint;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProjectsController extends Controller
 {
@@ -37,15 +38,29 @@ class ProjectsController extends Controller
         ->get();
 
     if ($user->role_id == 6) {
-        $projectIds = Projects::where('client_id', $clientId)
-            ->pluck('id')
-            ->toArray();
+        // $projectIds = Projects::where('client_id', $clientId)
+        //     ->pluck('id')
+        //     ->toArray();
 
-        $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
-            $query->whereIn('id', $projectIds);
-            if (!is_null($clientId)) {
-                $query->where('client_id', $clientId); 
-            }
+        // $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
+        //     $query->whereIn('id', $projectIds);
+        //     if (!is_null($clientId)) {
+        //         $query->where('client_id', $clientId); 
+        //     }
+        // })->orderBy('id', 'desc')->get();
+
+        // $projectCount = $projects->count();
+
+        // $clients = Client::where('id', $clientId)
+        //     ->where('status', 1)
+        //     ->orderBy('name', 'asc')
+        //     ->get();
+
+        $projects = Projects::where(function (Builder $query) use ($clientId) {
+            $query->where('client_id', $clientId)
+                ->orWhereHas('clients', function ($q) use ($clientId) {
+                    $q->where('clients.id', $clientId);
+                });
         })->orderBy('id', 'desc')->get();
 
         $projectCount = $projects->count();
@@ -54,6 +69,8 @@ class ProjectsController extends Controller
             ->where('status', 1)
             ->orderBy('name', 'asc')
             ->get();
+
+        // dd($projects);
     } else {
         $projectsQuery = Projects::query();
 
@@ -104,9 +121,12 @@ class ProjectsController extends Controller
 
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $user = auth()->user();
         if ($user->role_id == 6) {
-            $request->merge(['client_id' => $user->client_id]);
+            // $request->merge(['client_id' => $user->client_id]);
+            $request->merge(['client_id' => [$user->client_id]]);
         }
         $validator = Validator::make($request->all(),[
             'project_name' => 'required',
@@ -159,7 +179,7 @@ class ProjectsController extends Controller
              // dd($projects->client_id);
             $projects =Projects::create([
                 'project_name' => $validate['project_name'],
-                'client_id' => $validate['client_id'],
+                // 'client_id' => $validate['client_id'],
                 'live_url' => $validate['live_url'],
                 'dev_url' => $validate['dev_url'], 
                 'git_repo' => $validate['git_repo'], 
@@ -174,6 +194,9 @@ class ProjectsController extends Controller
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id'=> auth()->user()->id,     
             ]);
+
+            $projects->clients()->sync($validate['client_id']);
+
             // dd($projects->client_id);
         if (isset($validate['assign_to']))
         {				
@@ -215,8 +238,8 @@ class ProjectsController extends Controller
 
     public function editProject($projectId)
     {
-        $projects = Projects::with('client')->get(); // Load clients' data for each project
-       $clients = Client::all(); // Load all clients for the dropdown
+        $projects = Projects::with('clients')->get(); // Load clients' data for each project
+        $clients = Client::all(); // Load all clients for the dropdown
         // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
         ->where('roles.name','!=', 'Super Admin')
@@ -248,9 +271,11 @@ class ProjectsController extends Controller
     }
     public function updateProject(Request $request ,$projectId)
     {
+        // dd($request->all());
         $user = auth()->user();
         if ($user->role_id == 6) {
-            $request->merge(['edit_client_id' => $user->client_id]);
+            $request->merge(['edit_client_id' => [$user->client_id]]);
+           
         }
         // dd($request);
         $validator = Validator::make($request->all(),[
@@ -286,21 +311,21 @@ class ProjectsController extends Controller
                     ProjectAssigns::create([
                         'project_id' => $projectId,
                         'user_id' => $userId,
-                        'client_id' => $validate['edit_client_id']
+                        // 'client_id' => $validate['edit_client_id']
                     ]);
                 }
             } else {
                 ProjectAssigns::create([
                     'project_id' => $projectId,
                     'user_id' => null,
-                    'client_id' => $validate['edit_client_id']
+                    // 'client_id' => $validate['edit_client_id']
                 ]);
             }
 
-            $projects =Projects::where('id', $projectId)  
-            ->update([
+            $project = Projects::findOrFail($projectId);
+            $project->update([
                 'project_name' => $validate['edit_projectname'],
-                'client_id' => $validate['edit_client_id'],
+                // 'client_id' => $validate['edit_client_id'],
                 'live_url' => $validate['edit_liveurl'],
                 'dev_url' => $validate['edit_devurl'], 
                 'git_repo' => $validate['edit_gitrepo'], 
@@ -313,6 +338,9 @@ class ProjectsController extends Controller
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),  
             ]);
+
+            $project->clients()->sync($validate['edit_client_id']);
+
             if($request->hasfile('edit_document')){
                 foreach($request->file('edit_document') as $file)
                 {
@@ -329,7 +357,7 @@ class ProjectsController extends Controller
                
            }
         $request->session()->flash('message','Project updated successfully.');
-        return redirect()->back()->with('projects', $projects);
+        return redirect()->back()->with('projects', $project);
     }
 
     public function deleteProjectFile(Request $request)
@@ -375,7 +403,7 @@ class ProjectsController extends Controller
         $user = Auth::user();
         $currentYear = Carbon::now()->year;
         $clientId = $user->client_id;
-        $projects = Projects::with('client')->find($projectId); 
+        $projects = Projects::with('clients')->find($projectId); 
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
         $ticketIds = Tickets::where('project_id', $projectId)->pluck('id');
@@ -482,7 +510,13 @@ class ProjectsController extends Controller
     {
         $user = Auth::user();
         $clientId = $user->client_id;
-        $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        // $projectIds = Projects::where('client_id', $clientId)->pluck('id');
+        $projectIds = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->pluck('id');
         $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
         $developerIds = DB::table('ticket_assigns')
             ->whereIn('ticket_id', $ticketIds)

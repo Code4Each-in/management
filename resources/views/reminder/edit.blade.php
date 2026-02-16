@@ -76,28 +76,42 @@
             </div>
         </div>
           <!-- Show Assign to User field only if user is Super Admin or Manager -->
-        @if (auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager')
-    <div class="row mb-5 mt-4">
-        <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
-        <div class="col-sm-9">
-            <select name="user_id" class="form-select form-control">
-                <option value="{{ auth()->id() }}" {{ $reminder->user_id == auth()->id() ? 'selected' : '' }}>
-                    {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}
-                </option>
+        @php
+            $selectedUserIds = is_array($reminder->user_id)
+                ? $reminder->user_id
+                : json_decode($reminder->user_id, true);
+        @endphp
 
-                @foreach (\App\Models\Users::where('status', 1)
-                    ->whereNull('client_id')
-                    ->where('id', '!=', auth()->id())
-                    ->get() as $user)
-                    <option value="{{ $user->id }}" {{ $reminder->user_id == $user->id ? 'selected' : '' }}>
-                        {{ $user->first_name }} {{ $user->last_name }}
-                    </option>
-                @endforeach
+        @if (in_array(auth()->user()->role->name, ['Super Admin', 'Manager']))
+            <div class="row mb-5 mt-4">
+                <label for="user_id" class="col-sm-3 col-form-label">Assign to User</label>
 
-            </select>
-        </div>
-    </div>
-@endif
+                <div class="col-sm-9">
+                    <select name="user_id[]" class="form-select form-control" id="user_id" multiple>
+
+                        <option value="{{ auth()->id() }}"
+                            {{ in_array(auth()->id(), $selectedUserIds ?? []) ? 'selected' : '' }}>
+                            {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}
+                        </option>
+
+                        @foreach (
+                            \App\Models\Users::where('status', 1)
+                                ->whereNull('client_id')
+                                ->where('id', '!=', auth()->id())
+                                ->get()
+                            as $user
+                        )
+                            <option value="{{ $user->id }}"
+                                {{ in_array($user->id, $selectedUserIds ?? []) ? 'selected' : '' }}>
+                                {{ $user->first_name }} {{ $user->last_name }}
+                            </option>
+                        @endforeach
+
+                    </select>
+                </div>
+            </div>
+        @endif
+
 
         <div class="row mb-5">
             <label class="col-sm-3 col-form-label required">Description</label>
@@ -167,6 +181,9 @@
 </div>
 
 <script>
+
+    $('#user_id').select2();
+
     function toggleFields() {
         const type = document.getElementById('type').value;
         document.getElementById('weeklyFields').classList.add('hidden');

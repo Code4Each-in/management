@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use App\Notifications\MessageNotification;
+use Illuminate\Database\Eloquent\Builder;
 
 class TeamsController extends Controller
 {
@@ -34,9 +35,15 @@ class TeamsController extends Controller
         }
     } elseif ($roleid == 6) {
         $clientId = $user->client_id;
-        $projects = Projects::where('client_id', $clientId)
-            ->orderBy('id', 'desc')
-            ->get();
+        // $projects = Projects::where('client_id', $clientId)
+        //     ->orderBy('id', 'desc')
+        //     ->get();
+        $projects = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->get();
         $client = Client::find($clientId);
     } elseif (in_array($roleid, [2, 3])) {
         $ticketIds = DB::table('ticket_assigns')

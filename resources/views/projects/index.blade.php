@@ -140,8 +140,8 @@ use App\Models\Projects;?>
                             <div class="row mb-3">
                                 <label for="client_id" class="col-sm-3 col-form-label required">Client Name</label>
                                 <div class="col-sm-9">
-                                    <select name="client_id" class="form-select form-control" id="client_id">
-                                        <option value="" disabled selected>Select Clients</option>
+                                    <select name="client_id[]" class="form-select form-control" id="client_id" multiple>
+                                        <!-- <option value="" disabled selected>Select Clients</option> -->
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
@@ -156,10 +156,10 @@ use App\Models\Projects;?>
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
-                                         @foreach ($users ?? '' as $data)
-                                        <option value="{{$data->id}}">
-                                        {{$data->first_name}} - {{$data->designation}}
-                                        </option>
+                                        @foreach ($users ?? '' as $data)
+                                            <option value="{{$data->id}}">
+                                                {{$data->first_name}} - {{$data->designation}}
+                                            </option>
                                         @endforeach
                                 </select>
                                 </div>
@@ -365,6 +365,10 @@ use App\Models\Projects;?>
                         },
                         error: function(data) {}
                     });
+                });
+
+                $('#client_id').select2({
+                    dropdownParent: $('#addProjects'),
                 });
 
                 $( '#user' ).select2( {

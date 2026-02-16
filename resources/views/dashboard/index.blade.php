@@ -150,7 +150,18 @@ use Carbon\Carbon;
 
 @if($activeReminders->isNotEmpty())
     @foreach($activeReminders as $reminder)
-        @if($reminder->user_id == auth()->user()->id)
+        <!-- @if($reminder->user_id == auth()->user()->id) -->
+         <!-- @endif -->
+        @php
+            // Safely convert user_id to array
+            $assignedUsers = is_array($reminder->user_id)
+                ? $reminder->user_id
+                : json_decode($reminder->user_id, true);
+
+            $assignedUsers = $assignedUsers ?? [];
+        @endphp
+
+        @if(in_array(auth()->id(), $assignedUsers))
             <div class="container">
                 <div class="reminder-box">
                     <div class="main-deiv">

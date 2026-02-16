@@ -23,6 +23,7 @@ use Auth;
 use App\Models\Reminder;
 use App\Models\TicketComments;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 
 class DashboardController extends Controller
@@ -45,10 +46,19 @@ class DashboardController extends Controller
         if ($user->role_id == 6) {
             $clientId = $user->client_id;
 
-            $projectMap = Projects::where('client_id', $clientId)
-                ->pluck('project_name', 'id');
+            // $projectMap = Projects::where('client_id', $clientId)
+            //     ->pluck('project_name', 'id');
 
-            $projectIds = $projectMap->keys();
+            // $projectIds = $projectMap->keys();
+
+            $projectIds = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->pluck('id');
+
+            $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
 
             $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
 

@@ -25,6 +25,7 @@
             $projectsWithComments->put($projectId, $projectName);
         }
     }
+
 @endphp
 
 <div class="row">

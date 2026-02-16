@@ -45,19 +45,25 @@ class Tickets extends Model
     {
         return $this->belongsTo(Users::class, 'created_by', 'id');
     }
+
     public function project()
     {
         return $this->belongsTo(Projects::class);
     }
+
     public function sprintDetails()
-{
-    return $this->belongsTo(Sprint::class, 'sprint_id');
-}
+    {
+        return $this->belongsTo(Sprint::class, 'sprint_id');
+    }
 
-public function estimationApproval()
-{
-    return $this->hasOne(\App\Models\TicketEstimationApproval::class, 'ticket_id');
-}
+    public function estimationApproval()
+    {
+        return $this->hasOne(\App\Models\TicketEstimationApproval::class, 'ticket_id');
+    }
 
+    public function workLogs()
+    {
+        return $this->hasMany(TicketWorkLog::class, 'ticket_id');
+    }
 
 }

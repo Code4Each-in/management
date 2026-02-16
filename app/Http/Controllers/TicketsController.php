@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Carbon\Carbon;
 use App\Models\TicketEstimationApproval;
+use App\Models\TicketWorkLog;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -721,24 +722,65 @@ class TicketsController extends Controller
                         $projectId = $ticketModel->project_id;
                         $project = Projects::find($projectId);
     
-                        if ($project) {
-                            $clientId = $project->client_id;
-                        }
-                        $client = Users::where('client_id', $clientId)->first();
-                        $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
-                        $additional_email = Client::where('id', $clientId)->value('additional_email');
+                        // if ($project) {
+                        //     $clientId = $project->client_id;
+                        // }
+                        // $client = Users::where('client_id', $clientId)->first();
+                        // $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
+                        // $additional_email = Client::where('id', $clientId)->value('additional_email');
                        
-                        if ($client) {
-                            $client->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                        // if ($client) {
+                        //     $client->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+
+                        //     if (!empty($secondaryEmail)) {
+                        //         NotificationFacade::route('mail', $secondaryEmail)
+                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                        //     }
+                        //     if (!empty($additional_email)) {
+                        //         NotificationFacade::route('mail', $additional_email)
+                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                        //     } 
+                        // }
+
+                        $clientIds = collect();
+                        if ($project) {
+
+                            // NEW relation (many-to-many)
+                            if ($project->clients && $project->clients->isNotEmpty()) {
+                                $clientIds = $project->clients->pluck('id');
+                            }
+                            // OLD relation (single client_id)
+                            elseif (!empty($project->client_id)) {
+                                $clientIds = collect([$project->client_id]);
+                            }
+                        }
+
+                        foreach ($clientIds as $clientId) {
+                            $clientUser = Users::where('client_id', $clientId)->first();
+                            $client = Client::find($clientId);
+
+                            if (!$client) {
+                                continue;
+                            }
+
+                            $secondaryEmail   = $client->secondary_email;
+                            $additionalEmail  = $client->additional_email;
+
+                            if ($clientUser) {
+                                $clientUser->notify(
+                                    new TicketNotification($messages, $documentPaths, $bccEmail)
+                                );
+                            }
 
                             if (!empty($secondaryEmail)) {
                                 NotificationFacade::route('mail', $secondaryEmail)
                                     ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
                             }
-                            if (!empty($additional_email)) {
-                                NotificationFacade::route('mail', $additional_email)
+
+                            if (!empty($additionalEmail)) {
+                                NotificationFacade::route('mail', $additionalEmail)
                                     ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
-                            } 
+                            }
                         }
     
                     } catch (\Exception $e) {
@@ -783,15 +825,29 @@ class TicketsController extends Controller
 
     }
 
-        public function viewTicket($ticketId)
+    public function viewTicket($ticketId)
     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
         $ticket = Tickets::find($ticketId);
         $projectId = $ticket->project_id;
-        $project = Projects::find($projectId);
-
+        // $project = Projects::find($projectId);
+        // $projectName = $project ? $project->project_name : 'Project Not Found';
+        // $client = $project?->client;
+        $project = Projects::with('clients')->find($projectId);
         $projectName = $project ? $project->project_name : 'Project Not Found';
-        $client = $project?->client;
+        // $client = null;
+        $clientIds = collect();
+
+        if ($project) {
+            if ($project->client_id) {
+                $clientIds = collect([$project->client_id]);
+            } elseif ($project->clients && $project->clients->isNotEmpty()) {
+                $clientIds = $project->clients->pluck('id');
+            }
+        }
+
+        $client = Client::whereIn('id', $clientIds)->get();
+
         $user = Users::whereHas('role', function($q){
            $q->where('name', '!=', 'Super Admin');
        })->orderBy('id','desc')->get()->toArray();
@@ -804,11 +860,11 @@ class TicketsController extends Controller
                }
            }
        }
-       $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
-       $tickets = Tickets::where(['id' => $ticketId])->first();
-       $projectId = $tickets->project_id;
-       $projects = Projects::where('id', $projectId)->get();
-       $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
+        $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
+        $tickets = Tickets::where(['id' => $ticketId])->first();
+        $projectId = $tickets->project_id;
+        $projects = Projects::where('id', $projectId)->get();
+        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData = TicketComments::with('user')
                         ->where('ticket_id', $ticketId)
                         ->orderBy('id', 'desc')
@@ -817,274 +873,315 @@ class TicketsController extends Controller
                         ->sortBy('id') // to maintain ascending order in UI
                         ->values(); // reset keys
 
-       $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client'));
+
+        $spentHours = $tickets->workLogs()->sum('hours');
+        $remainingHours = $tickets->time_estimation - $spentHours;
+
+        $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
+
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours'));
 
     }
-    public function viewDocument($filename)
-{
-    $filePath = public_path('assets/img/ticketAssets/' . $filename);
 
-    if (!file_exists($filePath)) {
-        abort(404);
-    }
-
-    $mime = mime_content_type($filePath);
-
-    return response()->file($filePath, [
-        'Content-Type' => $mime,
-        'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
-    ]);
-}
-
-public function updateStatus(Request $request, $id)
-{
+    public function logHours(Request $request)
+    {
         $request->validate([
-        'status' => 'required|in:to_do,in_progress,ready,deployed,complete,invoice_done',
-    ]);
-    $auth_user =  auth()->user()->id;
-    $ticket = Tickets::findOrFail($id);
+            'hours'   => 'required|numeric|min:0',
+            'minutes' => 'required|in:0,15,30,45',
+        ]);
 
-    $isStatusChanging = isset($request->status) && $ticket->status !== $request->status;
-    $hasEstimation = !is_null($ticket->time_estimation);
-    $isApproved = TicketEstimationApproval::where('ticket_id', $id)->exists();
+        $totalHours = $request->hours + ($request->minutes / 60);
 
-    if (
-        $isStatusChanging &&
-        $hasEstimation &&
-        !$isApproved &&
-        $request->status !== 'to_do'
-    ) {
-       return response()->json([
-    'success' => false,
-    'error' => 'Estimation is not approved yet. You cannot change the status of this ticket.'
-     ]);
-    }
-    $ticket->status = $request->status;
-    $ticket->save();
+        if ($totalHours <= 0) {
+            return back()->with('error', 'Please log at least 15 minutes of work.');
+        }
 
+        $ticket = Tickets::findOrFail($request->ticket_id);
 
+        $spent = TicketWorkLog::where('ticket_id', $ticket->id)->sum('hours');
+        $remaining = max($ticket->time_estimation - $spent, 0);
 
-    Notification::create([
-        'user_id' => $auth_user,
-        'type' => 'status_change',
-        'message' => "Ticket #{$ticket->id} status changed to {$ticket->status}",
-        'ticket_id' => $ticket->id,
-        'is_super_admin' => false
-    ]);
+        $totalHours = $request->hours + ($request->minutes / 60);
 
-    $managerIds = DB::table('managers')
-        ->where('user_id', $auth_user)
-        ->pluck('parent_user_id');
+        if ($totalHours > $remaining) {
+            return back()->withErrors([
+                'hours' => 'Logged time cannot exceed remaining hours.'
+            ]);
+        }
 
-    foreach ($managerIds as $managerId) {
-        Notification::create([
-            'user_id' => $managerId,
+        TicketWorkLog::create([
             'ticket_id' => $ticket->id,
+            'user_id'   => auth()->id(),
+            'hours'     => $totalHours,
+            'log_date'  => $request->log_date,
+            'note'      => $request->note,
+        ]);
+
+        return back()->with('success', 'Work hours logged successfully.');
+    }
+
+
+    public function viewDocument($filename)
+    {
+        $filePath = public_path('assets/img/ticketAssets/' . $filename);
+
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        $mime = mime_content_type($filePath);
+
+        return response()->file($filePath, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+        ]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+            $request->validate([
+            'status' => 'required|in:to_do,in_progress,ready,deployed,complete,invoice_done',
+        ]);
+        $auth_user =  auth()->user()->id;
+        $ticket = Tickets::findOrFail($id);
+
+        $isStatusChanging = isset($request->status) && $ticket->status !== $request->status;
+        $hasEstimation = !is_null($ticket->time_estimation);
+        $isApproved = TicketEstimationApproval::where('ticket_id', $id)->exists();
+
+        if (
+            $isStatusChanging &&
+            $hasEstimation &&
+            !$isApproved &&
+            $request->status !== 'to_do'
+        ) {
+        return response()->json([
+        'success' => false,
+        'error' => 'Estimation is not approved yet. You cannot change the status of this ticket.'
+        ]);
+        }
+        $ticket->status = $request->status;
+        $ticket->save();
+
+
+
+        Notification::create([
+            'user_id' => $auth_user,
             'type' => 'status_change',
-            'message' => 'Ticket #' . $ticket->id . ' status was updated by ' . auth()->user()->first_name,
-            'is_read' => false,
+            'message' => "Ticket #{$ticket->id} status changed to {$ticket->status}",
+            'ticket_id' => $ticket->id,
             'is_super_admin' => false
         ]);
+
+        $managerIds = DB::table('managers')
+            ->where('user_id', $auth_user)
+            ->pluck('parent_user_id');
+
+        foreach ($managerIds as $managerId) {
+            Notification::create([
+                'user_id' => $managerId,
+                'ticket_id' => $ticket->id,
+                'type' => 'status_change',
+                'message' => 'Ticket #' . $ticket->id . ' status was updated by ' . auth()->user()->first_name,
+                'is_read' => false,
+                'is_super_admin' => false
+            ]);
+        }
+
+                if (auth()->user()->id == 1) {
+                    Notification::create([
+                        'user_id' => auth()->user()->id,
+                        'ticket_id' => $ticket->id,
+                        'type' => 'assigned',
+                        'message' => 'Ticket #' . $ticket->id . ' assigned to ' . auth()->user()->first_name,
+                        'is_read' => false,
+                        'is_super_admin' => true
+                    ]);
+                }
+
+        return response()->json(['success' => true]);
     }
 
-            if (auth()->user()->id == 1) {
-                Notification::create([
-                    'user_id' => auth()->user()->id,
-                    'ticket_id' => $ticket->id,
-                    'type' => 'assigned',
-                    'message' => 'Ticket #' . $ticket->id . ' assigned to ' . auth()->user()->first_name,
-                    'is_read' => false,
-                    'is_super_admin' => true
-                ]);
+    public function notifications()
+    {
+        $userId = auth()->id();
+
+        if (request()->ajax()) {
+            if ($userId == 1) {
+
+                $notifications = Notification::latest()->take(5)->get();
+                $unreadCount = Notification::where('is_read', false)->count();
+            } else {
+
+                $notifications = Notification::where('user_id', $userId)
+                    ->latest()
+                    ->take(5)
+                    ->get();
+
+                $unreadCount = Notification::where('user_id', $userId)
+                    ->where('is_read', false)
+                    ->count();
             }
 
-    return response()->json(['success' => true]);
-}
+            return response()->json([
+                'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
+                'unreadCount' => $unreadCount,
+                'notifications' => $notifications
+            ]);
+        }
 
-public function notifications()
-{
-    $userId = auth()->id();
-
-    if (request()->ajax()) {
         if ($userId == 1) {
-
-            $notifications = Notification::latest()->take(5)->get();
-            $unreadCount = Notification::where('is_read', false)->count();
+            $notifications = Notification::orderBy('created_at', 'desc')->get();
         } else {
-
             $notifications = Notification::where('user_id', $userId)
-                ->latest()
-                ->take(5)
+                ->orderBy('created_at', 'desc')
                 ->get();
-
-            $unreadCount = Notification::where('user_id', $userId)
-                ->where('is_read', false)
-                ->count();
         }
 
-        return response()->json([
-            'html' => view('notifications.partials._dropdown', compact('notifications', 'unreadCount'))->render(),
-            'unreadCount' => $unreadCount,
-            'notifications' => $notifications
-        ]);
+        return view('notifications.index', compact('notifications'));
     }
 
-    if ($userId == 1) {
-        $notifications = Notification::orderBy('created_at', 'desc')->get();
-    } else {
-        $notifications = Notification::where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
-    }
+    public function markAsRead($id)
+    {
+        logger("MarkAsRead called with ID: " . $id);
 
-    return view('notifications.index', compact('notifications'));
-}
+        $notification = Notification::where('id', $id)->first();
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification not found',
+                'id' => $id
+            ], 404);
+        }
 
+        $notification->update(['is_read' => 1]);
 
-public function markAsRead($id)
-{
-    logger("MarkAsRead called with ID: " . $id);
-
-    $notification = Notification::where('id', $id)->first();
-    if (!$notification) {
         return response()->json([
-            'success' => false,
-            'message' => 'Notification not found',
+            'success' => true,
             'id' => $id
-        ], 404);
-    }
-
-    $notification->update(['is_read' => 1]);
-
-    return response()->json([
-        'success' => true,
-        'id' => $id
-    ]);
-}
-
-
-public function markAllAsRead()
-{
-    Notification::where('user_id', auth()->id())
-        ->where('is_read', false)
-        ->update(['is_read' => true]);
-
-    return response()->json(['success' => true]);
-}
-
-public function deleteComment($id)
-{
-    $comment = Ticketcomments::find($id);
-
-    if (!$comment) {
-        return response()->json([
-            'status' => 404,
-            'message' => 'Comment not found.'
         ]);
     }
 
-    $comment->delete();
+    public function markAllAsRead()
+    {
+        Notification::where('user_id', auth()->id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
-    return response()->json([
-        'status' => 200,
-        'message' => 'Comment deleted successfully.',
-        'id' => $id
-    ]);
-}
-public function loadMoreComments($ticketId, Request $request)
-{
-    $lastId = $request->last_id;
+        return response()->json(['success' => true]);
+    }
 
-    $comments = TicketComments::with('user')
-        ->where('ticket_id', $ticketId)
-        ->where('id', '<', $lastId)
-        ->orderBy('id', 'desc')
-        ->limit(10)
-        ->get()
-        ->sortBy('id')
-        ->values();
+    public function deleteComment($id)
+    {
+        $comment = Ticketcomments::find($id);
 
-    $comments->each(function ($comment) {
-        $carbonDate = Carbon::parse($comment->created_at)->timezone('Asia/Kolkata');
-        $comment->created_at_formatted = $carbonDate->format('M d, Y h:i A');
-
-        $today = Carbon::now()->startOfDay();
-        $yesterday = Carbon::yesterday()->startOfDay();
-        $commentDate = $carbonDate->startOfDay();
-
-        if ($commentDate->eq($today)) {
-            $comment->created_date_label = 'Today';
-        } elseif ($commentDate->eq($yesterday)) {
-            $comment->created_date_label = 'Yesterday';
-        } else {
-            $comment->created_date_label = $commentDate->format('M d, Y');
+        if (!$comment) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Comment not found.'
+            ]);
         }
 
-        $comment->project_name = optional($comment->ticket->project)->project_name ?? 'Project Not Assigned';
+        $comment->delete();
 
-        $comment->role = $comment->user->role_id == 6
-            ? $comment->project_name
-            : 'Code4Each';
-    });
-
-    return response()->json(['comments' => $comments]);
-}
-
-public function approveEstimation($id)
-{
-
-    $existing = TicketEstimationApproval::where('ticket_id', $id)->first();
-
-    if ($existing) {
-        return back()->with('error', 'Estimation has already been approved.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Comment deleted successfully.',
+            'id' => $id
+        ]);
     }
-
-    TicketEstimationApproval::create([
-        'ticket_id'   => $id,
-        'approved_by' => auth()->id(),
-        'approved_at' => now(),
-    ]);
-
-    $user = auth()->user();
-    TicketComments::create([
-        'comments'   => "Time estimation approved.",
-        'ticket_id'  => $id,
-        'comment_by' => $user->id,
-        'is_system'  => true,          
-    ]);
     
-    $messages = [
-    "greeting-text" => "Hello!",
-    "subject"       => "Time Estimation Approved for Ticket #{$id}",
-    "title"         => "Estimation Approved",
-    "body-text"     => "Time estimation has been approved for Ticket #{$id} by {$user->first_name}.",
-    "url-title"     => "View Ticket",
-    "url"           => "/view/ticket/" . $id,
-];
+    public function loadMoreComments($ticketId, Request $request)
+    {
+        $lastId = $request->last_id;
 
-try {
-    $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
-        ->where('ticket_assigns.ticket_id', $id)
-        ->get(['users.id', 'users.email']);
+        $comments = TicketComments::with('user')
+            ->where('ticket_id', $ticketId)
+            ->where('id', '<', $lastId)
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get()
+            ->sortBy('id')
+            ->values();
 
-    $superAdmin = Users::find(1); 
+        $comments->each(function ($comment) {
+            $carbonDate = Carbon::parse($comment->created_at)->timezone('Asia/Kolkata');
+            $comment->created_at_formatted = $carbonDate->format('M d, Y h:i A');
 
-    foreach ($assignedUsers as $assignedUser) {
-        $assignedUser->notify(new EstimationApprovedNotification($messages));
+            $today = Carbon::now()->startOfDay();
+            $yesterday = Carbon::yesterday()->startOfDay();
+            $commentDate = $carbonDate->startOfDay();
+
+            if ($commentDate->eq($today)) {
+                $comment->created_date_label = 'Today';
+            } elseif ($commentDate->eq($yesterday)) {
+                $comment->created_date_label = 'Yesterday';
+            } else {
+                $comment->created_date_label = $commentDate->format('M d, Y');
+            }
+
+            $comment->project_name = optional($comment->ticket->project)->project_name ?? 'Project Not Assigned';
+
+            $comment->role = $comment->user->role_id == 6
+                ? $comment->project_name
+                : 'Code4Each';
+        });
+
+        return response()->json(['comments' => $comments]);
     }
 
-    if ($user->role_id == 6 && $superAdmin) {
-        $superAdmin->notify(new EstimationApprovedNotification($messages));
+    public function approveEstimation($id)
+    {
+
+        $existing = TicketEstimationApproval::where('ticket_id', $id)->first();
+
+        if ($existing) {
+            return back()->with('error', 'Estimation has already been approved.');
+        }
+
+        TicketEstimationApproval::create([
+            'ticket_id'   => $id,
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+
+        $user = auth()->user();
+        TicketComments::create([
+            'comments'   => "Time estimation approved.",
+            'ticket_id'  => $id,
+            'comment_by' => $user->id,
+            'is_system'  => true,          
+        ]);
+        
+        $messages = [
+            "greeting-text" => "Hello!",
+            "subject"       => "Time Estimation Approved for Ticket #{$id}",
+            "title"         => "Estimation Approved",
+            "body-text"     => "Time estimation has been approved for Ticket #{$id} by {$user->first_name}.",
+            "url-title"     => "View Ticket",
+            "url"           => "/view/ticket/" . $id,
+        ];
+
+        try {
+            $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                ->where('ticket_assigns.ticket_id', $id)
+                ->get(['users.id', 'users.email']);
+
+            $superAdmin = Users::find(1); 
+
+            foreach ($assignedUsers as $assignedUser) {
+                $assignedUser->notify(new EstimationApprovedNotification($messages));
+            }
+
+            if ($user->role_id == 6 && $superAdmin) {
+                $superAdmin->notify(new EstimationApprovedNotification($messages));
+            }
+
+
+        } catch (\Exception $e) {
+            \Log::error("Error sending estimation approval notification: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'Estimation approved successfully.');
     }
-
-
-} catch (\Exception $e) {
-    \Log::error("Error sending estimation approval notification: " . $e->getMessage());
-}
-
-    return back()->with('success', 'Estimation approved successfully.');
-}
-
-
 }

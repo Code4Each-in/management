@@ -192,6 +192,8 @@
                                     <th class="fs-6 fw-bold text-uppercase text-center">Sprint Name</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Project</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Time Estimation</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Spent Hours</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Remaining Hours</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Ticket Status</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Approval Status</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Action</th>
@@ -212,6 +214,30 @@
         </div>
     @endif
 </div>
+<div class="modal fade" id="workLogModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ticket Work Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Hours</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="work-log-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>
 @endsection
 @section('js_scripts')
@@ -298,6 +324,19 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${t.project_name || '-'}</td>
                             <td>${formatTimeEstimation(t.time_estimation)}</td>
                             <td>
+                                <span class="badge bg-secondary">
+                                    ${parseFloat(t.spent_hours).toFixed(2)} hrs
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="badge ${
+                                    t.remaining_hours > 0 ? 'bg-success' : 'bg-danger'
+                                }">
+                                    ${parseFloat(t.remaining_hours).toFixed(2)} hrs
+                                </span>
+                            </td>
+                            <td>
                                 <span class="badge bg-info text-dark">${t.status.replace('_', ' ').toUpperCase()}</span>
                             </td>
                             <td>
@@ -309,6 +348,15 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <a href="/view/ticket/${t.id}" title="View Ticket" target="_blank">
                                     <i class="fa fa-eye fa-fw pointer"></i>
                                 </a>
+
+                                ${t.work_logs && t.work_logs.length
+                                    ? `<a href="javascript:void(0)"
+                                        onclick='showWorkLogs(${JSON.stringify(t.work_logs)})'
+                                        title="View Work Logs">
+                                        <i class="fa fa-clock fa-fw text-success ms-2"></i>
+                                    </a>`
+                                    : ''
+                                }
                             </td>
                         </tr>
                     `;
@@ -342,6 +390,31 @@ function formatTimeEstimation(value) {
     }
 
     return result || '-';
+}
+
+function showWorkLogs(logs) {
+    const tbody = document.getElementById('work-log-body');
+    tbody.innerHTML = '';
+
+    if (!logs.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center text-muted">No work logs found</td>
+            </tr>`;
+    } else {
+        logs.forEach(log => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${log.log_date}</td>
+                    <td>${log.user.first_name}</td>
+                    <td>${parseFloat(log.hours).toFixed(2)} hrs</td>
+                    <td>${log.note ?? '-'}</td>
+                </tr>
+            `;
+        });
+    }
+
+    new bootstrap.Modal(document.getElementById('workLogModal')).show();
 }
 
 </script>
