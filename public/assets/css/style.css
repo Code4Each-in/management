@@ -4606,3 +4606,6 @@ text-align: left;
   width: 100%;
   border-collapse: collapse;
 }
+.white-icon{
+  color: white !important;
+}
