@@ -323,7 +323,7 @@
                             <td class="actions-cell">
                                 @if($approval->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
                                     <a href="{{ route('ticket.approveEstimation', $approval->id) }}" class="badge bg-success text-white text-decoration-none">
-                                        <i class="fa-solid fa-check-circle me-1"></i> Approve
+                                        <i class="fa-solid fa-check-circle me-1 white-icon"></i> Approve
                                     </a>
                                 @else
                                     <span class="badge bg-secondary">N/A</span>
