@@ -491,11 +491,24 @@ class SprintController extends Controller
                 ->toArray();
 
             $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
+            // $projectIds = Tickets::whereIn('id', $ticketIds)
+            //     ->pluck('project_id')
+            //     ->unique();
             $projectIds = Tickets::whereIn('id', $ticketIds)
+                ->whereHas('project', function ($query) {
+                    $query->where('client_id', '!=', 10)
+                        ->orWhereHas('clients', function ($q) {
+                            $q->where('clients.id', '!=', 10);
+                        });
+                })
                 ->pluck('project_id')
                 ->unique();
+
             $projectMap = Projects::whereIn('id', $projectIds)
             ->where('client_id', '!=', 10)
+            ->orWhereHas('clients', function ($q) {
+                $q->where('clients.id', '!=', 10);
+            })
             ->pluck('project_name', 'id');
 
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
@@ -503,7 +516,10 @@ class SprintController extends Controller
                 ->where('comment_by', '!=', $user->id)
                 // ->whereYear('created_at', 2025)
                 ->whereHas('ticket.project', function ($query) {
-                    $query->where('client_id', '!=', 10);
+                    $query->where('client_id', '!=', 10)
+                    ->orWhereHas('clients', function ($q) {
+                            $q->where('clients.id', '!=', 10);
+                        });
                 })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
@@ -516,7 +532,10 @@ class SprintController extends Controller
                 ->where('comment_by', '!=', $user->id)
                 // ->whereYear('created_at', 2025)
                 ->whereHas('ticket.project', function ($query) {
-                    $query->where('client_id', '!=', 10);
+                    $query->where('client_id', '!=', 10)
+                    ->orWhereHas('clients', function ($q) {
+                            $q->where('clients.id', '!=', 10);
+                        });
                 })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
@@ -545,6 +564,9 @@ class SprintController extends Controller
         $projectMap = $sortedProjectIds->mapWithKeys(function ($projectId) use ($projectMap) {
             return [$projectId => $projectMap[$projectId] ?? 'Unknown Project'];
         });
+
+        // dd($projectIds, $groupedNotifications);
+        // dd($groupedNotifications);
         return view('developer.notification', compact('notifications', 'groupedNotifications', 'projectMap', 'roleId'));
     }
 
