@@ -71,11 +71,17 @@ class ProjectsController extends Controller
             ->get();
 
         // dd($projects);
-    } else {
-        $projectsQuery = Projects::query();
+    } 
+    else {
+        $projectsQuery = Projects::with(['clients', 'client', 'projectAssigns.user']);
 
         if (!is_null($clientId)) {
-            $projectsQuery->where('client_id', $clientId);
+            $projectsQuery->where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            });
         }
 
         $projects = $projectsQuery->orderBy('id', 'desc')->get();
@@ -84,7 +90,22 @@ class ProjectsController extends Controller
         $clients = Client::where('status', 1)
             ->orderBy('name', 'asc')
             ->get();
+
     }
+    // else {
+    //     $projectsQuery = Projects::query();
+
+    //     if (!is_null($clientId)) {
+    //         $projectsQuery->where('client_id', $clientId);
+    //     }
+
+    //     $projects = $projectsQuery->orderBy('id', 'desc')->get();
+    //     $projectCount = $projects->count();
+
+    //     $clients = Client::where('status', 1)
+    //         ->orderBy('name', 'asc')
+    //         ->get();
+    // }
 
     foreach ($projects as $key => $data) {
         $projectAssigns = ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')

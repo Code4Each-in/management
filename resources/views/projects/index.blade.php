@@ -57,7 +57,15 @@ use App\Models\Projects;?>
                                             <span>NA</span>
                                             @endif
                                     </td>
-                                    <td>{{ $data->client_name}}</td>
+                                    <!-- <td>{{ $data->client_name}}</td> -->
+                                    <td>
+                                        {{
+                                            $data->clients->isNotEmpty()
+                                                ? $data->clients->pluck('name')->join(', ')
+                                                : ($data->client->name ?? '---')
+                                        }}
+                                    </td>
+
                                     <td>{{ $data->start_date}}</td>
                                     @if(auth()->user()->role_id != 6)
                                     <td>{{ $data->end_date ?? '---'}}</td>

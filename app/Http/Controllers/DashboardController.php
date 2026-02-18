@@ -86,20 +86,36 @@ class DashboardController extends Controller
                 ->where('comment_by', '!=', auth()->id())
                 ->whereYear('created_at', $currentYear)
                 ->whereHas('ticket.project', function ($query) {
-                    $query->where('client_id', '!=', 10); // added condition
+                    $query->where('client_id', '!=', 10)
+                    ->orWhereHas('clients', function ($q) {
+                        $q->where('clients.id', '!=', 10);
+                    });
                 })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
                   
-                $projectIds = Tickets::whereIn('id', $ticketIds)
+            // $projectIds = Tickets::whereIn('id', $ticketIds)
+            // ->whereHas('project', function ($query) {
+            //     $query->where('client_id', '!=', 10); // also apply same condition here
+            // })
+            // ->pluck('project_id')
+            // ->unique();
+
+            $projectIds = Tickets::whereIn('id', $ticketIds)
                 ->whereHas('project', function ($query) {
-                    $query->where('client_id', '!=', 10); // also apply same condition here
+                    $query->where('client_id', '!=', 10)
+                        ->orWhereHas('clients', function ($q) {
+                            $q->where('clients.id', '!=', 10);
+                        });
                 })
                 ->pluck('project_id')
                 ->unique();
 
-                $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+
+            $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+
+            // dd($projectMap);
         }
         else {
             $projectMap = Projects::pluck('project_name', 'id');
@@ -108,7 +124,10 @@ class DashboardController extends Controller
                 ->where('comment_by', '!=', auth()->id())
                 ->whereYear('created_at', $currentYear)
                 ->whereHas('ticket.project', function ($query) {
-                    $query->where('client_id', '!=', 10);
+                    $query->where('client_id', '!=', 10)
+                    ->orWhereHas('clients', function ($q) {
+                        $q->where('clients.id', '!=', 10);
+                    });
                 })
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')

@@ -563,7 +563,7 @@ use Carbon\Carbon;
     @if(auth()->user()->role_id != 4)
         @php
             $validProjects = collect();
-
+            
             foreach ($projectMap as $projectId => $projectName) {
                 $projectComments = $groupedNotifications->get($projectId, collect());
                 $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));

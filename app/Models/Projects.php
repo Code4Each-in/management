@@ -45,7 +45,11 @@ class Projects extends Model
             'client_id'
         )->withTimestamps();
     }
-    
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }    
 
     public static function getClientName($id) {
         $getName = Client::where('id',$id)->first();
