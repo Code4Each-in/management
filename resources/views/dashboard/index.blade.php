@@ -152,13 +152,24 @@ use Carbon\Carbon;
     @foreach($activeReminders as $reminder)
         <!-- @if($reminder->user_id == auth()->user()->id) -->
          <!-- @endif -->
-        @php
+        <!-- @php
             // Safely convert user_id to array
             $assignedUsers = is_array($reminder->user_id)
                 ? $reminder->user_id
                 : json_decode($reminder->user_id, true);
 
             $assignedUsers = $assignedUsers ?? [];
+        @endphp -->
+
+        @php
+            if (is_array($reminder->user_id)) {
+                $assignedUsers = $reminder->user_id;
+            } elseif (is_numeric($reminder->user_id)) {
+                $assignedUsers = [(int) $reminder->user_id];
+            } else {
+                $decoded = json_decode($reminder->user_id, true);
+                $assignedUsers = is_array($decoded) ? $decoded : [];
+            }
         @endphp
 
         @if(in_array(auth()->id(), $assignedUsers))
