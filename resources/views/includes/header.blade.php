@@ -177,7 +177,7 @@
                         <span>Messages</span>
                     </div>
                 </a>
-            </li>    
+            </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
                     href="{{ route('reminder.create') }}">
@@ -276,7 +276,7 @@
                         <span>Messages</span>
                     </div>
                 </a>
-            </li>    
+            </li>
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
                 href="{{ route('comments') }}">
@@ -401,11 +401,11 @@
                 <i class="bi bi-person-vcard-fill"></i>
                 <span>Attendance</span>
             </a>
-            
+
             <ul id="attendance-nav"
                 class="nav-content collapse {{ request()->is('attendance/team') || request()->is('attendance/history') ? 'show' : '' }}"
                 data-bs-parent="#sidebar-nav">
-                
+
                 <li>
                     <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed' }}"
                         href="{{ route('attendance.team.index') }}">
@@ -609,6 +609,13 @@
 
             @endif
             @endif
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('logs') ? '' : 'collapsed' }}"
+                href="{{ route('logs.index') }}">
+                <i class="bi bi-circle"></i><span>Project  Logs</span>
+                </a>
+            </li>
+
             <!-- <li class="nav-item">
         <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>

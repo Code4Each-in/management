@@ -36,6 +36,7 @@ use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\TicketLogController;
 use Illuminate\Support\Facades\Response;
 /*
@@ -116,7 +117,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
-	
+
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
 	Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
@@ -241,7 +242,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
-	
+
 	//Profiles Routes Without Role Permission Middleware
 	Route::get('profile', [UsersController::class, 'Userprofile'])->name('profile');
 	Route::post('/update/profile', [UsersController::class, 'updateProfile'])->name('update.profile');
@@ -324,7 +325,7 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
     Route::delete('/delete/sprint/file', [SprintController::class, 'deleteSprintFile']);
-	
+
 	Route::get('/developer/feedback', [ProjectsController::class, 'allfeedback'])->name('developer.feedback');
 
 	//Sticky Note
@@ -342,7 +343,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	 //For messages
 	 Route::get('/messages', [MessageController::class, 'index'])->name('messages');
-	 Route::post('/add/message', [MessageController::class, 'addMessage'])->name('message.add'); 
+	 Route::post('/add/message', [MessageController::class, 'addMessage'])->name('message.add');
 	 Route::get('/get/latest-message/{projectId}', [MessageController::class, 'getLatestMessage']);
 	 Route::get('/get/project/messages/{projectId}', [MessageController::class, 'getMessagesByProject'])->name('get.project.messages');
 	 Route::delete('/comments/{id}/delete', [MessageController::class, 'destroy']);
@@ -369,7 +370,7 @@ Route::middleware(['role_permission'])->group(function () {
     Route::post('/bde/add-comment', [BDEController::class, 'addComment'])->name('bde.comment.add');
     Route::post('/tasks/{task}/update-status', [BDEController::class, 'updateStatus'])->name('tasks.updateStatus');
 
-	//attendance history 
+	//attendance history
 	Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
 	// Routes for search functionality
@@ -377,7 +378,7 @@ Route::middleware(['role_permission'])->group(function () {
 
 	//Routes for Team Messages
 	 Route::get('/teamchat', [TeamsController::class, 'index'])->name('teamchat');
-	 Route::post('/add/messages', [TeamsController::class, 'addMessages'])->name('message.adds'); 
+	 Route::post('/add/messages', [TeamsController::class, 'addMessages'])->name('message.adds');
 	 Route::get('/get/latest-message/{projectId}', [TeamsController::class, 'getLatestMessage'])->name('get.latest.message');
      Route::get('/get/project/group-messages/{projectId}', [TeamsController::class, 'getMessagesByProjects'])->name('get.project.group-messages');
      Route::post('/group-messages/{message}/read', [TeamsController::class, 'markAsRead'])->name('group-messages.read');
@@ -387,7 +388,7 @@ Route::middleware(['role_permission'])->group(function () {
 	//ticket logs section
 	    Route::get('/ticket-logs', [TicketLogController::class, 'index'])->name('ticket-logs.index');
 	    Route::get('/load-more-comments/{ticketId}', [TicketsController::class, 'loadMoreComments'])->name('ticket.comments.load');
-    //approve ticket estimation 
+    //approve ticket estimation
 	Route::get('/ticket/{id}/approve-estimation', [TicketsController::class, 'approveEstimation'])->name('ticket.approveEstimation');
 		Route::get('/download-file/{filename}', function ($filename) {
 		$path = public_path('assets/img/ticketAssets/' . $filename);
@@ -402,3 +403,6 @@ Route::middleware(['role_permission'])->group(function () {
 });
 
 Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('ticket.logHours');
+
+
+Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
