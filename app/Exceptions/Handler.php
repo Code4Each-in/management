@@ -42,19 +42,59 @@ class Handler extends ExceptionHandler
         });
     }
 
+    // public function report(Throwable $exception)
+    // {
+    //     try {
+
+    //         // Ignore common 404 errors (prevents spam)
+    //         if ($exception instanceof NotFoundHttpException) {
+    //             return parent::report($exception);
+    //         }
+
+    //         // Short readable message
+    //         $message = Str::limit($exception->getMessage(), 150);
+
+    //         // Check if same error logged in last 2 minutes
+    //         $exists = ProjectLog::where('type', 'error')
+    //             ->where('message', $message)
+    //             ->where('logged_at', '>=', now()->subMinutes(2))
+    //             ->exists();
+
+    //         if (!$exists) {
+
+    //             ProjectLog::create([
+    //                 'project_id' => config('app.project_log_id'),
+    //                 'type' => 'error',
+    //                 'module' => 'system',
+    //                 'message' => $exception->getMessage(),
+    //                 'context' => [
+    //                     'file' => $exception->getFile(),
+    //                     'line' => $exception->getLine(),
+    //                     'trace' => $exception->getTraceAsString()
+    //                 ],
+    //                 'logged_at' => now()
+    //             ]);
+
+    //         }
+
+    //     } catch (\Throwable $e) {
+    //         // Prevent logger crash loop
+    //     }
+
+    //     parent::report($exception);
+    // }
     public function report(Throwable $exception)
     {
         try {
 
-            // Ignore common 404 errors (prevents spam)
+            // Ignore 404 errors (prevents spam)
             if ($exception instanceof NotFoundHttpException) {
                 return parent::report($exception);
             }
 
-            // Short readable message
             $message = Str::limit($exception->getMessage(), 150);
 
-            // Check if same error logged in last 2 minutes
+            // Prevent duplicate errors within 2 minutes
             $exists = ProjectLog::where('type', 'error')
                 ->where('message', $message)
                 ->where('logged_at', '>=', now()->subMinutes(2))
@@ -62,23 +102,22 @@ class Handler extends ExceptionHandler
 
             if (!$exists) {
 
-                ProjectLog::create([
-                    'project_id' => config('app.project_log_id'),
-                    'type' => 'error',
-                    'module' => 'system',
-                    'message' => $exception->getMessage(),
-                    'context' => [
+                project_log(
+                    null,
+                    'error',
+                    $message,
+                    [
                         'file' => $exception->getFile(),
                         'line' => $exception->getLine(),
-                        'trace' => $exception->getTraceAsString()
+                        'trace' => substr($exception->getTraceAsString(), 0, 2000),
                     ],
-                    'logged_at' => now()
-                ]);
+                    'system'
+                );
 
             }
 
         } catch (\Throwable $e) {
-            // Prevent logger crash loop
+            // prevent logger crash
         }
 
         parent::report($exception);

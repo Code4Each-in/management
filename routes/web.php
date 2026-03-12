@@ -38,6 +38,7 @@ use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\TicketLogController;
+use App\Http\Controllers\ProjectLogSettingController;
 use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
@@ -406,3 +407,7 @@ Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('
 
 
 Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::get('/log-settings', [ProjectLogSettingController::class,'index'])
+    ->name('log.settings.index');
+Route::post('/project/{id}/toggle-logs',[ProjectLogSettingController::class,'toggle'])
+    ->name('project.logs.toggle');

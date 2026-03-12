@@ -453,12 +453,12 @@ use Carbon\Carbon;
                                         <span class="msg-status-dot msg-away"></span>
                                         <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                     ';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 }
                             @endphp
 
@@ -517,12 +517,12 @@ use Carbon\Carbon;
                                             <span class="msg-status-dot msg-away"></span>
                                             <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                         ';
-                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                     } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 }
                             @endphp
 
@@ -569,12 +569,12 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
-<!-- Sticky Notes Ended --> 
+<!-- Sticky Notes Ended -->
 
     @if(auth()->user()->role_id != 4)
         @php
             $validProjects = collect();
-            
+
             foreach ($projectMap as $projectId => $projectName) {
                 $projectComments = $groupedNotifications->get($projectId, collect());
                 $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
@@ -783,7 +783,7 @@ use Carbon\Carbon;
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul> -->
                 </div>
-  @if($userLeaves->isNotEmpty())              
+  @if($userLeaves->isNotEmpty())
                 <div class="card-body">
                     <h5 class="card-title">Teams Leave</h5>
                     <table class="table table-borderless datatable" id="leavesss">
@@ -1827,7 +1827,7 @@ use Carbon\Carbon;
             note.querySelector('.note-title').addEventListener('blur', updateNote);
             note.querySelector('.note-body').addEventListener('blur', updateNote);
 
-            
+
             note.querySelector('.copy-btn').onclick = function () {
                 const title = note.querySelector('.note-title').innerText.trim();
                 const body = note.querySelector('.note-body').innerText.trim();
@@ -1958,7 +1958,7 @@ use Carbon\Carbon;
                     });
             }, 1000);
         }
-        
+
 
         createAddBtn();
     // $(document).on('click', '.reminder-close-btn', function() {
