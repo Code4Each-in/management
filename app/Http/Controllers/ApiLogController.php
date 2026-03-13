@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProjectLog;
 use App\Models\Projects;
+use Illuminate\Support\Facades\Log;
 
 class ApiLogController extends Controller
 {

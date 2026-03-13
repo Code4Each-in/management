@@ -23,7 +23,7 @@ class ProjectLog extends Model
 
     protected $casts = [
         'logged_at' => 'datetime',
-         'context' => 'array'
+        'context' => 'array'
     ];
 
     public function project()

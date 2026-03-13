@@ -642,7 +642,7 @@
 
                         </a>
                     </li>
-
+ @if (auth()->user()->role_id == 1)
                     <li>
                         <a class="{{ request()->is('log-settings') ? 'active' : '' }}"
                             href="{{ route('log.settings.index') }}">
@@ -652,7 +652,7 @@
 
                         </a>
                     </li>
-
+@endif
                 </ul>
 
             </li>

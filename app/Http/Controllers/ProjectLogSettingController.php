@@ -37,9 +37,13 @@ class ProjectLogSettingController extends Controller
                 ->where('status', 'active')
                 ->get();
 
+                $logNotifications = ProjectLogSetting::with(['project','user'])
+                ->latest('updated_at')
+                ->get();
+
         }
 
-        return view('logs.settings', compact('projects'));
+        return view('logs.settings', compact('projects','logNotifications'));
     }
 
   public function toggle($projectId)

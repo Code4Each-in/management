@@ -67,9 +67,9 @@
                 <thead>
                     <tr>
                         <th>Project Name</th>
-                        <th>Type</th>
+                        <th style="text-align: center;">Type</th>
                         <th>Message</th>
-                        <th>Context</th>
+                        <th style="text-align: center;">Context</th>
                         <th>Logged At</th>
                     </tr>
                 </thead>
@@ -79,7 +79,7 @@
                         <td>{{ $log->project->project_name ?? 'N/A' }}</td>
                         <!-- <td>{{ ucfirst($log->type) }}</td> -->
 
-                        <td>
+                        <td style="text-align: center;">
                             @if($log->type == 'error')
                                 <span class="badge bg-danger">Error</span>
                             @elseif($log->type == 'info')
@@ -91,7 +91,7 @@
                         <td style="font-family: monospace;" title="{{ $log->message }}">
                             {{ \Illuminate\Support\Str::limit($log->message, 60) }}
                         </td>
-                        <td>
+                        <td style="text-align: center;">
                             @if($log->context)
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#contextModal{{ $key }}">
                                     View
