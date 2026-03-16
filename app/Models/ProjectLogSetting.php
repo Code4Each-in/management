@@ -12,7 +12,9 @@ class ProjectLogSetting extends Model
     protected $fillable = [
         'project_id',
         'updated_by',
-        'enabled'
+        'enabled',
+        'request_status',
+        'requested_enabled',
     ];
     // Relationship with project
     public function project()

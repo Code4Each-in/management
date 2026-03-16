@@ -38,27 +38,92 @@ class ProjectLogSettingController extends Controller
                 ->get();
 
                 $logNotifications = ProjectLogSetting::with(['project','user'])
-                ->latest('updated_at')
-                ->get();
+                ->orderByDesc('updated_at')
+                    ->get()
+                    ->keyBy('project_id');
 
         }
 
         return view('logs.settings', compact('projects','logNotifications'));
     }
 
-  public function toggle($projectId)
+//   public function toggle($projectId)
+// {
+//     $setting = ProjectLogSetting::firstOrCreate([
+//         'project_id' => $projectId
+//     ]);
+
+//     $setting->enabled = !$setting->enabled;
+//     $setting->updated_by = auth()->id();
+//     $setting->save();
+
+//     return response()->json([
+//         'enabled' => $setting->enabled,
+//         'message' => 'Log setting updated'
+//     ]);
+// }
+public function toggle($projectId)
 {
+    $user = auth()->user();
+
     $setting = ProjectLogSetting::firstOrCreate([
         'project_id' => $projectId
     ]);
 
+    // Client request
+    if($user->role_id == 6){
+
+        $setting->requested_enabled = !$setting->enabled;
+        $setting->request_status = 'pending';
+        $setting->updated_by = $user->id;
+        $setting->save();
+
+        return response()->json([
+            'message' => 'Request sent to admin for approval'
+        ]);
+    }
+
+    // Admin toggle directly
     $setting->enabled = !$setting->enabled;
-    $setting->updated_by = auth()->id();
+    $setting->updated_by = $user->id;
+    $setting->request_status = 'approved';
     $setting->save();
 
     return response()->json([
-        'enabled' => $setting->enabled,
-        'message' => 'Log setting updated'
+        'enabled'=>$setting->enabled,
+        'message'=>'Log setting updated'
     ]);
+}
+public function requests()
+{
+    $requests = ProjectLogSetting::with(['project','user'])
+        ->orderByDesc('updated_at')
+        ->get();
+
+    return view('logs.requests', compact('requests'));
+}
+
+
+public function approve($id)
+{
+    $setting = ProjectLogSetting::findOrFail($id);
+
+    $setting->enabled = $setting->requested_enabled;
+    $setting->request_status = 'approved';
+    $setting->updated_by = auth()->id();
+    $setting->save();
+
+    return back()->with('success','Request approved');
+}
+
+public function reject($id)
+{
+    $setting = ProjectLogSetting::findOrFail($id);
+
+    $setting->request_status = 'rejected';
+    $setting->updated_by = auth()->id();
+    $setting->save();
+
+    return back()->with('success','Request rejected');
 }
 }

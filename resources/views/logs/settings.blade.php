@@ -51,74 +51,117 @@
         </div>
     </div>
     <div class="card">
-        <div class="comment-section" >
-                @php
-                $activityProjects = $logNotifications->pluck('project.project_name')->unique();
-                @endphp
-            <!-- <h4 class="mb-4 projectComment">Project Log Setting Activity</h4> -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <h4 class="projectComment mb-0">Project Log Setting Activity</h4>
-
-                <select id="activityProjectFilter" class="form-select w-auto">
-                <option value="">All Projects</option>
-
-                @foreach($activityProjects as $projectName)
-
-                <option value="{{ $projectName }}">
-                {{ $projectName }}
-                </option>
-
-                @endforeach
-
-                </select>
-
-                </div>
-            <div class="activity-container" style="max-height:350px; overflow-y:auto;">
-
-                <div class="row" id="activityList">
-
-                @foreach($logNotifications as $log)
+        <div class="comment-section">
 
                 @php
-                $projectName = $log->project->project_name ?? 'Unknown Project';
-                $userName = $log->user->first_name ?? 'System';
-                $status = $log->enabled ? 'enabled' : 'disabled';
+                    $groupedActivities = $logNotifications->groupBy('project_id');
                 @endphp
 
-                <div class="col-md-6 mb-3 activity-item" data-project="{{ $projectName }}">
+                <h4 class="mb-4 projectComment">Project Log Setting Activity</h4>
 
-                <div class="notification-entry pb-2 border-bottom">
+                <div class="row">
 
-                <i class="fa-solid fa-gear text-info me-2"></i>
+                    @foreach($groupedActivities as $projectId => $logs)
 
-                <small>
+                    @php
+                        $projectName = $logs->first()->project->project_name ?? 'Unknown Project';
+                        $accordionId = 'activityAccordion'.$projectId;
 
-                <strong>{{ $userName }}</strong>
+                        $groupedByDate = $logs->groupBy(function ($log) {
+                            $logDate = $log->updated_at->copy()->setTimezone('Asia/Kolkata')->startOfDay();
+                            $today = now('Asia/Kolkata')->startOfDay();
+                            $yesterday = now('Asia/Kolkata')->subDay()->startOfDay();
 
-                {{ $status }}
+                            if ($logDate->eq($today)) {
+                                return 'Today';
+                            }
 
-                logs for project
+                            if ($logDate->eq($yesterday)) {
+                                return 'Yesterday';
+                            }
 
-                <span class="text-primary fw-bold">{{ $projectName }}</span>
+                            return $logDate->format('d-M-Y');
+                        });
+                    @endphp
 
-                on
+                    <div class="col-lg-6 mb-4">
 
-                <span class="text-muted">
-                {{ $log->updated_at->format('d-M-Y h:i A') }}
-                </span>
+                    <div class="accordion" id="activityAccordion{{ $projectId }}">
 
-                </small>
+                    <div class="accordion-item border rounded shadow-sm">
 
+                    <h2 class="accordion-header" id="heading{{ $accordionId }}">
+                    <button class="accordion-button collapsed text-white fw-bold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ $accordionId }}"
+                            aria-expanded="true">
+
+                    {{ $projectName }}
+
+                    </button>
+                    </h2>
+
+                    <div id="collapse{{ $accordionId }}"
+                        class="accordion-collapse collapse show"
+                        data-bs-parent="#activityAccordion{{ $projectId }}">
+
+                    <div class="accordion-body" style="max-height:300px; overflow-y:auto;">
+
+                    @foreach($groupedByDate as $label => $logs)
+
+                    <div class="text-center mb-2">
+                    <span class="badge px-3 py-1 rounded-pill"
+                        style="background:#e0e0e0;color:#333;font-weight:600;font-size:12px;">
+                    {{ $label }}
+                    </span>
+                    </div>
+
+                    @php
+$log = $logs->first();
+$userName = $log->user->first_name ?? 'System';
+$status = $log->enabled ? 'enabled' : 'disabled';
+@endphp
+
+<div class="notification-entry mb-3 pb-2 border-bottom">
+
+<i class="fa-solid fa-gear text-info me-2"></i>
+
+<small>
+
+<strong>{{ $userName }}</strong>
+
+{{ $status }}
+
+logs for project
+
+<span class="text-primary fw-bold">
+{{ $projectName }}
+</span>
+
+on
+
+<span class="text-muted">
+{{ $log->updated_at->setTimezone('Asia/Kolkata')->format('d-M-Y h:i A') }}
+</span>
+
+</small>
+
+</div>
+
+                
+                    @endforeach
+
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+
+                    </div>
+
+                    @endforeach
                 </div>
-
-                </div>
-
-                @endforeach
-
-                </div>
-
-            </div>
 
         </div>
     </div>

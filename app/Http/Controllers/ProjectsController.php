@@ -429,7 +429,7 @@ class ProjectsController extends Controller
 
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
     }
-    public function showProject($projectId)
+ public function showProject($projectId)
     {
 
 

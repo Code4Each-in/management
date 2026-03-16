@@ -11,8 +11,8 @@
     <a href="{{ url('teamchat?project_id=' . $projects->id) }}" class="btn btn-outline-success me-2">
         <i class="fa-solid fa-comments me-1"></i> Chat
     </a>
-    <a href="{{ route('logs.index') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-circle me-1"></i> Project Logs
+    <a href="{{ route('logs.index', ['project_id' => $projects->id]) }}" class="btn btn-outline-secondary">
+        <i class="i bi-file-earmark-text"></i> Project Logs
     </a>
 </div>
 <div class="container">

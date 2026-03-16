@@ -406,8 +406,15 @@ Route::middleware(['role_permission'])->group(function () {
 Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('ticket.logHours');
 
 
-Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+// Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::get('/logs/{project_id?}', [LogController::class, 'index'])->name('logs.index');
 Route::get('/log-settings', [ProjectLogSettingController::class,'index'])
     ->name('log.settings.index');
 Route::post('/project/{id}/toggle-logs',[ProjectLogSettingController::class,'toggle'])
     ->name('project.logs.toggle');
+// to approve reject enable disble request
+Route::get('/log-setting-requests', [ProjectLogSettingController::class,'requests'])->name('log.requests');
+
+Route::post('/log-setting-approve/{id}', [ProjectLogSettingController::class,'approve'])->name('log.approve');
+
+Route::post('/log-setting-reject/{id}', [ProjectLogSettingController::class,'reject'])->name('log.reject');

@@ -30,16 +30,7 @@
         <div class="card-body">
 
             <form method="GET" class="row mb-3">
-                <div class="col-md-4">
-                    <label>Project</label>
-                    <select id="projectFilter" class="form-control">
-                        <option value="">All Projects</option>
-                        @foreach($projects as $project)
-                            <option value="{{ $project->project_name }}">{{ $project->project_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
+               
                 <div class="col-md-4">
                     <label>Type</label>
                     <select id="typeFilter" class="form-control">
@@ -58,6 +49,7 @@
                         <option value="yesterday">Yesterday</option>
                         <option value="7days">Last 7 Days</option>
                         <option value="15days">Last 15 Days</option>
+                        <option value="30days">Last 30 Days</option>
                     </select>
                 </div>
             </form>
