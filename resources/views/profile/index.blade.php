@@ -119,13 +119,13 @@
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Secondary Email</div>
                         <div class="col-lg-9 col-md-8 detail_full_secondary_email">{{ $clientProfile->secondary_email ? $clientProfile->secondary_email : '----' }}</div>
-                    </div>  
+                    </div>
 
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Additional Email</div>
                         <div class="col-lg-9 col-md-8 detail_full_additional_email">{{ $clientProfile->additional_email ? $clientProfile->additional_email : '----' }}</div>
-                    </div> 
-                    @endif 
+                    </div>
+                    @endif
 
                     <!-- <div class="row">
                         <div class="col-lg-3 col-md-4 label">Salary</div>
@@ -163,7 +163,7 @@
                             {{date("d-m-Y", strtotime($usersProfile->joining_date))}}
                         </div>
                     </div>
-                    @endif  
+                    @endif
                     <div class="row">
                         <div class="col-lg-3 col-md-4 label">Birthdate</div>
                         <div class="col-lg-9 col-md-8 detail_full_birth_date">
@@ -242,7 +242,7 @@
                     </div>
                     @endif
 
-                    
+
                 </div>
                 <!-- Profile Edit Form -->
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
@@ -250,7 +250,7 @@
                     </div>
                     <div class="alert alert-success delete_message" style="display:none">
                     </div>
-                    
+
                     <div class="row mb-3">
                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label ">Profile Image</label>
                         <div class="col-md-8 col-lg-9 ">
@@ -473,7 +473,7 @@
 
                             </div>
                         </div>
-                    @endif  
+                    @endif
                     @if(auth()->user()->role_id == 6)
                         <div class="row mb-3">
                             <label for="full_name" class="col-md-4 col-lg-3 col-form-label">Name</label>
@@ -500,19 +500,19 @@
                             <label for="email" class="col-md-4 col-lg-3 col-form-label">Email</label>
                             <div class="col-md-8 col-lg-9">
                                 <input type="text" class="form-control text-dark" name="email" id="email" value='{{$clientProfile->email}}'>
-                            </div>    
+                            </div>
                         </div>
                         <div class="row mb-3">
                             <label for="email" class="col-md-4 col-lg-3 col-form-label">Secondary Email</label>
                             <div class="col-md-8 col-lg-9">
                                 <input type="text" class="form-control text-dark" name="secondary_email" id="secondary_email" value='{{$clientProfile->secondary_email}}'>
-                            </div>    
+                            </div>
                         </div>
                         <div class="row mb-3">
                             <label for="email" class="col-md-4 col-lg-3 col-form-label">Additional Email</label>
                             <div class="col-md-8 col-lg-9">
                                 <input type="text" class="form-control text-dark" name="additional_email" id="additional_email" value='{{$clientProfile->additional_email}}'>
-                            </div>    
+                            </div>
                         </div>
                         <div class="row mb-3">
                             <label for="phone" class="col-md-4 col-lg-3 col-form-label">Phone number</label>

@@ -40,8 +40,7 @@ use App\Models\Projects;?>
                             </thead>
                             <tbody>
                                 @forelse($projects as $data)
-                                <!-- <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');"> -->
-                                <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.Hashids::encode($data->id)) }}', '_blank');">
+                                <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
 
                                     <td>{{($data->project_name )}}</td>
                                     <td class="actions-cell"> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
@@ -98,12 +97,10 @@ use App\Models\Projects;?>
                                         </div>
                                     </td>
                                     <td class="actions-cell">
-                                         <!-- <a href="{{ url('/project/'.$data->id)}}">
-                                            <i class="fa fa-eye fa-fw pointer"></i>
-                                        </a> -->
-                                        <a href="{{ route('projects.show', Hashids::encode($data->id)) }}">
+                                         <a href="{{ url('/project/'.$data->id)}}">
                                             <i class="fa fa-eye fa-fw pointer"></i>
                                         </a>
+
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>

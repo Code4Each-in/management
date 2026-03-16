@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Vinkla\Hashids\Facades\Hashids;
 
 class Projects extends Model
 {
@@ -69,10 +68,6 @@ class Projects extends Model
         return $this->hasMany(GroupMessage::class);
     }
 
-    public function getHashIdAttribute()
-    {
-        return Hashids::encode((int)$this->id);
-    }
 
 
 }

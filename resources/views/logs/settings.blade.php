@@ -52,28 +52,28 @@
     </div>
     <div class="card">
         <div class="comment-section" >
-@php
-$activityProjects = $logNotifications->pluck('project.project_name')->unique();
-@endphp
+                @php
+                $activityProjects = $logNotifications->pluck('project.project_name')->unique();
+                @endphp
             <!-- <h4 class="mb-4 projectComment">Project Log Setting Activity</h4> -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-<h4 class="projectComment mb-0">Project Log Setting Activity</h4>
+                <h4 class="projectComment mb-0">Project Log Setting Activity</h4>
 
-<select id="activityProjectFilter" class="form-select w-auto">
-<option value="">All Projects</option>
+                <select id="activityProjectFilter" class="form-select w-auto">
+                <option value="">All Projects</option>
 
-@foreach($activityProjects as $projectName)
+                @foreach($activityProjects as $projectName)
 
-<option value="{{ $projectName }}">
-{{ $projectName }}
-</option>
+                <option value="{{ $projectName }}">
+                {{ $projectName }}
+                </option>
 
-@endforeach
+                @endforeach
 
-</select>
+                </select>
 
-</div>
+                </div>
             <div class="activity-container" style="max-height:350px; overflow-y:auto;">
 
                 <div class="row" id="activityList">

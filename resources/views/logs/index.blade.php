@@ -62,8 +62,7 @@
                 </div>
             </form>
 
-            <table class="table table-striped
-  dashboard" id="logs_table">
+            <table class="table table-striped dashboard" id="logs_table">
                 <thead>
                     <tr>
                         <th>Project Name</th>
@@ -84,6 +83,8 @@
                                 <span class="badge bg-danger">Error</span>
                             @elseif($log->type == 'info')
                                 <span class="badge bg-warning text-dark">Info</span>
+                            @elseif($log->type == 'success')
+                                <span class="badge bg-success">Success</span>
                             @else
                                 <span class="badge bg-secondary">{{ ucfirst($log->type) }}</span>
                             @endif

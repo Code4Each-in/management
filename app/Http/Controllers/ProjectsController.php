@@ -22,7 +22,6 @@ use App\Models\ProjectLog;
 use App\Models\ProjectLogSetting;
 use App\Models\Sprint;
 use Illuminate\Database\Eloquent\Builder;
-use Vinkla\Hashids\Facades\Hashids;
 
 
 class ProjectsController extends Controller
@@ -430,15 +429,9 @@ class ProjectsController extends Controller
 
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
     }
-    public function showProject($hashId)
+    public function showProject($projectId)
     {
-        $decoded = Hashids::decode($hashId);
 
-        if(empty($decoded)){
-            abort(404);
-        }
-
-        $projectId = $decoded[0];
 
         $projects = Projects::findOrFail($projectId);
         $user = Auth::user();
