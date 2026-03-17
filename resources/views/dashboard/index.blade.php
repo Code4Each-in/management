@@ -423,6 +423,89 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
+<!-- recent comment by client -->
+ <div class="comment-section mt-4">
+
+    @if($groupedClientComments->isNotEmpty())
+        <h4 class="mb-4 projectComment">Client Messages</h4>
+
+        <div class="row">
+            @foreach($groupedClientComments as $projectId => $comments)
+
+                @php
+                    $projectName = $projectMap[$projectId] ?? 'Unknown Project';
+
+                    $groupedByDate = $comments->groupBy(function ($comment) {
+                        $date = \Carbon\Carbon::parse($comment->created_at)->setTimezone('Asia/Kolkata')->startOfDay();
+
+                        if ($date->eq(now('Asia/Kolkata')->startOfDay())) return 'Today';
+                        if ($date->eq(now('Asia/Kolkata')->subDay()->startOfDay())) return 'Yesterday';
+
+                        return $date->format('d-M-Y');
+                    });
+                @endphp
+
+                <div class="col-lg-6 mb-4">
+                    <div class="accordion">
+                        <div class="accordion-item shadow-sm">
+
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#clientProject{{ $projectId }}">
+                                    {{ $projectName }}
+                                </button>
+                            </h2>
+
+                            <div id="clientProject{{ $projectId }}" class="accordion-collapse collapse show">
+                                <div class="accordion-body" style="max-height:300px; overflow-y:auto;">
+
+                                    @foreach($groupedByDate as $label => $items)
+
+                                        <div class="text-center mb-2">
+                                            <span class="badge bg-light text-dark">{{ $label }}</span>
+                                        </div>
+
+                                        @foreach($items as $comment)
+
+                                            <div class="mb-3 border-bottom pb-2">
+
+                                                <a href="{{ url('/view/ticket/'.$comment->ticket_id) }}"
+                                                   class="text-dark text-decoration-none d-block">
+
+                                                    <small>
+                                                        <strong>#{{ $comment->ticket_id }}</strong> -
+                                                        {{ \Illuminate\Support\Str::limit(strip_tags($comment->comments), 60) }}
+                                                    </small>
+
+                                                    <br>
+
+                                                    <span class="text-muted" style="font-size: 12px;">
+                                                        {{ $comment->user->first_name ?? 'User' }}
+                                                        • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
+                                                    </span>
+
+
+                                                </a>
+
+                                            </div>
+
+                                        @endforeach
+
+                                    @endforeach
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            @endforeach
+        </div>
+    @endif
+
+</div>
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
@@ -453,12 +536,12 @@ use Carbon\Carbon;
                                         <span class="msg-status-dot msg-away"></span>
                                         <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                     ';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 }
                             @endphp
 
@@ -517,12 +600,12 @@ use Carbon\Carbon;
                                             <span class="msg-status-dot msg-away"></span>
                                             <div class="msg-clock-icon"><i class="bi bi-clock"></i></div>
                                         ';
-                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                        $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                     } else {
                                     $statusLabel = 'Offline';
                                     $statusClass = 'text-secondary';
                                     $statusIcons = '<span class="msg-status-dot msg-offline"></span>';
-                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans(); 
+                                    $lastSeenText = 'Last seen: ' . $lastSeen->diffForHumans();
                                 }
                             @endphp
 
@@ -569,12 +652,12 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
-<!-- Sticky Notes Ended --> 
+<!-- Sticky Notes Ended -->
 
     @if(auth()->user()->role_id != 4)
         @php
             $validProjects = collect();
-            
+
             foreach ($projectMap as $projectId => $projectName) {
                 $projectComments = $groupedNotifications->get($projectId, collect());
                 $validComments = $projectComments->filter(fn($comment) => !empty($comment->comments));
@@ -783,7 +866,7 @@ use Carbon\Carbon;
                 <li><a class="dropdown-item" href="#">This Year</a></li>
             </ul> -->
                 </div>
-  @if($userLeaves->isNotEmpty())              
+  @if($userLeaves->isNotEmpty())
                 <div class="card-body">
                     <h5 class="card-title">Teams Leave</h5>
                     <table class="table table-borderless datatable" id="leavesss">
@@ -1827,7 +1910,7 @@ use Carbon\Carbon;
             note.querySelector('.note-title').addEventListener('blur', updateNote);
             note.querySelector('.note-body').addEventListener('blur', updateNote);
 
-            
+
             note.querySelector('.copy-btn').onclick = function () {
                 const title = note.querySelector('.note-title').innerText.trim();
                 const body = note.querySelector('.note-body').innerText.trim();
@@ -1958,7 +2041,7 @@ use Carbon\Carbon;
                     });
             }, 1000);
         }
-        
+
 
         createAddBtn();
     // $(document).on('click', '.reminder-close-btn', function() {

@@ -50,7 +50,7 @@
      <div class="detail-item">
         <i class="fa-solid fa-align-left"></i>
         <strong>Description:</strong>
-        
+
         @php
             $description = strip_tags($tickets->description); // Strip HTML for word count
             $words = explode(' ', $description);
@@ -105,7 +105,7 @@
                       $remaining = hoursToHM(max($remainingHours, 0));
                     @endphp
 
-                    @if(Auth::user()->role_id != 6) 
+                    @if(Auth::user()->role_id != 6)
                       <span class="badge bg-info ms-2">
                           Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
                       </span>
@@ -113,7 +113,7 @@
                       <span class="badge bg-warning text-dark ms-2">
                           Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
                       </span>
-                    
+
                       @if($remainingHours > 0)
                         <span class="badge ">
                           <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
@@ -121,7 +121,7 @@
                           </button>
                         </span>
                       @endif
-                    
+
                       @if(!empty($tickets->workLogs))
                         <span class="badge ">
                           <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
@@ -130,7 +130,7 @@
                         </span>
                       @endif
                     @endif
-                    
+
                 @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
                     <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
                         <i class="fa-solid fa-check-circle me-1 white-icon"></i> Approve Estimation
@@ -424,10 +424,44 @@
                                                 title="Copy comment link">
                                             <i class="fa-solid fa-link"></i>
                                         </button>
-                                      </div>
 
+                                      </div>
+                                      <!-- acknowledge button -->
+@if($data->user->role_id == 6)
+
+    <span style="float:right; font-size:12px; cursor:pointer;">
+
+        {{-- 🔴 Pending --}}
+        @if(!$data->is_replied && $data->status != 'acknowledged')
+            <span style="
+                width:6px;
+                height:6px;
+                background:red;
+                border-radius:50%;
+                display:inline-block;
+            "></span>
+        @endif
+
+        {{-- ✔ Replied (UI only) --}}
+        @if($data->is_replied && $data->status != 'acknowledged')
+            <span class="acknowledge-tick"
+                  data-id="{{ $data->id }}"
+                  style="color:#999;">
+                ✔
+            </span>
+        @endif
+
+        {{-- ✔✔ Acknowledged --}}
+        @if($data->status == 'acknowledged')
+            <span style="color:#28a745;">✔✔</span>
+        @endif
+
+    </span>
+
+@endif
                                   </div>
                               @endif
+
                             <div class="text">
                               @if(!$data->is_system)
                               @if(Auth::user()->id == $data->comment_by)
@@ -571,8 +605,8 @@
   let doneLoadingAll = false;
 
   $(document).ready(function () {
-    
-    const commentSection = document.getElementById('comment-scroll'); 
+
+    const commentSection = document.getElementById('comment-scroll');
     commentSection.scrollTop = commentSection.scrollHeight;
   });
 
@@ -1035,7 +1069,7 @@
           ${profilePic}
 
           <div class="d-flex justify-content-between align-items-start w-100 ms-2">
-            
+
             <div>
               <span class="name">${firstName}</span>
               <span class="role">${role}</span>
@@ -1076,6 +1110,27 @@
           link.textContent = 'Show More';
       }
   }
+
+$(document).on('click', '.acknowledge-tick', function () {
+    let commentId = $(this).data('id');
+    let el = $(this);
+
+    $.ajax({
+        url: '/acknowledge-comment',
+        type: 'POST',
+        data: {
+            comment_id: commentId,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function (res) {
+            if (res.status === 200) {
+                el.html('✔✔');
+                el.css('color', '#28a745');
+                el.removeClass('acknowledge-tick');
+            }
+        }
+    });
+});
 </script>
 
 @endsection
