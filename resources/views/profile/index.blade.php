@@ -660,7 +660,8 @@
                                                 <!-- Show image for other file formats -->
                                                 <img src="{{ asset('assets/img/') . '/' . $document->document_link }}" alt="{{ $document->document_title }}" id="document">
                                                 @endif
-                                                <a href="#" title="delete Document" onclick="deleteDocument({{ $document->id }})"> <i class="fa fa-times del"></i></a>
+                                                <!-- <a href="#" title="delete Document" onclick="deleteDocument({{ $document->id }})"> <i class="fa fa-times del"></i></a> -->
+                                            </a>
                                         </div>
                                         <div class="form-input">
                                             <p>{{ $document->document_title }}</p>
@@ -1079,27 +1080,27 @@
         });
 
 
-        function deleteDocument(documentId) {
-            if (confirm("Are you sure You Want To Delete Document?") == true) {
-                $.ajax({
-                    url: "{{ url('/delete/profile/document')}}",
-                    data: {
-                        documentId: documentId,
-                    },
-                    type: 'DELETE',
-                    success: function(response) {
-                        // Handle success response
-                        // For example, remove the document item from the DOM
-                        $('#document-' + documentId).remove();
-                        location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        console.log(xhr.responseText);
-                    }
-                });
-            }
-        }
+        // function deleteDocument(documentId) {
+        //     if (confirm("Are you sure You Want To Delete Document?") == true) {
+        //         $.ajax({
+        //             url: "{{ url('/delete/profile/document')}}",
+        //             data: {
+        //                 documentId: documentId,
+        //             },
+        //             type: 'DELETE',
+        //             success: function(response) {
+        //                 // Handle success response
+        //                 // For example, remove the document item from the DOM
+        //                 $('#document-' + documentId).remove();
+        //                 location.reload();
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 // Handle error response
+        //                 console.log(xhr.responseText);
+        //             }
+        //         });
+        //     }
+        // }
         $(document).ready(function() {
             $('#emergencyForm').submit(function(event) {
                 event.preventDefault(); // Prevent form from refreshing
