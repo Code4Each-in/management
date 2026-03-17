@@ -540,7 +540,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('log.requests') }}">
+                        <a class="{{ request()->is('log-setting-requests') ? 'active' : '' }}" href="{{ route('log.requests') }}">
                             <i class="fa-solid fa-bell"></i>
                             <span>Log Requests</span>
                         </a>

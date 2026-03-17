@@ -28,9 +28,79 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
+            <div class="row mb-4">
 
+                {{-- Error Card --}}
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Errors</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #ffe0e0;">
+                                    <i class="bi bi-x-circle" style="color: #dc3545;"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ $typeCounts['error'] ?? 0 }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Info Card --}}
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Info</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #fff3cd;">
+                                    <i class="bi bi-info-circle" style="color: #ffc107;"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ $typeCounts['info'] ?? 0 }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Success Card --}}
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Success</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #d1f5e0;">
+                                    <i class="bi bi-check-circle" style="color: #198754;"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ $typeCounts['success'] ?? 0 }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- {{-- Other / Warning Card --}}
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Others</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e2e3e5;">
+                                    <i class="bi bi-question-circle" style="color: #6c757d;"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ $typeCounts->except(['error','info','success'])->sum() ?? 0 }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+            </div>
             <form method="GET" class="row mb-3">
-               
+
                 <div class="col-md-4">
                     <label>Type</label>
                     <select id="typeFilter" class="form-control">

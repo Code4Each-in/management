@@ -429,12 +429,35 @@ class ProjectsController extends Controller
 
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
     }
- public function showProject($projectId)
+    public function showProject($projectId)
     {
 
-
-        $projects = Projects::findOrFail($projectId);
         $user = Auth::user();
+
+        if ($user->role_id == 6) {
+
+            $project = Projects::where('id', $projectId)
+                ->where(function ($q) use ($user) {
+
+                    // Condition 1: Direct client_id in projects table
+                    $q->where('client_id', $user->client_id)
+
+                    // OR condition 2: Exists in project_clients table
+                    ->orWhereHas('clients', function ($q2) use ($user) {
+                        $q2->where('client_id', $user->client_id);
+                    });
+                })
+                ->first();
+
+            if (!$project) {
+                return redirect()->route('dashboard.index')
+                    ->with('error', 'You do not have access to this project.');
+            }
+
+        } else {
+            // Admin or other roles
+            $project = Projects::with('clients')->findOrFail($projectId);
+        }
         $currentYear = Carbon::now()->year;
         $clientId = $user->client_id;
         $projects = Projects::with('clients')->find($projectId);
