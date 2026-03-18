@@ -6,7 +6,6 @@
     .btn-sm1 {
            font-size: 13px;
     padding: 8px 14px;
-    min-width: 50px;
     text-align: center;
     border-radius: 5px;
     }
@@ -450,7 +449,7 @@
                                         </div>
 
                                         <!-- RIGHT (Grouped properly) -->
-                                        <div class="d-flex align-items-center ms-auto">
+                                        <div class="d-flex align-items-center ms-auto gap-2">
 
                                             <!-- Link -->
                                             <button type="button"

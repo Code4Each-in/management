@@ -8,11 +8,13 @@ use App\Models\Votes;
 use Carbon\Carbon;
 @endphp -->
 <style>
-.comment-section button.accordion-button{
+.acknowledgement-section button.accordion-button{
  background:  #f1c40f !important;
+ color: #fff;
 }
-.comment-section .accordion-button:not(.collapsed){
+.acknowledgement-section .accordion-button:not(.collapsed){
   background: #f1c40f !important;
+ color: #fff;
 }
     .reminder-close-btn {
     background: transparent;
@@ -434,17 +436,17 @@ use Carbon\Carbon;
 
     @if($groupedClientComments->isNotEmpty())
 
-    <div class="comment-section mt-4 p-3"
+    <div class="comment-section mt-4 p-3 acknowledgement-section"
         style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
 
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0 fw-bold" style="color:#1e293b;">
-                ⚠️ Acknowledgement Pending
+        <div class="d-flex  align-items-center mb-3 gap-2">
+            <h5 class="mb-0 fw-bold" style="color:#012970;">
+                Pending Acknowledgement Tickets
             </h5>
 
-            <span class="badge" style="background:#ef4444; color:white; font-size:12px;">
-                {{ $groupedClientComments->flatten()->count() }} New
+            <span class="badge" style="color:#012970;font-size: 16px;padding: 0;min-width: unset;">
+                ({{ $groupedClientComments->flatten()->count() }})
             </span>
         </div>
 
@@ -474,7 +476,7 @@ use Carbon\Carbon;
                             <h2 class="accordion-header" >
 
                                 <button class="accordion-button collapsed fw-bold"
-                                        style="background:#e0f2fe; color:#0f172a; font-size:15px;"
+                                        style="background:#e0f2fe; font-size:15px;"
                                         data-bs-toggle="collapse"
                                         data-bs-target="#clientProject{{ $projectId }}">
 
@@ -489,7 +491,7 @@ use Carbon\Carbon;
                                     @foreach($groupedByDate as $label => $items)
 
                                         <div class="text-center mb-2">
-                                            <span class="badge" style="background:#e2e8f0; color:#334155;">
+                                            <span class="badge" style="background:#e2e8f0;color:#334155;padding: 6px;font-size: 11px;">
                                                 {{ $label }}
                                             </span>
                                         </div>
@@ -497,14 +499,14 @@ use Carbon\Carbon;
                                         @foreach($items as $comment)
 
                                             <div class="mb-3 p-3 rounded"
-                                                style="background:#ffffff; border:1px solid #e5e7eb; position:relative;">
+                                                style="background:#ffffff; border:1px solid #e5e7eb; position:relative; padding:10px !important;">
 
                                                 <a href="{{ url('/view/ticket/'.$comment->ticket_id) . '?comment=' . $comment->id }}"
                                                     target="_blank"
                                                     class="text-dark text-decoration-none d-block">
 
                                                     <!-- Message Text (Option 3 style) -->
-                                                    <div style="font-size:13px; color:#334155;">
+                                                    <div style="font-size:14px; color:#334155;">
                                                         Acknowledgement pending for client message on
                                                         <span class="text-primary fw-semibold">
                                                             Ticket #{{ $comment->ticket_id }}
@@ -515,8 +517,8 @@ use Carbon\Carbon;
                                                     </div>
 
                                                     <!-- Footer -->
-                                                    <div class="mt-2 text-muted" style="font-size:11px;">
-                                                        {{ $comment->user->first_name ?? 'User' }}
+                                                    <div class="mt-1 text-muted" style="font-size:13px;">
+                                                        <strong>{{ $comment->user->first_name ?? 'User' }}</strong>
                                                         • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
                                                     </div>
 

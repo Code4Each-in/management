@@ -177,14 +177,21 @@ class DashboardController extends Controller
                 ->whereIn('ticket_id', $assignedTicketIds);
         }
         $pendingCommentIds = DB::table('comment_status')
-            ->whereIn('status', ['pending', 'replied'])
+            ->whereNotIn('comment_id', function ($query) {
+                $query->select('comment_id')
+                    ->from('comment_status')
+                    ->where('status', 'acknowledged');
+            })
             ->pluck('comment_id');
 
         $notifications = $notifications->whereIn('id', $pendingCommentIds);
 
+        $clientComments = $clientComments->whereIn('id', $pendingCommentIds);
+
         $groupedClientComments = $clientComments->groupBy(function ($comment) {
             return optional(optional($comment->ticket)->project)->id ?? 'unknown';
         });
+        
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
