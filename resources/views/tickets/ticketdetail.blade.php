@@ -461,43 +461,43 @@
                                             </button>
 
                                             <!-- Acknowledge -->
-@if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
+                                        @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
-<span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
-    data-id="{{ $data->id }}"
-    data-status="{{ $data->status }}"
-    data-bs-toggle="tooltip"
-    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (auth()->user()->role_id == 3 ? 'Click to acknowledge' : 'Waiting for developer') }}"
-    style="
-        position:relative;
-        display:inline-flex;
-        align-items:center;
-        cursor: {{ auth()->user()->role_id == 3 ? 'pointer' : 'not-allowed' }};
-        opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
-    ">
+                                        <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
+                                            data-id="{{ $data->id }}"
+                                            data-status="{{ $data->status }}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (auth()->user()->role_id == 3 ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                            style="
+                                                position:relative;
+                                                display:inline-flex;
+                                                align-items:center;
+                                                cursor: {{ auth()->user()->role_id == 3 ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
+                                            ">
 
-    <!-- 👍 Icon -->
-    <i class="thumb-icon fa-thumbs-up
-        {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
-    </i>
+                                            <!-- 👍 Icon -->
+                                            <i class="thumb-icon fa-thumbs-up
+                                                {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
+                                            </i>
 
-    <!-- ✔ Tick -->
-    <i class="tick-icon fa-solid fa-check"
-        style="
-            position:absolute;
-            top:-5px;
-            right:-5px;
-            font-size:10px;
-            color:#22c55e;
-            background:white;
-            border-radius:50%;
-            display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
-    ">
-    </i>
+                                            <!-- ✔ Tick -->
+                                            <i class="tick-icon fa-solid fa-check"
+                                                style="
+                                                    position:absolute;
+                                                    top:-5px;
+                                                    right:-5px;
+                                                    font-size:10px;
+                                                    color:#22c55e;
+                                                    background:white;
+                                                    border-radius:50%;
+                                                    display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
+                                            ">
+                                            </i>
 
-</span>
+                                        </span>
 
-@endif
+                                        @endif
 
                                         </div>
 
@@ -854,6 +854,7 @@
         setTimeout(() => tooltip.remove(), 2500);
     }
 
+
     function fallbackCopy(text) {
         const textarea = document.createElement("textarea");
         textarea.value = text;
@@ -1155,7 +1156,28 @@
           link.textContent = 'Show More';
       }
   }
+function showAcknowledgeMsg(message, el) {
+    const tooltip = document.createElement('div');
+    tooltip.textContent = message;
 
+    tooltip.style.position = 'fixed';
+    tooltip.style.background = '#25581a';
+    tooltip.style.color = '#fff';
+    tooltip.style.padding = '6px 12px';
+    tooltip.style.fontSize = '12px';
+    tooltip.style.borderRadius = '4px';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.whiteSpace = 'nowrap';
+
+    document.body.appendChild(tooltip);
+
+    const rect = el.getBoundingClientRect();
+
+    tooltip.style.top = (rect.top - 35) + "px";
+    tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + "px";
+
+    setTimeout(() => tooltip.remove(), 2000);
+}
 $(document).on('click', '.acknowledge-toggle', function () {
 
     if ({{ auth()->user()->role_id }} != 3) {
@@ -1179,26 +1201,32 @@ $(document).on('click', '.acknowledge-toggle', function () {
 
             el.tooltip('dispose');
 
-            if (res.new_status === 'acknowledged') {
+        if (res.new_status === 'acknowledged') {
 
-                el.attr('data-status', 'acknowledged');
-                el.attr('data-bs-title', 'Acknowledged (Click to undo)');
+            el.attr('data-status', 'acknowledged');
+            el.attr('data-bs-title', 'Acknowledged (Click to undo)');
 
-                thumb.removeClass('fa-regular text-muted')
-                     .addClass('fa-solid text-success');
+            thumb.removeClass('fa-regular text-muted')
+                .addClass('fa-solid text-success');
 
-                tick.show();
+            tick.show();
 
-            } else {
+            // ✅ FIXED
+            showAcknowledgeMsg("Comment acknowledged", el[0]);
 
-                el.attr('data-status', 'replied');
-                el.attr('data-bs-title', 'Click to acknowledge');
+        } else {
 
-                thumb.removeClass('fa-solid text-success')
-                     .addClass('fa-regular text-muted');
+            el.attr('data-status', 'replied');
+            el.attr('data-bs-title', 'Click to acknowledge');
 
-                tick.hide();
-            }
+            thumb.removeClass('fa-solid text-success')
+                .addClass('fa-regular text-muted');
+
+            tick.hide();
+
+            // ✅ FIXED
+            showAcknowledgeMsg("Acknowledgement removed", el[0]);
+        }
 
             el.tooltip();
         }
