@@ -432,7 +432,7 @@ use Carbon\Carbon;
     </div>
 </div>
 <!-- acknowledgement -->
-@if(auth()->user()->role_id == 3)
+@if(in_array(auth()->user()->role_id, [1, 3]))
 
     @if($groupedClientComments->isNotEmpty())
 
