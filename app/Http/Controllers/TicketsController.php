@@ -630,15 +630,16 @@ class TicketsController extends Controller
             }
 
             // developer/admin reply
-            if (auth()->user()->role_id != 6 && $request->parent_comment_id) {
+            if (auth()->user()->role_id != 6) {
 
                 DB::table('comment_status')
-                    ->where('comment_id', $request->parent_comment_id)
+                    ->where('ticket_id', $validate['id']) // ✅ use ticket_id
+                    ->where('status', 'pending')          // ✅ only pending rows
                     ->update([
-                        'status' => 'replied',
-                        'replied_by' => auth()->id(),
-                        'replied_at' => now(),
-                        'updated_at' => now()
+                        'status'      => 'replied',
+                        'replied_by'  => auth()->id(),
+                        'replied_at'  => now(),
+                        'updated_at'  => now()
                     ]);
             }
             Notification::create([

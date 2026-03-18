@@ -4,7 +4,7 @@
 @section('content')
 <style>
     .btn-sm1 {
-           font-size: 13px;
+           font-size: 15px;
     padding: 8px 14px;
     text-align: center;
     border-radius: 5px;
@@ -472,6 +472,7 @@
                                                 position:relative;
                                                 display:inline-flex;
                                                 align-items:center;
+                                                font-size: 19px;
                                                 cursor: {{ auth()->user()->role_id == 3 ? 'pointer' : 'not-allowed' }};
                                                 opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
                                             ">
