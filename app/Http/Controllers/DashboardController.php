@@ -147,15 +147,16 @@ class DashboardController extends Controller
             ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
             ->select(
                 'ticket_comments.*',
-                'comment_status.status'
+                DB::raw("COALESCE(comment_status.status, 'pending') as status")
             )
             ->whereHas('user', function ($q) {
-                $q->where('role_id', 6); // only client comments
+                $q->where('role_id', 6);
             })
-            ->where('comment_by', '!=', auth()->id()) // not own comments
-            ->where('comment_status.status', 'pending')
-        ->orderByRaw("FIELD(comment_status.status, 'pending','replied','acknowledged')")
-        ->orderBy('ticket_comments.created_at', 'desc')    ->get();
+            ->where('comment_by', '!=', auth()->id())
+            ->whereIn(DB::raw("COALESCE(comment_status.status, 'pending')"), ['pending', 'replied'])
+            ->orderByRaw("FIELD(COALESCE(comment_status.status, 'pending'), 'pending','replied')")
+            ->orderBy('ticket_comments.created_at', 'desc')
+            ->get();
 
         if (in_array($user->role_id, [1])) {
             foreach ($projectMap as $projectId => $projectName) {
@@ -175,6 +176,12 @@ class DashboardController extends Controller
             $clientComments = $clientComments
                 ->whereIn('ticket_id', $assignedTicketIds);
         }
+        $pendingCommentIds = DB::table('comment_status')
+            ->whereIn('status', ['pending', 'replied'])
+            ->pluck('comment_id');
+
+        $notifications = $notifications->whereIn('id', $pendingCommentIds);
+
         $groupedClientComments = $clientComments->groupBy(function ($comment) {
             return optional(optional($comment->ticket)->project)->id ?? 'unknown';
         });

@@ -8,6 +8,12 @@ use App\Models\Votes;
 use Carbon\Carbon;
 @endphp -->
 <style>
+.comment-section button.accordion-button{
+ background:  #f1c40f !important;
+}
+.comment-section .accordion-button:not(.collapsed){
+  background: #f1c40f !important;
+}
     .reminder-close-btn {
     background: transparent;
     border: none;
@@ -423,11 +429,24 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
-<!-- recent comment by client -->
- <div class="comment-section mt-4">
+<!-- acknowledgement -->
+@if(auth()->user()->role_id == 3)
 
     @if($groupedClientComments->isNotEmpty())
-        <h4 class="mb-4 projectComment">Client Messages</h4>
+
+    <div class="comment-section mt-4 p-3"
+        style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1e293b;">
+                ⚠️ Acknowledgement Pending
+            </h5>
+
+            <span class="badge" style="background:#ef4444; color:white; font-size:12px;">
+                {{ $groupedClientComments->flatten()->count() }} New
+            </span>
+        </div>
 
         <div class="row">
             @foreach($groupedClientComments as $projectId => $comments)
@@ -447,44 +466,59 @@ use Carbon\Carbon;
 
                 <div class="col-lg-6 mb-4">
                     <div class="accordion">
-                        <div class="accordion-item shadow-sm">
 
-                            <h2 class="accordion-header">
+                        <div class="accordion-item"
+                            style="border-radius:14px; overflow:hidden; border:1px solid #d1d5db; background:white;">
+
+                            <!-- Project Header (More Focused) -->
+                            <h2 class="accordion-header" >
+
                                 <button class="accordion-button collapsed fw-bold"
+                                        style="background:#e0f2fe; color:#0f172a; font-size:15px;"
                                         data-bs-toggle="collapse"
                                         data-bs-target="#clientProject{{ $projectId }}">
+
                                     {{ $projectName }}
                                 </button>
                             </h2>
 
+                            <!-- Body -->
                             <div id="clientProject{{ $projectId }}" class="accordion-collapse collapse show">
                                 <div class="accordion-body" style="max-height:300px; overflow-y:auto;">
 
                                     @foreach($groupedByDate as $label => $items)
 
                                         <div class="text-center mb-2">
-                                            <span class="badge bg-light text-dark">{{ $label }}</span>
+                                            <span class="badge" style="background:#e2e8f0; color:#334155;">
+                                                {{ $label }}
+                                            </span>
                                         </div>
 
                                         @foreach($items as $comment)
 
-                                            <div class="mb-3 border-bottom pb-2">
+                                            <div class="mb-3 p-3 rounded"
+                                                style="background:#ffffff; border:1px solid #e5e7eb; position:relative;">
 
-                                                <a href="{{ url('/view/ticket/'.$comment->ticket_id) }}"
-                                                   class="text-dark text-decoration-none d-block">
+                                                <a href="{{ url('/view/ticket/'.$comment->ticket_id) . '?comment=' . $comment->id }}"
+                                                    target="_blank"
+                                                    class="text-dark text-decoration-none d-block">
 
-                                                    <small>
-                                                        <strong>#{{ $comment->ticket_id }}</strong> -
-                                                        {{ \Illuminate\Support\Str::limit(strip_tags($comment->comments), 60) }}
-                                                    </small>
+                                                    <!-- Message Text (Option 3 style) -->
+                                                    <div style="font-size:13px; color:#334155;">
+                                                        Acknowledgement pending for client message on
+                                                        <span class="text-primary fw-semibold">
+                                                            Ticket #{{ $comment->ticket_id }}
+                                                        </span>
+                                                        (<strong>{{ $projectName }}</strong>) — <span class="text-muted">
+                                                        {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
+                                                    </span>.
+                                                    </div>
 
-                                                    <br>
-
-                                                    <span class="text-muted" style="font-size: 12px;">
+                                                    <!-- Footer -->
+                                                    <div class="mt-2 text-muted" style="font-size:11px;">
                                                         {{ $comment->user->first_name ?? 'User' }}
                                                         • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
-                                                    </span>
-
+                                                    </div>
 
                                                 </a>
 
@@ -498,14 +532,17 @@ use Carbon\Carbon;
                             </div>
 
                         </div>
+
                     </div>
                 </div>
 
             @endforeach
         </div>
-    @endif
 
-</div>
+    </div>
+
+    @endif
+@endif
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
@@ -2064,6 +2101,7 @@ use Carbon\Carbon;
     //         }
     //     });
     // });
+
     </script>
 
     @endsection

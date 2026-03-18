@@ -2,6 +2,15 @@
 @section('title', 'Ticket Details')
 @section('subtitle', 'Ticket')
 @section('content')
+<style>
+    .btn-sm1 {
+           font-size: 13px;
+    padding: 8px 14px;
+    min-width: 50px;
+    text-align: center;
+    border-radius: 5px;
+    }
+</style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
     @if(!empty($tickets->sprint_id))
@@ -406,7 +415,7 @@
                                       @else
                                           <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                       @endif
-                                      <div class="d-flex justify-content-between align-items-start w-100">
+                                      <!-- <div class="d-flex justify-content-between align-items-start w-100">
                                         <div>
                                             <span class="name">{{ $data->user->first_name }}</span>
                                             <span class="role">
@@ -425,40 +434,68 @@
                                             <i class="fa-solid fa-link"></i>
                                         </button>
 
-                                      </div>
-                                      <!-- acknowledge button -->
-@if($data->user->role_id == 6)
+                                      </div> -->
+<div class="d-flex align-items-center w-100">
 
-    <span style="float:right; font-size:12px; cursor:pointer;">
+    <!-- LEFT -->
+    <div>
+        <span class="name">{{ $data->user->first_name }}</span>
+        <span class="role">
+            @if ($data->user->role_id == 6)
+                {{ $projectName ?? 'Project Not Assigned' }}
+            @else
+                Code4Each
+            @endif
+        </span>
+    </div>
 
-        {{-- 🔴 Pending --}}
-        @if(!$data->is_replied && $data->status != 'acknowledged')
-            <span style="
-                width:6px;
-                height:6px;
-                background:red;
-                border-radius:50%;
-                display:inline-block;
-            "></span>
+    <!-- RIGHT (Grouped properly) -->
+    <div class="d-flex align-items-center ms-auto">
+
+        <!-- Link -->
+        <button type="button"
+                class="btn btn-sm1 btn-link p-0 share-comment"
+                data-comment-id="{{ $data->id }}"
+                data-bs-toggle="tooltip"
+                data-bs-title="Copy link">
+            <i class="fa-solid fa-link"></i>
+        </button>
+
+        <!-- Acknowledge -->
+        @if($data->user->role_id == 6 && $data->is_replied)
+
+        <span class="acknowledge-toggle"
+            data-id="{{ $data->id }}"
+            data-status="{{ $data->status }}"
+            data-bs-toggle="tooltip"
+            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged (Click to undo)' : 'Click to acknowledge' }}"
+            style="position:relative; display:inline-flex; align-items:center; cursor:pointer;">
+
+            <i class="thumb-icon fa-thumbs-up
+                {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
+            </i>
+
+            <i class="tick-icon fa-solid fa-check"
+                style="
+                    position:absolute;
+                    top:-5px;
+                    right:-5px;
+                    font-size:10px;
+                    color:#22c55e;
+                    background:white;
+                    border-radius:50%;
+                    display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
+            ">
+            </i>
+
+        </span>
+
         @endif
 
-        {{-- ✔ Replied (UI only) --}}
-        @if($data->is_replied && $data->status != 'acknowledged')
-            <span class="acknowledge-tick"
-                  data-id="{{ $data->id }}"
-                  style="color:#999;">
-                ✔
-            </span>
-        @endif
+    </div>
 
-        {{-- ✔✔ Acknowledged --}}
-        @if($data->status == 'acknowledged')
-            <span style="color:#28a745;">✔✔</span>
-        @endif
+</div>
 
-    </span>
-
-@endif
                                   </div>
                               @endif
 
@@ -526,6 +563,7 @@
               <div class="post-item clearfix mb-3 mt-3">
                 <label for="comment" class="col-sm-3 col-form-label">Comment</label>
                 <input type="hidden" name="comment_id" id="comment_id" value="">
+                <input type="hidden" name="parent_comment_id" id="parent_comment_id">
                 <div class="col-sm-12">
                     <div id="toolbar-container">
                         <span class="ql-formats">
@@ -1111,9 +1149,10 @@
       }
   }
 
-$(document).on('click', '.acknowledge-tick', function () {
-    let commentId = $(this).data('id');
+$(document).on('click', '.acknowledge-toggle', function () {
+
     let el = $(this);
+    let commentId = el.data('id');
 
     $.ajax({
         url: '/acknowledge-comment',
@@ -1123,13 +1162,64 @@ $(document).on('click', '.acknowledge-tick', function () {
             _token: '{{ csrf_token() }}'
         },
         success: function (res) {
-            if (res.status === 200) {
-                el.html('✔✔');
-                el.css('color', '#28a745');
-                el.removeClass('acknowledge-tick');
+
+            let thumb = el.find('.thumb-icon');
+            let tick = el.find('.tick-icon');
+
+            // destroy old tooltip
+            el.tooltip('dispose');
+
+            if (res.new_status === 'acknowledged') {
+
+                el.attr('data-status', 'acknowledged');
+                el.attr('data-bs-title', 'Acknowledged (Click to undo)');
+
+                thumb.removeClass('fa-regular text-muted')
+                     .addClass('fa-solid text-success');
+
+                tick.show();
+
+            } else {
+
+                el.attr('data-status', 'replied');
+                el.attr('data-bs-title', 'Click to acknowledge');
+
+                thumb.removeClass('fa-solid text-success')
+                     .addClass('fa-regular text-muted');
+
+                tick.hide();
             }
+
+            // re-init tooltip
+            el.tooltip();
+
         }
     });
+
+});
+$(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const commentId = urlParams.get('comment');
+
+        if (commentId) {
+
+            // set parent comment id
+            $('#parent_comment_id').val(commentId);
+
+            // OPTIONAL: show replying UI
+            $('#replyingToBox').show();
+            $('#replyingToId').text('#' + commentId);
+
+            // OPTIONAL: scroll to editor
+            $('html, body').animate({
+                scrollTop: $("#editor").offset().top - 100
+            }, 400);
+        }
+
+});
+$(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip();
 });
 </script>
 

@@ -629,29 +629,17 @@ class TicketsController extends Controller
                 ]);
             }
 
-            // ✅ STEP 2: Developer Reply Logic
-            if (auth()->user()->role_id == 3) { // developer
+            // developer/admin reply
+            if (auth()->user()->role_id != 6 && $request->parent_comment_id) {
 
-                $pendingComment = DB::table('comment_status')
-    ->where('ticket_id', $validate['id'])
-    ->where('status', 'pending')
-    ->update([
-        'status' => 'replied',
-        'replied_by' => auth()->id(),
-        'replied_at' => now(),
-        'updated_at' => now()
-    ]);
-
-                if ($pendingComment) {
-                    DB::table('comment_status')
-                        ->where('id', $pendingComment->id)
-                        ->update([
-                            'status' => 'replied',
-                            'replied_by' => auth()->id(),
-                            'replied_at' => now(),
-                            'updated_at' => now()
-                        ]);
-                }
+                DB::table('comment_status')
+                    ->where('comment_id', $request->parent_comment_id)
+                    ->update([
+                        'status' => 'replied',
+                        'replied_by' => auth()->id(),
+                        'replied_at' => now(),
+                        'updated_at' => now()
+                    ]);
             }
             Notification::create([
                 'user_id' => auth()->user()->id,
@@ -1255,15 +1243,60 @@ class TicketsController extends Controller
 
 public function acknowledgeComment(Request $request)
 {
-    DB::table('comment_status')
+    $comment = DB::table('comment_status')
         ->where('comment_id', $request->comment_id)
-        ->update([
-            'status' => 'acknowledged',
-            'acknowledged_by' => auth()->id(),
-            'acknowledged_at' => now(),
-            'updated_at' => now()
+        ->first();
+
+    // ❌ If no row exists → DON'T allow acknowledge
+    if (!$comment) {
+        return response()->json([
+            'status' => 400,
+            'message' => 'Comment not in reply state yet'
+        ]);
+    }
+
+    // ❌ Prevent acknowledge if not replied
+    if ($comment->status === 'pending') {
+        return response()->json([
+            'status' => 400,
+            'message' => 'Please reply before acknowledging'
+        ]);
+    }
+
+    // 🔁 Toggle Logic
+    if ($comment->status === 'acknowledged') {
+
+        // ✅ Undo → go back to replied (KEEP reply info)
+        DB::table('comment_status')
+            ->where('comment_id', $request->comment_id)
+            ->update([
+                'status' => 'replied',
+                'acknowledged_by' => null,
+                'acknowledged_at' => null,
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => 200,
+            'new_status' => 'replied'
         ]);
 
-    return response()->json(['status' => 200]);
+    } else {
+
+        // ✅ Acknowledge
+        DB::table('comment_status')
+            ->where('comment_id', $request->comment_id)
+            ->update([
+                'status' => 'acknowledged',
+                'acknowledged_by' => auth()->id(),
+                'acknowledged_at' => now(),
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => 200,
+            'new_status' => 'acknowledged'
+        ]);
+    }
 }
 }
