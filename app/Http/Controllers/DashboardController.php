@@ -40,7 +40,7 @@ class DashboardController extends Controller
         ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
         ->get();
-       $notifications = collect(); 
+       $notifications = collect();
         $projectMap = '';
 
         if ($user->role_id == 6) {
@@ -94,7 +94,7 @@ class DashboardController extends Controller
                 ->with(['user', 'ticket.project'])
                 ->orderBy('created_at', 'desc')
                 ->get();
-                  
+
             // $projectIds = Tickets::whereIn('id', $ticketIds)
             // ->whereHas('project', function ($query) {
             //     $query->where('client_id', '!=', 10); // also apply same condition here
@@ -139,8 +139,24 @@ class DashboardController extends Controller
                 return optional(optional($comment->ticket)->project)->id ?? 'unknown';
             })
             ->map(function ($group) {
-                return $group->take(10); 
+                return $group->take(10);
             });
+        // ✅ NEW BLOCK: Latest CLIENT Comments (separate from notifications)
+
+        $clientComments = TicketComments::with(['user', 'ticket.project'])
+            ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
+            ->select(
+                'ticket_comments.*',
+                DB::raw("COALESCE(comment_status.status, 'pending') as status")
+            )
+            ->whereHas('user', function ($q) {
+                $q->where('role_id', 6);
+            })
+            ->where('comment_by', '!=', auth()->id())
+            ->whereIn(DB::raw("COALESCE(comment_status.status, 'pending')"), ['pending', 'replied'])
+            ->orderByRaw("FIELD(COALESCE(comment_status.status, 'pending'), 'pending','replied')")
+            ->orderBy('ticket_comments.created_at', 'desc')
+            ->get();
 
         if (in_array($user->role_id, [1])) {
             foreach ($projectMap as $projectId => $projectName) {
@@ -151,7 +167,31 @@ class DashboardController extends Controller
 
             $groupedNotifications = $groupedNotifications->sortKeys();
         }
-     
+        if (in_array($user->role_id, [2, 3])) {
+
+            $assignedTicketIds = DB::table('ticket_assigns')
+                ->where('user_id', $user->id)
+                ->pluck('ticket_id');
+
+            $clientComments = $clientComments
+                ->whereIn('ticket_id', $assignedTicketIds);
+        }
+        $pendingCommentIds = DB::table('comment_status')
+            ->whereNotIn('comment_id', function ($query) {
+                $query->select('comment_id')
+                    ->from('comment_status')
+                    ->where('status', 'acknowledged');
+            })
+            ->pluck('comment_id');
+
+        $notifications = $notifications->whereIn('id', $pendingCommentIds);
+
+        $clientComments = $clientComments->whereIn('id', $pendingCommentIds);
+
+        $groupedClientComments = $clientComments->groupBy(function ($comment) {
+            return optional(optional($comment->ticket)->project)->id ?? 'unknown';
+        });
+        
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
@@ -193,7 +233,7 @@ class DashboardController extends Controller
             if ($clientId !== null) {
 
                 // $projects = Projects::where('client_id', $clientId)->get();
-                
+
                 $projects = Projects::where(function (Builder $query) use ($clientId) {
                     $query->where('client_id', $clientId)->orWhereHas('clients', function ($q) use ($clientId) {$q->where('clients.id', $clientId);});
                 })->get();
@@ -535,7 +575,8 @@ class DashboardController extends Controller
             'projectMap',
             'allEmployees',
             'allClients',
-            'groupedNotifications'
+            'groupedNotifications',
+            'groupedClientComments'
         ));
     }
 
