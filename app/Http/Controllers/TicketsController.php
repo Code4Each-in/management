@@ -889,21 +889,25 @@ class TicketsController extends Controller
         $tickets = Tickets::where(['id' => $ticketId])->first();
         $projectId = $tickets->project_id;
         $projects = Projects::where('id', $projectId)->get();
-        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
-        // $CommentsData = TicketComments::with('user')
-        //                 ->where('ticket_id', $ticketId)
-        //                 ->orderBy('id', 'desc')
-        //                 ->take(10)
-        //                 ->get()
-        //                 ->sortBy('id') // to maintain ascending order in UI
-        //                 ->values(); // reset keys
-    $CommentsData = TicketComments::with('user')
-        ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
-        ->select('ticket_comments.*', 'comment_status.status')
+        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();   
+    // $CommentsData = TicketComments::with('user')
+    //     ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
+    //     ->select('ticket_comments.*', 'comment_status.status')
+    //     ->where('ticket_comments.ticket_id', $ticketId)
+    //     ->orderBy('ticket_comments.created_at', 'asc') // important
+    //     ->get();
+        $CommentsData = TicketComments::with('user')
+        ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
+        ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
+        ->select(
+            'ticket_comments.*',
+            'cs.status',
+            'cs.acknowledged_by',
+            'u.first_name as ack_user_name'
+        )
         ->where('ticket_comments.ticket_id', $ticketId)
-        ->orderBy('ticket_comments.created_at', 'asc') // important
+        ->orderBy('ticket_comments.created_at', 'asc')
         ->get();
-
     // ✅ find all developer replies
     $developerReplies = $CommentsData->filter(function ($c) {
         return isset($c->user) && $c->user->role_id == 3;
@@ -1244,11 +1248,18 @@ class TicketsController extends Controller
 
 public function acknowledgeComment(Request $request)
 {
+    // ✅ Only developer + admin
+    if (!in_array(auth()->user()->role_id, [1, 3])) {
+        return response()->json([
+            'status' => 403,
+            'message' => 'Unauthorized'
+        ]);
+    }
+
     $comment = DB::table('comment_status')
         ->where('comment_id', $request->comment_id)
         ->first();
 
-    // ❌ If no row exists → DON'T allow acknowledge
     if (!$comment) {
         return response()->json([
             'status' => 400,
@@ -1256,7 +1267,6 @@ public function acknowledgeComment(Request $request)
         ]);
     }
 
-    // ❌ Prevent acknowledge if not replied
     if ($comment->status === 'pending') {
         return response()->json([
             'status' => 400,
@@ -1264,10 +1274,8 @@ public function acknowledgeComment(Request $request)
         ]);
     }
 
-    // 🔁 Toggle Logic
     if ($comment->status === 'acknowledged') {
 
-        // ✅ Undo → go back to replied (KEEP reply info)
         DB::table('comment_status')
             ->where('comment_id', $request->comment_id)
             ->update([
@@ -1277,14 +1285,14 @@ public function acknowledgeComment(Request $request)
                 'updated_at' => now()
             ]);
 
-        return response()->json([
-            'status' => 200,
-            'new_status' => 'replied'
-        ]);
+            return response()->json([
+                'status' => 200,
+                'new_status' => 'replied',
+                'user_name' => auth()->user()->first_name
+            ]);
 
     } else {
 
-        // ✅ Acknowledge
         DB::table('comment_status')
             ->where('comment_id', $request->comment_id)
             ->update([
@@ -1296,7 +1304,8 @@ public function acknowledgeComment(Request $request)
 
         return response()->json([
             'status' => 200,
-            'new_status' => 'acknowledged'
+            'new_status' => 'acknowledged',
+            'user_name' => auth()->user()->first_name,
         ]);
     }
 }

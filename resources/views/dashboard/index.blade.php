@@ -9,11 +9,11 @@ use Carbon\Carbon;
 @endphp -->
 <style>
 .acknowledgement-section button.accordion-button{
- background:  #f1c40f !important;
+ background:  #fe6466 !important;
  color: #fff;
 }
 .acknowledgement-section .accordion-button:not(.collapsed){
-  background: #f1c40f !important;
+  background: #fe6466 !important;
  color: #fff;
 }
     .reminder-close-btn {
@@ -490,12 +490,6 @@ use Carbon\Carbon;
 
                                     @foreach($groupedByDate as $label => $items)
 
-                                        <div class="text-center mb-2">
-                                            <span class="badge" style="background:#e2e8f0;color:#334155;padding: 6px;font-size: 11px;">
-                                                {{ $label }}
-                                            </span>
-                                        </div>
-
                                         @foreach($items as $comment)
 
                                             <div class="mb-3 p-3 rounded"
@@ -507,20 +501,20 @@ use Carbon\Carbon;
 
                                                     <!-- Message Text (Option 3 style) -->
                                                     <div style="font-size:14px; color:#334155;">
-                                                        Acknowledgement pending for client message on
-                                                        <span class="text-primary fw-semibold">
-                                                            Ticket #{{ $comment->ticket_id }}
+                                                        Acknowledgement pending on
+                                                        <span class="text-primary fw-semibold">#{{ $comment->ticket_id }}</span>
+                                                        ({{ $projectName }}) —
+                                                        {{ $comment->user->first_name ?? 'User' }},
+                                                        <span class="text-muted">
+                                                            {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
                                                         </span>
-                                                        (<strong>{{ $projectName }}</strong>) — <span class="text-muted">
-                                                        {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
-                                                    </span>.
                                                     </div>
 
                                                     <!-- Footer -->
-                                                    <div class="mt-1 text-muted" style="font-size:13px;">
+                                                    <!-- <div class="mt-1 text-muted" style="font-size:13px;">
                                                         <strong>{{ $comment->user->first_name ?? 'User' }}</strong>
                                                         • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
-                                                    </div>
+                                                    </div> -->
 
                                                 </a>
 
