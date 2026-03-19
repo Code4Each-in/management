@@ -463,18 +463,28 @@
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
-                                        <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
+                                        @php
+                                            $canAcknowledge = in_array(auth()->user()->role_id, [1, 3]);
+                                            $ackUser = $data->ack_user_name ?? '';
+                                        @endphp
+
+                                        <span class="acknowledge-toggle {{ !$canAcknowledge ? 'disabled' : '' }}"
                                             data-id="{{ $data->id }}"
                                             data-status="{{ $data->status }}"
+                                            data-ack-user="{{ $ackUser }}"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (auth()->user()->role_id == 3 ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                            data-bs-title="{{
+                                                $data->status == 'acknowledged'
+                                                ? 'Acknowledged by ' . ($data->ack_user_name ?? 'User')
+                                                : ($canAcknowledge ? 'Click to acknowledge' : 'Waiting for developer')
+                                            }}"
                                             style="
                                                 position:relative;
                                                 display:inline-flex;
                                                 align-items:center;
                                                 font-size: 19px;
-                                                cursor: {{ auth()->user()->role_id == 3 ? 'pointer' : 'not-allowed' }};
-                                                opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
+                                                cursor: {{ $canAcknowledge ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ $canAcknowledge ? '1' : '0.6' }};
                                             ">
 
                                             <!-- 👍 Icon -->
@@ -1157,33 +1167,48 @@
           link.textContent = 'Show More';
       }
   }
-function showAcknowledgeMsg(message, el) {
-    const tooltip = document.createElement('div');
-    tooltip.textContent = message;
+    function showAcknowledgeMsg(message, el) {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = message;
 
-    tooltip.style.position = 'fixed';
-    tooltip.style.background = '#25581a';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '6px 12px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.borderRadius = '4px';
-    tooltip.style.zIndex = '9999';
-    tooltip.style.whiteSpace = 'nowrap';
+        tooltip.style.position = 'fixed';
+        tooltip.style.background = '#1e293b';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '6px 12px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.borderRadius = '20px';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.whiteSpace = 'nowrap';
+        tooltip.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+        tooltip.style.opacity = '0';
+        tooltip.style.transition = 'all 0.2s ease';
 
-    document.body.appendChild(tooltip);
+        document.body.appendChild(tooltip);
 
-    const rect = el.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
 
-    tooltip.style.top = (rect.top - 35) + "px";
-    tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + "px";
+        tooltip.style.top = (rect.top - 35) + "px";
+        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + "px";
 
-    setTimeout(() => tooltip.remove(), 2000);
-}
+        // fade in
+        setTimeout(() => {
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translateY(-3px)';
+        }, 10);
+
+        // fade out
+        setTimeout(() => {
+            tooltip.style.opacity = '0';
+            tooltip.style.transform = 'translateY(0px)';
+        }, 1800);
+
+        setTimeout(() => tooltip.remove(), 2200);
+    }
 $(document).on('click', '.acknowledge-toggle', function () {
 
-    if ({{ auth()->user()->role_id }} != 3) {
-        return;
-    }
+        if (![1, 3].includes({{ auth()->user()->role_id }})) {
+            return;
+        }
 
     let el = $(this);
     let commentId = el.data('id');
@@ -1205,19 +1230,22 @@ $(document).on('click', '.acknowledge-toggle', function () {
         if (res.new_status === 'acknowledged') {
 
             el.attr('data-status', 'acknowledged');
-            el.attr('data-bs-title', 'Acknowledged (Click to undo)');
+            el.attr('data-ack-user', res.user_name);
+
+            el.attr('data-bs-title', 'Acknowledged by ' + res.user_name);
 
             thumb.removeClass('fa-regular text-muted')
                 .addClass('fa-solid text-success');
 
             tick.show();
 
-            // ✅ FIXED
-            showAcknowledgeMsg("Comment acknowledged", el[0]);
+            showAcknowledgeMsg("Acknowledged by " + res.user_name, el[0]);
 
         } else {
 
             el.attr('data-status', 'replied');
+            el.removeAttr('data-ack-user');
+
             el.attr('data-bs-title', 'Click to acknowledge');
 
             thumb.removeClass('fa-solid text-success')
@@ -1225,7 +1253,6 @@ $(document).on('click', '.acknowledge-toggle', function () {
 
             tick.hide();
 
-            // ✅ FIXED
             showAcknowledgeMsg("Acknowledgement removed", el[0]);
         }
 
