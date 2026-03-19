@@ -108,7 +108,7 @@ class InternalTimesheetExtension extends Controller
             return response()->json([
                 'success' => false,
                 'status' => 403,
-                'message' => 'First complete all pending/replied acknowledgements before submitting the report.'
+                'message' => 'Complete all pending acknowledgements before submitting the report.'
             ]);
         }
 
