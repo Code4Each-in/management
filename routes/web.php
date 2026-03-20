@@ -36,6 +36,8 @@ use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
+use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
 use Illuminate\Support\Facades\Response;
 /*
@@ -405,3 +407,12 @@ Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('
 
 
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
+// routes/web.php
+
+// Email Templates
+Route::resource('templates', EmailTemplateController::class);
+
+// Scheduled Emails
+Route::resource('scheduled', ScheduledEmailController::class);
+Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
+    ->name('scheduled.tracking');
