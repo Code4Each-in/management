@@ -13,7 +13,8 @@ class TicketComments extends Model
         'comments',
         'document',
         'comment_by',
-        'is_system'
+        'is_system',
+        'reply_to'
 
     ];
 
@@ -27,6 +28,10 @@ class TicketComments extends Model
 }
 public function project()
 {
-    return $this->belongsTo(Projects::class, 'project'); 
+    return $this->belongsTo(Projects::class, 'project');
+}
+public function parent()
+{
+    return $this->belongsTo(TicketComments::class, 'reply_to');
 }
 }

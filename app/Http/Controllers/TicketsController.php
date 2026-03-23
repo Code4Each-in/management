@@ -615,6 +615,7 @@ class TicketsController extends Controller
                 'ticket_id'  => $validate['id'],
                 'document'   => implode(',', $documentPaths),
                 'comment_by' => auth()->user()->id,
+'reply_to' => $request->input('reply_to')
             ]);
 
             // client comment
@@ -630,11 +631,10 @@ class TicketsController extends Controller
             }
 
             // developer/admin reply
-            if (auth()->user()->role_id != 6) {
+            if (auth()->user()->role_id != 6 && $request->reply_to) {
 
                 DB::table('comment_status')
-                    ->where('ticket_id', $validate['id']) // ✅ use ticket_id
-                    ->where('status', 'pending')          // ✅ only pending rows
+                    ->where('comment_id', $request->reply_to) // ✅ ONLY parent comment
                     ->update([
                         'status'      => 'replied',
                         'replied_by'  => auth()->id(),
@@ -889,7 +889,7 @@ class TicketsController extends Controller
         $tickets = Tickets::where(['id' => $ticketId])->first();
         $projectId = $tickets->project_id;
         $projects = Projects::where('id', $projectId)->get();
-        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();   
+        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
     // $CommentsData = TicketComments::with('user')
     //     ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
     //     ->select('ticket_comments.*', 'comment_status.status')

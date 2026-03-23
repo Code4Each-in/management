@@ -449,17 +449,29 @@
                                         </div>
 
                                         <!-- RIGHT (Grouped properly) -->
-                                        <div class="d-flex align-items-center ms-auto gap-2">
+                                        <div class="d-flex align-items-center ms-auto" style="gap:6px;">
 
                                             <!-- Link -->
+
                                             <button type="button"
-                                                    class="btn btn-sm1 btn-link p-0 share-comment"
-                                                    data-comment-id="{{ $data->id }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-title="Copy link">
+                                                class="btn btn-link p-0 m-0 share-comment"
+                                                style="line-height:1;"
+                                                data-comment-id="{{ $data->id }}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-title="Copy link">
                                                 <i class="fa-solid fa-link"></i>
                                             </button>
-
+                                            <!-- comment reply -->
+                                            @if(Auth::id() != $data->comment_by)
+                                            <button type="button"
+                                                class="btn btn-link p-0 m-0 reply-btn"
+                                                style="line-height:1;"
+                                                data-id="{{ $data->id }}"
+                                                data-message="{{ htmlspecialchars(strip_tags($data->comments), ENT_QUOTES) }}"
+                                                data-user="{{ $data->user->first_name }}">
+                                                <i class="fa fa-reply"></i>
+                                            </button>
+                                            @endif
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
@@ -523,11 +535,39 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
+
                             @endif
                               <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                               </div>
+                                {{-- ✅ REPLY BOX AT BOTTOM --}}
+                                @if($data->reply_to)
+                                    @php
+                                        $parent = $CommentsData->firstWhere('id', $data->reply_to);
+                                    @endphp
 
+                                    @if($parent)
+                                        <div class="reply-box"
+                                            data-scroll-id="comment-{{ $parent->id }}"
+                                            style="
+                                                background:#f1f5f9;
+                                                padding:6px 10px;
+                                                border-left:3px solid #3b82f6;
+                                                border-radius:6px;
+                                                margin-top:8px;
+                                                font-size:12px;
+                                                color:#334155;
+                                                cursor:pointer;
+                                            ">
+
+                                            <strong>{{ $parent->user->first_name ?? 'User' }}</strong>:
+
+                                            <div style="color:#64748b;">
+                                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 80) }}
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endif
                                 @php
                                     $documents = explode(',', $data->document);
                                 @endphp
@@ -571,6 +611,7 @@
               <div class="post-item clearfix mb-3 mt-3">
                 <label for="comment" class="col-sm-3 col-form-label">Comment</label>
                 <input type="hidden" name="comment_id" id="comment_id" value="">
+                <input type="hidden" name="reply_to" id="reply_to">
                 <input type="hidden" name="parent_comment_id" id="parent_comment_id">
                 <div class="col-sm-12">
                     <div id="toolbar-container">
@@ -618,6 +659,19 @@
                             <button class="ql-clean"></button>
                         </span>
                     </div>
+
+                    <!-- comment reply -->
+                    <div id="replyPreview"
+                        style="display:none; background:#f1f5f9; padding:8px; border-left:3px solid #3b82f6; margin-bottom:10px; border-radius:6px;">
+                        <span id="cancelReply" style="cursor:pointer; float:right; color:red;">✖</span>
+                        <div style="font-size:12px; color:#334155;">
+                            Replying to <strong id="replyUser"></strong>
+                        </div>
+
+                        <div id="replyText" style="font-size:13px; color:#64748b;"></div>
+
+
+                    </div>
                     <div id="editor" style="height: 300px;"></div>
                     <input type="hidden" name="comment" id="comment_input" value="{{ old('comment') }}">
 
@@ -650,11 +704,49 @@
   let loading = false;
   let doneLoadingAll = false;
 
-  $(document).ready(function () {
+//   $(document).ready(function () {
 
-    const commentSection = document.getElementById('comment-scroll');
-    commentSection.scrollTop = commentSection.scrollHeight;
-  });
+//     const commentSection = document.getElementById('comment-scroll');
+//     commentSection.scrollTop = commentSection.scrollHeight;
+//   });
+
+    $(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetCommentId = urlParams.get('comment');
+        const commentSection = document.getElementById('comment-scroll');
+
+        if (targetCommentId) {
+            // Scroll page to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Collapse task card
+            const taskCard = document.querySelector('.task-card');
+            if (taskCard) taskCard.classList.remove('expanded');
+
+            // After page scrolls to top, scroll container to the comment
+            setTimeout(function () {
+                const target = document.getElementById('comment-' + targetCommentId);
+                if (!target) return;
+
+                const containerRect = commentSection.getBoundingClientRect();
+                const targetRect    = target.getBoundingClientRect();
+                const scrollTo = commentSection.scrollTop + (targetRect.top - containerRect.top) - 80;
+
+                commentSection.scrollTop = scrollTo;
+
+                target.style.transition = 'background-color 0.3s ease';
+                target.style.backgroundColor = '#fff3cd';
+                setTimeout(function () {
+                    target.style.backgroundColor = '';
+                }, 4000);
+            }, 500);
+
+        } else {
+            // No target comment — scroll container to bottom as normal
+            commentSection.scrollTop = commentSection.scrollHeight;
+        }
+    });
 
   document.addEventListener('DOMContentLoaded', function () {
     const editor = document.querySelector('#editor');
@@ -709,6 +801,7 @@
 
     // Submit Form
     $('#commentsData').on('submit', function (e) {
+        //    console.log("Reply TO:", $('#reply_to').val());
       e.preventDefault();
 
       const commentHtml = quill.root.innerHTML.trim();
@@ -886,8 +979,8 @@
 
   document.addEventListener('DOMContentLoaded', function () {
 
-    const commentId = new URLSearchParams(window.location.search).get('comment');
-    if (!commentId) return;
+    // const commentId = new URLSearchParams(window.location.search).get('comment');
+    // if (!commentId) return;
 
     const container = document.getElementById('comment-scroll');
     if (!container) return;
@@ -927,8 +1020,8 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-    const targetCommentId = new URLSearchParams(window.location.search).get('comment');
-    if (!targetCommentId) return;
+    // const targetCommentId = new URLSearchParams(window.location.search).get('comment');
+    // if (!targetCommentId) return;
 
     const container = $('#comment-scroll');
 
@@ -1017,7 +1110,55 @@
         });
     }
 });
+// click reply button
+$(document).ready(function () {
 
+    $(document).on('click', '.reply-btn', function () {
+
+        let commentId = $(this).data('id');
+
+        console.log("Clicked reply for:", commentId); // DEBUG
+
+        $('#reply_to').val(commentId);
+
+        console.log("Set reply_to:", $('#reply_to').val()); // DEBUG
+
+        $('#replyUser').text($(this).data('user'));
+        $('#replyText').text($(this).data('message').substring(0, 80));
+        $('#replyPreview').show();
+
+    });
+
+});
+// cancel reply
+$('#cancelReply').on('click', function () {
+    $('#reply_to').val('');
+    $('#replyPreview').hide();
+});
+$(document).on('click', '.reply-box', function () {
+ console.log('CLICK WORKING');
+    let targetId = $(this).data('scroll-id'); // comment-12
+    let target = $('#' + targetId);
+console.log(targetId);
+    if (target.length) {
+
+        let container = $('#comment-scroll');
+
+        // ✅ correct scroll position calculation
+        let scrollTo = target[0].offsetTop - container[0].offsetTop;
+
+        container.animate({
+            scrollTop: scrollTo - 20
+        }, 400);
+
+        // ✅ highlight effect
+        target.css('background', '#fff3cd');
+
+        setTimeout(() => {
+            target.css('background', '');
+        }, 1500);
+    }
+});
   document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const statusColors = {
@@ -1249,9 +1390,9 @@ $(document).ready(function () {
             $('#replyingToId').text('#' + commentId);
 
             // OPTIONAL: scroll to editor
-            $('html, body').animate({
-                scrollTop: $("#editor").offset().top - 100
-            }, 400);
+            // $('html, body').animate({
+            //     scrollTop: $("#editor").offset().top - 100
+            // }, 400);
         }
 
 });
