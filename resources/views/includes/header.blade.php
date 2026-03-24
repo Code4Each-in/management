@@ -386,6 +386,13 @@
                     <span>Reminders</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('announcement') ? '' : 'collapsed' }}"
+                    href="{{ route('announcement.create') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Announcements</span>
+                </a>
+            </li>
           @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
@@ -432,6 +439,13 @@
                     href="{{ route('reminder.create') }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Reminders</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('announcement') ? '' : 'collapsed' }}"
+                    href="{{ route('announcement.index') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Announcements</span>
                 </a>
             </li>
             @else
