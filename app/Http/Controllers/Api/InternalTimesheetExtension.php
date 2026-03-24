@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\TicketComments;
 use App\Models\UserAttendances;
 use App\Models\Users;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserAttendancesTemporary;
 use Carbon\Carbon;
+use App\Models\CommentStatus;
 
 class InternalTimesheetExtension extends Controller
 {
@@ -61,71 +63,78 @@ class InternalTimesheetExtension extends Controller
     public function addStatusReport(Request $request)
     {
 
-        $response = [
-            'success' => false,
-            'status'  => 400,
-        ];
-
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
             'note' => 'nullable|string',
         ]);
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }
-        $validate = $validator->validate();
 
-        if (Users::where('id', $validate['user_id'])->exists()) {
-            $attendance_data = UserAttendancesTemporary::where('user_id',$validate['user_id'])
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_error' => $validator->errors()
+            ]);
+        }
+
+        $validate = $validator->validated();
+
+        // CHECK USER EXISTS
+        if (!Users::where('id', $validate['user_id'])->exists()) {
+            return response()->json([
+                'error' => 'Invalid User'
+            ]);
+        }
+
+        // CHECK ATTENDANCE
+        $attendance_data = UserAttendancesTemporary::where('user_id', $validate['user_id'])
             ->whereNull('out_time_date')
             ->latest()
-            ->first(['id', 'in_time', 'date', 'out_time_date']);
+            ->first();
 
-            $currentDateTime = now();
-            $attendance_data->update([
-                'out_time_date' => $currentDateTime,
+        if (!$attendance_data) {
+            return response()->json([
+                'error' => 'No active attendance found'
             ]);
-            $currentTime = $currentDateTime->format('H:i:s');
-            $attendance = UserAttendances::updateOrCreate(
-                [
-                    'user_id' => $validate['user_id'],
-                    'date' => $attendance_data->date
-                ],
-                [
-                    'in_time' => $attendance_data->in_time,
-                    'out_time' => $currentTime,
-                    'notes' => $validate['note'],
-                    'out_time_date' => now()
-                ]
-            );
+        }
 
-            $attendance->update([
-                'created_at' => now(),
-                'updated_at' => now(),
+        // ACKNOWLEDGEMENT CHECK
+        $pendingAcknowledgement = CommentStatus::whereIn('status', ['pending', 'replied'])
+            ->whereIn('ticket_id', function ($q) use ($validate) {
+                $q->select('ticket_id')
+                ->from('ticket_assigns')
+                ->where('user_id', $validate['user_id']);
+            })
+            ->exists();
+
+        if ($pendingAcknowledgement) {
+            return response()->json([
+                'success' => false,
+                'status' => 403,
+                'message' => 'Complete all pending acknowledgements before submitting the report.'
             ]);
+        }
 
-            if($attendance){
-                    $response = [
-                        'message' => "Status Report Added Successfully.",
-                        'success' => true,
-                        'status'  => 200,
-                    ];
-            }else{
-                $response = [
-                    'message' => "Error In Adding Status Report",
-                ];
-            }
+        //  UPDATE ATTENDANCE
+        $attendance_data->update([
+            'out_time_date' => now(),
+        ]);
 
-         }else{
-            $response = [
-                'message' => "Invalid User",
-            ];
-         }
+        $attendance = UserAttendances::updateOrCreate(
+            [
+                'user_id' => $validate['user_id'],
+                'date' => $attendance_data->date
+            ],
+            [
+                'in_time' => $attendance_data->in_time,
+                'out_time' => now()->format('H:i:s'),
+                'notes' => $validate['note'],
+                'out_time_date' => now()
+            ]
+        );
 
-        return response()->json($response);
+        return response()->json([
+            'success' => true,
+            'message' => 'Status Report Added Successfully'
+        ]);
     }
-
     public function addStartTime(Request $request)
     {
         $response = [
@@ -204,10 +213,10 @@ class InternalTimesheetExtension extends Controller
                 $current_time = Carbon::now();
                 // Combine date and time fields to create Carbon instances
                 $attendance_datetime = Carbon::createFromFormat('Y-m-d H:i:s', "$attendance_data->date $attendance_data->in_time");
-                
+
                 // Calculate the difference
                 $diffInSeconds = $attendance_datetime->diffInSeconds($current_time);
-                
+
                 // Convert seconds to hours, minutes, and seconds
                 $hours = floor($diffInSeconds / 3600);
                 $minutes = floor(($diffInSeconds % 3600) / 60);

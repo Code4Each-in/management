@@ -37,3 +37,9 @@ if (!function_exists('project_log')) {
 
 }
 
+if (!function_exists('test_helper')) {
+    function test_helper()
+    {
+        return 'Helper working';
+    }
+}

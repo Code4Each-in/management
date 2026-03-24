@@ -418,3 +418,4 @@ Route::get('/log-setting-requests', [ProjectLogSettingController::class,'request
 Route::post('/log-setting-approve/{id}', [ProjectLogSettingController::class,'approve'])->name('log.approve');
 
 Route::post('/log-setting-reject/{id}', [ProjectLogSettingController::class,'reject'])->name('log.reject');
+Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);

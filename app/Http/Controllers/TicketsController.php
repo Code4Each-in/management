@@ -169,7 +169,7 @@ class TicketsController extends Controller
             : null;
             $requestedStatus = $validate['status'] ?? 'to_do';
             $hasEstimation = !empty($validate['time_estimation']);
-            $isApproved = false; 
+            $isApproved = false;
 
             if ($hasEstimation && !$isApproved && $requestedStatus !== 'to_do') {
                 return response()->json([
@@ -288,7 +288,7 @@ class TicketsController extends Controller
                 }
 
                 if (auth()->user()->role_id == 6) {
-                    $admin = Users::find(1); 
+                    $admin = Users::find(1);
                     if ($admin) {
                         try {
                             $admin->notify(new EmailNotification($messages));
@@ -522,7 +522,7 @@ class TicketsController extends Controller
                 'comment_files.*.mimes' => 'Each file must be one of the allowed types.',
                 'comment_files.*.max' => 'Each file may not be greater than :max kilobytes.',
             ]);
-        
+
             $validator->after(function ($validator) use ($request) {
                 if (empty($request->comment) && !$request->hasFile('comment_files')) {
                     $validator->errors()->add('comment', 'Kindly type a message or attach a file before submitting.');
@@ -549,7 +549,7 @@ class TicketsController extends Controller
             $validate = $validator->valid();
             $documentPaths = [];
             if ($request->hasFile('comment_files')) {
-                
+
                 foreach ($request->file('comment_files') as $file) {
                     $fileSizeInKB = $file->getSize() / 1024;
                     $originalFilename = $file->getClientOriginalName();
@@ -617,6 +617,31 @@ class TicketsController extends Controller
                 'comment_by' => auth()->user()->id,
             ]);
 
+            // client comment
+            if (auth()->user()->role_id == 6) { // client
+
+                DB::table('comment_status')->insert([
+                    'comment_id' => $ticket->id,
+                    'ticket_id'  => $validate['id'],
+                    'status'     => 'pending',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // developer/admin reply
+            if (auth()->user()->role_id != 6) {
+
+                DB::table('comment_status')
+                    ->where('ticket_id', $validate['id']) // ✅ use ticket_id
+                    ->where('status', 'pending')          // ✅ only pending rows
+                    ->update([
+                        'status'      => 'replied',
+                        'replied_by'  => auth()->id(),
+                        'replied_at'  => now(),
+                        'updated_at'  => now()
+                    ]);
+            }
             Notification::create([
                 'user_id' => auth()->user()->id,
                 'type' => 'comment',
@@ -664,11 +689,11 @@ class TicketsController extends Controller
                     $documentText .= '<p><strong>Attached Document(s):</strong></p><ul>';
                     foreach ($documentPaths as $docPath) {
                         $fileName = basename($docPath);
-                        $documentText .= "<li>{$fileName}</li>"; 
+                        $documentText .= "<li>{$fileName}</li>";
                     }
                     $documentText .= '</ul>';
                 }
-                
+
                 // Determine who commented
                 if ($currentUser->role_id == 6) {
                     // Comment made by client
@@ -682,27 +707,27 @@ class TicketsController extends Controller
                     $messages["body-text"] = $rawComment;
                     $messages["url-title"] = "View Ticket";
                     $messages["url"] = "/view/ticket/" . $validate['id'];
-    
+
                     try {
                         // Notify all assigned users
                         $assignedUsers = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
                             ->where('ticket_id', $validate['id'])
                             ->get(['users.id', 'users.first_name', 'users.email']);
-                        
+
                         foreach ($assignedUsers as $assignedUser) {
                             $assignedUser->notify(new TicketNotification($messages, $documentPaths));
                         }
-    
+
                         // Notify admin (user ID 1)
                         $admin = Users::find(1);
                         if ($admin) {
                             $admin->notify(new TicketNotification($messages, $documentPaths));
                         }
-    
+
                     } catch (\Exception $e) {
                         \Log::error("Error sending notification for client comment on ticket #{$validate['id']}: " . $e->getMessage());
                     }
-    
+
                 } else {
                     // Comment made by admin or assigned user
                     $user = Users::find($currentUser->id);
@@ -721,14 +746,14 @@ class TicketsController extends Controller
                         $ticketModel = Tickets::find($validate['id']);
                         $projectId = $ticketModel->project_id;
                         $project = Projects::find($projectId);
-    
+
                         // if ($project) {
                         //     $clientId = $project->client_id;
                         // }
                         // $client = Users::where('client_id', $clientId)->first();
                         // $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
                         // $additional_email = Client::where('id', $clientId)->value('additional_email');
-                       
+
                         // if ($client) {
                         //     $client->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
 
@@ -739,7 +764,7 @@ class TicketsController extends Controller
                         //     if (!empty($additional_email)) {
                         //         NotificationFacade::route('mail', $additional_email)
                         //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
-                        //     } 
+                        //     }
                         // }
 
                         $clientIds = collect();
@@ -782,7 +807,7 @@ class TicketsController extends Controller
                                     ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
                             }
                         }
-    
+
                     } catch (\Exception $e) {
                         \Log::error("Error sending notification for staff/admin comment on ticket #{$validate['id']}: " . $e->getMessage());
                     }
@@ -864,15 +889,51 @@ class TicketsController extends Controller
         $tickets = Tickets::where(['id' => $ticketId])->first();
         $projectId = $tickets->project_id;
         $projects = Projects::where('id', $projectId)->get();
-        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
+        $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();   
+    // $CommentsData = TicketComments::with('user')
+    //     ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
+    //     ->select('ticket_comments.*', 'comment_status.status')
+    //     ->where('ticket_comments.ticket_id', $ticketId)
+    //     ->orderBy('ticket_comments.created_at', 'asc') // important
+    //     ->get();
         $CommentsData = TicketComments::with('user')
-                        ->where('ticket_id', $ticketId)
-                        ->orderBy('id', 'desc')
-                        ->take(10)
-                        ->get()
-                        ->sortBy('id') // to maintain ascending order in UI
-                        ->values(); // reset keys
+        ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
+        ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
+        ->select(
+            'ticket_comments.*',
+            'cs.status',
+            'cs.acknowledged_by',
+            'u.first_name as ack_user_name'
+        )
+        ->where('ticket_comments.ticket_id', $ticketId)
+        ->orderBy('ticket_comments.created_at', 'asc')
+        ->get();
+    // ✅ find all developer replies
+    $developerReplies = $CommentsData->filter(function ($c) {
+        return isset($c->user) && $c->user->role_id == 3;
+    });
 
+    foreach ($CommentsData as $comment) {
+
+        if (!isset($comment->user)) {
+            $comment->is_replied = false;
+            continue;
+        }
+
+        if ($comment->user->role_id == 6) {
+
+            $hasReplyAfter = $developerReplies->first(function ($reply) use ($comment) {
+
+                if (!isset($reply->created_at) || !isset($comment->created_at)) {
+                    return false;
+                }
+
+                return strtotime($reply->created_at) > strtotime($comment->created_at);
+            });
+
+            $comment->is_replied = $hasReplyAfter ? true : false;
+        }
+    }
 
         $spentHours = $tickets->workLogs()->sum('hours');
         $remainingHours = $tickets->time_estimation - $spentHours;
@@ -1090,7 +1151,7 @@ class TicketsController extends Controller
             'id' => $id
         ]);
     }
-    
+
     public function loadMoreComments($ticketId, Request $request)
     {
         $lastId = $request->last_id;
@@ -1150,9 +1211,9 @@ class TicketsController extends Controller
             'comments'   => "Time estimation approved.",
             'ticket_id'  => $id,
             'comment_by' => $user->id,
-            'is_system'  => true,          
+            'is_system'  => true,
         ]);
-        
+
         $messages = [
             "greeting-text" => "Hello!",
             "subject"       => "Time Estimation Approved for Ticket #{$id}",
@@ -1167,7 +1228,7 @@ class TicketsController extends Controller
                 ->where('ticket_assigns.ticket_id', $id)
                 ->get(['users.id', 'users.email']);
 
-            $superAdmin = Users::find(1); 
+            $superAdmin = Users::find(1);
 
             foreach ($assignedUsers as $assignedUser) {
                 $assignedUser->notify(new EstimationApprovedNotification($messages));
@@ -1184,4 +1245,68 @@ class TicketsController extends Controller
 
         return back()->with('success', 'Estimation approved successfully.');
     }
+
+public function acknowledgeComment(Request $request)
+{
+    // ✅ Only developer + admin
+    if (!in_array(auth()->user()->role_id, [1, 3])) {
+        return response()->json([
+            'status' => 403,
+            'message' => 'Unauthorized'
+        ]);
+    }
+
+    $comment = DB::table('comment_status')
+        ->where('comment_id', $request->comment_id)
+        ->first();
+
+    if (!$comment) {
+        return response()->json([
+            'status' => 400,
+            'message' => 'Comment not in reply state yet'
+        ]);
+    }
+
+    if ($comment->status === 'pending') {
+        return response()->json([
+            'status' => 400,
+            'message' => 'Please reply before acknowledging'
+        ]);
+    }
+
+    if ($comment->status === 'acknowledged') {
+
+        DB::table('comment_status')
+            ->where('comment_id', $request->comment_id)
+            ->update([
+                'status' => 'replied',
+                'acknowledged_by' => null,
+                'acknowledged_at' => null,
+                'updated_at' => now()
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'new_status' => 'replied',
+                'user_name' => auth()->user()->first_name
+            ]);
+
+    } else {
+
+        DB::table('comment_status')
+            ->where('comment_id', $request->comment_id)
+            ->update([
+                'status' => 'acknowledged',
+                'acknowledged_by' => auth()->id(),
+                'acknowledged_at' => now(),
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => 200,
+            'new_status' => 'acknowledged',
+            'user_name' => auth()->user()->first_name,
+        ]);
+    }
+}
 }

@@ -8,6 +8,14 @@ use App\Models\Votes;
 use Carbon\Carbon;
 @endphp -->
 <style>
+.acknowledgement-section button.accordion-button{
+ background:  #fe6466 !important;
+ color: #fff;
+}
+.acknowledgement-section .accordion-button:not(.collapsed){
+  background: #fe6466 !important;
+ color: #fff;
+}
     .reminder-close-btn {
     background: transparent;
     border: none;
@@ -423,6 +431,114 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
+<!-- acknowledgement -->
+@if(in_array(auth()->user()->role_id, [1, 3]))
+
+    @if($groupedClientComments->isNotEmpty())
+
+    <div class="comment-section mt-4 p-3 acknowledgement-section"
+        style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
+
+        <!-- Header -->
+        <div class="d-flex  align-items-center mb-3 gap-2">
+            <h5 class="mb-0 fw-bold" style="color:#012970;">
+                Pending Acknowledgement Tickets
+            </h5>
+
+            <span class="badge" style="color:#012970;font-size: 16px;padding: 0;min-width: unset;">
+                ({{ $groupedClientComments->flatten()->count() }})
+            </span>
+        </div>
+
+        <div class="row">
+            @foreach($groupedClientComments as $projectId => $comments)
+
+                @php
+                    $projectName = $projectMap[$projectId] ?? 'Unknown Project';
+
+                    $groupedByDate = $comments->groupBy(function ($comment) {
+                        $date = \Carbon\Carbon::parse($comment->created_at)->setTimezone('Asia/Kolkata')->startOfDay();
+
+                        if ($date->eq(now('Asia/Kolkata')->startOfDay())) return 'Today';
+                        if ($date->eq(now('Asia/Kolkata')->subDay()->startOfDay())) return 'Yesterday';
+
+                        return $date->format('d-M-Y');
+                    });
+                @endphp
+
+                <div class="col-lg-6 mb-4">
+                    <div class="accordion">
+
+                        <div class="accordion-item"
+                            style="border-radius:14px; overflow:hidden; border:1px solid #d1d5db; background:white;">
+
+                            <!-- Project Header (More Focused) -->
+                            <h2 class="accordion-header" >
+
+                                <button class="accordion-button collapsed fw-bold"
+                                        style="background:#e0f2fe; font-size:15px;"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#clientProject{{ $projectId }}">
+
+                                    {{ $projectName }}
+                                </button>
+                            </h2>
+
+                            <!-- Body -->
+                            <div id="clientProject{{ $projectId }}" class="accordion-collapse collapse show">
+                                <div class="accordion-body" style="max-height:300px; overflow-y:auto;">
+
+                                    @foreach($groupedByDate as $label => $items)
+
+                                        @foreach($items as $comment)
+
+                                            <div class="mb-3 p-3 rounded"
+                                                style="background:#ffffff; border:1px solid #e5e7eb; position:relative; padding:10px !important;">
+
+                                                <a href="{{ url('/view/ticket/'.$comment->ticket_id) . '?comment=' . $comment->id }}"
+                                                    target="_blank"
+                                                    class="text-dark text-decoration-none d-block">
+
+                                                    <!-- Message Text (Option 3 style) -->
+                                                    <div style="font-size:14px; color:#334155;">
+                                                        Acknowledgement pending on
+                                                        <span class="text-primary fw-semibold">#{{ $comment->ticket_id }}</span>
+                                                        ({{ $projectName }}) —
+                                                        {{ $comment->user->first_name ?? 'User' }},
+                                                        <span class="text-muted">
+                                                            {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Footer -->
+                                                    <!-- <div class="mt-1 text-muted" style="font-size:13px;">
+                                                        <strong>{{ $comment->user->first_name ?? 'User' }}</strong>
+                                                        • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
+                                                    </div> -->
+
+                                                </a>
+
+                                            </div>
+
+                                        @endforeach
+
+                                    @endforeach
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            @endforeach
+        </div>
+
+    </div>
+
+    @endif
+@endif
 <div class="main-div">
     <div class="main-chat-container container">
         <div class="row g-4">
@@ -1981,6 +2097,7 @@ use Carbon\Carbon;
     //         }
     //     });
     // });
+
     </script>
 
     @endsection

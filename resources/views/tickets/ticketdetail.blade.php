@@ -2,6 +2,14 @@
 @section('title', 'Ticket Details')
 @section('subtitle', 'Ticket')
 @section('content')
+<style>
+    .btn-sm1 {
+           font-size: 15px;
+    padding: 8px 14px;
+    text-align: center;
+    border-radius: 5px;
+    }
+</style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
     @if(!empty($tickets->sprint_id))
@@ -50,7 +58,7 @@
      <div class="detail-item">
         <i class="fa-solid fa-align-left"></i>
         <strong>Description:</strong>
-        
+
         @php
             $description = strip_tags($tickets->description); // Strip HTML for word count
             $words = explode(' ', $description);
@@ -105,7 +113,7 @@
                       $remaining = hoursToHM(max($remainingHours, 0));
                     @endphp
 
-                    @if(Auth::user()->role_id != 6) 
+                    @if(Auth::user()->role_id != 6)
                       <span class="badge bg-info ms-2">
                           Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
                       </span>
@@ -113,7 +121,7 @@
                       <span class="badge bg-warning text-dark ms-2">
                           Remaining: {{ $remaining['h'] }} hrs {{ $remaining['m'] }} min
                       </span>
-                    
+
                       @if($remainingHours > 0)
                         <span class="badge ">
                           <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#logHoursModal">
@@ -121,7 +129,7 @@
                           </button>
                         </span>
                       @endif
-                    
+
                       @if(!empty($tickets->workLogs))
                         <span class="badge ">
                           <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#showWorkLogs">
@@ -130,7 +138,7 @@
                         </span>
                       @endif
                     @endif
-                    
+
                 @elseif($tickets->time_estimation && in_array(Auth::user()->role_id, [1, 6]))
                     <a href="{{ route('ticket.approveEstimation', $tickets->id) }}" class="badge bg-success text-white text-decoration-none ms-2">
                         <i class="fa-solid fa-check-circle me-1 white-icon"></i> Approve Estimation
@@ -406,7 +414,7 @@
                                       @else
                                           <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
                                       @endif
-                                      <div class="d-flex justify-content-between align-items-start w-100">
+                                      <!-- <div class="d-flex justify-content-between align-items-start w-100">
                                         <div>
                                             <span class="name">{{ $data->user->first_name }}</span>
                                             <span class="role">
@@ -424,10 +432,91 @@
                                                 title="Copy comment link">
                                             <i class="fa-solid fa-link"></i>
                                         </button>
-                                      </div>
+
+                                      </div> -->
+                                    <div class="d-flex align-items-center w-100">
+
+                                        <!-- LEFT -->
+                                        <div>
+                                            <span class="name">{{ $data->user->first_name }}</span>
+                                            <span class="role">
+                                                @if ($data->user->role_id == 6)
+                                                    {{ $projectName ?? 'Project Not Assigned' }}
+                                                @else
+                                                    Code4Each
+                                                @endif
+                                            </span>
+                                        </div>
+
+                                        <!-- RIGHT (Grouped properly) -->
+                                        <div class="d-flex align-items-center ms-auto gap-2">
+
+                                            <!-- Link -->
+                                            <button type="button"
+                                                    class="btn btn-sm1 btn-link p-0 share-comment"
+                                                    data-comment-id="{{ $data->id }}"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-title="Copy link">
+                                                <i class="fa-solid fa-link"></i>
+                                            </button>
+
+                                            <!-- Acknowledge -->
+                                        @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
+
+                                        @php
+                                            $canAcknowledge = in_array(auth()->user()->role_id, [1, 3]);
+                                            $ackUser = $data->ack_user_name ?? '';
+                                        @endphp
+
+                                        <span class="acknowledge-toggle {{ !$canAcknowledge ? 'disabled' : '' }}"
+                                            data-id="{{ $data->id }}"
+                                            data-status="{{ $data->status }}"
+                                            data-ack-user="{{ $ackUser }}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="{{
+                                                $data->status == 'acknowledged'
+                                                ? 'Acknowledged by ' . ($data->ack_user_name ?? 'User')
+                                                : ($canAcknowledge ? 'Click to acknowledge' : 'Waiting for developer')
+                                            }}"
+                                            style="
+                                                position:relative;
+                                                display:inline-flex;
+                                                align-items:center;
+                                                font-size: 19px;
+                                                cursor: {{ $canAcknowledge ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ $canAcknowledge ? '1' : '0.6' }};
+                                            ">
+
+                                            <!-- 👍 Icon -->
+                                            <i class="thumb-icon fa-thumbs-up
+                                                {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
+                                            </i>
+
+                                            <!-- ✔ Tick -->
+                                            <i class="tick-icon fa-solid fa-check"
+                                                style="
+                                                    position:absolute;
+                                                    top:-5px;
+                                                    right:-5px;
+                                                    font-size:10px;
+                                                    color:#22c55e;
+                                                    background:white;
+                                                    border-radius:50%;
+                                                    display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
+                                            ">
+                                            </i>
+
+                                        </span>
+
+                                        @endif
+
+                                        </div>
+
+                                    </div>
 
                                   </div>
                               @endif
+
                             <div class="text">
                               @if(!$data->is_system)
                               @if(Auth::user()->id == $data->comment_by)
@@ -492,6 +581,7 @@
               <div class="post-item clearfix mb-3 mt-3">
                 <label for="comment" class="col-sm-3 col-form-label">Comment</label>
                 <input type="hidden" name="comment_id" id="comment_id" value="">
+                <input type="hidden" name="parent_comment_id" id="parent_comment_id">
                 <div class="col-sm-12">
                     <div id="toolbar-container">
                         <span class="ql-formats">
@@ -571,8 +661,8 @@
   let doneLoadingAll = false;
 
   $(document).ready(function () {
-    
-    const commentSection = document.getElementById('comment-scroll'); 
+
+    const commentSection = document.getElementById('comment-scroll');
     commentSection.scrollTop = commentSection.scrollHeight;
   });
 
@@ -774,6 +864,7 @@
 
         setTimeout(() => tooltip.remove(), 2500);
     }
+
 
     function fallbackCopy(text) {
         const textarea = document.createElement("textarea");
@@ -1035,7 +1126,7 @@
           ${profilePic}
 
           <div class="d-flex justify-content-between align-items-start w-100 ms-2">
-            
+
             <div>
               <span class="name">${firstName}</span>
               <span class="role">${role}</span>
@@ -1076,6 +1167,124 @@
           link.textContent = 'Show More';
       }
   }
+    function showAcknowledgeMsg(message, el) {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = message;
+
+        tooltip.style.position = 'fixed';
+        tooltip.style.background = '#1e293b';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '6px 12px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.borderRadius = '20px';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.whiteSpace = 'nowrap';
+        tooltip.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+        tooltip.style.opacity = '0';
+        tooltip.style.transition = 'all 0.2s ease';
+
+        document.body.appendChild(tooltip);
+
+        const rect = el.getBoundingClientRect();
+
+        tooltip.style.top = (rect.top - 35) + "px";
+        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + "px";
+
+        // fade in
+        setTimeout(() => {
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translateY(-3px)';
+        }, 10);
+
+        // fade out
+        setTimeout(() => {
+            tooltip.style.opacity = '0';
+            tooltip.style.transform = 'translateY(0px)';
+        }, 1800);
+
+        setTimeout(() => tooltip.remove(), 2200);
+    }
+$(document).on('click', '.acknowledge-toggle', function () {
+
+        if (![1, 3].includes({{ auth()->user()->role_id }})) {
+            return;
+        }
+
+    let el = $(this);
+    let commentId = el.data('id');
+
+    $.ajax({
+        url: '/acknowledge-comment',
+        type: 'POST',
+        data: {
+            comment_id: commentId,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function (res) {
+
+            let thumb = el.find('.thumb-icon');
+            let tick = el.find('.tick-icon');
+
+            el.tooltip('dispose');
+
+        if (res.new_status === 'acknowledged') {
+
+            el.attr('data-status', 'acknowledged');
+            el.attr('data-ack-user', res.user_name);
+
+            el.attr('data-bs-title', 'Acknowledged by ' + res.user_name);
+
+            thumb.removeClass('fa-regular text-muted')
+                .addClass('fa-solid text-success');
+
+            tick.show();
+
+            showAcknowledgeMsg("Acknowledged by " + res.user_name, el[0]);
+
+        } else {
+
+            el.attr('data-status', 'replied');
+            el.removeAttr('data-ack-user');
+
+            el.attr('data-bs-title', 'Click to acknowledge');
+
+            thumb.removeClass('fa-solid text-success')
+                .addClass('fa-regular text-muted');
+
+            tick.hide();
+
+            showAcknowledgeMsg("Acknowledgement removed", el[0]);
+        }
+
+            el.tooltip();
+        }
+    });
+
+});
+$(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const commentId = urlParams.get('comment');
+
+        if (commentId) {
+
+            // set parent comment id
+            $('#parent_comment_id').val(commentId);
+
+            // OPTIONAL: show replying UI
+            $('#replyingToBox').show();
+            $('#replyingToId').text('#' + commentId);
+
+            // OPTIONAL: scroll to editor
+            $('html, body').animate({
+                scrollTop: $("#editor").offset().top - 100
+            }, 400);
+        }
+
+});
+$(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
 </script>
 
 @endsection
