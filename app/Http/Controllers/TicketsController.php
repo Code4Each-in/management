@@ -615,7 +615,7 @@ class TicketsController extends Controller
                 'ticket_id'  => $validate['id'],
                 'document'   => implode(',', $documentPaths),
                 'comment_by' => auth()->user()->id,
-'reply_to' => $request->input('reply_to')
+                'reply_to' => $request->input('reply_to')
             ]);
 
             // client comment
@@ -631,17 +631,46 @@ class TicketsController extends Controller
             }
 
             // developer/admin reply
-            if (auth()->user()->role_id != 6 && $request->reply_to) {
+            // if (auth()->user()->role_id != 6 && $request->reply_to) {
+            //     dd($request->reply_to);
 
-                DB::table('comment_status')
-                    ->where('comment_id', $request->reply_to) // ✅ ONLY parent comment
-                    ->update([
-                        'status'      => 'replied',
-                        'replied_by'  => auth()->id(),
-                        'replied_at'  => now(),
-                        'updated_at'  => now()
-                    ]);
+            //     DB::table('comment_status')
+            //         ->where('comment_id', $request->reply_to) // ✅ ONLY parent comment
+            //         ->update([
+            //             'status'      => 'replied',
+            //             'replied_by'  => auth()->id(),
+            //             'replied_at'  => now(),
+            //             'updated_at'  => now()
+            //         ]);
+            // }
+            if (auth()->user()->role_id != 6) {
+
+                if (!empty($request->reply_to)) {
+
+                    // When replying to a specific comment
+                    DB::table('comment_status')
+                        ->where('comment_id', $request->reply_to)
+                        ->update([
+                            'status'      => 'replied',
+                            'replied_by'  => auth()->id(),
+                            'replied_at'  => now(),
+                            'updated_at'  => now()
+                        ]);
+
+                } else {
+                    // Fallback: when reply_to is null
+                    DB::table('comment_status')
+                        ->where('ticket_id', $validate['id'])
+                        ->where('status', 'pending')
+                        ->update([
+                            'status'      => 'replied',
+                            'replied_by'  => auth()->id(),
+                            'replied_at'  => now(),
+                            'updated_at'  => now()
+                        ]);
+                }
             }
+
             Notification::create([
                 'user_id' => auth()->user()->id,
                 'type' => 'comment',

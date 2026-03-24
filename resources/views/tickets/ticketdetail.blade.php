@@ -561,14 +561,14 @@
                                             data-id="{{ $data->id }}"
                                             data-status="{{ $data->status }}"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (auth()->user()->role_id == 3 ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
                                             style="
                                                 position:relative;
                                                 display:inline-flex;
                                                 align-items:center;
                                                 font-size: 19px;
-                                                cursor: {{ auth()->user()->role_id == 3 ? 'pointer' : 'not-allowed' }};
-                                                opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
+                                                cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
                                             ">
 
                                             <!--  Icon -->
@@ -1471,7 +1471,8 @@ function showAcknowledgeMsg(message, el) {
 }
 $(document).on('click', '.acknowledge-toggle', function () {
 
-    if ({{ auth()->user()->role_id }} != 3) {
+    const role = {{ auth()->user()->role_id }};
+    if (![1, 3].includes(role)) { // only allow admin and developer
         return;
     }
 
@@ -1486,38 +1487,24 @@ $(document).on('click', '.acknowledge-toggle', function () {
             _token: '{{ csrf_token() }}'
         },
         success: function (res) {
-
             let thumb = el.find('.thumb-icon');
             let tick = el.find('.tick-icon');
 
             el.tooltip('dispose');
 
-        if (res.new_status === 'acknowledged') {
-
-            el.attr('data-status', 'acknowledged');
-            el.attr('data-bs-title', 'Acknowledged (Click to undo)');
-
-            thumb.removeClass('fa-regular text-muted')
-                .addClass('fa-solid text-success');
-
-            tick.show();
-
-            // ✅ FIXED
-            showAcknowledgeMsg("Comment acknowledged", el[0]);
-
-        } else {
-
-            el.attr('data-status', 'replied');
-            el.attr('data-bs-title', 'Click to acknowledge');
-
-            thumb.removeClass('fa-solid text-success')
-                .addClass('fa-regular text-muted');
-
-            tick.hide();
-
-            // ✅ FIXED
-            showAcknowledgeMsg("Acknowledgement removed", el[0]);
-        }
+            if (res.new_status === 'acknowledged') {
+                el.attr('data-status', 'acknowledged');
+                el.attr('data-bs-title', 'Acknowledged (Click to undo)');
+                thumb.removeClass('fa-regular text-muted').addClass('fa-solid text-success');
+                tick.show();
+                showAcknowledgeMsg("Comment acknowledged", el[0]);
+            } else {
+                el.attr('data-status', 'replied');
+                el.attr('data-bs-title', 'Click to acknowledge');
+                thumb.removeClass('fa-solid text-success').addClass('fa-regular text-muted');
+                tick.hide();
+                showAcknowledgeMsg("Acknowledgement removed", el[0]);
+            }
 
             el.tooltip();
         }
