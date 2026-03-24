@@ -9,6 +9,98 @@
     text-align: center;
     border-radius: 5px;
     }
+    .reply-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.reply-arrow {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+.reply-card {
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reply-card:hover {
+    background: #e5e7eb;
+}
+
+.reply-avatar img {
+    object-fit: cover;
+}
+
+.avatar-fallback {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #fff;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.reply-header {
+    font-weight: 600;
+    font-size: 13px;
+    color: #111827;
+}
+
+.reply-time {
+    font-weight: 400;
+    font-size: 11px;
+    color: #6b7280;
+    margin-left: 6px;
+}
+
+.reply-text {
+    font-size: 12px;
+    color: #374151;
+    margin-top: 3px;
+
+    /* clamp to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.reply-more {
+    font-size: 12px;
+    color: #22c55e;
+    cursor: pointer;
+}
+.message-box {
+    position: relative;
+}
+
+.reply-btn-inside {
+    position: absolute;
+    right: 8px;
+    top: 6px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;   /* ✅ always visible */
+    color: #6b7280;
+}
+
+/* hover effect */
+.reply-btn-inside:hover {
+    color: #2563eb;
+}
 </style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
@@ -461,17 +553,7 @@
                                                 data-bs-title="Copy link">
                                                 <i class="fa-solid fa-link"></i>
                                             </button>
-                                            <!-- comment reply -->
-                                            @if(Auth::id() != $data->comment_by)
-                                            <button type="button"
-                                                class="btn btn-link p-0 m-0 reply-btn"
-                                                style="line-height:1;"
-                                                data-id="{{ $data->id }}"
-                                                data-message="{{ htmlspecialchars(strip_tags($data->comments), ENT_QUOTES) }}"
-                                                data-user="{{ $data->user->first_name }}">
-                                                <i class="fa fa-reply"></i>
-                                            </button>
-                                            @endif
+
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
@@ -489,12 +571,12 @@
                                                 opacity: {{ auth()->user()->role_id == 3 ? '1' : '0.6' }};
                                             ">
 
-                                            <!-- 👍 Icon -->
+                                            <!--  Icon -->
                                             <i class="thumb-icon fa-thumbs-up
                                                 {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
                                             </i>
 
-                                            <!-- ✔ Tick -->
+                                            <!-- Tick -->
                                             <i class="tick-icon fa-solid fa-check"
                                                 style="
                                                     position:absolute;
@@ -519,7 +601,18 @@
                                   </div>
                               @endif
 
-                            <div class="text">
+                            <div class="text message-box">
+                                  @if(Auth::id() != $data->comment_by)
+                                    <button type="button"
+                                            class="reply-btn-inside"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="Reply to this message"
+                                            data-id="{{ $data->id }}"
+                                            data-message="{{ strip_tags($data->comments) }}"
+                                            data-user="{{ $data->user->first_name }}">
+                                        <i class="fa fa-reply"></i>
+                                    </button>
+                                    @endif
                               @if(!$data->is_system)
                               @if(Auth::user()->id == $data->comment_by)
                                 <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 8px;">
@@ -540,30 +633,56 @@
                               <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                               </div>
-                                {{-- ✅ REPLY BOX AT BOTTOM --}}
+                                {{-- REPLY BOX AT BOTTOM --}}
                                 @if($data->reply_to)
                                     @php
                                         $parent = $CommentsData->firstWhere('id', $data->reply_to);
                                     @endphp
 
                                     @if($parent)
-                                        <div class="reply-box"
-                                            data-scroll-id="comment-{{ $parent->id }}"
-                                            style="
-                                                background:#f1f5f9;
-                                                padding:6px 10px;
-                                                border-left:3px solid #3b82f6;
-                                                border-radius:6px;
-                                                margin-top:8px;
-                                                font-size:12px;
-                                                color:#334155;
-                                                cursor:pointer;
-                                            ">
+                                        <div class="reply-wrapper">
 
-                                            <strong>{{ $parent->user->first_name ?? 'User' }}</strong>:
+                                            <!-- Arrow -->
+                                               <div class="reply-arrow">
+                                                    <i class="fa-solid fa-reply" style="transform: rotate(180deg);"></i>
+                                                </div>
+                                            <!-- Reply Card -->
+                                            <div class="reply-card"
+                                                data-scroll-id="comment-{{ $parent->id }}">
 
-                                            <div style="color:#64748b;">
-                                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 80) }}
+                                                <div class="reply-top d-flex align-items-start gap-2">
+
+                                                    <!-- Profile -->
+                                                    <div class="reply-avatar">
+                                                        @if(!empty($parent->user->profile_picture))
+                                                            <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
+                                                                class="rounded-circle"
+                                                                width="34" height="34">
+                                                        @else
+                                                            <div class="avatar-fallback">
+                                                                {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- Content -->
+                                                    <div class="reply-content">
+
+                                                        <div class="reply-header">
+                                                            {{ $parent->user->first_name ?? 'User' }}
+                                                            <span class="reply-time">
+                                                                {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="reply-text">
+                                                            {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
+                                                        </div>
+
+
+                                                    </div>
+
+                                                </div>
                                             </div>
                                         </div>
                                     @endif
@@ -614,6 +733,22 @@
                 <input type="hidden" name="reply_to" id="reply_to">
                 <input type="hidden" name="parent_comment_id" id="parent_comment_id">
                 <div class="col-sm-12">
+                       <!-- comment reply -->
+                    <div id="replyPreview"
+                        style="display:none; background:#f1f5f9; padding:8px; border-left:3px solid #3b82f6; margin-bottom:10px; border-radius:6px;">
+                        <span id="cancelReply"
+                            title="Cancel reply"
+                            style="cursor:pointer; float:right; color:#ef4444; font-size:14px;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </span>
+                        <div style="font-size:15px; color:#334155;">
+                            Replying to <strong id="replyUser"></strong>
+                        </div>
+
+                        <div id="replyText" style="font-size:14px; color:#64748b;"></div>
+
+
+                    </div>
                     <div id="toolbar-container">
                         <span class="ql-formats">
                             <select class="ql-font"></select>
@@ -660,18 +795,7 @@
                         </span>
                     </div>
 
-                    <!-- comment reply -->
-                    <div id="replyPreview"
-                        style="display:none; background:#f1f5f9; padding:8px; border-left:3px solid #3b82f6; margin-bottom:10px; border-radius:6px;">
-                        <span id="cancelReply" style="cursor:pointer; float:right; color:red;">✖</span>
-                        <div style="font-size:12px; color:#334155;">
-                            Replying to <strong id="replyUser"></strong>
-                        </div>
 
-                        <div id="replyText" style="font-size:13px; color:#64748b;"></div>
-
-
-                    </div>
                     <div id="editor" style="height: 300px;"></div>
                     <input type="hidden" name="comment" id="comment_input" value="{{ old('comment') }}">
 
@@ -1113,27 +1237,34 @@
 // click reply button
 $(document).ready(function () {
 
-    $(document).on('click', '.reply-btn', function () {
+$(document).on('click', '.reply-btn-inside', function () {
 
-        let commentId = $(this).data('id');
+    let commentId = $(this).data('id');
+    let message = $(this).data('message');
+    let user = $(this).data('user');
 
-        console.log("Clicked reply for:", commentId); // DEBUG
+    console.log("Reply TO:", commentId);
 
-        $('#reply_to').val(commentId);
+    // set hidden input
+    $('#reply_to').val(commentId);
 
-        console.log("Set reply_to:", $('#reply_to').val()); // DEBUG
+    // show preview
+    $('#replyUser').text(user);
+    $('#replyText').text(message.substring(0, 120));
 
-        $('#replyUser').text($(this).data('user'));
-        $('#replyText').text($(this).data('message').substring(0, 80));
-        $('#replyPreview').show();
+    $('#replyPreview').show();
 
-    });
+    // scroll to textarea
+    $('html, body').animate({
+        scrollTop: $('#replyPreview').offset().top - 120
+    }, 400);
+});
 
 });
 // cancel reply
-$('#cancelReply').on('click', function () {
-    $('#reply_to').val('');
+$('#cancelReply').click(function () {
     $('#replyPreview').hide();
+    $('#reply_to').val('');
 });
 $(document).on('click', '.reply-box', function () {
  console.log('CLICK WORKING');
@@ -1156,6 +1287,24 @@ console.log(targetId);
 
         setTimeout(() => {
             target.css('background', '');
+        }, 1500);
+    }
+});
+$(document).on('click', '.reply-card', function () {
+
+    let targetId = $(this).data('scroll-id');
+    let target = document.getElementById(targetId);
+
+    if (target) {
+        target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        target.style.background = '#fff3cd';
+
+        setTimeout(() => {
+            target.style.background = '';
         }, 1500);
     }
 });
