@@ -88,7 +88,7 @@
 .reply-btn-inside {
     position: absolute;
     right: 8px;
-    top: 6px;
+    bottom: 4px;
     border: none;
     background: transparent;
     font-size: 14px;
