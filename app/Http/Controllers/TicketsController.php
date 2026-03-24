@@ -46,7 +46,7 @@ class TicketsController extends Controller
             ->get();
             $role_id = auth()->user()->role_id;
             $sprints = Sprint::where('status', 1)->get();
-            $projects = Projects::all();
+            $projects = Projects::where('status', 'active')->get();
             $auth_user =  auth()->user()->id;
             $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
             if ($allTicketsFilter == 'on') {
