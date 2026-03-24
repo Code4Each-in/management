@@ -18,6 +18,7 @@ use App\Models\Projects;
 use App\Models\Tickets;
 use App\Models\TodoList;
 use App\Models\UserAttendancesTemporary;
+use App\Models\Announcement;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\Reminder;
@@ -543,6 +544,15 @@ class DashboardController extends Controller
                 ->get();
         // $uservote = Users::where('status',1)->where('role_id', '!=', 1)->get();
 
+        // Get all announcements
+        $announcements = Announcement::where('is_active', 1)
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                ->orWhere('end_date', '>=', now());
+            })
+            ->latest()
+            ->get();
+
         // dd($projectMap);
         return view('dashboard.index', compact(
             'userCount',
@@ -576,7 +586,8 @@ class DashboardController extends Controller
             'allEmployees',
             'allClients',
             'groupedNotifications',
-            'groupedClientComments'
+            'groupedClientComments',
+            'announcements'
         ));
     }
 

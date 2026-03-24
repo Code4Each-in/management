@@ -39,6 +39,7 @@ use App\Http\Controllers\ClientAccessRequestController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
+use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
@@ -321,6 +322,25 @@ Route::middleware(['role_permission'])->group(function () {
     Route::get('/reminder/edit/{reminder}', [ReminderController::class, 'edit'])->name('reminders.edit');
     Route::put('/reminder/{reminder}', [ReminderController::class, 'update'])->name('reminders.update'); // Add this line
     Route::delete('/reminder/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
+
+	//Announcement Routes
+	// MAIN PAGE (listing)
+	Route::get('/announcement', [AnnouncementController::class, 'index'])->name('announcement.index');
+
+	// CREATE FORM PAGE
+	Route::get('/announcement/create', [AnnouncementController::class, 'create'])->name('announcement.create');
+
+	// STORE
+	Route::post('/announcement/store', [AnnouncementController::class, 'store'])->name('announcement.store');
+
+	// EDIT
+	Route::get('/announcement/edit/{announcement}', [AnnouncementController::class, 'edit'])->name('announcement.edit');
+
+	// UPDATE
+	Route::put('/announcement/{announcement}', [AnnouncementController::class, 'update'])->name('announcement.update');
+
+	// DELETE
+	Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
 
 	//developer related listing
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
