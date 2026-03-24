@@ -177,7 +177,7 @@
                         <span>Messages</span>
                     </div>
                 </a>
-            </li>    
+            </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
                     href="{{ route('reminder.create') }}">
@@ -276,7 +276,7 @@
                         <span>Messages</span>
                     </div>
                 </a>
-            </li>    
+            </li>
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
                 href="{{ route('comments') }}">
@@ -401,11 +401,11 @@
                 <i class="bi bi-person-vcard-fill"></i>
                 <span>Attendance</span>
             </a>
-            
+
             <ul id="attendance-nav"
                 class="nav-content collapse {{ request()->is('attendance/team') || request()->is('attendance/history') ? 'show' : '' }}"
                 data-bs-parent="#sidebar-nav">
-                
+
                 <li>
                     <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed' }}"
                         href="{{ route('attendance.team.index') }}">
@@ -606,6 +606,31 @@
                     </li>
                 </ul>
             </li>
+            <!--  new section email templates -->
+            <!-- <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#email-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-envelope"></i><span>Email Management</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+
+                <ul id="email-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ route('templates.index') }}">
+                            <i class="bi bi-circle"></i><span>Email Templates</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('scheduled.index') }}">
+                            <i class="bi bi-circle"></i><span>Scheduled Emails</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('scheduled.tracking') }}">
+                            <i class="bi bi-circle"></i><span>Email Tracking</span>
+                        </a>
+                    </li>
+                </ul>
+            </li> -->
 
             @endif
             @endif
