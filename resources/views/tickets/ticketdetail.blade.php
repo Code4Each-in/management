@@ -557,36 +557,26 @@
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
-                                        @php
-                                            $canAcknowledge = in_array(auth()->user()->role_id, [1, 3]);
-                                            $ackUser = $data->ack_user_name ?? '';
-                                        @endphp
-
-                                        <span class="acknowledge-toggle {{ !$canAcknowledge ? 'disabled' : '' }}"
+                                        <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
                                             data-id="{{ $data->id }}"
                                             data-status="{{ $data->status }}"
-                                            data-ack-user="{{ $ackUser }}"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="{{
-                                                $data->status == 'acknowledged'
-                                                ? 'Acknowledged by ' . ($data->ack_user_name ?? 'User')
-                                                : ($canAcknowledge ? 'Click to acknowledge' : 'Waiting for developer')
-                                            }}"
+                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
                                             style="
                                                 position:relative;
                                                 display:inline-flex;
                                                 align-items:center;
                                                 font-size: 19px;
-                                                cursor: {{ $canAcknowledge ? 'pointer' : 'not-allowed' }};
-                                                opacity: {{ $canAcknowledge ? '1' : '0.6' }};
+                                                cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
                                             ">
 
-                                            <!-- 👍 Icon -->
+                                            <!--  Icon -->
                                             <i class="thumb-icon fa-thumbs-up
                                                 {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
                                             </i>
 
-                                            <!-- ✔ Tick -->
+                                            <!-- Tick -->
                                             <i class="tick-icon fa-solid fa-check"
                                                 style="
                                                     position:absolute;
@@ -624,12 +614,16 @@
                                     </button>
                                     @endif
                               @if(!$data->is_system)
-                              @if(Auth::user()->id == $data->comment_by)
+                              @php
+                                $canEdit = Auth::id() == $data->comment_by 
+                                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
+                                @endphp
+                                @if($canEdit)
                                 <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 8px;">
                                   <i class="fa-solid fa-trash"></i>
                               </button>
                               @endif
-                              @if(Auth::user()->id == $data->comment_by)
+                              @if($canEdit)
                               <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
                                       data-comment-id="{{ $data->id }}"
                                       data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
@@ -638,7 +632,12 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
-
+                             @if($data->updated_at && $data->updated_at != $data->created_at)
+                                <span style="font-size: 13px;color: #012970;margin-right: 8px;line-height: 1;float: right;margin-top: 3px;">
+                                    Edited
+                                </span>
+                            @endif
+                    
                             @endif
                               <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
@@ -1481,9 +1480,10 @@ function showAcknowledgeMsg(message, el) {
 }
 $(document).on('click', '.acknowledge-toggle', function () {
 
-        if (![1, 3].includes({{ auth()->user()->role_id }})) {
-            return;
-        }
+    const role = {{ auth()->user()->role_id }};
+    if (![1, 3].includes(role)) { // only allow admin and developer
+        return;
+    }
 
     let el = $(this);
     let commentId = el.data('id');
@@ -1496,40 +1496,24 @@ $(document).on('click', '.acknowledge-toggle', function () {
             _token: '{{ csrf_token() }}'
         },
         success: function (res) {
-
             let thumb = el.find('.thumb-icon');
             let tick = el.find('.tick-icon');
 
             el.tooltip('dispose');
 
-        if (res.new_status === 'acknowledged') {
-
-            el.attr('data-status', 'acknowledged');
-            el.attr('data-ack-user', res.user_name);
-
-            el.attr('data-bs-title', 'Acknowledged by ' + res.user_name);
-
-            thumb.removeClass('fa-regular text-muted')
-                .addClass('fa-solid text-success');
-
-            tick.show();
-
-            showAcknowledgeMsg("Acknowledged by " + res.user_name, el[0]);
-
-        } else {
-
-            el.attr('data-status', 'replied');
-            el.removeAttr('data-ack-user');
-
-            el.attr('data-bs-title', 'Click to acknowledge');
-
-            thumb.removeClass('fa-solid text-success')
-                .addClass('fa-regular text-muted');
-
-            tick.hide();
-
-            showAcknowledgeMsg("Acknowledgement removed", el[0]);
-        }
+            if (res.new_status === 'acknowledged') {
+                el.attr('data-status', 'acknowledged');
+                el.attr('data-bs-title', 'Acknowledged (Click to undo)');
+                thumb.removeClass('fa-regular text-muted').addClass('fa-solid text-success');
+                tick.show();
+                showAcknowledgeMsg("Comment acknowledged", el[0]);
+            } else {
+                el.attr('data-status', 'replied');
+                el.attr('data-bs-title', 'Click to acknowledge');
+                thumb.removeClass('fa-solid text-success').addClass('fa-regular text-muted');
+                tick.hide();
+                showAcknowledgeMsg("Acknowledgement removed", el[0]);
+            }
 
             el.tooltip();
         }

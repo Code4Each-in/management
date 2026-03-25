@@ -595,6 +595,14 @@ class TicketsController extends Controller
             if ($request->has('comment_id') && $request->comment_id != null) {
                 $existingComment = TicketComments::find($request->comment_id);
                 if ($existingComment) {
+
+                    // ❗ BLOCK AFTER 5 HOURS
+                    if (now()->diffInHours($existingComment->created_at) > 5) {
+                        return response()->json([
+                            'status' => 403,
+                            'message' => 'You can only edit comments within 5 hours.'
+                        ]);
+                    }
                     $existingComment->comments = $validate['comment'];
                     if (!empty($documentPaths)) {
                         $existingComment->document = implode(',', $documentPaths);
