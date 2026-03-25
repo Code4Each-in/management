@@ -538,6 +538,13 @@
                                                     Code4Each
                                                 @endif
                                             </span>
+                                            @if(!$data->is_system)
+                                              @if($data->updated_at && $data->updated_at != $data->created_at)
+                                                <span style="font-size: 13px;color: #012970;margin-left: 7px;margin-top: 7px;">
+                                                    Edited
+                                                </span>
+                                            @endif
+                                            @endif
                                         </div>
 
                                         <!-- RIGHT (Grouped properly) -->
@@ -631,11 +638,6 @@
                                       style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px;">
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
-                            @endif
-                             @if($data->updated_at && $data->updated_at != $data->created_at)
-                                <span style="font-size: 13px;color: #012970;margin-right: 8px;line-height: 1;float: right;margin-top: 3px; margin-left:10px;">
-                                    Edited
-                                </span>
                             @endif
                     
                             @endif
