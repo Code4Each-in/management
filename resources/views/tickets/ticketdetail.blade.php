@@ -633,7 +633,7 @@
                               </button>
                             @endif
                              @if($data->updated_at && $data->updated_at != $data->created_at)
-                                <span style="font-size: 13px;color: #012970;margin-right: 8px;line-height: 1;float: right;margin-top: 3px;">
+                                <span style="font-size: 13px;color: #012970;margin-right: 8px;line-height: 1;float: right;margin-top: 3px; margin-left:10px;">
                                     Edited
                                 </span>
                             @endif
