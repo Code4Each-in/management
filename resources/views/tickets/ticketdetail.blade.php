@@ -564,18 +564,28 @@
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
-                                        <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
+                                        @php
+                                            $canAcknowledge = in_array(auth()->user()->role_id, [1, 3]);
+                                            $ackUser = $data->ack_user_name ?? '';
+                                        @endphp
+
+                                        <span class="acknowledge-toggle {{ !$canAcknowledge ? 'disabled' : '' }}"
                                             data-id="{{ $data->id }}"
                                             data-status="{{ $data->status }}"
+                                            data-ack-user="{{ $ackUser }}"
                                             data-bs-toggle="tooltip"
-                                            data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                            data-bs-title="{{
+                                                $data->status == 'acknowledged'
+                                                ? 'Acknowledged by ' . ($data->ack_user_name ?? 'User')
+                                                : ($canAcknowledge ? 'Click to acknowledge' : 'Waiting for developer')
+                                            }}"
                                             style="
                                                 position:relative;
                                                 display:inline-flex;
                                                 align-items:center;
                                                 font-size: 19px;
-                                                cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
-                                                opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
+                                                cursor: {{ $canAcknowledge ? 'pointer' : 'not-allowed' }};
+                                                opacity: {{ $canAcknowledge ? '1' : '0.6' }};
                                             ">
 
                                             <!--  Icon -->
@@ -1504,18 +1514,24 @@ $(document).on('click', '.acknowledge-toggle', function () {
             el.tooltip('dispose');
 
             if (res.new_status === 'acknowledged') {
-                el.attr('data-status', 'acknowledged');
-                el.attr('data-bs-title', 'Acknowledged (Click to undo)');
-                thumb.removeClass('fa-regular text-muted').addClass('fa-solid text-success');
-                tick.show();
-                showAcknowledgeMsg("Comment acknowledged", el[0]);
-            } else {
-                el.attr('data-status', 'replied');
-                el.attr('data-bs-title', 'Click to acknowledge');
-                thumb.removeClass('fa-solid text-success').addClass('fa-regular text-muted');
-                tick.hide();
-                showAcknowledgeMsg("Acknowledgement removed", el[0]);
-            }
+
+            el.attr('data-status', 'acknowledged');
+            el.attr('data-ack-user', res.user_name);
+            el.attr('data-bs-title', 'Acknowledged by ' + res.user_name);
+            thumb.removeClass('fa-regular text-muted')
+                .addClass('fa-solid text-success');
+            tick.show();
+            showAcknowledgeMsg("Acknowledged by " + res.user_name, el[0]);
+
+        } else {
+            el.attr('data-status', 'replied');
+            el.removeAttr('data-ack-user');
+            el.attr('data-bs-title', 'Click to acknowledge');
+            thumb.removeClass('fa-solid text-success')
+                .addClass('fa-regular text-muted');
+            tick.hide();
+            showAcknowledgeMsg("Acknowledgement removed", el[0]);
+        }
 
             el.tooltip();
         }
