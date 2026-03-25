@@ -326,20 +326,10 @@ Route::middleware(['role_permission'])->group(function () {
 	//Announcement Routes
 	// MAIN PAGE (listing)
 	Route::get('/announcement', [AnnouncementController::class, 'index'])->name('announcement.index');
-
-	// CREATE FORM PAGE
 	Route::get('/announcement/create', [AnnouncementController::class, 'create'])->name('announcement.create');
-
-	// STORE
 	Route::post('/announcement/store', [AnnouncementController::class, 'store'])->name('announcement.store');
-
-	// EDIT
 	Route::get('/announcement/edit/{announcement}', [AnnouncementController::class, 'edit'])->name('announcement.edit');
-
-	// UPDATE
 	Route::put('/announcement/{announcement}', [AnnouncementController::class, 'update'])->name('announcement.update');
-
-	// DELETE
 	Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
 
 	//developer related listing
@@ -375,6 +365,7 @@ Route::middleware(['role_permission'])->group(function () {
 		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
 	});
 	Route::post('/user/heartbeat', [UsersController::class, 'heartbeat'])->middleware('auth');
+	
 
 	//bde section
 	Route::get('/bid-sprints', [BDEController::class, 'index'])->name('bdeSprint.index');
