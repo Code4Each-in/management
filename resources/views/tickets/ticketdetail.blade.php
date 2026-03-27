@@ -87,7 +87,7 @@
 
 .reply-btn-inside {
     position: absolute;
-    right: 8px;
+    right: 10px;
     bottom: 4px;
     border: none;
     background: transparent;
@@ -207,7 +207,7 @@
 
                     @if(Auth::user()->role_id != 6)
                       <span class="badge bg-info ms-2">
-                          Spent: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
+                          Logged: {{ $spent['h'] }} hrs {{ $spent['m'] }} min
                       </span>
 
                       <span class="badge bg-warning text-dark ms-2">
