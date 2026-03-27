@@ -191,8 +191,8 @@
                                     <th class="fs-6 fw-bold text-uppercase text-center">Ticket Title</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Sprint Name</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Project</th>
-                                    <th class="fs-6 fw-bold text-uppercase text-center">Time Estimation</th>
-                                    <th class="fs-6 fw-bold text-uppercase text-center">Spent Hours</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Total Hours</th>
+                                    <th class="fs-6 fw-bold text-uppercase text-center">Logged Hours</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Remaining Hours</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Ticket Status</th>
                                     <th class="fs-6 fw-bold text-uppercase text-center">Approval Status</th>
