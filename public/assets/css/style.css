@@ -3616,7 +3616,7 @@ span.badge.inactive {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 .message {
-  margin-bottom: 25px;
+  margin: 18px;
   position: relative;
 }
 .message .info {
