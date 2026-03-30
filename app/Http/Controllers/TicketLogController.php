@@ -21,10 +21,16 @@ class TicketLogController extends Controller
         $clientId = $user->client_id;
 
         if (!is_null($clientId)) {
-            $projects = Projects::where('client_id', $clientId)->get();
+            $projects = Projects::where('client_id', $clientId)
+                ->where('status', 'active')
+                ->get();
+
             $projectIds = $projects->pluck('id')->toArray();
         } else {
-            $projects = Projects::orderBy('project_name')->get();
+            $projects = Projects::where('status', 'active')
+                ->orderBy('project_name')
+                ->get();
+
             $projectIds = $projects->pluck('id')->toArray();
         }
 

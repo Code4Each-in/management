@@ -39,6 +39,9 @@ use App\Http\Controllers\ClientAccessRequestController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\ProjectLogSettingController;
+use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\ScheduledEmailController;
+use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
@@ -322,6 +325,15 @@ Route::middleware(['role_permission'])->group(function () {
     Route::put('/reminder/{reminder}', [ReminderController::class, 'update'])->name('reminders.update'); // Add this line
     Route::delete('/reminder/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
 
+	//Announcement Routes
+	// MAIN PAGE (listing)
+	Route::get('/announcement', [AnnouncementController::class, 'index'])->name('announcement.index');
+	Route::get('/announcement/create', [AnnouncementController::class, 'create'])->name('announcement.create');
+	Route::post('/announcement/store', [AnnouncementController::class, 'store'])->name('announcement.store');
+	Route::get('/announcement/edit/{announcement}', [AnnouncementController::class, 'edit'])->name('announcement.edit');
+	Route::put('/announcement/{announcement}', [AnnouncementController::class, 'update'])->name('announcement.update');
+	Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
+
 	//developer related listing
     Route::get('/devlisting', [ProjectsController::class, 'devListing'])->name('devlisting');
 	Route::post('/submit-feedback', [ProjectsController::class, 'submitFeedback'])->name('feedback.submit');
@@ -355,6 +367,7 @@ Route::middleware(['role_permission'])->group(function () {
 		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
 	});
 	Route::post('/user/heartbeat', [UsersController::class, 'heartbeat'])->middleware('auth');
+	
 
 	//bde section
 	Route::get('/bid-sprints', [BDEController::class, 'index'])->name('bdeSprint.index');
@@ -419,3 +432,12 @@ Route::post('/log-setting-approve/{id}', [ProjectLogSettingController::class,'ap
 
 Route::post('/log-setting-reject/{id}', [ProjectLogSettingController::class,'reject'])->name('log.reject');
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
+// routes/web.php
+
+// Email Templates
+Route::resource('templates', EmailTemplateController::class);
+
+// Scheduled Emails
+Route::resource('scheduled', ScheduledEmailController::class);
+Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
+    ->name('scheduled.tracking');

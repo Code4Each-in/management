@@ -139,7 +139,102 @@ use Carbon\Carbon;
     background-color: #f1c40f;
     align-items: center;
 }
+.announcement-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    background: #ffffff;
+}
+
+.announcement-header {
+    background: linear-gradient(45deg, #4154f1, #6c7cff);
+    color: #fff;
+    padding: 12px 18px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.announcement-card {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideUp 0.6s ease forwards;
+    
+}
+
+/* Delay for each card (stagger effect) */
+.announcement-card:nth-child(1) { animation-delay: 0.1s; }
+.announcement-card:nth-child(2) { animation-delay: 0.2s; }
+.announcement-card:nth-child(3) { animation-delay: 0.3s; }
+.announcement-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.announcement-card:hover {
+    background: #f9f9ff;
+}
+
+.announcement-title {
+    font-weight: 800;
+    font-size: 16px;
+    color: #012970;
+}
+
+.announcement-desc {
+    margin-top: 6px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.announcement-desc p{
+    margin:0;
+}
+.announcement-footer {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #999;
+}
 </style>
+@php
+    $filteredAnnouncements = $announcements->filter(function ($item) {
+        return auth()->user()->role_id != 6 || $item->show_to_client;
+    });
+@endphp
+@if($filteredAnnouncements->isNotEmpty())
+<div class="container mb-4">
+
+    <div class="announcement-wrapper">
+        <div class="announcement-header">
+            📢 Latest Announcements
+        </div>
+
+        @foreach($filteredAnnouncements as $announcement)
+            <div class="announcement-card">
+
+                <div class="announcement-title">
+                    {{ $announcement->title }}
+                </div>
+                <div class="announcement-desc">
+                    {!! $announcement->message !!}
+                </div>
+
+                <!-- <div class="announcement-footer">
+                    <span>{{ $announcement->created_at->format('d M Y') }}</span>
+                </div> -->
+
+            </div>
+        @endforeach
+
+    </div>
+
+</div>
+@endif
 @if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
 
