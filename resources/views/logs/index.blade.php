@@ -266,6 +266,18 @@ $(document).ready(function() {
         });
 
     });
+
+    // Reset modal filters when modal is closed
+    $('.modal').on('hidden.bs.modal', function () {
+        var modal = $(this);
+
+        // Reset dropdown
+        modal.find('.modalTypeFilter').val('');
+
+        // Reset DataTable search
+        var table = modal.find('.modal-table').DataTable();
+        table.search('').columns().search('').draw();
+    });
 });
 
 $('#dateFilter').on('change', function () {
