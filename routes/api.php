@@ -58,5 +58,6 @@ Route::post('/add-client', [HireUsController::class, 'store']);
 //     return "Log created";
 // });
 Route::post('/logs/store', [ApiLogController::class, 'store']);
+Route::post('/logs/bulk-store', [ApiLogController::class, 'storeBulk']);
 
 // Ends Routes Without Auth

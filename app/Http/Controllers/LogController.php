@@ -53,7 +53,9 @@ class LogController extends Controller
             $query = $this->applyDateFilter($query, request()->date_filter);
         }
 
-        $logs = $query->latest('logged_at')->get();
+        $logs = $query->orderBy('logged_at', 'asc')
+            ->get()
+            ->groupBy('logger_id');
 
         $countQuery = ProjectLog::query();
 
@@ -62,7 +64,7 @@ class LogController extends Controller
         }
 
         if ($user->role_id == 6) {
-            $query->whereHas('project', function ($q) use ($user) {
+            $countQuery->whereHas('project', function ($q) use ($user) {
                 $q->where('client_id', $user->client_id)
                 ->orWhereHas('clients', function ($q2) use ($user) {
                     $q2->where('client_id', $user->client_id);

@@ -32,4 +32,46 @@ class ApiLogController extends Controller
             'status' => 'success'
         ]);
     }
+
+    public function storeBulk(Request $request)
+    {
+        $request->validate([
+            'logs' => 'required|array',
+        ]);
+
+        $logs = $request->input('logs');
+        $insertData = [];
+
+        foreach ($logs as $log) {
+
+            if (!isset($log['project_id'], $log['message'])) {
+                continue;
+            }
+
+            $projectExists = Projects::where('id', $log['project_id'])->exists();
+            if (!$projectExists) continue;
+
+            $insertData[] = [
+                'logger_id' => $log['logger_id'],
+                'project_id' => $log['project_id'],
+                'type'       => $log['type'] ?? 'error',
+                'module'     => $log['module'] ?? null,
+                'message'    => $log['message'],
+                'context'    => $log['context'] ?? null,
+                'logged_at'  => $log['logged_at'] ?? now(),
+            ];
+        }
+
+        $totalInserted = 0;
+    
+        foreach (array_chunk($insertData, 500) as $chunk) {
+            ProjectLog::insert($chunk);
+            $totalInserted += count($chunk);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'inserted' => $totalInserted
+        ]);
+    }
 }

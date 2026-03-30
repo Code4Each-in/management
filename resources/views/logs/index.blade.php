@@ -23,6 +23,18 @@
         text-decoration: underline;
     }
     .context-btn:hover { color: #0a58ca; }
+
+    .modal .dataTables_info {
+        display: none;
+    }
+
+    .modal-table th:nth-child(3),
+    .modal-table td:nth-child(3) {
+        width: 300px;
+        /* max-width: 150px; */
+        word-wrap: break-word;
+        white-space: normal;
+    }
 </style>
 
 <div class="col-lg-12">
@@ -100,26 +112,25 @@
 
             </div>
             <form method="GET" class="row mb-3">
-
-                <div class="col-md-4">
-                    <label>Type</label>
-                    <select id="typeFilter" class="form-control">
-                        <option value="">All Types</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div class="col-md-4">
                     <label>Date</label>
                     <select name="date_filter" id="dateFilter" class="form-control">
                         <option value="">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="yesterday">Yesterday</option>
-                        <option value="7days">Last 7 Days</option>
-                        <option value="15days">Last 15 Days</option>
-                        <option value="30days">Last 30 Days</option>
+                        <option value="today" {{ request('date_filter') == 'today' ? 'selected' : '' }}>
+                            Today
+                        </option>
+                        <option value="yesterday" {{ request('date_filter') == 'yesterday' ? 'selected' : '' }}>
+                            Yesterday
+                        </option>
+                        <option value="7days" {{ request('date_filter') == '7days' ? 'selected' : '' }}>
+                            Last 7 Days
+                        </option>
+                        <option value="15days" {{ request('date_filter') == '15days' ? 'selected' : '' }}>
+                            Last 15 Days
+                        </option>
+                        <option value="30days" {{ request('date_filter') == '30days' ? 'selected' : '' }}>
+                            Last 30 Days
+                        </option>
                     </select>
                 </div>
             </form>
@@ -128,75 +139,132 @@
                 <thead>
                     <tr>
                         <th>Project Name</th>
-                        <th style="text-align: center;">Type</th>
-                        <th>Message</th>
-                        <th style="text-align: center;">Context</th>
+                        <th style="text-align: center;">Logger ID</th>
+                        <th style="text-align: center;">Logs</th>
+                        <th style="text-align: center;">Log Details</th>
                         <th>Logged At</th>
                     </tr>
                 </thead>
                 <tbody>
-                @forelse($logs as $key => $log)
-                    <tr>
-                        <td>{{ $log->project->project_name ?? 'N/A' }}</td>
-                        <!-- <td>{{ ucfirst($log->type) }}</td> -->
-
-                        <td style="text-align: center;">
-                            @if($log->type == 'error')
-                                <span class="badge bg-danger">Error</span>
-                            @elseif($log->type == 'info')
-                                <span class="badge bg-warning text-dark">Info</span>
-                            @elseif($log->type == 'success')
-                                <span class="badge bg-success">Success</span>
-                            @else
-                                <span class="badge bg-secondary">{{ ucfirst($log->type) }}</span>
-                            @endif
-                        </td>
-                        <td style="font-family: monospace;" title="{{ $log->message }}">
-                            {{ \Illuminate\Support\Str::limit($log->message, 60) }}
-                        </td>
-                        <td style="text-align: center;">
-                            @if($log->context)
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#contextModal{{ $key }}">
+                    @forelse($logs as $loggerId => $groupLogs)
+                        @php
+                            $log = $groupLogs->first(); 
+                        @endphp
+                        <tr>
+                            <td>{{ $log->project->project_name ?? 'N/A' }}</td>
+                            <td style="text-align: center;">{{ $loggerId }}</td>
+                            <td style="text-align: center;">
+                                <span class="btn btn-sm btn-primary">
+                                    {{ $groupLogs->count() }} Logs
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#contextModal{{ $loggerId }}">
                                     View
                                 </button>
-                                <div class="modal fade" id="contextModal{{ $key }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Context</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre>{{ json_encode($log->context, JSON_PRETTY_PRINT) }}</pre>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                <span style="color:#ccc;">—</span>
-                            @endif
-                        </td>
-                        <td>{{ $log->logged_at ? $log->logged_at->format('d M Y h:i A') : '' }}</td>
-                    </tr>
-                @empty
-                @endforelse
+                            </td>
+                            <td>
+                                {{ $log->logged_at ? $log->logged_at->format('d M Y h:i:s A') : '' }}
+                            </td>
+                        </tr>
+                    @empty
+                    @endforelse
                 </tbody>
             </table>
+            @foreach($logs as $loggerId => $groupLogs)
+            <div class="modal fade" id="contextModal{{ $loggerId }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Logs Details for Logger ID: {{ $loggerId }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
 
+                        <div class="modal-body">
+
+                            {{-- Filters --}}
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label>Type</label>
+                                    <select class="form-control modalTypeFilter">
+                                        <option value="">All Types</option>
+                                        @foreach($types as $type)
+                                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Table --}}
+                            <table class="table table-striped modal-table" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Message</th>
+                                        <th>Context</th>
+                                        <th>Logged At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($groupLogs as $log)
+                                    <tr>
+                                        <td>
+                                            @if($log->type == 'error')
+                                                <span class="badge bg-danger">Error</span>
+                                            @elseif($log->type == 'info')
+                                                <span class="badge bg-warning text-dark">Info</span>
+                                            @elseif($log->type == 'success')
+                                                <span class="badge bg-success">Success</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ ucfirst($log->type) }}</span>
+                                            @endif
+                                        </td>
+                                        <td>{!! \Illuminate\Support\Str::limit($log->message, 200) !!}</td>
+                                        <td>
+                                            @if($log->context)
+                                                <pre>{{ json_encode($log->context, JSON_PRETTY_PRINT) }}</pre>
+                                            @else
+                                                <span style="color:#ccc;">—</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $log->logged_at ? $log->logged_at->format('d M Y h:i:s A') : '' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
     </div>
 </div>
 
 <script>
 $(document).ready(function() {
-    var table = $('#logs_table').DataTable({ "order": [] });
+    // Initialize main table
+    $('#logs_table').DataTable({ "order": [] });
 
-    $('#projectFilter').on('change', function () {
-        table.column(0).search(this.value).draw();
-    });
+    // Initialize all modal tables
+    $('.modal').each(function() {
+        var modal = $(this);
+        var table = modal.find('.modal-table').DataTable({
+            "order": [],
+            "columnDefs": [
+                { "orderable": false, "targets": [1,2] }
+            ]
+        });
 
-    $('#typeFilter').on('change', function () {
-        table.column(1).search(this.value).draw();
+        // Type Filter
+        modal.find('.modalTypeFilter').on('change', function() {
+            var value = $(this).val();
+            table.column(0).search(value).draw();
+        });
+
     });
 });
 
