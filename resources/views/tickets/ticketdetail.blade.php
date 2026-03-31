@@ -945,12 +945,34 @@
     });
 
     // Submit Form
-    $('#commentsData').on('submit', function (e) {
+    $('#commentsData').on('submit', async function (e) {
         //    console.log("Reply TO:", $('#reply_to').val());
       e.preventDefault();
 
-      const commentHtml = quill.root.innerHTML.trim();
+      let commentHtml = quill.root.innerHTML.trim();
       const commentText = quill.getText().trim();
+
+      // 🔥 Find base64 images
+        const imgTags = commentHtml.match(/<img[^>]+src="data:image[^">]+"[^>]*>/g);
+
+        if (imgTags) {
+            for (let imgTag of imgTags) {
+                const srcMatch = imgTag.match(/src="([^"]+)"/);
+                if (srcMatch && srcMatch[1].startsWith('data:image')) {
+
+                    const base64 = srcMatch[1];
+
+                    // upload and get URL
+                    const imageUrl = await uploadBase64Image(base64);
+
+                    // replace base64 with URL
+                    if (imageUrl) {
+                        commentHtml = commentHtml.replace(base64, imageUrl);
+                    }
+                }
+            }
+        }
+
 
       document.getElementById('comment_input').value = commentHtml;
       $('.alert-danger').hide().html('');
@@ -1127,6 +1149,9 @@
     // const commentId = new URLSearchParams(window.location.search).get('comment');
     // if (!commentId) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetCommentId = urlParams.get('comment');
+
     const container = document.getElementById('comment-scroll');
     if (!container) return;
 
@@ -1136,7 +1161,7 @@
     }
 
     function scrollToComment() {
-        const target = document.getElementById('comment-' + commentId);
+        const target = document.getElementById('comment-' + targetCommentId);
         if (!target) return false;
 
         const containerTop = container.getBoundingClientRect().top;
@@ -1165,8 +1190,8 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-    // const targetCommentId = new URLSearchParams(window.location.search).get('comment');
-    // if (!targetCommentId) return;
+    const targetCommentId = new URLSearchParams(window.location.search).get('comment');
+    if (!targetCommentId) return;
 
     const container = $('#comment-scroll');
 
@@ -1264,7 +1289,7 @@ $(document).on('click', '.reply-btn-inside', function () {
     let message = $(this).data('message');
     let user = $(this).data('user');
 
-    console.log("Reply TO:", commentId);
+    // console.log("Reply TO:", commentId);
 
     // set hidden input
     $('#reply_to').val(commentId);
@@ -1562,6 +1587,34 @@ $(document).ready(function () {
 $(function () {
     $('[data-bs-toggle="tooltip"]').tooltip();
 });
+
+    //Change the image input to a file input and handle the file upload for quill editor
+    async function uploadBase64Image(base64) {
+        const res = await fetch(base64);
+        const blob = await res.blob();
+
+        const formData = new FormData();
+        formData.append('image', blob, 'comment.png');
+
+        const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        const response = await fetch('/upload-comment-image', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error("Upload failed:", text);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.url;
+    }
 </script>
 
 @endsection
