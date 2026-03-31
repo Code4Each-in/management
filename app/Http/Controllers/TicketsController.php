@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Http;
 
 class TicketsController extends Controller
 {
+  
     public function index()
     {
             $ticketsFilter = request()->all() ;
@@ -143,7 +144,7 @@ class TicketsController extends Controller
             'description' => 'required',
             'project_id' => 'required',
             'assign' => 'required|array|min:1',
-            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'title.min' => 'Title must be at least 15 characters.',
@@ -352,7 +353,7 @@ class TicketsController extends Controller
             'title' => 'required',
             'description' => 'required',
             'edit_project_id' => 'required',
-            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'description.required' => 'Description is required.',
@@ -516,7 +517,7 @@ class TicketsController extends Controller
         {
             $validator = Validator::make($request->all(), [
                 'comment' => 'nullable|string',
-                'comment_files.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:51200',
+                'comment_files.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:51200',
             ], [
                 'comment_files.*.file' => 'Each file must be a valid file.',
                 'comment_files.*.mimes' => 'Each file must be one of the allowed types.',
@@ -604,6 +605,7 @@ class TicketsController extends Controller
                         ]);
                     }
                     $existingComment->comments = $validate['comment'];
+                    $existingComment->reply_to = $request->input('reply_to');
                     if (!empty($documentPaths)) {
                         $existingComment->document = implode(',', $documentPaths);
                     }
@@ -638,22 +640,23 @@ class TicketsController extends Controller
                 ]);
             }
 
-            // developer/admin reply
-            // if (auth()->user()->role_id != 6 && $request->reply_to) {
-            //     dd($request->reply_to);
-
-            //     DB::table('comment_status')
-            //         ->where('comment_id', $request->reply_to) // ✅ ONLY parent comment
-            //         ->update([
-            //             'status'      => 'replied',
-            //             'replied_by'  => auth()->id(),
-            //             'replied_at'  => now(),
-            //             'updated_at'  => now()
-            //         ]);
-            // }
+        
             if (auth()->user()->role_id != 6) {
 
                 if (!empty($request->reply_to)) {
+
+                    $now = now();
+
+                    $record = DB::table('comment_status')
+                        ->where('comment_id', $request->reply_to)
+                        ->first();
+
+                    $workingSeconds = null;
+
+                    if ($record && $record->created_at) {
+                        $workingSeconds = $this->calculateWorkingSeconds($record->created_at, $now);
+                    }
+
 
                     // When replying to a specific comment
                     DB::table('comment_status')
@@ -662,20 +665,37 @@ class TicketsController extends Controller
                             'status'      => 'replied',
                             'replied_by'  => auth()->id(),
                             'replied_at'  => now(),
-                            'updated_at'  => now()
+                            'updated_at'  => now(),
+                            'first_response_time_seconds' => $workingSeconds,
                         ]);
 
                 } else {
-                    // Fallback: when reply_to is null
-                    DB::table('comment_status')
+                    
+                    $now = now();
+
+                    $records = DB::table('comment_status')
                         ->where('ticket_id', $validate['id'])
                         ->where('status', 'pending')
-                        ->update([
-                            'status'      => 'replied',
-                            'replied_by'  => auth()->id(),
-                            'replied_at'  => now(),
-                            'updated_at'  => now()
-                        ]);
+                        ->get();
+
+                    foreach ($records as $record) {
+
+                        $workingSeconds = null;
+
+                        if ($record->created_at) {
+                            $workingSeconds = $this->calculateWorkingSeconds($record->created_at, $now);
+                        }
+
+                        DB::table('comment_status')
+                            ->where('id', $record->id)
+                            ->update([
+                                'status'      => 'replied',
+                                'replied_by'  => auth()->id(),
+                                'replied_at'  => $now,
+                                'first_response_time_seconds' => $workingSeconds,
+                                'updated_at'  => $now
+                            ]);
+                    }
                 }
             }
 
@@ -927,12 +947,7 @@ class TicketsController extends Controller
         $projectId = $tickets->project_id;
         $projects = Projects::where('id', $projectId)->get();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
-    // $CommentsData = TicketComments::with('user')
-    //     ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
-    //     ->select('ticket_comments.*', 'comment_status.status')
-    //     ->where('ticket_comments.ticket_id', $ticketId)
-    //     ->orderBy('ticket_comments.created_at', 'asc') // important
-    //     ->get();
+
         $CommentsData = TicketComments::with('user')
         ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
         ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
@@ -1345,5 +1360,51 @@ public function acknowledgeComment(Request $request)
             'user_name' => auth()->user()->first_name,
         ]);
     }
+}
+
+public function uploadImage(Request $request)
+{
+    $request->validate([
+        'image' => 'required|image|max:5120', // 5MB
+    ]);
+
+    $file = $request->file('image');
+    $name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+    $file->move(public_path('uploads/comments'), $name);
+
+    return response()->json([
+        'url' => asset('uploads/comments/' . $name)
+    ]);
+}
+  function calculateWorkingSeconds($start, $end)
+{
+    $start = \Carbon\Carbon::parse($start);
+    $end   = \Carbon\Carbon::parse($end);
+
+    $workStart = 9;
+    $workEnd   = 19;
+
+    // If different day → ignore previous day completely
+    if ($start->toDateString() !== $end->toDateString()) {
+        $start = $end->copy()->setTime($workStart, 0);
+    }
+
+    // If before 9 AM → shift to 9 AM
+    if ($start->hour < $workStart) {
+        $start->setTime($workStart, 0);
+    }
+
+    // If after 7 PM → shift to next day 9 AM
+    if ($start->hour >= $workEnd) {
+        $start->addDay()->setTime($workStart, 0);
+    }
+
+    // If reply after 7 PM → cap at 7 PM
+    if ($end->hour >= $workEnd) {
+        $end->setTime($workEnd, 0);
+    }
+
+    return max(0, $end->diffInSeconds($start));
 }
 }

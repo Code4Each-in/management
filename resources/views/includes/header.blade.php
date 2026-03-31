@@ -22,6 +22,20 @@
         </div>End Search Bar -->
 
         <nav class="header-nav ms-auto">
+                @php
+                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // India timezone
+                    $start = \Carbon\Carbon::createFromTime(10, 0, 0);
+                    $end = \Carbon\Carbon::createFromTime(19, 0, 0);
+
+                    $isOnline = $now->between($start, $end);
+                @endphp
+
+                <div class="company-status">
+                    <span class="status-indicator {{ $isOnline ? 'online' : 'offline' }}"></span>
+                    <span class="status-text">
+                        Code4Each is {{ $isOnline ? 'Online' : 'Offline (outside working hours)' }}
+                    </span>
+                </div>
             @if (auth()->user()->role_id != 6)
                 <div id="notificationDropdown">
                     @include('notifications.partials._dropdown')

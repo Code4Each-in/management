@@ -200,6 +200,60 @@ use Carbon\Carbon;
     font-size: 12px;
     color: #999;
 }
+.kpi-card {
+    position: relative;
+    background: linear-gradient(135deg, #4154f1, #6c7cff);
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(65, 84, 241, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(65, 84, 241, 0.3);
+}
+
+.kpi-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 32px;
+    opacity: 0.2;
+}
+
+.kpi-content {
+    position: relative;
+    z-index: 2;
+}
+
+.kpi-label {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 6px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.kpi-sub {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+.kpi-good {
+    background: linear-gradient(135deg, #28a745, #5dd39e);
+}
+
+.kpi-slow {
+    background: linear-gradient(135deg, #dc3545, #ff7b7b);
+}
 </style>
 @php
     $filteredAnnouncements = $announcements->filter(function ($item) {
@@ -208,7 +262,8 @@ use Carbon\Carbon;
 @endphp
 @if($filteredAnnouncements->isNotEmpty())
 <div class="container mb-4">
-
+    <div class="row">
+        <div class="col-md-6">
     <div class="announcement-wrapper">
         <div class="announcement-header">
             📢 Latest Announcements
@@ -232,9 +287,37 @@ use Carbon\Carbon;
         @endforeach
 
     </div>
+    </div>
 
-</div>
-@endif
+    @if(auth()->user()->role_id != 6)
+@if($avgResponseSeconds != null)
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+
+                    <div class="kpi-content">
+                        <h6 class="kpi-label">Avg Response Time</h6>
+                        <h2 class="kpi-value">
+                            @if($avgResponseSeconds < 3600)
+                                ⚡ Fast ({{ $avgResponseFormatted }})
+                            @elseif($avgResponseSeconds < 14400)
+                                👍 Good ({{ $avgResponseFormatted }})
+                            @else
+                                🚨 Slow ({{ $avgResponseFormatted }})
+                            @endif
+                        </h2>
+                        <p class="kpi-sub">Based on replied tickets</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+            @endif
+            </div>
+
+    </div>
+    @endif
 @if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
 

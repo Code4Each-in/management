@@ -94,7 +94,7 @@ class TeamsController extends Controller
     public function addMessages(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'comment_file.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
             'message' => 'nullable|string',
         ], [
             'comment_file.*.file' => 'Each file must be a valid file.',
