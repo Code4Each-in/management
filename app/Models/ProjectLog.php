@@ -13,6 +13,7 @@ class ProjectLog extends Model
     protected $table = 'project_logs';
 
     protected $fillable = [
+        'logger_id',
         'project_id',
         'type',
         'module',
