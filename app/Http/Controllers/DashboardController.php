@@ -554,7 +554,6 @@ class DashboardController extends Controller
             ->get();
 
             $avgResponseSeconds = DB::table('comment_status')
-                ->where('status', 'replied')
                 ->whereNotNull('first_response_time_seconds')
                 ->where('replied_at', '>=', now()->subDays(30)) // important change
                 ->avg('first_response_time_seconds');
