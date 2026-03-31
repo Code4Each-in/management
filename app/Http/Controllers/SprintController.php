@@ -192,7 +192,7 @@ class SprintController extends Controller
             'status' => 'required',
             'description' => 'required',
             'add_document' => 'nullable|array',
-            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -353,7 +353,7 @@ class SprintController extends Controller
             'description' => 'required',
             'status' => 'required',
             'edit_document' => 'nullable|array',
-            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
+            'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ]);
 
         if ($validator->fails()) {

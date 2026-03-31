@@ -553,6 +553,22 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+            $avgResponseSeconds = DB::table('comment_status')
+                ->where('status', 'replied')
+                ->whereNotNull('first_response_time_seconds')
+                ->where('replied_at', '>=', now()->subDays(30)) // important change
+                ->avg('first_response_time_seconds');
+
+            if ($avgResponseSeconds) {
+                $hours = floor($avgResponseSeconds / 3600);
+                $minutes = floor(($avgResponseSeconds % 3600) / 60);
+                $seconds = $avgResponseSeconds % 60;
+
+                $avgResponseFormatted = "{$hours}h {$minutes}m {$seconds}s";
+            } else {
+                $avgResponseFormatted = "N/A";
+            }
+
         // dd($projectMap);
         return view('dashboard.index', compact(
             'userCount',
@@ -587,7 +603,7 @@ class DashboardController extends Controller
             'allClients',
             'groupedNotifications',
             'groupedClientComments',
-            'announcements'
+            'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }
 
