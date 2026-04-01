@@ -255,42 +255,44 @@ use Carbon\Carbon;
     background: linear-gradient(135deg, #dc3545, #ff7b7b);
 }
 </style>
-@php
-    $filteredAnnouncements = $announcements->filter(function ($item) {
-        return auth()->user()->role_id != 6 || $item->show_to_client;
-    });
-@endphp
-@if($filteredAnnouncements->isNotEmpty())
+
 <div class="container mb-4">
     <div class="row">
+    @php
+        $filteredAnnouncements = $announcements->filter(function ($item) {
+            return auth()->user()->role_id != 6 || $item->show_to_client;
+        });
+    @endphp
+    @if($filteredAnnouncements->isNotEmpty())
         <div class="col-md-6">
-    <div class="announcement-wrapper">
-        <div class="announcement-header">
-            📢 Latest Announcements
-        </div>
-
-        @foreach($filteredAnnouncements as $announcement)
-            <div class="announcement-card">
-
-                <div class="announcement-title">
-                    {{ $announcement->title }}
-                </div>
-                <div class="announcement-desc">
-                    {!! $announcement->message !!}
+            <div class="announcement-wrapper">
+                <div class="announcement-header">
+                    📢 Latest Announcements
                 </div>
 
-                <!-- <div class="announcement-footer">
-                    <span>{{ $announcement->created_at->format('d M Y') }}</span>
-                </div> -->
+                @foreach($filteredAnnouncements as $announcement)
+                    <div class="announcement-card">
+
+                        <div class="announcement-title">
+                            {{ $announcement->title }}
+                        </div>
+                        <div class="announcement-desc">
+                            {!! $announcement->message !!}
+                        </div>
+
+                        <!-- <div class="announcement-footer">
+                            <span>{{ $announcement->created_at->format('d M Y') }}</span>
+                        </div> -->
+
+                    </div>
+                @endforeach
 
             </div>
-        @endforeach
-
-    </div>
-    </div>
+        </div>
+    @endif
 
     @if(auth()->user()->role_id != 6)
-@if($avgResponseSeconds != null)
+    @if($avgResponseSeconds != null)
             <div class="col-md-3">
                 <div class="kpi-card">
                     <div class="kpi-icon">
@@ -315,9 +317,7 @@ use Carbon\Carbon;
             @endif
             @endif
             </div>
-
-    </div>
-    @endif
+        </div>
 @if(auth()->user()->role_id != 6)
 @if ($upcomingHoliday)
 
