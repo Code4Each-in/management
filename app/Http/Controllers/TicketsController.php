@@ -597,7 +597,6 @@ class TicketsController extends Controller
                 $existingComment = TicketComments::find($request->comment_id);
                 if ($existingComment) {
 
-                    // ❗ BLOCK AFTER 5 HOURS
                     if (now()->diffInHours($existingComment->created_at) > 5) {
                         return response()->json([
                             'status' => 403,
@@ -643,59 +642,31 @@ class TicketsController extends Controller
         
             if (auth()->user()->role_id != 6) {
 
-                if (!empty($request->reply_to)) {
+                $now = now();
 
-                    $now = now();
+                $records = DB::table('comment_status')
+                    ->where('ticket_id', $validate['id'])
+                    ->where('status', 'pending')
+                    ->get();
 
-                    $record = DB::table('comment_status')
-                        ->where('comment_id', $request->reply_to)
-                        ->first();
+                foreach ($records as $record) {
 
                     $workingSeconds = null;
 
-                    if ($record && $record->created_at) {
+                    if ($record->created_at) {
                         $workingSeconds = $this->calculateWorkingSeconds($record->created_at, $now);
                     }
 
-
-                    // When replying to a specific comment
                     DB::table('comment_status')
-                        ->where('comment_id', $request->reply_to)
+                        ->where('id', $record->id)
+                        ->where('status', 'pending') // safety check
                         ->update([
                             'status'      => 'replied',
                             'replied_by'  => auth()->id(),
-                            'replied_at'  => now(),
-                            'updated_at'  => now(),
+                            'replied_at'  => $now,
                             'first_response_time_seconds' => $workingSeconds,
+                            'updated_at'  => $now
                         ]);
-
-                } else {
-                    
-                    $now = now();
-
-                    $records = DB::table('comment_status')
-                        ->where('ticket_id', $validate['id'])
-                        ->where('status', 'pending')
-                        ->get();
-
-                    foreach ($records as $record) {
-
-                        $workingSeconds = null;
-
-                        if ($record->created_at) {
-                            $workingSeconds = $this->calculateWorkingSeconds($record->created_at, $now);
-                        }
-
-                        DB::table('comment_status')
-                            ->where('id', $record->id)
-                            ->update([
-                                'status'      => 'replied',
-                                'replied_by'  => auth()->id(),
-                                'replied_at'  => $now,
-                                'first_response_time_seconds' => $workingSeconds,
-                                'updated_at'  => $now
-                            ]);
-                    }
                 }
             }
 
