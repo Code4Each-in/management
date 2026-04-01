@@ -45,18 +45,6 @@ Route::post('/job-description', [JobsController::class, 'jobDescription']);
 
 //hiring us routes
 Route::post('/add-client', [HireUsController::class, 'store']);
-// Route::get('/test-log', function () {
-
-//     project_log(
-//         1,
-//         'info',
-//         'Manual test log',
-//         ['source' => 'browser test'],
-//         'system'
-//     );
-
-//     return "Log created";
-// });
 Route::post('/logs/store', [ApiLogController::class, 'store']);
 Route::post('/logs/bulk-store', [ApiLogController::class, 'storeBulk']);
 

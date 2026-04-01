@@ -42,47 +42,6 @@ class Handler extends ExceptionHandler
         });
     }
 
-    // public function report(Throwable $exception)
-    // {
-    //     try {
-
-    //         // Ignore common 404 errors (prevents spam)
-    //         if ($exception instanceof NotFoundHttpException) {
-    //             return parent::report($exception);
-    //         }
-
-    //         // Short readable message
-    //         $message = Str::limit($exception->getMessage(), 150);
-
-    //         // Check if same error logged in last 2 minutes
-    //         $exists = ProjectLog::where('type', 'error')
-    //             ->where('message', $message)
-    //             ->where('logged_at', '>=', now()->subMinutes(2))
-    //             ->exists();
-
-    //         if (!$exists) {
-
-    //             ProjectLog::create([
-    //                 'project_id' => config('app.project_log_id'),
-    //                 'type' => 'error',
-    //                 'module' => 'system',
-    //                 'message' => $exception->getMessage(),
-    //                 'context' => [
-    //                     'file' => $exception->getFile(),
-    //                     'line' => $exception->getLine(),
-    //                     'trace' => $exception->getTraceAsString()
-    //                 ],
-    //                 'logged_at' => now()
-    //             ]);
-
-    //         }
-
-    //     } catch (\Throwable $e) {
-    //         // Prevent logger crash loop
-    //     }
-
-    //     parent::report($exception);
-    // }
     public function report(Throwable $exception)
     {
         try {
