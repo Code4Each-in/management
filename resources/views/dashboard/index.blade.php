@@ -300,7 +300,7 @@ use Carbon\Carbon;
                     </div>
 
                     <div class="kpi-content">
-                        <h6 class="kpi-label">Avg Response Time</h6>
+                        <h6 class="kpi-label">Code4each Average Response Time</h6>
                         <h2 class="kpi-value">
                             @if($avgResponseSeconds < 3600)
                                 ⚡ Fast ({{ $avgResponseFormatted }})
