@@ -24,7 +24,7 @@
         <nav class="header-nav ms-auto">
                 @php
                     $now = \Carbon\Carbon::now('Asia/Kolkata'); // India timezone
-                    $start = \Carbon\Carbon::createFromTime(10, 0, 0);
+                    $start = \Carbon\Carbon::createFromTime(9, 0, 0);
                     $end = \Carbon\Carbon::createFromTime(19, 0, 0);
 
                     $isOnline = $now->between($start, $end);
