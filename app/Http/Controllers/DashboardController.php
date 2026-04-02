@@ -563,7 +563,18 @@ class DashboardController extends Controller
                 $minutes = floor(($avgResponseSeconds % 3600) / 60);
                 $seconds = $avgResponseSeconds % 60;
 
-                $avgResponseFormatted = "{$hours}h {$minutes}m {$seconds}s";
+                $avgResponseFormatted = '';
+
+                if ($hours > 0) {
+                    $avgResponseFormatted .= "{$hours}h ";
+                }
+
+                if ($minutes > 0 || $hours > 0) {
+                    $avgResponseFormatted .= "{$minutes}m ";
+                }
+
+                $avgResponseFormatted .= "{$seconds}s";
+
             } else {
                 $avgResponseFormatted = "N/A";
             }
