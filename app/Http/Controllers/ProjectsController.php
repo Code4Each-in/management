@@ -18,12 +18,15 @@ use Illuminate\Support\Facades\DB;
 use App\Notifications\EmailNotification;
 use Auth;
 use App\Models\Feedback;
+use App\Models\ProjectLog;
+use App\Models\ProjectLogSetting;
 use App\Models\Sprint;
 use Illuminate\Database\Eloquent\Builder;
 
+
 class ProjectsController extends Controller
 {
- 
+
     public function index()
 {
     $user = Auth::user();
@@ -45,7 +48,7 @@ class ProjectsController extends Controller
         // $projects = Projects::where(function ($query) use ($clientId, $projectIds) {
         //     $query->whereIn('id', $projectIds);
         //     if (!is_null($clientId)) {
-        //         $query->where('client_id', $clientId); 
+        //         $query->where('client_id', $clientId);
         //     }
         // })->orderBy('id', 'desc')->get();
 
@@ -71,7 +74,7 @@ class ProjectsController extends Controller
             ->get();
 
         // dd($projects);
-    } 
+    }
     else {
         $projectsQuery = Projects::with(['clients', 'client', 'projectAssigns.user']);
 
@@ -134,7 +137,7 @@ class ProjectsController extends Controller
     return view('projects.index', compact('users', 'projects', 'clients', 'projectCount'));
 }
 
-        
+
     public function create(Client $client)
     {
         return view('projects.create', compact('client'));
@@ -158,10 +161,10 @@ class ProjectsController extends Controller
             'git_repo'=>'nullable|url',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'status'=>'required', 
+            'status'=>'required',
             'add_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
-                'add_document.*.file' => 'The :attribute must be a file.', 
+                'add_document.*.file' => 'The :attribute must be a file.',
                 'add_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
                 'add_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
                 'add_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
@@ -179,7 +182,7 @@ class ProjectsController extends Controller
 
                 if ($user->role_id == 6) {
                     $filteredErrors = [];
-            
+
                     foreach (['project_name', 'start_date', 'status'] as $field) {
                         if ($errors->has($field)) {
                             foreach ($errors->get($field) as $message) {
@@ -194,41 +197,48 @@ class ProjectsController extends Controller
 
                 return response()->json(['errors' => $errors->all()]);
             }
-            
-        
+
+
     		$validate = $validator->valid();
              // dd($projects->client_id);
             $projects =Projects::create([
                 'project_name' => $validate['project_name'],
                 // 'client_id' => $validate['client_id'],
                 'live_url' => $validate['live_url'],
-                'dev_url' => $validate['dev_url'], 
-                'git_repo' => $validate['git_repo'], 
-                'tech_stacks' => $validate['tech_stacks'], 
-                'start_date' => $validate['start_date'], 
-                'end_date' => $validate['end_date'], 
-                'description' => $validate['description'], 
-                'credentials' => $validate['credentials'], 
+                'dev_url' => $validate['dev_url'],
+                'git_repo' => $validate['git_repo'],
+                'tech_stacks' => $validate['tech_stacks'],
+                'start_date' => $validate['start_date'],
+                'end_date' => $validate['end_date'],
+                'description' => $validate['description'],
+                'credentials' => $validate['credentials'],
                 'status'=>$validate ['status'],
                 'status_updated_by'=> auth()->user()->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-                'user_id'=> auth()->user()->id,     
+                'user_id'=> auth()->user()->id,
             ]);
 
+            // ProjectLog::create([
+            //     'project_id' => $projects->id,
+            //     'type' => 'info',
+            //     'message' => 'Project created successfully.',
+            //     'logged_at' => now(),
+            // ]);
+             project_log($projects->id, 'success', 'Project created successfully');
             $projects->clients()->sync($validate['client_id']);
 
             // dd($projects->client_id);
         if (isset($validate['assign_to']))
-        {				
+        {
             foreach($validate['assign_to'] as $manager)
-            {				
-                $manager =ProjectAssigns::create([					
+            {
+                $manager =ProjectAssigns::create([
                     'project_id' => $projects->id,
                     'user_id' => $manager,
                     'client_id' => $projects->client_id
                 ]);
-            }		
+            }
         }
         else {
             ProjectAssigns::create([
@@ -243,12 +253,12 @@ class ProjectsController extends Controller
             $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $dateString = date('YmdHis');
             $name = $dateString . '_' . $fileName . '.' . $file->extension();
-            $file->move(public_path('assets/img/projectAssets'), $name);  
+            $file->move(public_path('assets/img/projectAssets'), $name);
             $path='projectAssets/'.$name;
                 $documents = ProjectFiles::create([
                 'document' => $path,
                 'project_id'=> $projects->id,
-                ]); 
+                ]);
             }
        }
 
@@ -261,7 +271,7 @@ class ProjectsController extends Controller
     {
         $projects = Projects::with('clients')->get(); // Load clients' data for each project
         $clients = Client::all(); // Load all clients for the dropdown
-        // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();  
+        // $projectsAssign = ProjectAssigns::where(['project_id' => $projectId])->get();
         $users = Users::join('roles', 'users.role_id', '=', 'roles.id')
         ->where('roles.name','!=', 'Super Admin')
         ->where('roles.name','!=','HR Manager')
@@ -296,7 +306,7 @@ class ProjectsController extends Controller
         $user = auth()->user();
         if ($user->role_id == 6) {
             $request->merge(['edit_client_id' => [$user->client_id]]);
-           
+
         }
         // dd($request);
         $validator = Validator::make($request->all(),[
@@ -307,10 +317,10 @@ class ProjectsController extends Controller
             'edit_gitrepo'=>'nullable|url',
             'edit_startdate' => 'required|date',
             'edit_enddate' => 'nullable|date|after_or_equal:edit_startdate',
-            'edit_status'=>'required', 
+            'edit_status'=>'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,doc,docx,xls,xlsx,pdf|max:5000',
             ],[
-                'edit_document.*.file' => 'The :attribute must be a file.', 
+                'edit_document.*.file' => 'The :attribute must be a file.',
                 'edit_document.*.mimes' => 'The :attribute must be a file of type: jpeg, png, pdf.',
                 'edit_document.*.max' => 'The :attribute may not be greater than :max kilobytes.',
                 'edit_document.*.max.file' => 'The :attribute failed to upload. Maximum file size allowed is :max kilobytes.',
@@ -348,16 +358,16 @@ class ProjectsController extends Controller
                 'project_name' => $validate['edit_projectname'],
                 // 'client_id' => $validate['edit_client_id'],
                 'live_url' => $validate['edit_liveurl'],
-                'dev_url' => $validate['edit_devurl'], 
-                'git_repo' => $validate['edit_gitrepo'], 
-                'tech_stacks' => $validate['edit_techstacks'], 
-                'start_date' => $validate['edit_startdate'], 
-                'end_date' => $validate['edit_enddate'], 
-                'description' => $validate['description'], 
-                'credentials' => $validate['credentials'], 
+                'dev_url' => $validate['edit_devurl'],
+                'git_repo' => $validate['edit_gitrepo'],
+                'tech_stacks' => $validate['edit_techstacks'],
+                'start_date' => $validate['edit_startdate'],
+                'end_date' => $validate['edit_enddate'],
+                'description' => $validate['description'],
+                'credentials' => $validate['credentials'],
                 'status'=>$validate ['edit_status'],
                 'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),  
+                'updated_at' => date('Y-m-d H:i:s'),
             ]);
 
             $project->clients()->sync($validate['edit_client_id']);
@@ -368,14 +378,14 @@ class ProjectsController extends Controller
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $dateString = date('YmdHis');
                 $name = $dateString . '_' . $fileName . '.' . $file->extension();
-                $file->move(public_path('assets/img/projectAssets'), $name);  
+                $file->move(public_path('assets/img/projectAssets'), $name);
                 $path='projectAssets/'.$name;
                     $documents = ProjectFiles::create([
                     'document' => $path,
                     'project_id'=> $projectId,
-                    ]); 
+                    ]);
                 }
-               
+
            }
         $request->session()->flash('message','Project updated successfully.');
         return redirect()->back()->with('projects', $project);
@@ -383,11 +393,11 @@ class ProjectsController extends Controller
 
     public function deleteProjectFile(Request $request)
     {
-        
-        $projectFile = ProjectFiles::where('id',$request->id)->forceDelete(); 
+
+        $projectFile = ProjectFiles::where('id',$request->id)->forceDelete();
         if($projectFile){
             $request->session()->flash('message','ProjectFile deleted successfully.');
-            return Response()->json(['status'=>200]); 
+            return Response()->json(['status'=>200]);
         }
     }
 
@@ -396,11 +406,11 @@ class ProjectsController extends Controller
         $projectAssign = ProjectAssigns::where('id',$request->id)->delete();
         $request->session()->flash('message','ProjectAssign deleted successfully.');
         $AssignData = ProjectAssigns::where(['project_id' => $request->ProjectId])->get();
-        
+
         $user = Users::whereHas('role', function($q){
             $q->where('name', '!=', 'Super Admin');
-        })->orderBy('id','desc')->get()->toArray();	
-    
+        })->orderBy('id','desc')->get()->toArray();
+
        foreach($user as $key1=> $data1)
        {
            foreach($AssignData as $key2=> $data2){
@@ -409,22 +419,48 @@ class ProjectsController extends Controller
                }
            }
        }
-        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]); 
-      
+        return Response()->json(['status'=>200 ,'user' => $user,'AssignData' => $AssignData]);
+
     }
 
     public function getProjectAssign(Request $request)
 	{
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$request->id)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
-       
+
         return Response()->json(['status'=>200, 'projectAssigns'=> $projectAssigns]);
     }
     public function showProject($projectId)
     {
+
         $user = Auth::user();
+
+        if ($user->role_id == 6) {
+
+            $project = Projects::where('id', $projectId)
+                ->where(function ($q) use ($user) {
+
+                    // Condition 1: Direct client_id in projects table
+                    $q->where('client_id', $user->client_id)
+
+                    // OR condition 2: Exists in project_clients table
+                    ->orWhereHas('clients', function ($q2) use ($user) {
+                        $q2->where('client_id', $user->client_id);
+                    });
+                })
+                ->first();
+
+            if (!$project) {
+                return redirect()->route('dashboard.index')
+                    ->with('error', 'You do not have access to this project.');
+            }
+
+        } else {
+            // Admin or other roles
+            $project = Projects::with('clients')->findOrFail($projectId);
+        }
         $currentYear = Carbon::now()->year;
         $clientId = $user->client_id;
-        $projects = Projects::with('clients')->find($projectId); 
+        $projects = Projects::with('clients')->find($projectId);
         $projectAssigns= ProjectAssigns::join('users', 'project_assigns.user_id', '=', 'users.id')->where('project_id',$projectId)->orderBy('id','desc')->get(['project_assigns.*','users.first_name', 'users.profile_picture']);
         $ProjectDocuments= ProjectFiles::orderBy('id','desc')->where(['project_id' => $projectId])->get();
         $ticketIds = Tickets::where('project_id', $projectId)->pluck('id');
@@ -455,8 +491,8 @@ class ProjectsController extends Controller
                 $query->where('status', 'ready');
             },
         ])
-        ->where('status', 1) 
-        ->where('project', $projectId) 
+        ->where('status', 1)
+        ->where('project', $projectId)
         ->get();
 
         $completedsprints = Sprint::with('projectDetails')
@@ -478,11 +514,11 @@ class ProjectsController extends Controller
                 $query->where('status', 'ready');
             },
         ])
-        ->where('status', 2) 
-        ->where('project', $projectId) 
+        ->where('status', 2)
+        ->where('project', $projectId)
         ->get();
 
-        
+
        $latestComments = TicketComments::whereIn('ticket_id', $ticketIds)
             ->where('comments', '!=', '')
             ->where('comment_by', '!=', auth()->id())
@@ -492,14 +528,15 @@ class ProjectsController extends Controller
             ->get();
 
         $projectMap = $latestComments
-        ->pluck('ticket.project')        
-        ->unique('id')                    
+        ->pluck('ticket.project')
+        ->unique('id')
         ->mapWithKeys(function($project) {
             return [$project->id => $project->name];
         });
 
         $pendingApprovals = $this->getPendingApprovalTicketsForProject($projectId);
         $ticketsCount = $pendingApprovals->count();
+        $logSetting = ProjectLogSetting::where('project_id', $projectId)->first();
 
         return view('projects.show', compact(
         'projects',
@@ -512,16 +549,17 @@ class ProjectsController extends Controller
         'projectMap',
         'pendingApprovals',
         'ticketsCount',
+        'logSetting',
     ));
-       
+
     }
 
     private function getPendingApprovalTicketsForProject($projectId)
     {
         $tickets = Tickets::with(['sprintDetails', 'project'])
             ->where('project_id', $projectId)
-            ->whereNotNull('time_estimation') 
-            ->whereDoesntHave('estimationApproval') 
+            ->whereNotNull('time_estimation')
+            ->whereDoesntHave('estimationApproval')
             ->get();
 
         return $tickets;
@@ -559,19 +597,19 @@ class ProjectsController extends Controller
     public function submitFeedback(Request $request)
     {
         $validate = $request->validate([
-            'developer_id' => 'required|integer|exists:users,id', 
+            'developer_id' => 'required|integer|exists:users,id',
             'feedback' => 'required|string|max:1000',
         ]);
-    
-       
+
+
         $feedback = Feedback::create([
             'developer_id' => $validate['developer_id'],
             'feedback' => $validate['feedback'],
-            'created_by' => auth()->id(), 
+            'created_by' => auth()->id(),
         ]);
-        
+
         $authname = auth()->user()->first_name;
-        
+
         if ($feedback) {
             try {
                 $messages = [
@@ -579,23 +617,23 @@ class ProjectsController extends Controller
                     "title" => "You've received new feedback from {$authname}.",
                     "body-text" => "Feedback: \"" . $validate['feedback'] . "\"",
                 ];
-        
-                $assignedUser = Users::find($validate['developer_id']); 
-        
+
+                $assignedUser = Users::find($validate['developer_id']);
+
                 if ($assignedUser) {
                     $assignedUser->notify(new EmailNotification($messages));
                 }
             } catch (\Exception $e) {
                 \Log::error("Error sending notification for feedback: " . $e->getMessage());
             }
-        }             
-    
+        }
+
         return response()->json(['message' => 'Feedback submitted successfully!'], 200);
     }
 
     public function showSprints(Projects $project)
 {
-    
+
     $sprints = Sprint::where('project', $project->id)
     ->where('deleted_at', null)
     ->orderBy('id', 'desc')
@@ -612,9 +650,9 @@ public function allFeedback()
     if ($user->role_id == 1) {
         $feedbacks = Feedback::with(['developer', 'client'])->latest()->get();
     } else {
-        
+
         $feedbacks = Feedback::where('developer_id', $user->id)
-                            ->with(['developer', 'client']) 
+                            ->with(['developer', 'client'])
                             ->latest()
                             ->get();
     }

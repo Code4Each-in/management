@@ -36,9 +36,11 @@ use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\TicketLogController;
+use App\Http\Controllers\ProjectLogSettingController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ScheduledEmailController;
-use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
 /*
@@ -420,6 +422,18 @@ Route::middleware(['role_permission'])->group(function () {
 Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('ticket.logHours');
 
 
+// Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::get('/logs/{project_id?}', [LogController::class, 'index'])->name('logs.index');
+Route::get('/log-settings', [ProjectLogSettingController::class,'index'])
+    ->name('log.settings.index');
+Route::post('/project/{id}/toggle-logs',[ProjectLogSettingController::class,'toggle'])
+    ->name('project.logs.toggle');
+// to approve reject enable disble request
+Route::get('/log-setting-requests', [ProjectLogSettingController::class,'requests'])->name('log.requests');
+
+Route::post('/log-setting-approve/{id}', [ProjectLogSettingController::class,'approve'])->name('log.approve');
+
+Route::post('/log-setting-reject/{id}', [ProjectLogSettingController::class,'reject'])->name('log.reject');
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
 // routes/web.php
 

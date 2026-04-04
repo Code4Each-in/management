@@ -8,8 +8,11 @@
             <i class="fa-solid fa-pen-to-square me-1"></i> Edit Project
         </a>
     @endif
-    <a href="{{ url('teamchat?project_id=' . $projects->id) }}" class="btn btn-outline-success">
+    <a href="{{ url('teamchat?project_id=' . $projects->id) }}" class="btn btn-outline-success me-2">
         <i class="fa-solid fa-comments me-1"></i> Chat
+    </a>
+    <a href="{{ route('logs.index', ['project_id' => $projects->id]) }}" class="btn btn-outline-secondary">
+        <i class="i bi-file-earmark-text"></i> Project Logs
     </a>
 </div>
 <div class="container">
@@ -101,9 +104,54 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<!-- toggle -->
 <div class="sprint-section">
+
+    <div class="sprint-header production" data-bs-toggle="collapse" data-bs-target="#projectLogSetting" aria-expanded="false" style="cursor: pointer;">
+        <div class="section-left">
+            <div class="section-icon bg-production" style="background-color: #297bab;">PS</div>
+            <div class="section-title" style="color: #297bab;">Project Log Setting</div>
+        </div>
+        <div>
+            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+    </div>
+
+    <div id="projectLogSetting" class="collapse">
+        <div class="p-4">
+
+            <div class="d-flex align-items-center justify-content-between">
+
+                <div>
+                    <h6 class="mb-1">Enable Project Logging</h6>
+                    <small class="text-muted">
+                        When enabled, system errors and activity logs will be stored for this project.
+                    </small>
+                </div>
+
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="logToggle"
+                        {{ $logSetting && $logSetting->enabled ? 'checked' : '' }}
+                        onchange="toggleProjectLogs({{ $projects->id }})"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="sprint-section">
+
     <div class="sprint-header production" data-bs-toggle="collapse" data-bs-target="#activeSprintsTable" aria-expanded="false" style="cursor: pointer;">
         <div class="section-left">
             <div class="section-icon bg-production" style="background-color: #297bab;">A</div>
@@ -210,7 +258,7 @@
                         <tr style="cursor: pointer;" onclick="if (!event.target.closest('.actions-cell')) window.location='{{ route('sprint.view', $sprints->id) }}'">
                             <td>{{ $sprints->name }}</td>
                             <td>
-                                <span class="badge 
+                                <span class="badge
                                     {{ $sprints->status == 1 ? 'active' : ($sprints->status == 2 ? 'completed' : 'inactive') }}">
                                     {{ $sprints->status == 1 ? 'Active' : ($sprints->status == 2 ? 'Completed' : 'Inactive') }}
                                 </span>
@@ -370,10 +418,10 @@
                                 <div class="mb-3 pb-2 border-bottom">
                                     <a href="{{ $ticketUrl }}" target="_blank" class="text-decoration-none text-dark d-block fw-semibold" style="transition: color 0.3s;">
                                         <small>
-                                            You received a new comment on 
-                                            <span class="text-primary">#{{ $ticketId }}</span> in project 
-                                            <span class="fw-bold">{{ $projectName }}</span> by 
-                                            <span class="fw-bold">{{ $userName }}</span> on 
+                                            You received a new comment on
+                                            <span class="text-primary">#{{ $ticketId }}</span> in project
+                                            <span class="fw-bold">{{ $projectName }}</span> by
+                                            <span class="fw-bold">{{ $userName }}</span> on
                                             <span class="text-muted">{{ $commentDate }}</span>.
                                         </small>
                                     </a>
@@ -456,5 +504,24 @@ function toggleExtraDetails(link) {
     });
   });
 
+</script>
+
+<!-- toggle for project logs -->
+<script>
+function toggleProjectLogs(projectId) {
+
+    fetch(`/project/${projectId}/toggle-logs`, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+    });
+
+}
 </script>
 @endsection

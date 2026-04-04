@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\WebsiteApiController;
 use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\HireUsController;
 use App\Http\Controllers\Api\InternalTimesheetExtension;
+use App\Http\Controllers\ApiLogController;
 use App\Http\Controllers\JobsController;
 
 /*
@@ -44,5 +45,7 @@ Route::post('/job-description', [JobsController::class, 'jobDescription']);
 
 //hiring us routes
 Route::post('/add-client', [HireUsController::class, 'store']);
+Route::post('/logs/store', [ApiLogController::class, 'store']);
+Route::post('/logs/bulk-store', [ApiLogController::class, 'storeBulk']);
 
 // Ends Routes Without Auth

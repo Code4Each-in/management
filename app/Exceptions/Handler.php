@@ -4,6 +4,9 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use App\Models\ProjectLog;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -37,5 +40,45 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function report(Throwable $exception)
+    {
+        try {
+
+            // Ignore 404 errors (prevents spam)
+            if ($exception instanceof NotFoundHttpException) {
+                return parent::report($exception);
+            }
+
+            $message = Str::limit($exception->getMessage(), 150);
+
+            // Prevent duplicate errors within 2 minutes
+            $exists = ProjectLog::where('type', 'error')
+                ->where('message', $message)
+                ->where('logged_at', '>=', now()->subMinutes(2))
+                ->exists();
+
+            if (!$exists) {
+
+                project_log(
+                    null,
+                    'error',
+                    $message,
+                    [
+                        'file' => $exception->getFile(),
+                        'line' => $exception->getLine(),
+                        'trace' => substr($exception->getTraceAsString(), 0, 2000),
+                    ],
+                    'system'
+                );
+
+            }
+
+        } catch (\Throwable $e) {
+            // prevent logger crash
+        }
+
+        parent::report($exception);
     }
 }

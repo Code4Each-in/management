@@ -27,7 +27,7 @@ class ClientController extends Controller
 
     public function show($id)
     {
-        $client = Client::find($id); 
+        $client = Client::find($id);
         if ($client) {
             return view('clients.show', ['client' => $client]);
         } else {
@@ -35,7 +35,7 @@ class ClientController extends Controller
             return abort(404);
         }
     }
-    
+
     public function store(Request $request)
     {
         $request->validate([
@@ -43,7 +43,7 @@ class ClientController extends Controller
             'email' => 'required|email|unique:clients,email',
             'password' => 'required|min:8',
         ]);
-    
+
         $client = Client::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -54,7 +54,7 @@ class ClientController extends Controller
             'birth_date' => $request->input('birth_date'),
             'address' => $request->input('address'),
             'city' => $request->input('city'),
-            'status' => $request->input('status'), 
+            'status' => $request->input('status'),
             'zip' => $request->input('zip'),
             'country' => $request->input('country'),
             'projects' => $request->input('projects'),
@@ -62,7 +62,7 @@ class ClientController extends Controller
             'source' => $request->input('source'),
             'skype' => $request->input('skype'),
             'last_worked' => $request->input('last_worked'),
-            // 'password' => $request->input('password'), 
+            // 'password' => $request->input('password'),
         ]);
 
         $user = Users::create([
@@ -85,7 +85,7 @@ class ClientController extends Controller
             'joining_date' => now(),
             'birth_date' => $request->input('birth_date'),
             'profile_picture' => null,
-            'client_id' => $client->id, 
+            'client_id' => $client->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -96,13 +96,13 @@ class ClientController extends Controller
     public function edit(Request $request, $id)
     {
         $getClient = Client::where('id', $id)->first();
-    
+
         if(!empty($getClient)) {
             return $getClient;
         }
-        
+
     }
-    
+
     public function update(Request $request) {
         $request->validate([
             'name' => 'required',
@@ -113,7 +113,7 @@ class ClientController extends Controller
             'phone.regex' => 'The phone number must be between 5 and 15 digits.'*/
         ]);
         $client = Client::find($request->id);
-    
+
         if ($client) {
             $client->update($request->all());
             $user = Users::where('client_id', $client->id)->first();
@@ -126,17 +126,17 @@ class ClientController extends Controller
                 $user->status = $request->status;
                 $user->save();
             }
-    
+
             return "success";
         }
     }
-    
+
     public function deleteClient(Request $request) {
         $deleteClient = Client::where('id', $request->id)->delete();
         $request->session()->flash('message', 'Client deleted successfully.');
         return response()->json(["status"=>200]);
     }
-    
+
 
 }
 

@@ -529,13 +529,55 @@
             </li>
             @endif
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
                     href="{{ route('projects.index') }}">
                     <i class="bi bi-list-task"></i> <span>Projects</span>
                 </a>
-            </li>
+            </li> -->
+            <li class="nav-item">
 
+                <a class="nav-link {{ request()->is('projects*') || request()->is('log-settings*') ? '' : 'collapsed' }}"
+                    data-bs-target="#projects-nav" data-bs-toggle="collapse" href="#">
+
+                    <i class="bi bi-collection"></i>
+                    <span>Projects</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+
+                <ul id="projects-nav"
+                    class="nav-content collapse {{ request()->is('projects*') || request()->is('log-settings*') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+
+                    <!-- Projects List -->
+                    <li>
+                        <a class="{{ request()->is('projects') ? 'active' : '' }}"
+                            href="{{ route('projects.index') }}">
+                            <i class="bi bi-circle"></i>
+                            <span>All Projects</span>
+                        </a>
+                    </li>
+
+                    <!-- Log Settings (Only Admin) -->
+                    @if(auth()->user()->role_id == 1)
+                    <li>
+                        <a class="{{ request()->is('log-settings') ? 'active' : '' }}"
+                            href="{{ route('log.settings.index') }}">
+                            <i class="bi bi-circle"></i>
+                            <span>Log Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="{{ request()->is('log-setting-requests') ? 'active' : '' }}" href="{{ route('log.requests') }}">
+                            <i class="fa-solid fa-bell"></i>
+                            <span>Log Requests</span>
+                        </a>
+                    </li>
+                    @endif
+
+                </ul>
+
+            </li>
         <li class="nav-item">
             <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}"
              href="{{ route('todo_list.index') }}">
@@ -662,6 +704,53 @@
 
             @endif
             @endif
+            <!-- <li class="nav-item">
+                <a class="nav-link {{ request()->is('logs') ? '' : 'collapsed' }}"
+                href="{{ route('logs.index') }}">
+                <i class="bi bi-circle"></i><span>Project  Logs</span>
+                </a>
+            </li> -->
+
+            <!-- <li class="nav-item">
+
+                <a class="nav-link {{ request()->is('logs*') || request()->is('log-settings*') ? '' : 'collapsed' }}"
+                    data-bs-target="#project-log-nav"
+                    data-bs-toggle="collapse"
+                    href="#">
+
+                    <i class="bi bi-folder"></i>
+                    <span>Projects</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+
+                </a>
+
+                <ul id="project-log-nav"
+                    class="nav-content collapse {{ request()->is('logs*') || request()->is('log-settings*') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+
+                    <li>
+                        <a class="{{ request()->is('logs') ? 'active' : '' }}"
+                            href="{{ route('logs.index') }}">
+
+                            <i class="bi bi-circle"></i>
+                            <span>Project Logs</span>
+
+                        </a>
+                    </li>
+                 @if (auth()->user()->role_id == 1)
+                    <li>
+                        <a class="{{ request()->is('log-settings') ? 'active' : '' }}"
+                            href="{{ route('log.settings.index') }}">
+
+                            <i class="bi bi-circle"></i>
+                            <span>Log Settings</span>
+
+                        </a>
+                    </li>
+                 @endif
+                </ul>
+
+            </li> -->
             <!-- <li class="nav-item">
         <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>

@@ -11,7 +11,7 @@ use App\Models\Projects;?>
 </div>
 <div class="row">
         <div class="sprint-section">
-            
+
                 <!-- filter -->
                 <div class="sprint-header production">
                     <div class="section-left">
@@ -41,6 +41,7 @@ use App\Models\Projects;?>
                             <tbody>
                                 @forelse($projects as $data)
                                 <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/project/'.$data->id) }}', '_blank');">
+    
                                     <td>{{($data->project_name )}}</td>
                                     <td class="actions-cell"> @if (count($data->projectassign)<= 5) @foreach ($data->projectassign as $assign)
                                             @if (!empty($assign->profile_picture))
@@ -95,10 +96,13 @@ use App\Models\Projects;?>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="actions-cell"> 
-                                         <a href="{{ url('/project/'.$data->id)}}">
+                                    <td class="actions-cell">
+                                          <a href="{{ url('/project/'.$data->id)}}">
                                             <i class="fa fa-eye fa-fw pointer"></i>
                                         </a>
+                                    <a href="{{ route('logs.index', $data->id) }}">
+                                        <i class="bi bi-journal-text"></i>
+                                    </a>
                                         <a href="{{ url('/edit/project/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
@@ -153,14 +157,14 @@ use App\Models\Projects;?>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
-                                    </select>  
+                                    </select>
                                 </div>
                             </div>
                             @endif
 
                             @if(auth()->user()->role_id != 6)
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>     
+                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
@@ -173,7 +177,7 @@ use App\Models\Projects;?>
                                 </div>
                             </div>
                             @endif
-                            
+
                             <div class="row mb-3">
                                 <label for="title" class="col-sm-3 col-form-label ">Live Url</label>
                                 <div class="col-sm-9">
@@ -247,15 +251,15 @@ use App\Models\Projects;?>
                                             <button class="ql-clean"></button>
                                         </span>
                                     </div>
-                            
+
                                     <div id="editor" style="height: 300px;">{!! old('description') !!}</div>
                                     <input type="hidden" name="description" id="description_input">
-                            
+
                                     @if ($errors->has('description'))
                                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                                     @endif
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="row mb-3">
                                 <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
                                 <div class="col-sm-9">
@@ -332,7 +336,7 @@ use App\Models\Projects;?>
                 setTimeout(function() {
                     $('.message').fadeOut("slow");
                 }, 2000);
-                
+
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
                     $('#description_input').val(quill.root.innerHTML);
@@ -475,7 +479,7 @@ use App\Models\Projects;?>
             url: "{{ url('/delete/projects') }}",
             data: {
                 id: id,
-                _token: "{{ csrf_token() }}" 
+                _token: "{{ csrf_token() }}"
             },
             dataType: 'json',
             success: function(res) {

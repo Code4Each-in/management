@@ -13,13 +13,13 @@ class Projects extends Model
         'client_id',
         'live_url',
         'dev_url',
-        'git_repo', 
+        'git_repo',
         'tech_stacks',
-        'start_date',   
+        'start_date',
         'end_date',
-        'description',   
-        'credentials',   
-        'status',    
+        'description',
+        'credentials',
+        'status',
     ];
     public function projectAssigns()
     {
@@ -49,7 +49,7 @@ class Projects extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
-    }    
+    }
 
     public static function getClientName($id) {
         $getName = Client::where('id',$id)->first();
@@ -62,13 +62,12 @@ class Projects extends Model
     {
         return $this->hasMany(Message::class, 'project_id');
     }
-    
+
     public function groupMessages()
     {
         return $this->hasMany(GroupMessage::class);
     }
- 
 
 
-    
+
 }
