@@ -41,6 +41,7 @@ use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
+use App\Http\Controllers\SettingsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -414,6 +415,12 @@ Route::middleware(['role_permission'])->group(function () {
 		return response()->download($path);
 	})->name('public.file.download')->where('filename', '.*');
 	Route::get('/pending-approvals', [TicketLogController::class, 'pendingApprovals'])->name('client.pending.approvals');
+
+	//SETTINGS ROUTE
+	Route::middleware(['auth', 'admin'])->group(function () {
+		Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+		Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+	});
 
 });
 

@@ -28,14 +28,9 @@ use Carbon\Carbon;
 }
 
 .reminder-close-btn:hover {
-    color: #721c24; /* Slightly darker or alert-danger tone on hover */
+    color: #721c24; 
     transform: scale(1.2);
 }
-/* .alert.alert-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-} */
 .reminder-box {
       border-radius: 12px;
       overflow: hidden;
@@ -83,9 +78,6 @@ use Carbon\Carbon;
       color: #5c3b00;
       margin-top: 2px;
     }
-
-
-
     .reminder-label {
       font-weight: 600;
       color: #5c3b00;
@@ -104,7 +96,6 @@ use Carbon\Carbon;
     }
     .reminder-content {
         display: flex;
-        /* flex-direction: column; */
         gap: 0.3rem;
     }
     @media (max-width: 767px) {
@@ -120,7 +111,6 @@ use Carbon\Carbon;
       }
       .reminder-content {
         display:block;
-        /* flex-direction: column; */
         gap: 0.3rem;
     }
       .reminder-icon {
@@ -256,97 +246,174 @@ use Carbon\Carbon;
 }
 </style>
 
+<!-- <div class="row mb-4">
+    <div class="col-8">
+        <div class="card info-card shadow-sm" style="border-radius: 14px;">
+            <div class="card-body p-4">
+
+                <h4 class="fw-bold mb-2" style="color:#012970;">
+                    👋 Welcome {{ auth()->user()->first_name }}
+                </h4>
+
+                <p class="text-muted mb-2" style="font-size: 15px;">
+                    You can manage everything from this dashboard — create tickets, track tasks,
+                    set reminders, manage notes, and stay connected with your team.
+                </p>
+
+                    <h5 class="card-title mb-0" style="color:#012970; font-weight:600;">
+                        ⚡ Quick Actions
+                    </h5>
+                <div class="d-flex flex-wrap gap-3">
+
+                    <a href="/tickets/create" class="btn btn-primary px-4 py-2 fw-semibold"
+                       style="border-radius: 10px;">
+                        🎫 Create Ticket
+                    </a>
+
+                    <a href="/todo_list" class="btn btn-outline-primary px-4 py-2 fw-semibold"
+                       style="border-radius: 10px;">
+                        📝 Todo
+                    </a>
+
+                    <a href="/reminder/create" class="btn btn-outline-secondary px-4 py-2 fw-semibold"
+                       style="border-radius: 10px;">
+                        ⏰ Set Reminder
+                    </a>
+
+                    <a href="#stickyNotes" class="btn btn-outline-dark px-4 py-2 fw-semibold"
+                       style="border-radius: 10px;">
+                        📒 Notes
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+    </div> -->
+
+    <!-- <div class="col-lg-4">
+        <div class="card info-card shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-4">
+
+                <h5 class="card-title mb-0" style="color:#012970; font-weight:600;">
+                    🎫 Ticket Summary
+                </h5>
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted">Completed</span>
+                    <a href="/tickets?status=complete"
+                    class="badge bg-success px-3 py-2"
+                    style="border-radius:10px;">
+                        11
+                    </a>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted">In Progress</span>
+                    <a href="/tickets?status=in-progress"
+                    class="badge bg-primary px-3 py-2"
+                    style="border-radius:10px;">
+                        9
+                    </a>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted">To Do</span>
+                    <a href="/tickets?status=todo"
+                    class="badge bg-secondary px-3 py-2"
+                    style="border-radius:10px;">
+                        5
+                    </a>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Pending Approval</span>
+                    <a href="/pending-approvals"
+                    class="badge bg-warning text-dark px-3 py-2"
+                    style="border-radius:10px;">
+                        10
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div> -->
+<!-- </div> -->
+
 <div class="container mb-4">
     <div class="row">
-    @php
-        $filteredAnnouncements = $announcements->filter(function ($item) {
-            return auth()->user()->role_id != 6 || $item->show_to_client;
-        });
-    @endphp
-    @if($filteredAnnouncements->isNotEmpty())
-        <div class="col-md-6">
-            <div class="announcement-wrapper">
-                <div class="announcement-header">
-                    📢 Latest Announcements
-                </div>
+        @php
+            $filteredAnnouncements = $announcements->filter(function ($item) {
+                return auth()->user()->role_id != 6 || $item->show_to_client;
+            });
+        @endphp
+        @if($filteredAnnouncements->isNotEmpty())
+            <div class="col-md-6">
+                <div class="announcement-wrapper">
+                    <div class="announcement-header">
+                        📢 Latest Announcements
+                    </div>
 
-                @foreach($filteredAnnouncements as $announcement)
-                    <div class="announcement-card">
+                    @foreach($filteredAnnouncements as $announcement)
+                        <div class="announcement-card">
 
-                        <div class="announcement-title">
-                            {{ $announcement->title }}
+                            <div class="announcement-title">
+                                {{ $announcement->title }}
+                            </div>
+                            <div class="announcement-desc">
+                                {!! $announcement->message !!}
+                            </div>
                         </div>
-                        <div class="announcement-desc">
-                            {!! $announcement->message !!}
-                        </div>
-
-                        <!-- <div class="announcement-footer">
-                            <span>{{ $announcement->created_at->format('d M Y') }}</span>
-                        </div> -->
-
-                    </div>
-                @endforeach
-
-            </div>
-        </div>
-    @endif
-
-    @if(auth()->user()->role_id != 6)
-    @if($avgResponseSeconds != null)
-            <div class="col-md-3">
-                <div class="kpi-card">
-                    <div class="kpi-icon">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-
-                    <div class="kpi-content">
-                        <h6 class="kpi-label">Code4each Average Response Time</h6>
-                        <h2 class="kpi-value">
-                            @if($avgResponseSeconds < 3600)
-                                ⚡ Fast ({{ $avgResponseFormatted }})
-                            @elseif($avgResponseSeconds < 14400)
-                                👍 Good ({{ $avgResponseFormatted }})
-                            @else
-                                🚨 Slow ({{ $avgResponseFormatted }})
-                            @endif
-                        </h2>
-                        <p class="kpi-sub">Based on replied tickets</p>
-                    </div>
+                    @endforeach
                 </div>
             </div>
-            @endif
-            @endif
-            </div>
-        </div>
-@if(auth()->user()->role_id != 6)
-@if ($upcomingHoliday)
+        @endif
 
-<div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
-    <i class="bi bi-info-circle me-1"></i>
-    @if ($upcomingHoliday->from === $upcomingHoliday->to)
-    You have Upcoming Holiday on {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}}! Of
-    {{$upcomingHoliday->name ?? ''}}
-    @else
-    You have Upcoming Holiday from {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}} to
-    {{date("d-M-Y", strtotime($upcomingHoliday->to)) ?? ''}} ! Of {{$upcomingHoliday->name ?? ''}}
-    @endif
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @if(auth()->user()->role_id != 6)
+            @if($avgResponseSeconds != null)
+                <div class="col-md-3">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <div class="kpi-content">
+                            <h6 class="kpi-label">Code4each Average Response Time</h6>
+                            <h2 class="kpi-value">
+                                @if($avgResponseSeconds < 3600)
+                                    ⚡ Fast ({{ $avgResponseFormatted }})
+                                @elseif($avgResponseSeconds < 14400)
+                                    👍 Good ({{ $avgResponseFormatted }})
+                                @else
+                                    🚨 Slow ({{ $avgResponseFormatted }})
+                                @endif
+                            </h2>
+                            <p class="kpi-sub">Based on replied tickets</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endif
+    </div>
 </div>
-@endif
+
+@if(auth()->user()->role_id != 6)
+    @if ($upcomingHoliday)
+        <div class="alert alert-info alert-dismissible upcoming-holiday-alert fade show" role="alert">
+            <i class="bi bi-info-circle me-1"></i>
+            @if ($upcomingHoliday->from === $upcomingHoliday->to)
+            You have Upcoming Holiday on {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}}! Of
+            {{$upcomingHoliday->name ?? ''}}
+            @else
+            You have Upcoming Holiday from {{date("d-M-Y", strtotime($upcomingHoliday->from)) ?? ''}} to
+            {{date("d-M-Y", strtotime($upcomingHoliday->to)) ?? ''}} ! Of {{$upcomingHoliday->name ?? ''}}
+            @endif
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
 @if($activeReminders->isNotEmpty())
     @foreach($activeReminders as $reminder)
-        <!-- @if($reminder->user_id == auth()->user()->id) -->
-         <!-- @endif -->
-        <!-- @php
-            // Safely convert user_id to array
-            $assignedUsers = is_array($reminder->user_id)
-                ? $reminder->user_id
-                : json_decode($reminder->user_id, true);
-
-            $assignedUsers = $assignedUsers ?? [];
-        @endphp -->
-
         @php
             if (is_array($reminder->user_id)) {
                 $assignedUsers = $reminder->user_id;
@@ -386,7 +453,6 @@ use Carbon\Carbon;
     @endforeach
 @endif
 
-<!-- class=""> -->
 <div class="row">
     <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
         <div class="row">
@@ -395,15 +461,6 @@ use Carbon\Carbon;
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-card">
                     <div class="filter">
-                        <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow"> -->
-                        <!-- <li class="dropdown-header text-start">
-                                <h6>Filter</h6>
-                            </li> -->
-                        <!--
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li> -->
                         </ul>
                     </div>
                     <div class="card-body">
@@ -413,30 +470,17 @@ use Carbon\Carbon;
                                 <i class="bi bi-person"></i>
                             </div>
                             <div class="ps-3">
-
                                 <h6>{{$userCount}}</h6>
-                                <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
-                                    class="text-muted small pt-2 ps-1">increase</span> -->
                             </div>
                         </div>
                     </div>
 
                 </div>
-            </div><!-- End Sales Card -->
+            </div>
             <!-- Revenue Card -->
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card revenue-card">
                     <div class="filter">
-                        <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <li class="dropdown-header text-start">
-                                <h6>Filter</h6>
-                            </li>
-
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
-                        </ul> -->
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Today's On Leave</h5>
@@ -456,9 +500,6 @@ use Carbon\Carbon;
                                 all</a>
                             @endif
                         </div>
-                        <!-- <div class="pull-left "> -->
-
-                        <!-- </div> -->
                     </div>
 
                 </div>
@@ -468,15 +509,6 @@ use Carbon\Carbon;
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-card">
                     <div class="filter">
-                        <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow"> -->
-                        <!-- <li class="dropdown-header text-start">
-                                <h6>Filter</h6>
-                            </li> -->
-                        <!--
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li> -->
                         </ul>
                     </div>
                     <div class="card-body dashboard-my-leaves">
@@ -484,7 +516,6 @@ use Carbon\Carbon;
                         <div class="d-flex align-items-center">
                             <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                 <i class="bi bi-calendar-week"></i>
-                                <!-- <i class="fas fa-calendar-times"></i> -->
                             </div>
                             <div class="ps-3">
                                 @php
@@ -519,36 +550,13 @@ use Carbon\Carbon;
                                         <span title="Total Leaves">0</span>
                                         @endif
                                 </h6>
-                                <!-- <span class="text-success small pt-1 fw-bold">12%</span> <span
-                                    class="text-muted small pt-2 ps-1">increase</span> -->
                             </div>
                         </div>
                     </div>
 
                 </div>
-            </div><!-- End Sales Card -->
-            @endif
-
-
-            <!-- Customers Card -->
-
-            <div class="col-12">
-                <div class="card">
-                    <!-- <div class="filter">
-                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-                </ul>
-                </div> -->
-
-                </div>
             </div>
+            @endif
         </div>
     </div>
     <div class="col-lg-4 dashboard" style="margin-top: 20px ">
@@ -556,16 +564,6 @@ use Carbon\Carbon;
 
         <div class="card">
             <div class="filter">
-                <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
             </div>
             @if(count($userBirthdate)!=0)
             <div class="card-body">
@@ -687,32 +685,17 @@ use Carbon\Carbon;
                                                             {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
                                                         </span>
                                                     </div>
-
-                                                    <!-- Footer -->
-                                                    <!-- <div class="mt-1 text-muted" style="font-size:13px;">
-                                                        <strong>{{ $comment->user->first_name ?? 'User' }}</strong>
-                                                        • {{ \Carbon\Carbon::parse($comment->created_at)->format('d M h:i A') }}
-                                                    </div> -->
-
                                                 </a>
-
                                             </div>
-
                                         @endforeach
-
                                     @endforeach
-
                                 </div>
                             </div>
-
                         </div>
-
                     </div>
                 </div>
-
             @endforeach
         </div>
-
     </div>
 
     @endif
@@ -851,19 +834,6 @@ use Carbon\Carbon;
         </div>
     </div>
 </div>
-<!-- Sticky Notes Started -->
-<div class="col-lg-12 stickyNotes">
-    <div class="card">
-        <div class="sticky-card">
-            <div class="row">
-                <!-- <div class="container"> -->
-                <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-                <div class="notes-wrapper" id="noteGrid"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Sticky Notes Ended -->
 
     @if(auth()->user()->role_id != 4)
         @php
@@ -971,6 +941,8 @@ use Carbon\Carbon;
             @endif
         </div>
     @endif
+    
+
 
     <!-- ---------- ToDo List Started ---------------- -->
    @if($tasks->isNotEmpty())
@@ -1037,47 +1009,24 @@ use Carbon\Carbon;
     </div>
 @endif
 
-
-
-
-
-
-
     <!-- ---------- To Do List Ended ---------------- -->
-
-
-
     <!-- Employee Of The Month Section -->
-    @php
+    <!-- @php
     $currentDay = now()->day;
     @endphp
     @if ($currentDay <= 7)
         @include('votes.index', ['winners' => $winners])
-    @endif
+    @endif -->
 
     <!-- End of Employee Of The Month Section -->
-
-
-
-
-    <!-- Recent Sales -->
+     
 
     <div class="row">
         <div class="col-md-8 dashboard">
             <div class="card recent-sales overflow-auto">
                 <div class="filter">
-                    <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                    <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul> -->
                 </div>
-  @if($userLeaves->isNotEmpty())
+            @if($userLeaves->isNotEmpty())
                 <div class="card-body">
                     <h5 class="card-title">Teams Leave</h5>
                     <table class="table table-borderless datatable" id="leavesss">
@@ -1090,7 +1039,6 @@ use Carbon\Carbon;
                                 <th scope="col">Status</th>
 
                             </tr>
-                            <!-- <h5 class="text-white font-weight-bolder mb-4 pt-2">Notes</h5> -->
                         </thead>
                         <tbody>
                             @forelse($userLeaves as $data)
@@ -1131,16 +1079,6 @@ use Carbon\Carbon;
                 <div class="col-md-12 dashboard">
                     <div class="card recent-sales overflow-auto">
                         <div class="filter">
-                            <!-- <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a> -->
-                            <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                        <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                </ul> -->
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Assigned Devices</h5>
@@ -1162,10 +1100,6 @@ use Carbon\Carbon;
                                         <td>{{ $data->device->device_model ?? ''}}</td>
                                         <td>{{ $data->device->serial_number ?? '---'}}</td>
                                         <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-                                        <!-- <td> @if ($data->to)
-                                                {{date("d-m-Y", strtotime($data->to)) }}
-                                            @endif
-                                </td> -->
                                         <td> @if ($data->status == 0)
                                             <span class="badge rounded-pill bg-success">Recovered</span>
                                             @else
@@ -1186,48 +1120,46 @@ use Carbon\Carbon;
 
         <!------Vote Section-------->
 
-        <div class="col-md-4 dashboard">
-            @php
-            $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
-            @endphp
-            @if ($last7Days)
-            <div class="card vote-section">
-                <div class="card-body">
-                    <div class="main-div">
-                        <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
-                        <div class="vote" style="max-height: 300px; overflow-y: auto;">
-                            @if ($uservote->isNotEmpty())
-                            <table class="table" id="voter">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Employee Name</th>
-                                        <th scope="col">Vote</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($uservote as $user)
-                                    <!-- @if($user->status == 1 && $user->role_id != 1) -->
-                                    <tr>
-                                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                                        <td>
-                                            <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
-                                        </td>
-                                    </tr>
-                                    <!-- @endif -->
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            @else
-                            <p>Your vote has been recorded. Results will be announced shortly.</p>
-                            <div class="img-wrapper ">
-                                <img src="/assets/img/votingresult.png">
+            <div class="col-md-4 dashboard">
+                <!-- @php
+                $last7Days = \Carbon\Carbon::now()->day > (\Carbon\Carbon::now()->daysInMonth - 7);
+                @endphp
+                @if ($last7Days) -->
+                <!-- <div class="card vote-section">
+                    <div class="card-body">
+                        <div class="main-div">
+                            <h5 class="card-title">Vote For The Employee Of The Month({{ \Carbon\Carbon::now()->format('F') }})</h5>
+                            <div class="vote" style="max-height: 300px; overflow-y: auto;">
+                                @if ($uservote->isNotEmpty())
+                                <table class="table" id="voter">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Employee Name</th>
+                                            <th scope="col">Vote</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($uservote as $user)
+                                        <tr>
+                                            <td>{{ $user->first_name }} {{ $user->last_name }}</td>
+                                            <td>
+                                                <button class="btn btn-primary btn-sm" style="padding-bottom: 1px;" onclick="vote('{{ $user->first_name }}', '{{ $user->last_name }}', '{{$user->id}}')">Vote</button>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                @else
+                                <p>Your vote has been recorded. Results will be announced shortly.</p>
+                                <div class="img-wrapper ">
+                                    <img src="/assets/img/votingresult.png">
+                                </div>
+                                @endif
                             </div>
-                            @endif
                         </div>
                     </div>
-                </div>
-            </div>
-            @endif
+                </div> -->
+            <!-- @endif -->
             <!------ End Vote Section-------->
 
 
@@ -1328,19 +1260,6 @@ use Carbon\Carbon;
             @endif
 
             <div class="card upcoming-holidays">
-                <!-- <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div> -->
-
                 <div class="card-body">
                     <h5 class="card-title"> Upcoming Holidays</h5>
 
@@ -1361,7 +1280,7 @@ use Carbon\Carbon;
                             </p>
                         </div>
                         @endforeach
-                    </div><!-- End sidebar recent posts-->
+                    </div>
                     @else
                     <div class="alert" role="alert">
                         No upcoming holidays found.
@@ -1374,18 +1293,7 @@ use Carbon\Carbon;
             @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
             <div class="col-md-12 dashboard">
                 <div class="card recent-sales overflow-auto">
-                    <!-- <div class="filter">
-                       <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                       <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                       <li class="dropdown-header text-start">
-                       <h6>Filter</h6>
-                       </li>
-
-                     <li><a class="dropdown-item" href="#">Today</a></li>
-                     <li><a class="dropdown-item" href="#">This Month</a></li>
-                     <li><a class="dropdown-item" href="#">This Year</a></li>
-                     </ul>
-                    </div> -->
+                   
                     <div class="card-body">
                         <h5 class="card-title">Missing Attendance</h5>
                         <div style="max-height: 300px; overflow-y: auto;">
@@ -1400,7 +1308,6 @@ use Carbon\Carbon;
                                     @foreach ($userAttendances as $attendance)
                                     <tr>
                                         <td>{{ $attendance['name'] }}</td>
-                                        <!-- <td>{{ implode(', ', $attendance['dates']) }}</td> -->
                                         <td>{{ implode(', ', array_map(function($date) {
                                         return date('d-M-Y', strtotime($date));
                                              }, $attendance['dates'])) }}</td>
@@ -1418,51 +1325,6 @@ use Carbon\Carbon;
                 </div>
             </div>
             @endif
-
-            <!-- <div class="row">
-            @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
-            <div class="col-md-8 dashboard">
-                <div class="card recent-sales overflow-auto">
-                    <div class="filter">
-
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Assigned Devices</h5>
-                        <table class="table table-borderless datatable" id="devices">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Device Name</th>
-                                    <th scope="col">Model Name</th>
-                                    <th scope="col">Serial Number</th>
-                                    <th scope="col">From</th>
-
-                                    <th scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($assignedDevices as $data)
-                                <tr>
-                                    <td>{{ $data->device->name ?? ''}}</td>
-                                    <td>{{ $data->device->device_model ?? ''}}</td>
-                                    <td>{{ $data->device->serial_number ?? '---'}}</td>
-                                    <td>{{date("d-m-Y", strtotime($data->from));}}</td>
-
-                                    <td> @if ($data->status == 0)
-                                        <span class="badge rounded-pill bg-success">Recovered</span>
-                                        @else
-                                        <span class="badge rounded-pill bg-primary">Assigned</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @empty
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div> -->
         </div>
     </div>
 
@@ -1556,22 +1418,8 @@ use Carbon\Carbon;
         </div>
     </div>
     @endif
-    @if (auth()->user()->role_id == 6)
-        <!-- Sticky Notes Started -->
-        <div class="col-lg-12 stickyNotes">
-            <div class="card">
-                <div class="sticky-card">
-                    <div class="row">
-                        <!-- <div class="container"> -->
-                        <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
-                        <div class="notes-wrapper" id="noteGrid"></div>
-                    </div>
-                    <!-- </div> -->
-                </div>
-            </div>
-        </div>
-        <!-- Sticky Notes Ended -->
 
+    @if (auth()->user()->role_id == 6)
         <div class="comment-section">
             <h4 class="mb-4 projectComment">Recent Project Comments</h4>
             <div class="row">
@@ -1784,6 +1632,20 @@ use Carbon\Carbon;
         </div>
     </div>
     @endif
+    <!-- Sticky Notes Started -->
+        <div class="col-lg-12 stickyNotes" id="stickyNotes">
+            <div class="card">
+                <div class="sticky-card">
+                    <div class="row">
+                        <!-- <div class="container"> -->
+                        <h3 class="sticky-heading"><i class="bi bi-pencil-square"></i> Sticky Notes</h3>
+                        <div class="notes-wrapper" id="noteGrid"></div>
+                    </div>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+        <!-- Sticky Notes Ended -->
     @endsection
     @section('js_scripts')
     <script>
@@ -1856,10 +1718,6 @@ use Carbon\Carbon;
                     notes: notes
                 },
                 success: function(response) {
-                    //     if (response.success) {
-                    //     $('#successMessage').text("Vote submitted successfully!");
-                    //     // You can also clear the textarea or perform any other actions as needed
-                    // } else
                     if (response.success) {
                         $('#voteModal').modal('hide'); // Hide the modal after successful vote submission
                         $('#voteSuccessMessage').text("Your vote has been counted. Results will be shown soon."); // Show success message
@@ -2037,30 +1895,6 @@ use Carbon\Carbon;
         function getTaskId(element) {
             return $(element).closest('.list-group-item').attr('id').split('_')[1];
         }
-    // jQuery for handling the cross button click
-    // $(document).on('click', '.close', function() {
-    // var reminderId = $(this).data('id');  // Get the reminder ID
-    // var currentTime = new Date().toISOString();  // Get current time in ISO format
-
-    // // Send the AJAX request to the route defined above
-    // $.ajax({
-    //     url: '/reminder/mark-as-read',  // The URL of the route you defined
-    //     method: 'POST',
-    //     data: {
-    //         id: reminderId,  // Pass the reminder ID
-    //         clicked_at: currentTime,  // Pass the current time as clicked_at
-    //         _token: '{{ csrf_token() }}'  // CSRF token for security
-    //     },
-    //     success: function(response) {
-    //         console.log(response); // Log the response to check success
-    //         $('[data-id="' + reminderId + '"]').closest('.alert').fadeOut();
-    //     },
-    //     error: function(xhr, status, error) {
-    //         console.log(xhr.responseText); // Log the error details
-    //         alert('Failed to save the click time');
-    //     }
-    // });
-// });
 
         // sticky notes js started //
         let updateTimeout;
@@ -2172,7 +2006,6 @@ use Carbon\Carbon;
             };
 
             // Insert the note before the add button
-            // noteGrid.insertBefore(note, document.getElementById('addBtn'));
             noteGrid.insertBefore(note, noteGrid.firstChild);
             const addBtn = document.getElementById('addBtn');
             if (addBtn) {
@@ -2252,29 +2085,7 @@ use Carbon\Carbon;
                     });
             }, 1000);
         }
-
-
         createAddBtn();
-    // $(document).on('click', '.reminder-close-btn', function() {
-    //     let reminderId = $(this).data('id');
-    //     $(this).closest('.container').fadeOut(); // or remove()
-
-    //     // Optional: Send AJAX request to mark reminder as closed
-    //     $.ajax({
-    //         url: '/reminders/close', // adjust this URL as needed
-    //         method: 'POST',
-    //         data: {
-    //             _token: '{{ csrf_token() }}',
-    //             id: reminderId
-    //         },
-    //         success: function(response) {
-    //             console.log('Reminder closed.');
-    //         },
-    //         error: function(xhr) {
-    //             console.error('Error closing reminder.');
-    //         }
-    //     });
-    // });
 
     </script>
 

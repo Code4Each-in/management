@@ -8,13 +8,12 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        // Check if the authenticated user is an admin
-        if ($request->user() && $request->user()->role->name == "Super Admin") {
-            return $next($request);
+        if (!auth()->check() || auth()->user()->role->name !== 'Super Admin') {
+
+            return redirect()->route('dashboard.index')
+                ->with('error', 'You do not have permission to access this page.');
         }
 
-        // Redirect or show an error message if the user is not authorized
-        // abort(403);
-        return response()->view('unauthorized', [], 403);
+        return $next($request);
     }
 }
