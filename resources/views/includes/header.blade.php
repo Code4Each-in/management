@@ -283,7 +283,6 @@
         <li><a class="{{ request()->is('leaves') ? 'active' : '' }}" href="{{ route('leaves.index') }}"><i class="bi bi-circle"></i>My Leaves</a></li>
         @endif
 
-        <li><a class="{{ request()->is('attendance/history') ? 'active' : '' }}" href="{{ route('attendance.history') }}"><i class="bi bi-circle"></i>Attendance History</a></li>
         <li><a class="{{ request()->is('attendance/team') ? 'active' : '' }}" href="{{ route('attendance.team.index') }}"><i class="bi bi-circle"></i>Team Attendance</a></li>
         <li><a class="{{ request()->is('leaves/team') ? 'active' : '' }}" href="{{ route('leaves.team.index') }}"><i class="bi bi-circle"></i>Team Leaves</a></li>
 
@@ -291,6 +290,7 @@
         <li><a class="{{ request()->is('reminder') ? 'active' : '' }}" href="{{ route('reminder.create') }}"><i class="bi bi-circle"></i>Reminders</a></li>
 
         @if(auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
+        <li><a class="{{ request()->is('attendance/history') ? 'active' : '' }}" href="{{ route('attendance.history') }}"><i class="bi bi-circle"></i>Attendance History</a></li>
         <li><a class="{{ request()->is('announcement') ? 'active' : '' }}" href="{{ route('announcement.create') }}"><i class="bi bi-circle"></i>Announcements</a></li>
         <li><a class="{{ request()->is('developer.feedback') ? 'active' : '' }}" href="{{ route('developer.feedback') }}"><i class="bi bi-circle"></i>Feedbacks</a></li>
         @endif
