@@ -24,16 +24,21 @@
         <nav class="header-nav ms-auto">
                 @php
                     $now = \Carbon\Carbon::now('Asia/Kolkata'); // India timezone
+
                     $start = \Carbon\Carbon::createFromTime(9, 0, 0);
                     $end = \Carbon\Carbon::createFromTime(19, 0, 0);
 
-                    $isOnline = $now->between($start, $end);
+                    // Check weekday (Mon-Fri)
+                    $isWeekday = $now->isWeekday(); // true for Mon-Fri, false for Sat-Sun
+
+                    // Final status
+                    $isOnline = $isWeekday && $now->between($start, $end);
                 @endphp
 
                 <div class="company-status">
                     <span class="status-indicator {{ $isOnline ? 'online' : 'offline' }}"></span>
                     <span class="status-text">
-                        Code4Each is {{ $isOnline ? 'Online' : 'Offline (outside working hours)' }}
+                        Code4Each is {{ $isOnline ? 'Online' : 'Offline (outside working hours or weekend)' }}
                     </span>
                 </div>
             @if (auth()->user()->role_id != 6)
@@ -137,708 +142,209 @@
         @endif
 
     </header><!-- End Header -->
+<aside id="sidebar" class="sidebar">
+<ul class="sidebar-nav" id="sidebar-nav">
 
-    <!-- ======= Sidebar ======= -->
-    <aside id="sidebar" class="sidebar">
+{{-- ================= DASHBOARD ================= --}}
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
 
-        <ul class="sidebar-nav" id="sidebar-nav">
-            @if(auth()->user()->role_id == 6)
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li><!-- End Dashboard Nav -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
-                    href="{{ route('projects.index') }}">
-                    <i class="bi bi-collection"></i> <span>Projects</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                    <a class="nav-link {{ request()->is('search') ? '' : 'collapsed' }}"
-                        href="{{ route('search.index') }}">
-                        <i class="bi bi-search"></i>
-                        <span>Search</span>
+@if(auth()->user()->role_id != 6)
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('scrumdash') ? '' : 'collapsed' }}" href="{{ route('scrumdash.index') }}">
+        <i class="bi bi-grid"></i>
+        <span>Scrum Dashboard</span>
+    </a>
+</li>
+@endif
+
+
+{{-- ================= WORK ================= --}}
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('projects*','tickets*','sprint*','todo_list*','ticket-logs*','devlisting*','pending-approvals*') ? '' : 'collapsed' }}"
+       data-bs-target="#work-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-kanban"></i><span>Work</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="work-nav"
+        class="nav-content collapse {{ request()->is('projects*','tickets*','sprint*','todo_list*','ticket-logs*','devlisting*','pending-approvals*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+
+        <li><a class="{{ request()->is('projects*') ? 'active' : '' }}" href="{{ route('projects.index') }}"><i class="bi bi-circle"></i>Projects</a></li>
+        
+
+        @if(auth()->user()->role_id != 6)
+        <li><a class="{{ request()->is('tickets*') ? 'active' : '' }}" href="{{ route('tickets.index') }}"><i class="bi bi-circle"></i>Tickets</a></li>
+        <li><a class="{{ request()->is('ticket-logs*') ? 'active' : '' }}" href="{{ route('ticket-logs.index') }}"><i class="bi bi-circle"></i>Ticket Logs</a></li>
+        @endif
+
+        @if(auth()->user()->role_id == 6)
+            <li><a class="{{ request()->is('devlisting*') ? 'active' : '' }}" href="{{ route('devlisting') }}"><i class="bi bi-circle"></i>Developer Listing</a></li>
+            <li><a class="{{ request()->is('pending-approvals*') ? 'active' : '' }}" href="{{ route('client.pending.approvals') }}"><i class="bi bi-circle"></i>Pending Approvals</a></li>
+        @endif
+
+        <li><a class="{{ request()->is('sprint*') ? 'active' : '' }}" href="{{ route('sprint.index') }}"><i class="bi bi-circle"></i>Sprint</a></li>
+        <li><a class="{{ request()->is('todo_list*') ? 'active' : '' }}" href="{{ route('todo_list.index') }}"><i class="bi bi-circle"></i>ToDo</a></li>
+
+    </ul>
+</li>
+
+
+{{-- ================= COMMUNICATION ================= --}}
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('messages*','teamchat*','comments*','search*') ? '' : 'collapsed' }}"
+       data-bs-target="#comm-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-chat-dots"></i><span>Communication</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="comm-nav"
+        class="nav-content collapse {{ request()->is('messages*','teamchat*','comments*','search*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+        
+        @if(auth()->user()->role_id != 6)
+        <li><a class="{{ request()->is('comments') ? 'active' : '' }}" href="{{ route('comments') }}"><i class="bi bi-circle"></i>Comments</a></li>
+        <li><a class="{{ request()->is('search*') ? 'active' : '' }}" href="{{ route('search.index') }}"><i class="bi bi-circle"></i>Comment Search</a></li>
+        @endif
+
+        @if(auth()->user()->role_id == 6 || auth()->user()->role->name == 'Super Admin')
+        <li><a class="{{ request()->is('messages*') ? 'active' : '' }}" href="{{ route('messages') }}"><i class="bi bi-circle"></i>Messages</a></li>
+        @endif
+
+        <li><a class="{{ request()->is('teamchat*') ? 'active' : '' }}" href="{{ route('teamchat') }}"><i class="bi bi-circle"></i>Team Chat</a></li>
+
+       
+
+
+    </ul>
+</li>
+
+
+{{-- ================= HR ================= --}}
+@if(auth()->user()->role_id != 6 || auth()->user()->role->name == 'Super Admin')
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('attendance*','leaves*','holidays*','reminder*','announcement*') ? '' : 'collapsed' }}"
+       data-bs-target="#hr-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-person-vcard"></i><span>HR</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="hr-nav"
+        class="nav-content collapse {{ request()->is('attendance*','leaves*','holidays*','reminder*','announcement*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+
+        @if(auth()->user()->role_id != 6 && auth()->user()->role->name != 'Super Admin')
+        <li><a class="{{ request()->is('attendance') ? 'active' : '' }}" href="{{ route('attendance.index') }}"><i class="bi bi-circle"></i>My Attendance</a></li>
+        <li><a class="{{ request()->is('leaves') ? 'active' : '' }}" href="{{ route('leaves.index') }}"><i class="bi bi-circle"></i>My Leaves</a></li>
+        @endif
+
+        <li><a class="{{ request()->is('attendance/history') ? 'active' : '' }}" href="{{ route('attendance.history') }}"><i class="bi bi-circle"></i>Attendance History</a></li>
+        <li><a class="{{ request()->is('attendance/team') ? 'active' : '' }}" href="{{ route('attendance.team.index') }}"><i class="bi bi-circle"></i>Team Attendance</a></li>
+        <li><a class="{{ request()->is('leaves/team') ? 'active' : '' }}" href="{{ route('leaves.team.index') }}"><i class="bi bi-circle"></i>Team Leaves</a></li>
+
+        <li><a class="{{ request()->is('holidays') ? 'active' : '' }}" href="{{ route('holidays.index') }}"><i class="bi bi-circle"></i>Holidays</a></li>
+        <li><a class="{{ request()->is('reminder') ? 'active' : '' }}" href="{{ route('reminder.create') }}"><i class="bi bi-circle"></i>Reminders</a></li>
+
+        @if(auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
+        <li><a class="{{ request()->is('announcement') ? 'active' : '' }}" href="{{ route('announcement.create') }}"><i class="bi bi-circle"></i>Announcements</a></li>
+        <li><a class="{{ request()->is('developer.feedback') ? 'active' : '' }}" href="{{ route('developer.feedback') }}"><i class="bi bi-circle"></i>Feedbacks</a></li>
+        @endif
+
+
+    </ul>
+</li>
+@endif
+
+
+@if(auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('users*','roles*','departments*','devices*','assigned-devices*') ? '' : 'collapsed' }}"
+       data-bs-target="#admin-core-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-gear"></i><span>Admin</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="admin-core-nav"
+        class="nav-content collapse {{ request()->is('users*','roles*','departments*','devices*','assigned-devices*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+
+        <li><a class="{{ request()->is('users*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-circle"></i>Users</a></li>
+        <li><a class="{{ request()->is('roles*') ? 'active' : '' }}" href="{{ route('roles.index') }}"><i class="bi bi-circle"></i>Roles</a></li>
+        <li><a class="{{ request()->is('departments*') ? 'active' : '' }}" href="{{ route('departments.index') }}"><i class="bi bi-circle"></i>Departments</a></li>
+
+        <li>
+                    <a class="{{ request()->is('devices') ? 'active' : '' }}" href="{{ route('devices.index') }}">
+                        <i class="bi bi-circle"></i>All Devices
                     </a>
                 </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('devlisting') ? '' : 'collapsed' }}"
-                    href="{{ route('devlisting') }}">
-                    <i class="bi bi-people"></i> <span>Developer Listing</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
-                    href="{{ route('comments') }}">
-                    <i class="bi bi-bell"></i> <span>All Comments</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
-                    <i class="bi bi-people"></i>
-                    <div class="position-relative">
-                        @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
-                            <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
-                        @endif
-                        <span>Messages</span>
-                    </div>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
-                    href="{{ route('reminder.create') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Reminders</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
-                    <i class="bi bi-people"></i>
-                    <div class="position-relative">
-                        <span>Team Chat</span>
-                    </div>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('pending-approvals') ? '' : 'collapsed' }}" href="{{ route('client.pending.approvals') }}">
-                    <i class="bi bi-clock-history"></i>
-                    <div class="position-relative">
-                        <span>Pending Approvals</span>
-                    </div>
+
+                <li>
+                    <a class="{{ request()->is('assigned-devices') ? 'active' : '' }}" href="{{ route('devices.assigned.index') }}">
+                        <i class="bi bi-circle"></i>Assigned Devices
+                    </a>
+                </li>
+
+    </ul>
+</li>
+@endif
+
+@if(auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('jobs*','emailtoall*','policies*','hireus*','clients*','pages*','modules*','client-access-requests*') ? '' : 'collapsed' }}"
+       data-bs-target="#admin-system-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-sliders"></i><span>Management</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="admin-system-nav"
+        class="nav-content collapse {{ request()->is('jobs*','emailtoall*','policies*','hireus*','clients*','pages*','modules*','client-access-requests*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+
+        <li><a class="{{ request()->is('emailtoall*') ? 'active' : '' }}" href="{{ route('emailall.index') }}"><i class="bi bi-circle"></i>Email</a></li>
+        <li><a class="{{ request()->is('policies*') ? 'active' : '' }}" href="{{ route('policies.index') }}"><i class="bi bi-circle"></i>Policies</a></li>
+        <li><a class="{{ request()->is('hireus*') ? 'active' : '' }}" href="{{ route('hireus.index') }}"><i class="bi bi-circle"></i>Hire Us</a></li>
+
+        <li><a class="{{ request()->is('jobs*') ? 'active' : '' }}" href="{{ route('jobs.index') }}"><i class="bi bi-circle"></i>Jobs</a></li>
+        <li><a class="{{ request()->is('job-categories*') ? 'active' : '' }}" href="{{ route('job_categories.index') }}"><i class="bi bi-circle"></i>Job Categories</a></li>
+        <li><a class="{{ request()->is('applicants*') ? 'active' : '' }}" href="{{ route('applicants.index') }}"><i class="bi bi-circle"></i>Applicants</a></li>
+
+        @if(auth()->user()->role->name == 'Super Admin')
+            <li><a class="{{ request()->is('pages*') ? 'active' : '' }}" href="{{ route('pages.index') }}"><i class="bi bi-circle"></i>Pages</a></li>
+            <li><a class="{{ request()->is('modules*') ? 'active' : '' }}" href="{{ route('modules.index') }}"><i class="bi bi-circle"></i>Modules</a></li>
+            <li><a class="{{ request()->is('clients*') ? 'active' : '' }}" href="{{ route('clients.index') }}"><i class="bi bi-circle"></i>Clients</a></li>
+
+            <li>
+                <a class="{{ request()->routeIs('client-access-requests.*') ? 'active' : '' }}"
+                   href="{{ route('client-access-requests.index') }}">
+                    <i class="bi bi-circle"></i>Client Access Requests
                 </a>
             </li>
         @endif
-        @if(auth()->user()->role_id != 6)
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ url('/dashboard') }}">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li><!-- End Dashboard Nav -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('scrumdash') ? '' : 'collapsed' }}"
-                    href="{{ route('scrumdash.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-grid"></i>
-                    <span>Scrum Dashboard</span>
-                </a>
-            </li>
-           <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('ticket-logs.*') ? '' : 'collapsed' }}" href="{{ route('ticket-logs.index') }}">
-                    <i class="bi bi-journal-text"></i>
-                    <div class="position-relative">
-                        <span>Ticket Logs</span>
-                    </div>
-                </a>
-            </li>
 
-            @if(in_array(auth()->user()->role_id, [2, 3]))
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('search') ? '' : 'collapsed' }}"
-                        href="{{ route('search.index') }}">
-                        <i class="bi bi-search"></i>
-                        <span>Search</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                        href="{{ route('sprint.index') }}">
-                        <i class="bi bi-clipboard"></i>
-                        <span>Sprint</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
-                        href="{{ route('reminder.create') }}">
-                        <i class="bi bi-calendar-check"></i>
-                        <span>Reminders</span>
-                    </a>
-                </li>
-                 <li class="nav-item">
-                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
-                    <i class="bi bi-people"></i>
-                    <div class="position-relative">
-                        <span>Team Chat</span>
-                    </div>
-                </a>
-            </li>
-            @endif
-
-          @if(auth()->user()->role->name == 'Super Admin')
-          <li class="nav-item">
-            <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                href="{{ route('sprint.index') }}">
-                <i class="bi bi-clipboard"></i>
-                <span>Sprint</span>
-            </a>
-        </li>
-         <li class="nav-item">
-                <a class="nav-link {{ request()->is('messages') ? '' : 'collapsed' }}" href="{{ route('messages') }}">
-                    <i class="bi bi-people"></i>
-                    <div class="position-relative">
-                        @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
-                            <span id="unread-message-counts" class="bg-danger ms-2">{{ $unreadMessageCount }}</span>
-                        @endif
-                        <span>Messages</span>
-                    </div>
-                </a>
-            </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('comments') ? '' : 'collapsed' }}"
-                href="{{ route('comments') }}">
-                <i class="bi bi-bell"></i> <span>All Comments</span>
-            </a>
-        </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('search') ? '' : 'collapsed' }}"
-                    href="{{ route('search.index') }}">
-                    <i class="bi bi-search"></i>
-                    <span>Search</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('pages') ? '' : 'collapsed' }}"
-                    href="{{ route('pages.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-file-earmark-fill"></i>
-                    <span>Pages</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('modules') ? '' : 'collapsed' }}"
-                    href="{{ route('modules.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-file-earmark-fill"></i>
-                    <span>Modules</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('clients') ? '' : 'collapsed' }}"
-                    href="{{ route('clients.index') }}">
-                    <i class="bi bi-person-square"></i>
-                    <span>Clients</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
-                    href="{{ route('departments.index') }}">
-                    <i class="bi bi-buildings"></i>
-                    <span>Departments</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
-                    <i class="bi bi-people"></i>
-                    <span>Roles</span>
-                </a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
-                <i class="bi bi-person-badge"></i>
-                <span>BDE Panel</span>
-            </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('teamchat') ? '' : 'collapsed' }}" href="{{ route('teamchat') }}">
-                    <i class="bi bi-people"></i>
-                    <div class="position-relative">
-                        <span>Team Chat</span>
-                    </div>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('client-access-requests.*') ? '' : 'collapsed' }}" href="{{ route('client-access-requests.index') }}">
-                    <i class="bi bi-person-check"></i>
-                    <div class="position-relative">
-                        <span>Client Access Requests</span>
-                    </div>
-                </a>
-            </li>
-          @endif
-          @if (auth()->user()->designation == 'BDE')
-           <li class="nav-item">
-            <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
-                <i class="bi bi-person-badge"></i>
-                <span>BDE Panel</span>
-            </a>
-            </li>
-            @endif
-          @if (auth()->user()->role->name == 'HR Manager')
-          <li class="nav-item">
-                <a class="nav-link {{ request()->is('departments') ? '' : 'collapsed' }}"
-                    href="{{ route('departments.index') }}">
-                    <i class="bi bi-buildings"></i>
-                    <span>Departments</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('roles.index') }}">
-                    <i class="bi bi-people"></i>
-                    <span>Roles</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('sprint') ? '' : 'collapsed' }}"
-                    href="{{ route('sprint.index') }}">
-                    <i class="bi bi-clipboard"></i>
-                    <span>Sprint</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
-                    href="{{ route('reminder.create') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Reminders</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('announcement') ? '' : 'collapsed' }}"
-                    href="{{ route('announcement.create') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Announcements</span>
-                </a>
-            </li>
-          @endif
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('users.index') }}">
-                    <i class="bi bi-person-square"></i>
-                    <span>Users
-                    </span>
-                </a>
-            </li>
-            @if(auth()->user()->role->name == 'Super Admin')
-            <li class="nav-item">
-            <a class="nav-link {{ request()->is('attendance/team') || request()->is('attendance/history') ? '' : 'collapsed' }}"
-                data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-person-vcard-fill"></i>
-                <span>Attendance</span>
-            </a>
-
-            <ul id="attendance-nav"
-                class="nav-content collapse {{ request()->is('attendance/team') || request()->is('attendance/history') ? 'show' : '' }}"
-                data-bs-parent="#sidebar-nav">
-
-                <li>
-                    <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed' }}"
-                        href="{{ route('attendance.team.index') }}">
-                        <i class="bi bi-circle"></i><span>Team Attendance</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a class="{{ request()->is('attendance/history') ? 'active' : 'collapsed' }}"
-                        href="{{ route('attendance.history') }}">
-                        <i class="bi bi-circle"></i><span>Attendance History</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('role') ? '' : 'collapsed' }}" href="{{ route('developer.feedback') }}">
-                    <i class="bi bi-people"></i>
-                    <span>Feedbacks</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('reminder') ? '' : 'collapsed' }}"
-                    href="{{ route('reminder.create') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Reminders</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('announcement') ? '' : 'collapsed' }}"
-                    href="{{ route('announcement.index') }}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Announcements</span>
-                </a>
-            </li>
-            @else
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('attendance') ? '' : 'collapsed' }}"
-                    data-bs-target="#attendance-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-person-vcard-fill"></i></i><span>Attendance</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="attendance-nav"
-                    class="nav-content collapse {{ request()->is('attendance') || request()->is('attendance/team') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class="{{ request()->is('attendance') ? 'active' : 'collapsed' }}"
-                            href="{{ route('attendance.index') }}" href="">
-                            <i class="bi bi-circle "></i><span>My Attendance</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="{{ request()->is('attendance/team') ? 'active' : 'collapsed ' }}"
-                            href="{{ route('attendance.team.index')}}">
-                            <i class="bi bi-circle"></i><span>Team Attendance</span>
-                        </a>
-                    </li>
-                     @if (auth()->user()->role->name == 'HR Manager')
-                     <li>
-                    <a class="{{ request()->is('attendance/history') ? 'active' : 'collapsed' }}"
-                        href="{{ route('attendance.history') }}">
-                        <i class="bi bi-circle"></i><span>Attendance History</span>
-                    </a>
-                    </li>
-                    @endif
-                </ul>
-            </li>
-            @endif
-            @if(auth()->user()->role->name == 'Super Admin')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('leaves/team') ? '' : 'collapsed' }}"
-                    href=" {{ route('leaves.team.index')}}">
-                    <i class="bi bi-menu-button-wide"></i>
-                    <span>Leaves</span>
-                </a>
-            </li>
-            @else
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('leaves') ? '' : 'collapsed' }}" data-bs-target="#leaves-nav"
-                    data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-layout-text-window-reverse"></i><span>Leaves</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="leaves-nav"
-                    class="nav-content collapse {{ request()->is('leaves') || request()->is('leaves/team') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class=" {{ request()->is('leaves') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('leaves.index') }}">
-                            <i class="bi bi-circle "></i><span>My Leaves</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class=" {{ request()->is('leaves/team') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('leaves.team.index')}}">
-                            <i class="bi bi-circle"></i><span>Team Leaves</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            @endif
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('projects') ? '' : 'collapsed' }}"
-                    href="{{ route('projects.index') }}">
-                    <i class="bi bi-list-task"></i> <span>Projects</span>
-                </a>
-            </li>
-
-        <li class="nav-item">
-            <a class="nav-link {{ request()->is('todo_list') ? '' : 'collapsed' }}"
-             href="{{ route('todo_list.index') }}">
-             <i class="bi bi-journal-code"></i> <span>ToDo</span>
-            </a>
-        </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('tickets') ? '' : 'collapsed' }}"
-                    href="{{ route('tickets.index') }}">
-                    <i class="bi bi-journal-code"></i> <span>Tickets</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('holidays') ? '' : 'collapsed' }}"
-                    href="{{ route('holidays.index') }}">
-                    <!-- <i class="bi bi-buildings"></i> -->
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Holidays</span>
-                </a>
-            </li>
-
-            @if (auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('devices') ? '' : 'collapsed' }}"
-                    data-bs-target="#devices-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-person-vcard-fill"></i></i><span>Devices</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="devices-nav"
-                    class="nav-content collapse {{ request()->is('devices') || request()->is('assigned-devices') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class="{{ request()->is('devices') ? 'active' : 'collapsed' }}"
-                            href="{{ route('devices.index') }}" href="">
-                            <i class="bi bi-circle "></i><span>All Devices</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="{{ request()->is('assigned-devices') ? 'active' : 'collapsed ' }}"
-                            href="{{ route('devices.assigned.index')}}">
-                            <i class="bi bi-circle"></i><span>Assigned Devices</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('emailtoall') ? '' : 'collapsed' }}"
-                    href="{{ route('emailall.index') }}">
-                    <i class="bi bi-envelope"></i>
-                    <span>Email</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('policies') ? '' : 'collapsed' }}"
-                    href="{{ route('policies.index') }}">
-                    <i class="bi bi-files"></i> <span>Policies</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('hireus') ? '' : 'collapsed' }}"
-                    href="{{ route('hireus.index') }}">
-                    <i class="bi bi-person-square"></i> <span>Hire Us</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('jobs') ? '' : 'collapsed' }}" data-bs-target="#job-cat-nav"
-                    data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-layout-text-window-reverse"></i><span>Jobs</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="job-cat-nav"
-                    class="nav-content collapse {{ request()->is('jobs') || request()->is('job-categories') ||  request()->is('applicants') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class=" {{ request()->is('jobs') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('jobs.index') }}">
-                            <i class="bi bi-circle "></i><span>Jobs</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class=" {{ request()->is('job-categories') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('job_categories.index')}}">
-                            <i class="bi bi-circle"></i><span>Job Categories</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class=" {{ request()->is('applicants') ? 'active' : 'collapsed' }} "
-                            href=" {{ route('applicants.index')}}">
-                            <i class="bi bi-circle"></i><span>Applicants</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <!--  new section email templates -->
-            <!-- <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#email-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-envelope"></i><span>Email Management</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-
-                <ul id="email-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="{{ route('templates.index') }}">
-                            <i class="bi bi-circle"></i><span>Email Templates</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('scheduled.index') }}">
-                            <i class="bi bi-circle"></i><span>Scheduled Emails</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('scheduled.tracking') }}">
-                            <i class="bi bi-circle"></i><span>Email Tracking</span>
-                        </a>
-                    </li>
-                </ul>
-            </li> -->
-
-            @endif
-            @endif
-            <!-- <li class="nav-item">
-        <a class="" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="forms-elements.html">
-              <i class="bi bi-circle"></i><span>Form Elements</span>
-            </a>
-          </li>
-          <li>
-            <a href="forms-layouts.html">
-              <i class="bi bi-circle"></i><span>Form Layouts</span>
-            </a>
-          </li>
-          <li>
-            <a href="forms-editors.html">
-              <i class="bi bi-circle"></i><span>Form Editors</span>
-            </a>
-          </li>
-          <li>
-            <a href="forms-validation.html">
-              <i class="bi bi-circle"></i><span>Form Validation</span>
-            </a>
-          </li>
-        </ul>
-      </li> -->
-            <!-- End Forms Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="tables-general.html">
-              <i class="bi bi-circle"></i><span>General Tables</span>
-            </a>
-          </li>
-          <li>
-            <a href="tables-data.html">
-              <i class="bi bi-circle"></i><span>Data Tables</span>
-            </a>
-          </li>
-        </ul>
-      </li> -->
-            <!-- End Tables Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="charts-chartjs.html">
-              <i class="bi bi-circle"></i><span>Chart.js</span>
-            </a>
-          </li>
-          <li>
-            <a href="charts-apexcharts.html">
-              <i class="bi bi-circle"></i><span>ApexCharts</span>
-            </a>
-          </li>
-          <li>
-            <a href="charts-echarts.html">
-              <i class="bi bi-circle"></i><span>ECharts</span>
-            </a>
-          </li>
-        </ul>
-      </li> -->
-            <!-- End Charts Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="icons-bootstrap.html">
-              <i class="bi bi-circle"></i><span>Bootstrap Icons</span>
-            </a>
-          </li>
-          <li>
-            <a href="icons-remix.html">
-              <i class="bi bi-circle"></i><span>Remix Icons</span>
-            </a>
-          </li>
-          <li>
-            <a href="icons-boxicons.html">
-              <i class="bi bi-circle"></i><span>Boxicons</span>
-            </a>
-          </li>
-        </ul>
-      </li> -->
-            <!-- End Icons Nav -->
-
-            <!-- <li class="nav-heading">Pages</li> -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="users-profile.html">
-          <i class="bi bi-person"></i>
-          <span>Profile</span>
-        </a>
-      </li> -->
-            <!-- End Profile Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-faq.html">
-          <i class="bi bi-question-circle"></i>
-          <span>F.A.Q</span>
-        </a>
-      </li> -->
-            <!-- End F.A.Q Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-contact.html">
-          <i class="bi bi-envelope"></i>
-          <span>Contact</span>
-        </a>
-      </li> -->
-            <!-- End Contact Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-register.html">
-          <i class="bi bi-card-list"></i>
-          <span>Register</span>
-        </a>
-      </li> -->
-            <!-- End Register Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-login.html">
-          <i class="bi bi-box-arrow-in-right"></i>
-          <span>Login</span>
-        </a>
-      </li> -->
-            <!-- End Login Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-error-404.html">
-          <i class="bi bi-dash-circle"></i>
-          <span>Error 404</span>
-        </a>
-      </li> -->
-            <!-- End Error 404 Page Nav -->
-
-            <!-- <li class="nav-item">
-        <a class="" href="pages-blank.html">
-          <i class="bi bi-file-earmark"></i>
-          <span>Blank</span>
-        </a>
-      </li> -->
-            <!-- End Blank Page Nav -->
-
-        </ul>
-
-    </aside><!-- End Sidebar-->
+    </ul>
+</li>
+@endif
 
 
-    <!-- End #main -->
+{{-- ================= EXTRA ================= --}}
+@if(auth()->user()->designation == 'BDE' || auth()->user()->role->name == 'Super Admin')
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('bid-sprints') ? '' : 'collapsed' }}" href="{{ route('bdeSprint.index') }}">
+        <i class="bi bi-person-badge"></i>
+        <span>BDE Panel</span>
+    </a>
+</li>
+@endif
 
-    <!-- ======= Footer ======= -->
-    <!-- <footer id="footer" class="footer">
-    <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
-    </div>
-    <div class="credits"> -->
-    <!-- All the links in the footer should remain intact. -->
-    <!-- You can delete the links only if you purchased the pro version. -->
-    <!-- Licensing information: https://bootstrapmade.com/license/ -->
-    <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-    <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-    </div>
-  </footer> -->
-    <!-- End Footer -->
+</ul>
+</aside>
 
-    <!-- <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a> -->
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <script>
 function clearMessageCounter() {
     const counter = document.getElementById('unread-message-counts');
