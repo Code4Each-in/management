@@ -22,25 +22,57 @@
         </div>End Search Bar -->
 
         <nav class="header-nav ms-auto">
-                @php
-                    $now = \Carbon\Carbon::now('Asia/Kolkata'); // India timezone
+              @php
+                use App\Models\Settings;
+                use App\Models\Holidays;
 
-                    $start = \Carbon\Carbon::createFromTime(9, 0, 0);
-                    $end = \Carbon\Carbon::createFromTime(19, 0, 0);
+                $setting = Settings::first();
 
-                    // Check weekday (Mon-Fri)
-                    $isWeekday = $now->isWeekday(); // true for Mon-Fri, false for Sat-Sun
+                $now = \Carbon\Carbon::now('Asia/Kolkata');
 
-                    // Final status
-                    $isOnline = $isWeekday && $now->between($start, $end);
-                @endphp
+                $isOnline = false;
+                $isHoliday = false;
+                $isWeekend = false;
 
-                <div class="company-status">
-                    <span class="status-indicator {{ $isOnline ? 'online' : 'offline' }}"></span>
-                    <span class="status-text">
-                        Code4Each is {{ $isOnline ? 'Online' : 'Offline (outside working hours or weekend)' }}
-                    </span>
-                </div>
+                if ($setting && $setting->is_active) {
+
+                    $start = \Carbon\Carbon::createFromTimeString($setting->start_time);
+                    $end = \Carbon\Carbon::createFromTimeString($setting->end_time);
+
+                    $isWeekend = !$now->isWeekday();
+
+                    $isHoliday = Holidays::whereDate('from', '<=', $now)
+                        ->whereDate('to', '>=', $now)
+                        ->exists();
+
+                    $isOnline = $now->between($start, $end);
+
+                    if ($setting->skip_weekends && $isWeekend) {
+                        $isOnline = false;
+                    }
+
+                    if ($isHoliday) {
+                        $isOnline = false;
+                    }
+                }
+            @endphp
+
+            <div class="company-status">
+                <span class="status-indicator {{ $isOnline ? 'online' : 'offline' }}"></span>
+                <span class="status-text">
+                    Code4Each is 
+                    {{ $isOnline 
+                        ? 'Online' 
+                        : ($isHoliday 
+                            ? 'Offline (Holiday)' 
+                            : ($isWeekend 
+                                ? 'Offline (Weekend)' 
+                                : 'Offline (Outside Working Hours)'
+                            )
+                        )
+                    }}
+                </span>
+            </div>
             @if (auth()->user()->role_id != 6)
                 <div id="notificationDropdown">
                     @include('notifications.partials._dropdown')
@@ -112,6 +144,14 @@
                                 <span>My Profile</span>
                             </a>
                         </li>
+                        @if(auth()->user()->role->name == 'Super Admin')
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="{{route('settings')}}">
+                                <i class="bi bi-gear"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                        @endif
                         <hr class="dropdown-divider">
 
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('logout')}}">

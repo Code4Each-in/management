@@ -47,11 +47,6 @@ class DashboardController extends Controller
         if ($user->role_id == 6) {
             $clientId = $user->client_id;
 
-            // $projectMap = Projects::where('client_id', $clientId)
-            //     ->pluck('project_name', 'id');
-
-            // $projectIds = $projectMap->keys();
-
             $projectIds = Projects::where(function (Builder $query) use ($clientId) {
                 $query->where('client_id', $clientId)
                     ->orWhereHas('clients', function ($q) use ($clientId) {
@@ -96,13 +91,6 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // $projectIds = Tickets::whereIn('id', $ticketIds)
-            // ->whereHas('project', function ($query) {
-            //     $query->where('client_id', '!=', 10); // also apply same condition here
-            // })
-            // ->pluck('project_id')
-            // ->unique();
-
             $projectIds = Tickets::whereIn('id', $ticketIds)
                 ->whereHas('project', function ($query) {
                     $query->where('client_id', '!=', 10)
@@ -116,7 +104,6 @@ class DashboardController extends Controller
 
             $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
 
-            // dd($projectMap);
         }
         else {
             $projectMap = Projects::pluck('project_name', 'id');
@@ -327,8 +314,6 @@ class DashboardController extends Controller
 
 
         if (auth()->user()->role->name == 'Super Admin') {
-            // $userCount = Users::where('users.role_id','=',env('SUPER_ADMIN'))->orderBy('id','desc')-
-            // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_leaves.*', 'users.first_name', 'users.status']);
             $currentDate = date('Y-m-d'); //current date
             $usrleaves = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
@@ -338,10 +323,8 @@ class DashboardController extends Controller
 
             $validLeaves = $this->getValidLeaves($showLeaves, $currentDate);
 
-            //count of userleaves acc to current date
             $userAttendancesData = UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_attendances.*', 'users.first_name'])->count();
         } elseif (auth()->user()->role->name == 'HR Manager') {
-            // $userCount = Users::orderBy('id','desc')->where('status',1)->get()->count();
             $userLeaves = UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_leaves.*', 'users.first_name']);
             $currentDate = date('Y-m-d'); //current date
             $usrleaves = UserLeaves::whereDate('from', '<=', $currentDate)->whereDate('to', '>=', $currentDate)->where('leave_status', '=', 'approved')->get();
@@ -351,10 +334,8 @@ class DashboardController extends Controller
 
             $validLeaves = $this->getValidLeaves($showLeaves, $currentDate);
 
-            //count of userleaves acc to current date
             $userAttendancesData = UserAttendances::join('users', 'user_attendances.user_id', '=', 'users.id')->orderBy('id', 'desc')->get(['user_attendances.*', 'users.first_name'])->count();
         } else {
-            // $userCount=Managers::where('parent_user_id',auth()->user()->id)->get()->count();
             $userLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id', auth()->user()->id)->get(['user_leaves.*', 'managers.user_id', 'users.first_name']);
 
             $currentDate = date('Y-m-d'); //current date
