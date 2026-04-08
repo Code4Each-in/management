@@ -131,7 +131,7 @@ class DashboardController extends Controller
             });
         // ✅ NEW BLOCK: Latest CLIENT Comments (separate from notifications)
 
-        $clientComments = TicketComments::with(['user', 'ticket.project'])
+        $clientComments = TicketComments::with(['user', 'ticket.project', 'ticket.ticketAssigns.user'])
             ->leftJoin('comment_status', 'ticket_comments.id', '=', 'comment_status.comment_id')
             ->select(
                 'ticket_comments.*',
@@ -175,6 +175,27 @@ class DashboardController extends Controller
         $notifications = $notifications->whereIn('id', $pendingCommentIds);
 
         $clientComments = $clientComments->whereIn('id', $pendingCommentIds);
+
+        $currentOfficeTime = Carbon::now('Asia/Kolkata');
+
+        $clientComments = $clientComments->map(function ($comment) use ($currentOfficeTime) {
+            $commentCreatedAt = Carbon::parse($comment->created_at)->setTimezone('Asia/Kolkata');
+            $waitingMinutes = (int) $commentCreatedAt->diffInMinutes($currentOfficeTime);
+            $assignedDevelopers = optional(optional($comment->ticket)->ticketAssigns)
+                ->pluck('user.first_name')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $comment->waiting_minutes = $waitingMinutes;
+            $comment->assigned_developers = $assignedDevelopers;
+            $comment->show_pending_reply_warning =
+                $comment->status === 'pending' &&
+                $waitingMinutes >= 20;
+
+            return $comment;
+        });
 
         $groupedClientComments = $clientComments->groupBy(function ($comment) {
             return optional(optional($comment->ticket)->project)->id ?? 'unknown';

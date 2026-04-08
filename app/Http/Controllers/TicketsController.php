@@ -1386,8 +1386,8 @@ public function uploadImage(Request $request)
 
     function calculateWorkingSeconds($start, $end)
     {
-        $start = \Carbon\Carbon::parse($start);
-        $end   = \Carbon\Carbon::parse($end);
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
 
         $workStart = 9;
 
@@ -1395,19 +1395,27 @@ public function uploadImage(Request $request)
             return 0;
         }
 
-        // ✅ SAME DAY → real time
-        if ($start->toDateString() === $end->toDateString()) {
-            return $end->diffInSeconds($start);
+        $effectiveStart = $start->copy();
+
+        if ($start->isSameDay($end)) {
+            // Same-day replies should only count time after 9 AM.
+            if ($effectiveStart->hour < $workStart) {
+                $effectiveStart->setTime($workStart, 0, 0);
+            }
+        } else {
+            // For cross-day replies, ignore the original day entirely and start
+            // counting from the reply day at 9 AM.
+            $effectiveStart = $end->copy()->setTime($workStart, 0, 0);
         }
 
-        // ✅ DIFFERENT DAY → start from reply day 9 AM
-        $start = $end->copy()->setTime($workStart, 0);
-
-        // ❗ If reply before 9 AM → shift end to 9 AM
         if ($end->hour < $workStart) {
-            $end->setTime($workStart, 0);
+            $end = $end->copy()->setTime($workStart, 0, 0);
         }
 
-        return max(0, $end->diffInSeconds($start));
+        if ($end <= $effectiveStart) {
+            return 0;
+        }
+
+        return $end->diffInSeconds($effectiveStart);
     }
 }
