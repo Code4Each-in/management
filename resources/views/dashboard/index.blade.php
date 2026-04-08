@@ -608,9 +608,15 @@ use Carbon\Carbon;
     </div>
 </div>
 <!-- acknowledgement -->
-@if(in_array(auth()->user()->role_id, [1, 3]))
+@if(auth()->user()->role_id != 6)
 
     @if($groupedClientComments->isNotEmpty())
+
+    @php
+        $warningComments = $groupedClientComments->flatten()->filter(function ($comment) {
+            return !empty($comment->show_pending_reply_warning);
+        })->unique('ticket_id')->values();
+    @endphp
 
     <div class="comment-section mt-4 p-3 acknowledgement-section"
         style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
@@ -625,6 +631,44 @@ use Carbon\Carbon;
                 ({{ $groupedClientComments->flatten()->count() }})
             </span>
         </div>
+
+        @if($warningComments->isNotEmpty())
+            <div class="mb-4 p-3 rounded"
+                style="background:#fff7ed; border:1px solid #fdba74;">
+                <h6 class="fw-bold mb-3" style="color:#9a3412;">
+                    Warning Tickets: Please inform the assigned developer or relevant team member to reply to the client
+                </h6>
+
+                @foreach($warningComments as $comment)
+                    @php
+                        $warningProjectName = $projectMap[optional(optional($comment->ticket)->project)->id] ?? 'Unknown Project';
+                    @endphp
+
+                    <div class="mb-3 p-3 rounded"
+                        style="background:#ffffff; border:1px solid #fed7aa;">
+                        <a href="{{ url('/view/ticket/'.$comment->ticket_id) }}"
+                            target="_blank"
+                            class="text-dark text-decoration-none d-block">
+
+                            <div style="font-size:14px; color:#334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Ticket
+                                <span class="text-primary fw-semibold">#{{ $comment->ticket_id }}</span>
+                                ({{ $warningProjectName }}) —
+                                <strong>{{ $comment->user->first_name ?? 'User' }}</strong>,
+                                <span class="text-muted">
+                                    {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
+                                </span>:
+                                @if(!empty($comment->assigned_developers))
+                                    Client reply is still pending. Please inform <strong>{{ implode(', ', $comment->assigned_developers) }}</strong>.
+                                @else
+                                    Client reply is still pending. Please inform <strong>the assigned developer</strong>.
+                                @endif
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         <div class="row">
             @foreach($groupedClientComments as $projectId => $comments)
