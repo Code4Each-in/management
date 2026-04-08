@@ -192,7 +192,7 @@ class DashboardController extends Controller
             $comment->assigned_developers = $assignedDevelopers;
             $comment->show_pending_reply_warning =
                 $comment->status === 'pending' &&
-                $waitingMinutes >= 15;
+                $waitingMinutes >= 10;
 
             return $comment;
         });
