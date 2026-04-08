@@ -1348,34 +1348,66 @@ public function uploadImage(Request $request)
         'url' => asset('uploads/comments/' . $name)
     ]);
 }
-  function calculateWorkingSeconds($start, $end)
-{
-    $start = \Carbon\Carbon::parse($start);
-    $end   = \Carbon\Carbon::parse($end);
+//   function calculateWorkingSeconds($start, $end)
+//     {
+//         $start = \Carbon\Carbon::parse($start);
+//         $end   = \Carbon\Carbon::parse($end);
 
-    $workStart = 9;
-    $workEnd   = 19;
+//         $workStart = 9;
+//         $workEnd   = 19;
 
-    // If different day → ignore previous day completely
-    if ($start->toDateString() !== $end->toDateString()) {
+//          // SAME DAY → DO NOTHING
+//         if ($start->toDateString() === $end->toDateString()) {
+//             return $end->diffInSeconds($start);
+//         }
+
+//         // If different day → ignore previous day completely
+//         if ($start->toDateString() !== $end->toDateString()) {
+//             $start = $end->copy()->setTime($workStart, 0);
+//         }
+
+//         // If before 9 AM → shift to 9 AM
+//         if ($start->hour < $workStart) {
+//             $start->setTime($workStart, 0);
+//         }
+
+//         // If after 7 PM → shift to next day 9 AM
+//         // if ($start->hour >= $workEnd) {
+//         //     $start->addDay()->setTime($workStart, 0);
+//         // }
+
+//         // If reply after 7 PM → cap at 7 PM
+//         // if ($end->hour >= $workEnd) {
+//         //     $end->setTime($workEnd, 0);
+//         // }
+
+//         return max(0, $end->diffInSeconds($start));
+//     }
+
+    function calculateWorkingSeconds($start, $end)
+    {
+        $start = \Carbon\Carbon::parse($start);
+        $end   = \Carbon\Carbon::parse($end);
+
+        $workStart = 9;
+
+        if ($end <= $start) {
+            return 0;
+        }
+
+        // ✅ SAME DAY → real time
+        if ($start->toDateString() === $end->toDateString()) {
+            return $end->diffInSeconds($start);
+        }
+
+        // ✅ DIFFERENT DAY → start from reply day 9 AM
         $start = $end->copy()->setTime($workStart, 0);
-    }
 
-    // If before 9 AM → shift to 9 AM
-    if ($start->hour < $workStart) {
-        $start->setTime($workStart, 0);
-    }
+        // ❗ If reply before 9 AM → shift end to 9 AM
+        if ($end->hour < $workStart) {
+            $end->setTime($workStart, 0);
+        }
 
-    // If after 7 PM → shift to next day 9 AM
-    if ($start->hour >= $workEnd) {
-        $start->addDay()->setTime($workStart, 0);
+        return max(0, $end->diffInSeconds($start));
     }
-
-    // If reply after 7 PM → cap at 7 PM
-    if ($end->hour >= $workEnd) {
-        $end->setTime($workEnd, 0);
-    }
-
-    return max(0, $end->diffInSeconds($start));
-}
 }
