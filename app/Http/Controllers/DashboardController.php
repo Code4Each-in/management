@@ -146,6 +146,8 @@ class DashboardController extends Controller
             ->orderBy('ticket_comments.created_at', 'desc')
             ->get();
 
+        $allInternalClientComments = $clientComments;
+
         if (in_array($user->role_id, [1])) {
             foreach ($projectMap as $projectId => $projectName) {
                 if (!$groupedNotifications->has($projectId)) {
@@ -174,11 +176,12 @@ class DashboardController extends Controller
 
         $notifications = $notifications->whereIn('id', $pendingCommentIds);
 
+        $allInternalClientComments = $allInternalClientComments->whereIn('id', $pendingCommentIds);
         $clientComments = $clientComments->whereIn('id', $pendingCommentIds);
 
         $currentOfficeTime = Carbon::now('Asia/Kolkata');
 
-        $clientComments = $clientComments->map(function ($comment) use ($currentOfficeTime) {
+        $decorateClientComment = function ($comment) use ($currentOfficeTime) {
             $commentCreatedAt = Carbon::parse($comment->created_at)->setTimezone('Asia/Kolkata');
             $waitingMinutes = (int) $commentCreatedAt->diffInMinutes($currentOfficeTime);
             $assignedDevelopers = optional(optional($comment->ticket)->ticketAssigns)
@@ -195,11 +198,21 @@ class DashboardController extends Controller
                 $waitingMinutes >= 10;
 
             return $comment;
-        });
+        };
+
+        $allInternalClientComments = $allInternalClientComments->map($decorateClientComment);
+        $clientComments = $clientComments->map($decorateClientComment);
 
         $groupedClientComments = $clientComments->groupBy(function ($comment) {
             return optional(optional($comment->ticket)->project)->id ?? 'unknown';
         });
+
+        $warningComments = $allInternalClientComments
+            ->filter(function ($comment) {
+                return !empty($comment->show_pending_reply_warning);
+            })
+            ->unique('ticket_id')
+            ->values();
         
         $joiningDate = $user->joining_date;
         $userId = $user->id;
@@ -615,6 +628,7 @@ class DashboardController extends Controller
             'allClients',
             'groupedNotifications',
             'groupedClientComments',
+            'warningComments',
             'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }
