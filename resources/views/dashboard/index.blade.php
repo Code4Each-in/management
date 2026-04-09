@@ -612,12 +612,6 @@ use Carbon\Carbon;
 
     @if($groupedClientComments->isNotEmpty())
 
-    @php
-        $warningComments = $groupedClientComments->flatten()->filter(function ($comment) {
-            return !empty($comment->show_pending_reply_warning);
-        })->unique('ticket_id')->values();
-    @endphp
-
     <div class="comment-section mt-4 p-3 acknowledgement-section"
         style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
 
