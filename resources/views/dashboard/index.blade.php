@@ -610,7 +610,7 @@ use Carbon\Carbon;
 <!-- acknowledgement -->
 @if(auth()->user()->role_id != 6)
 
-    @if($groupedClientComments->isNotEmpty())
+    @if($groupedClientComments->isNotEmpty() || $warningComments->isNotEmpty())
 
     <div class="comment-section mt-4 p-3 acknowledgement-section"
         style="background:#f8fafc; border-radius:14px; border:1px solid #e2e8f0;">
@@ -622,7 +622,7 @@ use Carbon\Carbon;
             </h5>
 
             <span class="badge" style="color:#012970;font-size: 16px;padding: 0;min-width: unset;">
-                ({{ $groupedClientComments->flatten()->count() }})
+                ({{ max($groupedClientComments->flatten()->count(), $warningComments->count()) }})
             </span>
         </div>
 
