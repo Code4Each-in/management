@@ -31,7 +31,7 @@
                             </thead>
                             <tbody>
                                 @forelse($tickets as $ticket)
-                                    <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/ticket/'.$ticket->id) }}', '_blank');">
+                                    <tr class="pointer" onclick="if (!event.target.closest('.actions-cell')) window.open('{{ url('/view/ticket/'.$ticket->id) }}', '_blank');">
                                         <td>{{ $ticket->id }}</td>
                                         <td>{{ $ticket->title }}</td>
                                         <td>{{ $ticket->project->project_name ?? 'N/A' }}</td>
