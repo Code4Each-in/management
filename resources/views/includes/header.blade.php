@@ -212,15 +212,17 @@
     </a>
 
     <ul id="work-nav"
-        class="nav-content collapse {{ request()->is('projects*','tickets*','sprint*','todo_list*','ticket-logs*','devlisting*','pending-approvals*') ? 'show' : '' }}"
+        class="nav-content collapse {{ request()->is('projects*','tickets*','sprint*','todo_list*', 'reminder*', 'ticket-logs*','devlisting*','pending-approvals*') ? 'show' : '' }}"
         data-bs-parent="#sidebar-nav">
 
         <li><a class="{{ request()->is('projects*') ? 'active' : '' }}" href="{{ route('projects.index') }}"><i class="bi bi-circle"></i>Projects</a></li>
+        <li><a class="{{ request()->is('tickets*') ? 'active' : '' }}" href="{{ route('tickets.index') }}"><i class="bi bi-circle"></i>Tickets</a></li>
         
 
         @if(auth()->user()->role_id != 6)
-        <li><a class="{{ request()->is('tickets*') ? 'active' : '' }}" href="{{ route('tickets.index') }}"><i class="bi bi-circle"></i>Tickets</a></li>
         <li><a class="{{ request()->is('ticket-logs*') ? 'active' : '' }}" href="{{ route('ticket-logs.index') }}"><i class="bi bi-circle"></i>Ticket Logs</a></li>
+        <li><a class="{{ request()->is('sprint*') ? 'active' : '' }}" href="{{ route('sprint.index') }}"><i class="bi bi-circle"></i>Sprint</a></li>
+
         @endif
 
         @if(auth()->user()->role_id == 6)
@@ -228,8 +230,8 @@
             <li><a class="{{ request()->is('pending-approvals*') ? 'active' : '' }}" href="{{ route('client.pending.approvals') }}"><i class="bi bi-circle"></i>Pending Approvals</a></li>
         @endif
 
-        <li><a class="{{ request()->is('sprint*') ? 'active' : '' }}" href="{{ route('sprint.index') }}"><i class="bi bi-circle"></i>Sprint</a></li>
         <li><a class="{{ request()->is('todo_list*') ? 'active' : '' }}" href="{{ route('todo_list.index') }}"><i class="bi bi-circle"></i>ToDo</a></li>
+        <li><a class="{{ request()->is('reminder') ? 'active' : '' }}" href="{{ route('reminder.create') }}"><i class="bi bi-circle"></i>Reminders</a></li>
 
     </ul>
 </li>
@@ -268,14 +270,14 @@
 {{-- ================= HR ================= --}}
 @if(auth()->user()->role_id != 6 || auth()->user()->role->name == 'Super Admin')
 <li class="nav-item">
-    <a class="nav-link {{ request()->is('attendance*','leaves*','holidays*','reminder*','announcement*') ? '' : 'collapsed' }}"
+    <a class="nav-link {{ request()->is('attendance*','leaves*','holidays*','announcement*') ? '' : 'collapsed' }}"
        data-bs-target="#hr-nav" data-bs-toggle="collapse" href="#">
         <i class="bi bi-person-vcard"></i><span>HR</span>
         <i class="bi bi-chevron-down ms-auto"></i>
     </a>
 
     <ul id="hr-nav"
-        class="nav-content collapse {{ request()->is('attendance*','leaves*','holidays*','reminder*','announcement*') ? 'show' : '' }}"
+        class="nav-content collapse {{ request()->is('attendance*','leaves*','holidays*','announcement*') ? 'show' : '' }}"
         data-bs-parent="#sidebar-nav">
 
         @if(auth()->user()->role_id != 6 && auth()->user()->role->name != 'Super Admin')
@@ -286,7 +288,6 @@
         <li><a class="{{ request()->is('attendance/team') ? 'active' : '' }}" href="{{ route('attendance.team.index') }}"><i class="bi bi-circle"></i>Team Attendance</a></li>
         <li><a class="{{ request()->is('leaves/team') ? 'active' : '' }}" href="{{ route('leaves.team.index') }}"><i class="bi bi-circle"></i>Team Leaves</a></li>
 
-        <li><a class="{{ request()->is('reminder') ? 'active' : '' }}" href="{{ route('reminder.create') }}"><i class="bi bi-circle"></i>Reminders</a></li>
 
         @if(auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
         <li><a class="{{ request()->is('holidays') ? 'active' : '' }}" href="{{ route('holidays.index') }}"><i class="bi bi-circle"></i>Holidays</a></li>

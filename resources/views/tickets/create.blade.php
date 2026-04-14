@@ -98,17 +98,19 @@
                         @enderror
                     </div>
                 </div>
-                <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label">Sprint</label>
-                    <div class="col-sm-9">
-                        <select name="sprint_id_ticket" class="form-select form-control" id="sprint_id_ticket">
-                            <option value="">Select Sprint</option>
-                        </select>
+                 @if(auth()->user()->role_id != 6)
+                    <div class="row mb-5">
+                        <label class="col-sm-3 col-form-label">Sprint</label>
+                        <div class="col-sm-9">
+                            <select name="sprint_id_ticket" class="form-select form-control" id="sprint_id_ticket">
+                                <option value="">Select Sprint</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label required">Assign Users</label>
+                    <label class="col-sm-3 col-form-label">Assign Users</label>
                     <div class="col-sm-9">
                         <select name="assign[]" class="form-select" id="add_assign" multiple>
                             @foreach ($user as $data)
@@ -123,31 +125,31 @@
                     </div>
                 </div>
                 
-
-                <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label">ETA</label>
-                    <div class="col-sm-9">
-                        <input type="datetime-local" class="form-control" id="eta" name="eta" value="{{ old('eta') }}">
+                @if(auth()->user()->role_id != 6)
+                    <div class="row mb-5">
+                        <label class="col-sm-3 col-form-label">ETA</label>
+                        <div class="col-sm-9">
+                            <input type="datetime-local" class="form-control" id="eta" name="eta" value="{{ old('eta') }}">
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label">Status</label>
-                    <div class="col-sm-9">
-                        <select name="status" class="form-select">
-                            <option value="to_do">To Do</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="ready">Ready</option>
-                            <option value="deployed">Deployed</option>
-                            <option value="complete">Complete</option>
-                            <option value="invoice_done">Invoice Done</option>
-                        </select>
-                        @error('status')
-                            <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                    <div class="row mb-5">
+                        <label class="col-sm-3 col-form-label">Status</label>
+                        <div class="col-sm-9">
+                            <select name="status" class="form-select">
+                                <option value="to_do">To Do</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="ready">Ready</option>
+                                <option value="deployed">Deployed</option>
+                                <option value="complete">Complete</option>
+                                <option value="invoice_done">Invoice Done</option>
+                            </select>
+                            @error('status')
+                                <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
-                </div>
-
+                @endif
                 <div class="row mb-5">
                     <label class="col-sm-3 col-form-label">Priority</label>
                     <div class="col-sm-9">
@@ -163,28 +165,30 @@
                     </div>
                 </div>
 
-                <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label">Ticket State</label>
-                    <div class="col-sm-9">
-                        <select name="ticket_priority" class="form-select">
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
+                 @if(auth()->user()->role_id != 6)
+                    <div class="row mb-5">
+                        <label class="col-sm-3 col-form-label">Ticket State</label>
+                        <div class="col-sm-9">
+                            <select name="ticket_priority" class="form-select">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-5">
-                    <label class="col-sm-3 col-form-label">Ticket Category</label>
-                    <div class="col-sm-9">
-                        <select name="ticket_category" class="form-select">
-                            <option value="">Select Category</option>
-                            <option value="Technical">Technical</option>
-                            <option value="Design">Design</option>
-                            <option value="Data Entry">Data Entry</option>
-                            <option value="Others">Others</option>
-                        </select>
+                    <div class="row mb-5">
+                        <label class="col-sm-3 col-form-label">Ticket Category</label>
+                        <div class="col-sm-9">
+                            <select name="ticket_category" class="form-select">
+                                <option value="">Select Category</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Design">Design</option>
+                                <option value="Data Entry">Data Entry</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                @endif
                 
                 @php
                     $role_id = auth()->user()->role_id;
@@ -245,26 +249,57 @@
             data: formData,
             processData: false,
             contentType: false,
-        success: function(data) {
-        $('#loader').hide();
-        if (data.status === 403 && data.error) {
-           alert(data.error); // 🔔 Simple alert
-           return;
-        }
-        if (data.error) {
-            $('.alert-danger').html('');
-            $.each(data.error, function(key, value) {
-                $('.alert-danger').show().append('<li>' + value + '</li>');
-            });
-        } else if (data.redirect) {
-            console.log("Debug F: Redirect to =>", data.redirect);
-            window.location.href = data.redirect;
-        } else {
-            $("#addTickets").modal('hide');
-            location.reload(true);
-        }
-    }
-    });
+
+            success: function(data) {
+                $('#loader').hide();
+
+                if (data.status === 403 && data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                if (data.errors) {   // ✅ FIXED
+                    $('.alert-danger').html('').show();
+
+                    $.each(data.errors, function(key, value) {
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    });
+                } 
+                else if (data.redirect) {
+                    window.location.href = data.redirect;
+                } 
+                else {
+                    location.reload(true);
+                }
+            },
+
+            error: function(xhr) {
+                $('#loader').hide();
+
+                $('.alert-danger').html('').hide();
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+
+                    if (errors && errors.length > 0) {
+                        $('.alert-danger').show();
+
+                        $.each(errors, function(index, error) {
+                            $('.alert-danger').append('<li>' + error + '</li>');
+                        });
+                    }
+                } 
+                else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    // for custom errors like 403
+                    $('.alert-danger')
+                        .html('<li>' + xhr.responseJSON.error + '</li>')
+                        .show();
+                } 
+                else {
+                    alert("Something went wrong. Please try again.");
+                }
+            }
+        });
 });
 
     $(document).ready(function () {

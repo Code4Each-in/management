@@ -24,6 +24,9 @@
                 </div>
             </div>
             <form id="filter-data" method="GET" action="{{ route('tickets.index') }}">
+                @if(request()->filled('status'))
+                    <input type="hidden" name="status" value="{{ request()->input('status') }}">
+                @endif
                 <div class="row mt-3 mx-auto ticket-design">
                     <div class="col-md-4 filtersContainer d-flex p-0">
                         <div style="margin-right:20px;">

@@ -25,6 +25,7 @@ use App\Models\TicketWorkLog;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Eloquent\Builder;
 
 //use Dotenv\Validator;
 
@@ -32,12 +33,17 @@ use Illuminate\Support\Facades\Http;
 class TicketsController extends Controller
 {
   
-    public function index()
+    public function index(Request $request)
     {
-            $ticketsFilter = request()->all() ;
-            $allTicketsFilter = $ticketsFilter['all_tickets'] ?? '';
-            $projectFilter =  $ticketsFilter['project_filter'] ?? '';
-            $completeTicketsFilter = $ticketsFilter['complete_tickets'] ?? '';
+            $allTicketsFilter = $request->boolean('all_tickets');
+            $completeTicketsFilter = $request->boolean('complete_tickets');
+            $statusFilter = $request->input('status');
+            $projectFilter = $request->input('project_filter');
+            $assignedToFilter = $request->input('assigned_to_filter');
+
+            $authUser = auth()->user();
+            $role_id = $authUser->role_id;
+
             $user = Users::whereHas('role', function ($query) {
                 $query->where('name', '!=', 'Super Admin');
             })
@@ -45,57 +51,72 @@ class TicketsController extends Controller
             ->where('role_id', '!=', 6)
             ->orderBy('first_name', 'asc')
             ->get();
-            $role_id = auth()->user()->role_id;
+
             $sprints = Sprint::where('status', 1)->get();
-            $projects = Projects::where('status', 'active')->get();
-            $auth_user =  auth()->user()->id;
-            $ticketFilterQuery = Tickets::with('ticketRelatedTo','ticketAssigns')->orderBy('id','desc');
-            if ($allTicketsFilter == 'on') {
-                if($completeTicketsFilter == 'on'){
-                    $tickets = $ticketFilterQuery;
-                }else{
-                    $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
-                }
-            } else {
-                if (auth()->user()->role->name != "Super Admin") {
-                    $tickets = $ticketFilterQuery->whereRelation('ticketAssigns', 'user_id', 'like', '%' . $auth_user . '%')->where('status', '!=', 'complete');
 
-                    if ($completeTicketsFilter == 'on') {
-                        $tickets = $ticketFilterQuery->orWhere('status', 'complete');
-                    }
-                } else {
-                    $tickets = $ticketFilterQuery->where('status', '!=', 'complete');
-                    // $allTicketsFilter = 'on';
-                    if ($completeTicketsFilter == 'on') {
-                        $tickets = $ticketFilterQuery->orWhere('status', 'complete');
-                    }
-                }
+            $projectsQuery = Projects::where('status', 'active');
+            $ticketFilterQuery = Tickets::with('ticketRelatedTo', 'ticketAssigns')->orderBy('id', 'desc');
+
+            if ($authUser->role_id == 6) {
+                $clientProjectIds = Projects::where(function (Builder $query) use ($authUser) {
+                    $query->where('client_id', $authUser->client_id)
+                        ->orWhereHas('clients', function ($q) use ($authUser) {
+                            $q->where('clients.id', $authUser->client_id);
+                        });
+                })->pluck('id');
+
+                $projectsQuery->whereIn('id', $clientProjectIds);
+                $ticketFilterQuery->whereIn('project_id', $clientProjectIds);
+            } elseif (!$authUser->isAdmin()) {
+                $assignedTicketIds = DB::table('ticket_assigns')
+                    ->where('user_id', $authUser->id)
+                    ->pluck('ticket_id');
+
+                $ticketFilterQuery->whereIn('id', $assignedTicketIds);
             }
 
-            if (request()->has('project_filter') && request()->input('project_filter')!= '') {
-                $tickets = $ticketFilterQuery->whereHas('ticketRelatedTo', function($query) {
-                    $query->where('id', request()->input('project_filter'));
+            if (!empty($statusFilter)) {
+                $ticketFilterQuery->where('status', $statusFilter);
+            } elseif (!($authUser->isAdmin() && $allTicketsFilter) && !$completeTicketsFilter) {
+                $ticketFilterQuery->where('status', '!=', 'complete');
+            }
+
+            if (!empty($projectFilter)) {
+                $ticketFilterQuery->where('project_id', $projectFilter);
+            }
+
+            if (!empty($assignedToFilter)) {
+                $ticketFilterQuery->whereHas('ticketAssigns', function ($query) use ($assignedToFilter) {
+                    $query->where('user_id', $assignedToFilter);
                 });
             }
-            if (request()->has('assigned_to_filter') && request()->input('assigned_to_filter')!= '') {
-                $tickets = $ticketFilterQuery->whereHas('ticketAssigns', function($query) {
-                    $query->where('user_id', request()->input('assigned_to_filter'));
-                });
-            }
-                $tickets = $tickets->get();
 
-            if (!empty($tickets)){
-                $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
-            ->select('tickets.status','tickets.id as ticket_id','tickets.updated_at', 'users.first_name', 'users.last_name', )
-            ->get();
-            foreach ($tickets as $key=>$data)
-            {
-                $ticketAssigns= TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')->where('ticket_id',$data->id)->orderBy('id','desc')->get(['ticket_assigns.*','users.first_name', 'users.profile_picture']);
-                $tickets[$key]->ticketassign = !empty($ticketAssigns)? $ticketAssigns:null;
-            }
-        }
+            $projects = $projectsQuery->get();
+            $tickets = $ticketFilterQuery->get();
 
-            return view('tickets.index',compact('user','tickets', 'ticketStatus','projects','allTicketsFilter','completeTicketsFilter','sprints', 'role_id'));
+            $ticketStatus = Tickets::join('users', 'tickets.status_changed_by', '=', 'users.id')
+                ->select('tickets.status', 'tickets.id as ticket_id', 'tickets.updated_at', 'users.first_name', 'users.last_name')
+                ->get();
+
+            foreach ($tickets as $key => $data) {
+                $ticketAssigns = TicketAssigns::join('users', 'ticket_assigns.user_id', '=', 'users.id')
+                    ->where('ticket_id', $data->id)
+                    ->orderBy('id', 'desc')
+                    ->get(['ticket_assigns.*', 'users.first_name', 'users.profile_picture']);
+
+                $tickets[$key]->ticketassign = !empty($ticketAssigns) ? $ticketAssigns : null;
+            }
+
+            return view('tickets.index', compact(
+                'user',
+                'tickets',
+                'ticketStatus',
+                'projects',
+                'allTicketsFilter',
+                'completeTicketsFilter',
+                'sprints',
+                'role_id'
+            ));
     }
 
         public function create(Request $request)
@@ -121,9 +142,20 @@ class TicketsController extends Controller
                 ->orderBy('first_name', 'asc')
                 ->get();
             $sprints = Sprint::where('status', 1)->get();
+
+            $projectsQuery = Projects::where('status', 'active');
+
+
             if ($auth_user->role_id == 6) {
+                $projectsQuery->where(function ($query) use ($auth_user) {
+                $query->where('client_id', $auth_user->client_id)
+                    ->orWhereHas('clients', function ($q) use ($auth_user) {
+                        $q->where('clients.id', $auth_user->client_id);
+                    });
+                });
+                $projects = $projectsQuery->get();
                 // Assuming there is a `user_id` or similar column in the `projects` table
-                $projects = Projects::where('client_id', $auth_user->client_id)->get(); // adjust column name if needed
+                // $projects = Projects::where('client_id', $auth_user->client_id)->get(); // adjust column name if needed
             } else {
                 $projects = Projects::where('status', 'active')->get();
             }
@@ -141,16 +173,20 @@ class TicketsController extends Controller
 	{
         $validator = Validator::make($request->all(), [
             'title' => 'required|min:15',
-            'description' => 'required',
+            'description' => ['required', function ($attr, $value, $fail) {
+                $plainText = trim(strip_tags($value));
+
+                if ($plainText === '') {
+                    $fail('Description is required.');
+                }
+            }],
             'project_id' => 'required',
-            'assign' => 'required|array|min:1',
             'add_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
             'title.required' => 'Title is required.',
             'title.min' => 'Title must be at least 15 characters.',
             'description.required' => 'Description is required.',
             'project_id.required' => 'Project is required.',
-            'assign.required' => 'Assign users is required.',
             'add_document.*.file' => 'Each document must be a valid file.',
             'add_document.*.mimes' => 'Each document must be of type: jpg, jpeg, png, pdf, doc, docx, xls, xlsx.',
             'add_document.*.max' => 'Each document must not exceed 5MB.',
@@ -158,7 +194,6 @@ class TicketsController extends Controller
             $validator->setAttributeNames([
                 'add_document.*' => 'document',
             ]);
-
             if ($validator->fails())
             {
                 return response()->json(['errors'=>$validator->errors()->all()]);
@@ -179,15 +214,17 @@ class TicketsController extends Controller
                 ]);
             }
 
-            $tickets =Tickets::create([
+            $tickets = Tickets::create([
                 'title' => $validate['title'],
                 'description' => $validate['description'],
                 'project_id' => $validate['project_id'],
-                'sprint_id' => $validate['sprint_id_ticket'],
-                'status'=> $validate ['status'],
-                'priority'=> $validate ['priority'],
-                'ticket_priority'=> $validate ['ticket_priority'],
-                'ticket_category'=> $validate ['ticket_category'],
+                'sprint_id' => $validate['sprint_id_ticket'] ?? null,
+                'status'=> $validate['status'] ?? 'to_do',
+                'priority'=> $validate['priority'] ?? 'normal',
+
+                'ticket_priority'=> $validate['ticket_priority'] ?? '1', // default Active
+                'ticket_category'=> $validate['ticket_category'] ?? null,
+
                 'time_estimation' => $validate['time_estimation'] ?? null,
                 'eta'=> $eta,
                 'status_changed_by'=> auth()->user()->id,
@@ -260,7 +297,7 @@ class TicketsController extends Controller
            }
 
            //if user assigned then send email Notification to the Assigned Users
-           if($assign){
+           if (!empty($validate['assign'])) {
                 $ticketAuthor = Users::find(auth()->user()->id);
                 $projectDetail = Projects::find($tickets->project_id);
                 $authorName = $ticketAuthor->first_name. ' '. $ticketAuthor->last_name;
@@ -340,7 +377,23 @@ class TicketsController extends Controller
         $sprints = Sprint::where('status', 1)->get(['id', 'name']);
         $TicketDocuments=TicketFiles::orderBy('id','desc')->where(['ticket_id' => $ticketId])->get();
         $tickets = Tickets::where(['id' => $ticketId])->first();
-        $projects = Projects::all();
+        $authUser = auth()->user();
+
+        $projectsQuery = Projects::where('status', 'active');
+
+        if ($authUser->role_id == 6) {
+
+            $clientProjectIds = Projects::where(function ($query) use ($authUser) {
+                $query->where('client_id', $authUser->client_id)
+                    ->orWhereHas('clients', function ($q) use ($authUser) {
+                        $q->where('clients.id', $authUser->client_id);
+                    });
+            })->pluck('id');
+
+            $projectsQuery->whereIn('id', $clientProjectIds);
+        }
+
+        $projects = $projectsQuery->get();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
         $CommentsData= TicketComments::with('user')->orderBy('id','Asc')->where(['ticket_id' => $ticketId])->get();  //database query
         $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
@@ -351,7 +404,13 @@ class TicketsController extends Controller
      {
         $validator = Validator::make($request->all(), [
             'title' => 'required',
-            'description' => 'required',
+            'description' => ['required', function ($attr, $value, $fail) {
+                $plainText = trim(strip_tags($value));
+
+                if ($plainText === '') {
+                    $fail('Description is required.');
+                }
+            }],
             'edit_project_id' => 'required',
             'edit_document.*' => 'file|mimes:jpg,jpeg,png,gif,bmp,svg,heic,heif,pdf,doc,docx,xls,xlsx,csv,txt,rtf,zip,rar,7z,mp3,wav,ogg,mp4,mov,avi,wmv,flv,mkv,webm|max:10240',
         ], [
@@ -369,7 +428,12 @@ class TicketsController extends Controller
 
             if ($validator->fails())
             {
-                return Redirect::back()->withErrors($validator);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 422,
+                        'errors' => $validator->errors()->all()
+                    ], 422);
+                }
             }
            $validate = $validator->valid();
 
@@ -379,16 +443,19 @@ class TicketsController extends Controller
            $eta = isset($request['eta']) && !empty($request['eta'])
             ? date("Y-m-d H:i:s", strtotime($request['eta']))
             : null;
-
-               $isStatusChanging = $ticketData->status !== $validate['status'];
+                $newStatus = $validate['status'] ?? $ticketData->status;
+               $isStatusChanging = $ticketData->status !== $newStatus;
                // Block all status changes if time_estimation exists and is not approved
-                $isStatusChanging = isset($validate['status']) && $ticketData->status !== $validate['status'];
+                $isStatusChanging = isset($newStatus) && $ticketData->status !== $newStatus;
                     $hasEstimation = !is_null($ticketData->time_estimation);
                     $isApproved = TicketEstimationApproval::where('ticket_id', $ticketId)->exists();
 
                     // Block changing status to anything other than 'to_do' if estimation exists and not approved
-                    if ($isStatusChanging && $hasEstimation && !$isApproved && $validate['status'] !== 'to_do') {
-                        return Redirect::back()->with('error', 'Estimation is not approved yet. You cannot change the status of this ticket.');
+                    if ($isStatusChanging && $hasEstimation && !$isApproved && $newStatus !== 'to_do') {
+                        return response()->json([
+                            'status' => 403,
+                            'error' => 'Estimation is not approved yet. You cannot change the status of this ticket.'
+                        ]);
                     }
 
 
@@ -398,20 +465,20 @@ class TicketsController extends Controller
             'title' => $validate['title'],
             'description' => $validate['description'],
             'project_id' => $validate['edit_project_id'],
-            'sprint_id' => $validate['edit_sprint_id'],
-            'ticket_priority'=> $validate ['ticket_priority'],
-            'ticket_category'=> $validate ['ticket_category'],
+            'sprint_id' => $validate['edit_sprint_id'] ?? null,
+            'ticket_priority'=> $validate['ticket_priority'] ?? $ticketData->ticket_priority,
+            'ticket_category'=> $validate ['ticket_category'] ?? $ticketData->ticket_category,
             'time_estimation' => $validate['time_estimation'] ?? null,
-            'status' => $validate['status'],
+            'status' => $newStatus,
             'status_changed_by'=> auth()->user()->id,
-            'priority' => $validate['priority'],
+            'priority' => $validate['priority'] ?? $ticketData->priority,
             'eta'=>$eta
             ]);
 
             Notification::create([
                 'user_id' => auth()->user()->id,
                 'type' => 'status_change',
-                'message' => "Ticket #{$ticketId} status changed to {$validate['status']}",
+                'message' => "Ticket #{$ticketId} status changed to {$newStatus}",
                 'ticket_id' => $ticketId,
                 'is_super_admin' => false
             ]);
@@ -442,11 +509,11 @@ class TicketsController extends Controller
                 ]);
             }
 
-            if ($tickets && $ticketData->status != $validate['status']) {
+            if ($tickets && $ticketData->status != $newStatus) {
                 foreach ($assignedUsers as $assignedUser) {
                     try {
                         $messages["subject"] = "Status Of #{$assignedUser->ticket_id} Changed By - {$changed_by}";
-                        $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$validate['status']}' by {$changed_by}.";
+                        $messages["title"] = "The status of Ticket #{$assignedUser->ticket_id} has been updated to  '{$newStatus}' by {$changed_by}.";
                         $messages["body-text"] = "To Preview The Change, Click on the link provided below.";
                         $messages["url-title"] = "View Ticket";
                         $messages["url"] = "/view/ticket/" . $assignedUser->ticket_id;
@@ -497,13 +564,22 @@ class TicketsController extends Controller
             $source = $request->input('source') ?? $request->query('source');
             // dd($source);
             $request->session()->flash('message','Ticket updated successfully.');
-    		if ($source === 'ticket') {
-                return redirect()->route('tickets.index');
-            } elseif ($source === 'sprint' && !empty($request->input('edit_sprint_id'))) {
-                return redirect()->route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')]);
-            } else {
-                return redirect()->route('tickets.index');
-            }
+    		// if ($source === 'ticket') {
+            //     return redirect()->route('tickets.index');
+            // } elseif ($source === 'sprint' && !empty($request->input('edit_sprint_id'))) {
+            //     return redirect()->route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')]);
+            // } else {
+            //     return redirect()->route('tickets.index');
+            // }
+
+            return response()->json([
+                'status' => 200,
+                'redirect' => $source === 'ticket'
+                    ? route('tickets.index')
+                    : ($source === 'sprint' && !empty($request->input('edit_sprint_id'))
+                        ? route('sprint.view', ['sprintId' => $request->input('edit_sprint_id')])
+                        : route('tickets.index'))
+            ]);
      }
 
      public function destroy(Request $request)

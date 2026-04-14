@@ -246,57 +246,56 @@ use Carbon\Carbon;
 }
 </style>
 
-<!-- <div class="row mb-4">
-    <div class="col-8">
+<div class="row mb-4">
+    <div class="col-lg-8">
         <div class="card info-card shadow-sm" style="border-radius: 14px;">
             <div class="card-body p-4">
 
-                <h4 class="fw-bold mb-2" style="color:#012970;">
-                    👋 Welcome {{ auth()->user()->first_name }}
+                <h4 class="fw-bold mb-2" style="color:#012970; font-size: 20px;">
+                    Welcome {{ auth()->user()->first_name }} {{ auth()->user()->last_name }} !
                 </h4>
 
-                <p class="text-muted mb-2" style="font-size: 15px;">
-                    You can manage everything from this dashboard — create tickets, track tasks,
-                    set reminders, manage notes, and stay connected with your team.
-                </p>
+           
+                    <p class="text-muted mb-2" style="font-size: 15px;">
+                        You can manage everything from this dashboard - create tickets, track tasks,
+                        set reminders, manage notes, and stay connected with your team.
+                    </p>
 
                     <h5 class="card-title mb-0" style="color:#012970; font-weight:600;">
-                        ⚡ Quick Actions
+                        Quick Actions
                     </h5>
-                <div class="d-flex flex-wrap gap-3">
+                    <div class="d-flex flex-wrap gap-3">
 
-                    <a href="/tickets/create" class="btn btn-primary px-4 py-2 fw-semibold"
-                       style="border-radius: 10px;">
-                        🎫 Create Ticket
-                    </a>
+                        <a href="/tickets/create" class="btn btn-primary px-4 py-2 fw-semibold"
+                           style="border-radius: 10px;">
+                            Create Ticket
+                        </a>
 
-                    <a href="/todo_list" class="btn btn-outline-primary px-4 py-2 fw-semibold"
-                       style="border-radius: 10px;">
-                        📝 Todo
-                    </a>
+                        <a href="/todo_list" class="btn btn-outline-primary px-4 py-2 fw-semibold"
+                           style="border-radius: 10px;">
+                            Todo
+                        </a>
 
-                    <a href="/reminder/create" class="btn btn-outline-secondary px-4 py-2 fw-semibold"
-                       style="border-radius: 10px;">
-                        ⏰ Set Reminder
-                    </a>
+                        <a href="/reminder/create" class="btn btn-outline-secondary px-4 py-2 fw-semibold"
+                           style="border-radius: 10px;">
+                            Set Reminder
+                        </a>
 
-                    <a href="#stickyNotes" class="btn btn-outline-dark px-4 py-2 fw-semibold"
-                       style="border-radius: 10px;">
-                        📒 Notes
-                    </a>
-
-                </div>
-
+                        <a href="#stickyNotes" class="btn btn-outline-dark px-4 py-2 fw-semibold"
+                           style="border-radius: 10px;">
+                            Notes
+                        </a>
+                    </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
-    <!-- <div class="col-lg-4">
+    <div class="col-lg-4">
         <div class="card info-card shadow-sm" style="border-radius:14px;">
             <div class="card-body p-4">
 
                 <h5 class="card-title mb-0" style="color:#012970; font-weight:600;">
-                    🎫 Ticket Summary
+                    Ticket Summary
                 </h5>
 
                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -304,25 +303,25 @@ use Carbon\Carbon;
                     <a href="/tickets?status=complete"
                     class="badge bg-success px-3 py-2"
                     style="border-radius:10px;">
-                        11
+                        {{ $ticketSummary['completed'] ?? 0 }}
                     </a>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="text-muted">In Progress</span>
-                    <a href="/tickets?status=in-progress"
+                    <a href="/tickets?status=in_progress"
                     class="badge bg-primary px-3 py-2"
                     style="border-radius:10px;">
-                        9
+                        {{ $ticketSummary['in_progress'] ?? 0 }}
                     </a>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="text-muted">To Do</span>
-                    <a href="/tickets?status=todo"
+                    <a href="/tickets?status=to_do"
                     class="badge bg-secondary px-3 py-2"
                     style="border-radius:10px;">
-                        5
+                        {{ $ticketSummary['to_do'] ?? 0 }}
                     </a>
                 </div>
 
@@ -331,14 +330,55 @@ use Carbon\Carbon;
                     <a href="/pending-approvals"
                     class="badge bg-warning text-dark px-3 py-2"
                     style="border-radius:10px;">
-                        10
+                        {{ $ticketSummary['pending_approval'] ?? 0 }}
                     </a>
                 </div>
 
             </div>
         </div>
-    </div> -->
-<!-- </div> -->
+    </div>
+</div>
+
+@if($activeReminders->isNotEmpty())
+    @foreach($activeReminders as $reminder)
+        @php
+            if (is_array($reminder->user_id)) {
+                $assignedUsers = $reminder->user_id;
+            } elseif (is_numeric($reminder->user_id)) {
+                $assignedUsers = [(int) $reminder->user_id];
+            } else {
+                $decoded = json_decode($reminder->user_id, true);
+                $assignedUsers = is_array($decoded) ? $decoded : [];
+            }
+        @endphp
+
+        @if(in_array(auth()->id(), $assignedUsers))
+            <div class="container">
+                <div class="reminder-box">
+                    <div class="main-deiv">
+                    <h5><i class="fa-solid fa-bell"></i>The {{ ucfirst($reminder->type) }} Reminder for You</h5>
+                    <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="main-reminder-desc">
+                        <div class="reminder-icon">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="reminder-content">
+                            <div class="reminder-label">
+                                Description:
+                            </div>
+                            <div class="reminder-text">
+                                {{ $reminder->description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
+@endif
 
 <div class="container mb-4">
     <div class="row">
@@ -411,47 +451,6 @@ use Carbon\Carbon;
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-
-@if($activeReminders->isNotEmpty())
-    @foreach($activeReminders as $reminder)
-        @php
-            if (is_array($reminder->user_id)) {
-                $assignedUsers = $reminder->user_id;
-            } elseif (is_numeric($reminder->user_id)) {
-                $assignedUsers = [(int) $reminder->user_id];
-            } else {
-                $decoded = json_decode($reminder->user_id, true);
-                $assignedUsers = is_array($decoded) ? $decoded : [];
-            }
-        @endphp
-
-        @if(in_array(auth()->id(), $assignedUsers))
-            <div class="container">
-                <div class="reminder-box">
-                    <div class="main-deiv">
-                    <h5><i class="fa-solid fa-bell"></i>The {{ ucfirst($reminder->type) }} Reminder for You</h5>
-                    <button class="close reminder-close-btn" data-id="{{ $reminder->id }}" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    </div>
-                    <div class="main-reminder-desc">
-                        <div class="reminder-icon">
-                            <i class="fa-solid fa-circle-info"></i>
-                        </div>
-                        <div class="reminder-content">
-                            <div class="reminder-label">
-                                Description:
-                            </div>
-                            <div class="reminder-text">
-                                {{ $reminder->description }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    @endforeach
-@endif
 
 <div class="row">
     <div class="col-lg-8 dashboard" style="margin-top: 20px !important;">
@@ -979,73 +978,6 @@ use Carbon\Carbon;
             @endif
         </div>
     @endif
-    
-
-
-    <!-- ---------- ToDo List Started ---------------- -->
-   @if($tasks->isNotEmpty())
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h5 class="card-title">Your Tasks</h5>
-                        <a href="/todo_list" class="btn btn-primary" style="
-                        font-weight: 600;
-                        font-size: 15px;
-                        background-color: #4154f1;
-                    ">View All Tasks</a>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        @if($tasks->isEmpty())
-                        <p>No tasks found.</p>
-                        @else
-                        <table class="table table-bordered teamstasks">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>All Tasks</th>
-                                    <th>Created At</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($tasks as $task)
-                                <tr>
-                                    <td>{{ $task->title }}</td>
-                                    <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
-                                    <td>
-                                        @php
-                                        $statusClass = match($task->status) {
-                                        'open' => 'primary', // Blue
-                                        'hold' => 'warning', // Yellow
-                                        'completed' => 'success', // Green
-                                        'canceled' => 'danger', // Red
-                                        default => 'secondary' // Gray for unknown statuses
-                                        };
-
-                                        // Apply custom color only if status is not "hold"
-                                        $customColor = $task->status === 'hold' ? '' : 'background-color: #4154f1 !important;';
-                                        @endphp
-                                        <span class="badge bg-{{ $statusClass }}"
-                                            style="{{ $customColor }} border-radius: 20px;">
-                                            {{ ucfirst($task->status) }}
-                                        </span>
-                                    </td>
-
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endif
 
     <!-- ---------- To Do List Ended ---------------- -->
     <!-- Employee Of The Month Section -->
@@ -1621,7 +1553,7 @@ use Carbon\Carbon;
                 }
 
                 if ($isBirthdayUpcoming || $isAnniversaryUpcoming) {
-                $hasUpcomingEvents = true;
+                    $hasUpcomingEvents = true;
                 }
                 @endphp
                 @endforeach
@@ -1670,6 +1602,70 @@ use Carbon\Carbon;
         </div>
     </div>
     @endif
+      <!-- ---------- ToDo List Started ---------------- -->
+   @if($tasks->isNotEmpty())
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h5 class="card-title">Your Todo List</h5>
+                        <a href="/todo_list" class="btn btn-primary" style="
+                        font-weight: 600;
+                        font-size: 15px;
+                        background-color: #4154f1;
+                    ">View All Todo</a>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        @if($tasks->isEmpty())
+                        <p>No todo items found.</p>
+                        @else
+                        <table class="table table-bordered teamstasks">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Todo</th>
+                                    <th>Created At</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tasks as $task)
+                                <tr>
+                                    <td>{{ $task->title }}</td>
+                                    <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
+                                    <td>
+                                        @php
+                                        $statusClass = match($task->status) {
+                                        'open' => 'primary', // Blue
+                                        'hold' => 'warning', // Yellow
+                                        'completed' => 'success', // Green
+                                        'canceled' => 'danger', // Red
+                                        default => 'secondary' // Gray for unknown statuses
+                                        };
+
+                                        // Apply custom color only if status is not "hold"
+                                        $customColor = $task->status === 'hold' ? '' : 'background-color: #4154f1 !important;';
+                                        @endphp
+                                        <span class="badge bg-{{ $statusClass }}"
+                                            style="{{ $customColor }} border-radius: 20px;">
+                                            {{ ucfirst($task->status) }}
+                                        </span>
+                                    </td>
+
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
     <!-- Sticky Notes Started -->
         <div class="col-lg-12 stickyNotes" id="stickyNotes">
             <div class="card">

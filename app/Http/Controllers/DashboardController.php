@@ -37,6 +37,14 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $currentYear = Carbon::now()->year;
+        $ticketSummary = [
+            'completed' => 0,
+            'in_progress' => 0,
+            'to_do' => 0,
+            'pending_approval' => 0,
+        ];
+        $clientProjectCount = 0;
+        $clientTicketCount = 0;
         $tasks = TodoList::where('user_id', Auth::id())
         ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
@@ -55,8 +63,20 @@ class DashboardController extends Controller
             })->pluck('id');
 
             $projectMap = Projects::whereIn('id', $projectIds)->pluck('project_name', 'id');
+            $clientProjectCount = $projectIds->count();
 
             $ticketIds = Tickets::whereIn('project_id', $projectIds)->pluck('id');
+            $clientTicketCount = $ticketIds->count();
+
+            $ticketSummary = [
+                'completed' => Tickets::whereIn('project_id', $projectIds)->where('status', 'complete')->count(),
+                'in_progress' => Tickets::whereIn('project_id', $projectIds)->where('status', 'in_progress')->count(),
+                'to_do' => Tickets::whereIn('project_id', $projectIds)->where('status', 'to_do')->count(),
+                'pending_approval' => Tickets::whereIn('project_id', $projectIds)
+                    ->whereNotNull('time_estimation')
+                    ->whereDoesntHave('estimationApproval')
+                    ->count(),
+            ];
 
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
@@ -76,6 +96,16 @@ class DashboardController extends Controller
                 ->toArray();
 
             $ticketIds = array_unique(array_merge($assignedTicketIds, $createdTicketIds));
+
+            $ticketSummary = [
+                'completed' => Tickets::whereIn('id', $assignedTicketIds)->where('status', 'complete')->count(),
+                'in_progress' => Tickets::whereIn('id', $assignedTicketIds)->where('status', 'in_progress')->count(),
+                'to_do' => Tickets::whereIn('id', $assignedTicketIds)->where('status', 'to_do')->count(),
+                'pending_approval' => Tickets::whereIn('id', $assignedTicketIds)
+                    ->whereNotNull('time_estimation')
+                    ->whereDoesntHave('estimationApproval')
+                    ->count(),
+            ];
 
             $notifications = TicketComments::whereIn('ticket_id', $ticketIds)
                 ->where('comments', '!=', '')
@@ -107,6 +137,14 @@ class DashboardController extends Controller
         }
         else {
             $projectMap = Projects::pluck('project_name', 'id');
+            $ticketSummary = [
+                'completed' => Tickets::where('status', 'complete')->count(),
+                'in_progress' => Tickets::where('status', 'in_progress')->count(),
+                'to_do' => Tickets::where('status', 'to_do')->count(),
+                'pending_approval' => Tickets::whereNotNull('time_estimation')
+                    ->whereDoesntHave('estimationApproval')
+                    ->count(),
+            ];
 
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
@@ -184,7 +222,7 @@ class DashboardController extends Controller
         $decorateClientComment = function ($comment) use ($currentOfficeTime) {
             $commentCreatedAt = Carbon::parse($comment->created_at)->setTimezone('Asia/Kolkata');
             $waitingMinutes = (int) $commentCreatedAt->diffInMinutes($currentOfficeTime);
-            $assignedDevelopers = optional(optional($comment->ticket)->ticketAssigns)
+            $assignedDevelopers = collect(optional($comment->ticket)->ticketAssigns)
                 ->pluck('user.first_name')
                 ->filter()
                 ->unique()
@@ -629,6 +667,9 @@ class DashboardController extends Controller
             'groupedNotifications',
             'groupedClientComments',
             'warningComments',
+            'ticketSummary',
+            'clientProjectCount',
+            'clientTicketCount',
             'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }
