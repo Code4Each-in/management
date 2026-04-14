@@ -93,24 +93,26 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <label class="col-sm-3 col-form-label">Sprint</label>
-                    <div class="col-sm-9">
-                        <select name="edit_sprint_id" class="form-select form-control" id="edit_sprint_id">
-                            <option value="">Select Sprint</option>
-                            @foreach ($sprints as $sprint)
-                                <option value="{{ $sprint->id }}" {{ $tickets->sprint_id == $sprint->id ? 'selected' : '' }}>
-                                    {{ $sprint->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @if ($errors->has('edit_sprint_id'))
-                            <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_sprint_id') }}</span>
-                        @endif
-                    </div>
-                </div>                               
+                 @if(auth()->user()->role_id != 6)
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Sprint</label>
+                        <div class="col-sm-9">
+                            <select name="edit_sprint_id" class="form-select form-control" id="edit_sprint_id">
+                                <option value="">Select Sprint</option>
+                                @foreach ($sprints as $sprint)
+                                    <option value="{{ $sprint->id }}" {{ $tickets->sprint_id == $sprint->id ? 'selected' : '' }}>
+                                        {{ $sprint->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if ($errors->has('edit_sprint_id'))
+                                <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_sprint_id') }}</span>
+                            @endif
+                        </div>
+                    </div>    
+                    @endif                           
                 <div class="row mb-5">
-                    <label for="edit_assign1" class="col-sm-3 col-form-label required"> Ticket Assigned</label>
+                    <label for="edit_assign1" class="col-sm-3 col-form-label"> Ticket Assigned</label>
                     <div class="col-sm-9" id="Ticketsdata">
                         @foreach ($ticketAssign as $data)
                         <button type="button" class="btn btn-outline-primary btn-sm mb-2">
@@ -120,7 +122,7 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="edit_assign1" class="col-sm-3 col-form-label required ">Add More Assign</label>
+                    <label for="edit_assign1" class="col-sm-3 col-form-label ">Add More Assign</label>
                     <div class="col-sm-9">
                         <select name="assign[]" class="form-select" id="edit_assign1" multiple>
                             <option value="">Select User</option>
@@ -136,6 +138,7 @@
                     @endif
                 </div>
                 @csrf
+                 @if(auth()->user()->role_id != 6)
                 <div class="row mb-5">
                     <label for="etaDateTime" class="col-sm-3 col-form-label ">Eta</label>
                     <div class="col-sm-9">
@@ -143,6 +146,7 @@
                                 value="{{ $tickets->eta ? \Carbon\Carbon::parse($tickets->eta)->format('Y-m-d\TH:i') : '' }}">
                     </div>
                 </div>
+
                 <div class="row mb-5">
                     <label for="edit_status" class="col-sm-3 col-form-label">Status</label>
                     <div class="col-sm-9">
@@ -177,6 +181,8 @@
                         @endif
                     </div>
                 </div>
+                    @endif
+
 
                 @php
                     $role_id = auth()->user()->role_id;
@@ -204,7 +210,7 @@
                 @endif
 
 
-
+                @if ($role_id != 6)
                 <div class="row mb-5">
                     <label for="edit_priority" class="col-sm-3 col-form-label">Priority</label>
                     <div class="col-sm-9">
@@ -224,6 +230,7 @@
                         @endif
                     </div>
                 </div>
+
                 <div class="row mb-3">
                     <label for="ticket_priority" class="col-sm-3 col-form-label">Ticket State</label>
                     <div class="col-sm-9">
@@ -233,6 +240,7 @@
                         </select>
                     </div>
                 </div>
+                    @endif
                 
                 <div class="row mb-5">
                     <label for="edit_document" class="col-sm-3 col-form-label">Uploaded Documents</label>
@@ -413,12 +421,7 @@
 
     }
 
-    $(function(){
-  $('#editTicketsForm').submit(function() {
-    $('#loader').show();
-    return true;
-  });
-});
+ 
 $(document).ready(function() {
     if ($('#edit_assign1').length) {
         if (!$('#edit_assign1').hasClass('select2-hidden-accessible')) {
@@ -437,6 +440,56 @@ $(document).ready(function() {
             });
         }
     });
+
+    $('#editTicketsForm').submit(function(e) {
+    e.preventDefault();
+
+    $('#edit_description').val(quill.root.innerHTML);
+
+    let formData = new FormData(this);
+    $('#loader').show();
+
+    $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        processData: false,
+        contentType: false,
+
+        success: function(data) {
+            $('#loader').hide();
+
+            if (data.status === 422) {
+                $('.alert-danger').html('').show().append('<ul></ul>');
+                $.each(data.errors, function(index, error) {
+                    $('.alert-danger ul').append('<li>' + error + '</li>');
+                });
+            } 
+            else if (data.status === 403) {
+                alert(data.error);
+            } 
+            else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        },
+
+        error: function(xhr) {
+            $('#loader').hide();
+
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+
+                $('.alert-danger').html('').show().append('<ul></ul>');
+
+                $.each(errors, function(index, error) {
+                    $('.alert-danger ul').append('<li>' + error + '</li>');
+                });
+            } else {
+                alert("Something went wrong.");
+            }
+        }
+    });
+});
 });
 
 $('#edit_project_id').on('change', function () {

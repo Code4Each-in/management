@@ -190,20 +190,30 @@ class TicketLogController extends Controller
     {
         $user = Auth::user();
 
-        // $projectIds = Projects::where('client_id', $user->client_id)->pluck('id')->toArray();
-        $clientId = $user->client_id;
-        $projectIds = Projects::where(function (Builder $query) use ($clientId) {
-            $query->where('client_id', $clientId)
-                ->orWhereHas('clients', function ($q) use ($clientId) {
-                    $q->where('clients.id', $clientId);
-                });
-        })->pluck('id')->toArray();
+        $ticketsQuery = Tickets::with(['sprintDetails', 'project'])
+            ->whereNotNull('time_estimation')
+            ->whereDoesntHave('estimationApproval');
 
-        $tickets = Tickets::with(['sprintDetails', 'project'])
-            ->whereIn('project_id', $projectIds)
-            ->whereNotNull('time_estimation') 
-            ->whereDoesntHave('estimationApproval') 
-            ->get();
+        if ($user->role_id == 6) {
+            $clientId = $user->client_id;
+            $projectIds = Projects::where(function (Builder $query) use ($clientId) {
+                $query->where('client_id', $clientId)
+                    ->orWhereHas('clients', function ($q) use ($clientId) {
+                        $q->where('clients.id', $clientId);
+                    });
+            })->pluck('id')->toArray();
+
+            $ticketsQuery->whereIn('project_id', $projectIds);
+        } elseif (!method_exists($user, 'isAdmin') || !$user->isAdmin()) {
+            $assignedTicketIds = DB::table('ticket_assigns')
+                ->where('user_id', $user->id)
+                ->pluck('ticket_id')
+                ->toArray();
+
+            $ticketsQuery->whereIn('id', $assignedTicketIds);
+        }
+
+        $tickets = $ticketsQuery->get();
         $ticketsCount = $tickets->count();
         return view('developer.pending-approvals', compact('tickets','ticketsCount'));
     }
