@@ -141,7 +141,15 @@
 
                                     <!-- <td>{{ $data->status }}</td> -->
                                     @php
-                                    $ticketStatusData = $ticketStatus->where('ticket_id', $data->id)->first();
+                                    $statusLabels = [
+                                        'to_do' => 'To Do',
+                                        'in_progress' => 'In Progress',
+                                        'ready' => 'Ready for Review',
+                                        'deployed' => 'Deployed',
+                                        'complete' => 'Completed',
+                                        'invoice_done' => 'Invoice Sent'
+                                    ];
+
                                     $statusColors = [
                                         'to_do' => '#948979',         
                                         'in_progress' => '#3fa6d7',   
@@ -150,35 +158,56 @@
                                         'complete' => '#2a9d8f',
                                         'invoice_done' => '#e76f51'  
                                     ];
+
                                     $bgColor = $statusColors[$data->status] ?? '#6c757d';
-                                    @endphp
-                                  <td>
-                                    <div class="dropdown">
-                                      <button 
-                                        class="btn btn-sm btn-secondary dropdown-toggle" 
-                                        type="button" 
-                                        data-bs-toggle="dropdown" 
-                                        aria-expanded="false"
-                                        style="
-                                            background-color: {{ $bgColor }};
-                                            border-color: {{ $bgColor }};
-                                            border-width: 1px;
-                                        "
-                                      >
-                                        {{ ucfirst(str_replace('_', ' ', $data->status)) }}
-                                      </button>
-                                  
-                                      <ul class="dropdown-menu status-options" data-ticket-id="{{ $data->id }}">
-                                        @foreach(['to_do', 'in_progress', 'ready', 'deployed', 'complete','invoice_done'] as $status)
-                                          <li>
-                                            <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                                              {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                            </a>
-                                          </li>
-                                        @endforeach
-                                      </ul>
-                                    </div>
-                                </td>                                                                                                                                  
+                                @endphp
+
+                                <td>
+                                    @if (auth()->user()->role_id != 6)
+                                        <!-- ✅ Editable for Admin/Team -->
+                                        <div class="dropdown">
+                                            <button 
+                                                class="btn btn-sm dropdown-toggle text-white"
+                                                type="button" 
+                                                data-bs-toggle="dropdown" 
+                                                aria-expanded="false"
+                                                style="
+                                                    background-color: {{ $bgColor }};
+                                                    border-color: {{ $bgColor }};
+                                                    min-width: 150px;
+                                                    text-align: left;
+                                                "
+                                            >
+                                                {{ $statusLabels[$data->status] ?? 'Unknown' }}
+                                            </button>
+
+                                            <ul class="dropdown-menu status-options" data-ticket-id="{{ $data->id }}">
+                                                @foreach($statusLabels as $key => $label)
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" data-value="{{ $key }}">
+                                                            {{ $label }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @else
+                                        <!-- ✅ Read-only for Client -->
+                                        <button 
+                                            class="btn btn-sm text-white"
+                                            style="
+                                                background-color: {{ $bgColor }};
+                                                border-color: {{ $bgColor }};
+                                                min-width: 150px;
+                                                text-align: left;
+                                                cursor: default;
+                                            "
+                                            disabled
+                                        >
+                                            {{ $statusLabels[$data->status] ?? 'Unknown' }}
+                                        </button>
+                                    @endif
+                                </td>                                                                                                                               
                                     <!-- <td>{{ $data->priority }}</td> -->
                                     @if($data->priority == 'normal')
                                     <td>
