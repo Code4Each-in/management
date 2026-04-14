@@ -196,8 +196,6 @@
                                             style="
                                                 background-color: {{ $bgColor }};
                                                 border-color: {{ $bgColor }};
-                                                min-width: 150px;
-                                                text-align: left;
                                                 cursor: default;
                                             "
                                             disabled
