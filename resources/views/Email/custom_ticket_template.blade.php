@@ -37,6 +37,7 @@
             border-radius: 4px;
             text-align: center !important;
         }
+        
     </style>
 </head>
 <body>
@@ -55,6 +56,14 @@
                 '',
                 ''
             ], $messages['body-text']);
+        @endphp
+
+        // ✅ Force image styling
+        $cleanedBody = preg_replace(
+            '/<img(.*?)>/i',
+            '<img$1 style="width: 100%; max-width:100%; height:auto; display:block;" />',
+            $cleanedBody
+        );
         @endphp
 
         @if(!empty(trim(strip_tags($cleanedBody))))
