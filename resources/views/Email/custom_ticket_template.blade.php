@@ -56,15 +56,14 @@
                 '',
                 ''
             ], $messages['body-text']);
-        @endphp
 
-        // ✅ Force image styling
-        $cleanedBody = preg_replace(
-            '/<img(.*?)>/i',
-            '<img$1 style="width: 100%; max-width:100%; height:auto; display:block;" />',
-            $cleanedBody
-        );
-        @endphp
+            // ✅ Force image styling
+            $cleanedBody = preg_replace(
+                '/<img(.*?)>/i',
+                '<img$1 style="width:100%; max-width:100%; height:auto; display:block;" />',
+                $cleanedBody
+            );
+            @endphp
 
         @if(!empty(trim(strip_tags($cleanedBody))))
             <div style="margin-bottom: 5px;">
