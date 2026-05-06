@@ -147,34 +147,34 @@
     </div>
 
     <div class="task-details"> <!-- Always visible -->
-     <div class="detail-item">
-        <i class="fa-solid fa-align-left"></i>
-        <strong>Description:</strong>
+        <div class="detail-item">
+            <i class="fa-solid fa-align-left"></i>
+            <strong>Description:</strong>
 
-        @php
-            $description = strip_tags($tickets->description); // Strip HTML for word count
-            $words = explode(' ', $description);
-            $shortDescription = implode(' ', array_slice($words, 0, 100));
-            $isLong = count($words) > 100;
-        @endphp
+            @php
+                $description = strip_tags($tickets->description); // Strip HTML for word count
+                $words = explode(' ', $description);
+                $shortDescription = implode(' ', array_slice($words, 0, 100));
+                $isLong = count($words) > 100;
+            @endphp
 
-        <div>
-            <span class="short-description">{!! nl2br(e($shortDescription)) !!}@if($isLong)... @endif</span>
-            @if($isLong)
-                <span class="full-description" style="display: none;">{!! $tickets->description !!}</span>
-                <a href="javascript:void(0);" class="toggle-description" onclick="toggleDescription(this)">Show More</a>
-            @endif
+            <div>
+                <span class="short-description">{!! nl2br(e($shortDescription)) !!}@if($isLong)... @endif</span>
+                @if($isLong)
+                    <span class="full-description" style="display: none;">{!! $tickets->description !!}</span>
+                    <a href="javascript:void(0);" class="toggle-description" onclick="toggleDescription(this)">Show More</a>
+                @endif
+            </div>
         </div>
-    </div>
 
-      <div class="detail-item">
-        <i class="fa-solid fa-diagram-project"></i>
-        <strong>Project:</strong>
-        @foreach ($projects as $project)
-          <span>{{ $project['project_name'] ?? '---' }}</span>
-        @endforeach
-      </div>
-     @if($tickets->time_estimation)
+        <div class="detail-item">
+                <i class="fa-solid fa-diagram-project"></i>
+                <strong>Project:</strong>
+                @foreach ($projects as $project)
+                <span>{{ $project['project_name'] ?? '---' }}</span>
+                @endforeach
+        </div>
+        @if($tickets->time_estimation)
           <div class="detail-item d-flex align-items-center gap-2">
               <i class="fa-solid fa-diagram-project"></i>
               <strong>Time Estimation:</strong>
@@ -238,117 +238,199 @@
                 @endif
               </span>
           </div>
-      @endif
-      <div class="detail-item">
-        <i class="fa-solid fa-diagram-project"></i>
-        <strong>Category:</strong>
-          <span>
-            {{ $tickets->ticket_category ? trim($tickets->ticket_category, '{}') : '---' }}
-        </span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-user"></i>
-        <strong>Client:</strong>
-        <span>
-          @if($client)
-              <span> {{ $client->pluck('name')->join(', ') }}</span>
-          @else
-              <span>---</span>
-          @endif
-        </span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-user"></i>
-        <strong>Assigned To:</strong>
-        <span>
-          @php
-            $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
-          @endphp
-          {{ $assignedUsers }}
-        </span>
-      </div>
-
-       <div class="detail-item">
-        <i class="fa-solid fa-calendar-day"></i>
-        <strong>Created At:</strong>
-        <span>{{ !empty($tickets->created_at) ? date("d/m/Y", strtotime($tickets->created_at)) : '---' }}</span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-calendar-day"></i>
-        <strong>ETA:</strong>
-        <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
-      </div>
-
-      @php
-          $priorityColors = [
-              'normal' => '#3f996b',
-              'low' => '#cda21d',
-              'high' => '#D66A00',
-              'urgent' => '#b00000d1',
-          ];
-
-          $priority = $tickets->priority ?? 'urgent';
-          $bgColor = $priorityColors[$priority] ?? '#6c757d';
-      @endphp
-
-      <div class="detail-item">
-          <i class="fa fa-layer-group"></i>
-          <strong>Priority:</strong>
-          <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
-              {{ ucfirst($priority) }}
-          </span>
-      </div>
-      </div>
-
-    @php
-      $statusLabels = [
-          'to_do' => 'To do',
-          'in_progress' => 'In progress',
-          'ready' => 'Ready',
-          'deployed' => 'Deployed',
-          'complete' => 'Complete',
-          'invoice_done' => 'Invoice Done'
-      ];
-      $statusColors = [
-          'to_do' => '#948979',
-          'in_progress' => '#3fa6d7',
-          'ready' => '#e09f3e',
-          'deployed' => '#e76f51',
-          'complete' => '#2a9d8f',
-          'invoice_done' => '#e76f51'
-      ];
-      $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
-  @endphp
-  <div class="detail-item">
-    <i class="fa-solid fa-bolt"></i>
-    <strong>Ticket Status:</strong>
-    @if(Auth::user()->role_id != 6)
-        <div class="dropdown d-inline-block ms-0">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
-                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-            </button>
-            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-                @foreach(array_keys($statusLabels) as $status)
-                    <li>
-                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                            {{ ucfirst(str_replace('_', ' ', $status)) }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
+        @endif
+        <div class="detail-item">
+            <i class="fa-solid fa-diagram-project"></i>
+            <strong>Category:</strong>
+            <span>
+                {{ $tickets->ticket_category ? trim($tickets->ticket_category, '{}') : '---' }}
+            </span>
         </div>
-    @else
-      <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-      </button>
-    @endif
-  </div>
-  </div>
-  </div>
-</div>
 
+        <div class="detail-item">
+            <i class="fa-solid fa-user"></i>
+            <strong>Client:</strong>
+            <span>
+            @if($client)
+                <span> {{ $client->pluck('name')->join(', ') }}</span>
+            @else
+                <span>---</span>
+            @endif
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-user"></i>
+            <strong>Assigned To:</strong>
+            <span>
+            @php
+                $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
+            @endphp
+            {{ $assignedUsers }}
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-calendar-day"></i>
+            <strong>Created At:</strong>
+            <span>{{ !empty($tickets->created_at) ? date("d/m/Y", strtotime($tickets->created_at)) : '---' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-calendar-day"></i>
+            <strong>ETA:</strong>
+            <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
+        </div>
+
+        @php
+            $priorityColors = [
+                'normal' => '#3f996b',
+                'low' => '#cda21d',
+                'high' => '#D66A00',
+                'urgent' => '#b00000d1',
+            ];
+
+            $priority = $tickets->priority ?? 'urgent';
+            $bgColor = $priorityColors[$priority] ?? '#6c757d';
+        @endphp
+
+        <div class="detail-item">
+            <i class="fa fa-layer-group"></i>
+            <strong>Priority:</strong>
+                <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
+                        {{ ucfirst($priority) }}
+                    </span>
+                </div>
+        </div>
+
+            @php
+            $statusLabels = [
+                'to_do' => 'To do',
+                'in_progress' => 'In progress',
+                'ready' => 'Ready',
+                'deployed' => 'Deployed',
+                'complete' => 'Complete',
+                'invoice_done' => 'Invoice Done'
+            ];
+            $statusColors = [
+                'to_do' => '#948979',
+                'in_progress' => '#3fa6d7',
+                'ready' => '#e09f3e',
+                'deployed' => '#e76f51',
+                'complete' => '#2a9d8f',
+                'invoice_done' => '#e76f51'
+            ];
+            $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+            @endphp
+            <div class="detail-item">
+                <i class="fa-solid fa-bolt"></i>
+                <strong>Ticket Status:</strong>
+                    @if(Auth::user()->role_id != 6)
+                        <div class="dropdown d-inline-block ms-0">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+                                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+                            </button>
+                            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
+                                @foreach(array_keys($statusLabels) as $status)
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                    <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+                    </button>
+                    @endif
+            </div>
+            <!-- feedback from client -->
+            @php
+                $feedback = \App\Models\TicketFeedback::where('ticket_id', $tickets->id)->first();
+            @endphp
+
+            @if($feedback)
+            <div class="detail-item">
+                <i class="fa-solid fa-star"></i>
+                <strong>Client Feedback:</strong>
+                <span class="d-flex align-items-center gap-2">
+                    {{-- Filled stars --}}
+                    <span>
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fa-solid fa-star" style="font-size:14px; color:{{ $i <= $feedback->rating ? '#f59e0b' : '#d1d5db' }};"></i>
+                        @endfor
+                    </span>
+                    
+                    {{-- Comment icon — opens modal --}}
+                    @if($feedback->comments)
+                    <button type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#feedbackModal"
+                            style="background:none; border:none; padding:0; cursor:pointer; line-height:1;"
+                            title="View Feedback Comment">
+                        <i class="fa-solid fa-message" style="color:#4F46E5; font-size:15px;"></i>
+                    </button>
+                    @endif
+                </span>
+            </div>
+            @endif
+    </div>
+  </div>
+  
+</div>
+<!-- feedback modal -->
+@if(isset($feedback) && $feedback)
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+
+            <div class="modal-header" style="background:#4F46E5; border:none; padding:16px 20px;">
+                <div>
+                    <h6 class="modal-title text-white fw-bold mb-0" id="feedbackModalLabel">Client Feedback</h6>
+                    <p class="text-white mb-0" style="font-size:12px; opacity:0.8;">
+                        Ticket #{{ $tickets->id }} — {{ $tickets->title }}
+                    </p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4 py-4">
+
+                {{-- Stars --}}
+                <div class="text-center mb-3">
+                    @for($i = 1; $i <= 5; $i++)
+                        <i class="fa-solid fa-star" style="font-size:28px; color:{{ $i <= $feedback->rating ? '#f59e0b' : '#d1d5db' }};"></i>
+                    @endfor
+                    <div style="font-size:13px; color:#6b7280; margin-top:4px;">
+                        {{ $feedback->rating }} out of 5
+                    </div>
+                </div>
+
+                <hr style="border-color:#e5e7eb;">
+
+                {{-- Comment --}}
+                @if($feedback->comments)
+                <div style="background:#f9fafb; border-radius:8px; padding:14px 16px; border-left:3px solid #4F46E5;">
+                    <p class="mb-0" style="font-size:13px; color:#374151; line-height:1.6;">
+                        {{ $feedback->comments }}
+                    </p>
+                </div>
+                @endif
+
+                @if($feedback->created_at)
+                <div class="text-end mt-2">
+                    <span style="font-size:11px; color:#9ca3af;">
+                        Submitted {{ $feedback->created_at->format('M d, Y') }}
+                    </span>
+                </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 <!-- Log Hours Modal -->
 <div class="modal fade" id="logHoursModal" tabindex="-1">
   <div class="modal-dialog">

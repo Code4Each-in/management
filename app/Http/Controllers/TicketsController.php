@@ -26,8 +26,9 @@ use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketFeedbackMail;
 
-//use Dotenv\Validator;
 
 
 class TicketsController extends Controller
@@ -474,6 +475,14 @@ class TicketsController extends Controller
             'priority' => $validate['priority'] ?? $ticketData->priority,
             'eta'=>$eta
             ]);
+
+            // 👉 Get updated ticket
+            $updatedTicket = Tickets::find($ticketId);
+
+            // ✅ Call function
+            if ($ticketData->status != $newStatus) {
+                $this->handleCompletedStatus($updatedTicket);
+            }
 
             Notification::create([
                 'user_id' => auth()->user()->id,
@@ -1120,8 +1129,15 @@ class TicketsController extends Controller
         'error' => 'Estimation is not approved yet. You cannot change the status of this ticket.'
         ]);
         }
+        $oldStatus = $ticket->status;
+
         $ticket->status = $request->status;
         $ticket->save();
+
+        // ✅ Call function ONLY when status changed
+        if ($oldStatus !== $ticket->status) {
+            $this->handleCompletedStatus($ticket);
+        }
 
 
 
@@ -1493,5 +1509,110 @@ public function uploadImage(Request $request)
         }
 
         return $end->diffInSeconds($effectiveStart);
+    }
+    private function handleCompletedStatus($ticket)
+    {
+        if ($ticket->status !== 'complete') {
+            return;
+        }
+
+        $alreadySent = DB::table('ticket_feedback_emails_sent')
+            ->where('ticket_id', $ticket->id)
+            ->exists();
+
+        if ($alreadySent) {
+            \Log::info("Feedback email already sent for ticket #{$ticket->id}");
+            return;
+        }
+
+        try {
+            $project = Projects::with('clients')->find($ticket->project_id);
+
+            $encodedId = urlencode(encrypt($ticket->id));
+
+            $clientIds = collect();
+
+            if ($project) {
+                if ($project->clients && $project->clients->isNotEmpty()) {
+                    $clientIds = $project->clients->pluck('id');
+                } elseif (!empty($project->client_id)) {
+                    $clientIds = collect([$project->client_id]);
+                } else {
+                    \Log::warning("No clients found for project #{$project->id}");
+                }
+            } else {
+                \Log::warning("No project found for ticket #{$ticket->id}");
+            }
+
+            foreach ($clientIds as $clientId) {
+                $clientUser = Users::where('client_id', $clientId)->first();
+                $client     = \App\Models\Client::find($clientId);
+
+                // ✅ Resolve client name per iteration
+                $clientName = 'there';
+                if ($clientUser && trim($clientUser->first_name . ' ' . $clientUser->last_name)) {
+                    $clientName = trim($clientUser->first_name . ' ' . $clientUser->last_name);
+                } elseif ($client && !empty($client->name)) {
+                    $clientName = $client->name;
+                }
+
+                // ✅ Build messages inside loop with client name
+                $messages = [
+                    "subject"        => "Feedback Request - Ticket #{$ticket->id}",
+                    "title"          => "How did we do on your ticket?",
+                    "body-text"      => "Your ticket \"{$ticket->title}\" has been marked as completed.",
+                    "action-message" => "We would sincerely appreciate your feedback on your recent experience.Your insights are invaluable in helping us continuously elevate our service standards.",
+                    "url-title"      => "Submit Your Feedback",
+                    "url"            => "/ticketfeedback/" . $encodedId,
+                    "ticket_id"      => $ticket->id,
+                    "ticket_title"   => $ticket->title,
+                    "client_name"    => $clientName, // ✅ personalised per client
+                ];
+
+                if ($clientUser && !empty($clientUser->email)) {
+                    try {
+                        Mail::to($clientUser->email)->send(new TicketFeedbackMail($messages));
+                        \Log::info("Mail sent to: " . $clientUser->email);
+                        sleep(1);
+                    } catch (\Exception $e) {
+                        \Log::error("Failed to send to {$clientUser->email}: " . $e->getMessage());
+                    }
+                }
+
+                if ($client) {
+                    if (!empty($client->secondary_email)) {
+                        try {
+                            Mail::to($client->secondary_email)->send(new TicketFeedbackMail($messages));
+                            \Log::info("Mail sent to secondary: " . $client->secondary_email);
+                            sleep(1);
+                        } catch (\Exception $e) {
+                            \Log::error("Failed to send to secondary {$client->secondary_email}: " . $e->getMessage());
+                        }
+                    }
+
+                    if (!empty($client->additional_email)) {
+                        try {
+                            Mail::to($client->additional_email)->send(new TicketFeedbackMail($messages));
+                            \Log::info("Mail sent to additional: " . $client->additional_email);
+                            sleep(1);
+                        } catch (\Exception $e) {
+                            \Log::error("Failed to send to additional {$client->additional_email}: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
+            // ✅ DB insert after all emails attempted
+            DB::table('ticket_feedback_emails_sent')->insert([
+                'ticket_id' => $ticket->id,
+                'sent_at'   => now()
+            ]);
+
+            \Log::info("DB record inserted for ticket #{$ticket->id}");
+
+        } catch (\Exception $e) {
+            \Log::error("Feedback email error for ticket #{$ticket->id}: " . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+        }
     }
 }

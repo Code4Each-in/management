@@ -152,6 +152,9 @@ use Carbon\Carbon;
     animation: fadeSlideUp 0.6s ease forwards;
     
 }
+.hover-clr-white a{
+    color: #fff !important;
+}
 
 /* Delay for each card (stagger effect) */
 .announcement-card:nth-child(1) { animation-delay: 0.1s; }
@@ -298,7 +301,7 @@ use Carbon\Carbon;
                     Ticket Summary
                 </h5>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">Completed</span>
                     <a href="/tickets?status=complete"
                     class="badge bg-success px-3 py-2"
@@ -307,7 +310,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">In Progress</span>
                     <a href="/tickets?status=in_progress"
                     class="badge bg-primary px-3 py-2"
@@ -316,7 +319,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">To Do</span>
                     <a href="/tickets?status=to_do"
                     class="badge bg-secondary px-3 py-2"
@@ -325,7 +328,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center hover-clr-white">
                     <span class="text-muted">Pending Approval</span>
                     <a href="/pending-approvals"
                     class="badge bg-warning text-dark px-3 py-2"
