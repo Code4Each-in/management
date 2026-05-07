@@ -1015,6 +1015,7 @@ class TicketsController extends Controller
         )
         ->where('ticket_comments.ticket_id', $ticketId)
         ->orderBy('ticket_comments.created_at', 'asc')
+        ->orderBy('ticket_comments.created_at', 'asc')
         ->get();
     // ✅ find all developer replies
     $developerReplies = $CommentsData->filter(function ($c) {
@@ -1614,5 +1615,18 @@ public function uploadImage(Request $request)
             \Log::error("Feedback email error for ticket #{$ticket->id}: " . $e->getMessage());
             \Log::error($e->getTraceAsString());
         }
+    }
+
+    public function togglePin($id)
+    {
+        $comment = TicketComments::findOrFail($id);
+
+        $comment->is_pinned = !$comment->is_pinned;
+
+        $comment->save();
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

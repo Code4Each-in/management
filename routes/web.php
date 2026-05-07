@@ -447,3 +447,6 @@ Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
 Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
 Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');
 Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('ticketfeedback.index');
+
+Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin'])
+    ->name('ticket-comments.pin');

@@ -29,7 +29,11 @@
                                 <td>
                 {{ $data->out_time_date ? date('h:i A', strtotime($data->out_time_date)) : '-' }}
             </td>
-            <td data-in-time="{{ $data->in_time }}" class="working-hours"></td>
+                <td 
+                    class="working-hours"
+                    data-in="{{ $data->date . ' ' . $data->in_time }}"
+                    data-out="{{ $data->out_time_date }}"
+                ></td>
                             </tr>
                         @empty
                             <tr>
@@ -71,23 +75,45 @@
             });
         });
     });
-    function updateWorkingHours() {
-        const now = new Date();
-        document.querySelectorAll('.working-hours').forEach(td => {
-            const inTime = td.dataset.inTime;
-            const [hours, minutes, seconds] = inTime.split(':');
-            const inDate = new Date();
-            inDate.setHours(hours, minutes, seconds);
+function parseDateTime(str) {
+    if (!str) return null;
 
-            const diffMs = now - inDate;
-            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const d = new Date(str.replace(' ', 'T'));
+    return isNaN(d.getTime()) ? null : d;
+}
 
-            td.textContent = `${diffHrs}h ${diffMins}m`;
-        });
-    }
-    updateWorkingHours();
-    setInterval(updateWorkingHours, 60000); // every minute
+function updateWorkingHours() {
+    const now = new Date();
+
+    document.querySelectorAll('.working-hours').forEach(td => {
+
+        let inTime = parseDateTime(td.dataset.in);
+        let outTime = td.dataset.out ? parseDateTime(td.dataset.out) : now;
+console.log(td.dataset.in, td.dataset.out);
+console.log(parseDateTime(td.dataset.in), parseDateTime(td.dataset.out));
+        if (!inTime || !outTime) {
+            td.textContent = '-';
+            return;
+        }
+
+        let diffMs = outTime - inTime;
+
+        if (diffMs < 0) {
+            td.textContent = '-';
+            return;
+        }
+
+        let hrs = Math.floor(diffMs / (1000 * 60 * 60));
+        let mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        td.textContent = `${hrs}h ${mins}m`;
+    });
+}
+
+
+
+updateWorkingHours();
+setInterval(updateWorkingHours, 60000);
 </script>
 <script>
     $(document).ready(function () {

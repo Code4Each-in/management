@@ -130,20 +130,123 @@ body {
     background-color: #4338ca;
     border-color: #4338ca;
 }
+    .success-card {
+        width: 100%;
+        border-radius: 20px;
+        background: #ffffff;
+        overflow: hidden;
+        position: relative;
+        animation: fadeIn 1s ease;
+    }
+
+    /* Floating Glow */
+    .success-card::before {
+        content: '';
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        background: rgba(25, 135, 84, 0.08);
+        border-radius: 50%;
+        top: -80px;
+        right: -80px;
+    }
+
+    /* Success Icon Animation */
+    .success-icon {
+        font-size: 90px;
+        animation: pop 0.8s ease forwards,
+                   pulse 2s infinite;
+        transform: scale(0);
+    }
+
+    /* Pop Animation */
+    @keyframes pop {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        70% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Pulse Animation */
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.08);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Card Fade */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media(max-width:768px){
+        .success-card{
+            padding: 35px 20px !important;
+        }
+
+        .success-icon{
+            font-size: 70px;
+        }
+    }
 </style>
 
 <div style="max-width:640px; margin:0 auto; padding:20px;">
 
 @if(session('success'))
-    <div class="card text-center p-5 mt-2">
-        <i class="bi bi-check-circle-fill text-success" style="font-size:52px;"></i>
-        <h4 class="text-success mt-3 mb-2">Thank You! 🎉</h4>
-        <p class="text-muted" style="font-size:14px;">
-            {{ session('success') }}<br>
-            We really appreciate you taking the time to share your experience.
+<div class="container-fluid px-3">
+    <div class="card text-center p-5 mt-3 border-0 shadow-lg success-card">
+
+        <!-- Animated Success Icon -->
+        <div class="success-animation">
+            <i class="bi bi-check-circle-fill text-success success-icon"></i>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="text-success fw-bold mt-4">
+            Thank You! 🎉
+        </h2>
+
+        <!-- Message -->
+        <p class="text-muted mt-3 mb-2" style="font-size:18px; line-height:1.8;">
+            {{ session('success') }}
         </p>
-        <a href="{{ url('/dashboard') }}" class="btn btn-primary px-5 mt-2">Go to Dashboard</a>
+
+        <!-- Extra Text -->
+        <p class="text-secondary mb-4" style="font-size:16px;">
+            We truly appreciate you taking the time to share your valuable experience with us.
+            Your feedback helps us improve and serve you better every day.
+        </p>
+
+        <!-- Optional Button -->
+        <div>
+            <a href="/" class="btn btn-success px-4 py-2 rounded-pill">
+                Back to Home
+            </a>
+        </div>
+
     </div>
+</div>
 @else
 
     @if(session('error'))

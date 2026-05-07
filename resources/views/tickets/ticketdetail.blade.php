@@ -101,6 +101,115 @@
 .reply-btn-inside:hover {
     color: #2563eb;
 }
+.pinned-container{
+    /* background:#ffffff;
+    border-radius:12px;
+    margin:10px;
+    overflow:hidden;
+    border:1px solid #e4e6eb; */
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.pinned-header{
+    background:#2a7bab;
+    color:#fff;
+    padding:10px 15px;
+    font-size:15px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.pin-count{
+    background:rgba(255,255,255,0.2);
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.pinned-list{
+    max-height:180px;
+    overflow-y:auto;
+    margin-bottom: 5px;
+}
+
+.pinned-preview{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:7px 30px;
+    border-bottom:1px solid #f1f1f1;
+    cursor:pointer;
+    transition:0.2s ease;
+    background:#f9f9f9;
+}
+
+.pinned-preview:last-child{
+    border-bottom:none;
+}
+
+.pinned-preview:hover{
+    background:#fff7d6;
+}
+
+.pinned-content{
+    flex:1;
+    min-width:0;
+}
+
+.pinned-user{
+    font-weight:600;
+    color:#222;
+    font-size:14px;
+    margin-bottom:2px;
+}
+
+.pinned-message{
+    font-size:13px;
+    color:#666;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.unpin-btn{
+    border:none;
+    background:none;
+    color:#999;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    transition:0.2s;
+    flex-shrink:0;
+}
+
+.unpin-btn:hover{
+    background:#ffe5e5;
+    color:#e74c3c;
+}
+
+.pin-highlight{
+    background: #fff3a0 !important;
+    border-left: 5px solid #f1c40f !important;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(241,196,15,0.4);
+    transition: all 0.3s ease;
+}
+.msger-chat{
+    overflow-y:auto;
+    height:100%;
+}
+@keyframes pinFlash{
+    0%{
+        background:#fff3a3;
+    }
+    100%{
+        background:transparent;
+    }
+}
 </style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
@@ -385,14 +494,14 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
 
-            <div class="modal-header" style="background:#4F46E5; border:none; padding:16px 20px;">
+            <div class="modal-header" style="background: #297bab;border:none;padding:16px 20px;">
                 <div>
                     <h6 class="modal-title text-white fw-bold mb-0" id="feedbackModalLabel">Client Feedback</h6>
                     <p class="text-white mb-0" style="font-size:12px; opacity:0.8;">
                         Ticket #{{ $tickets->id }} — {{ $tickets->title }}
                     </p>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 30px;"></button>
             </div>
 
             <div class="modal-body px-4 py-4">
@@ -411,7 +520,7 @@
 
                 {{-- Comment --}}
                 @if($feedback->comments)
-                <div style="background:#f9fafb; border-radius:8px; padding:14px 16px; border-left:3px solid #4F46E5;">
+                <div style="background:#f9fafb;border-radius:8px;padding:14px 16px;border-left: 3px solid #297bab;">
                     <p class="mb-0" style="font-size:13px; color:#374151; line-height:1.6;">
                         {{ $feedback->comments }}
                     </p>
@@ -420,7 +529,7 @@
 
                 @if($feedback->created_at)
                 <div class="text-end mt-2">
-                    <span style="font-size:11px; color:#9ca3af;">
+                    <span style="font-size: 13px;color: #2a7bab;font-weight: 700;">
                         Submitted {{ $feedback->created_at->format('M d, Y') }}
                     </span>
                 </div>
@@ -547,6 +656,60 @@
                 <h1>Comments</h1>
                 <i class="fas fa-comment icon"></i>
             </div>
+            <!-- pinned comment  -->
+            @php
+                $pinnedComments = $CommentsData->where('is_pinned', 1);
+            @endphp
+
+            @if($pinnedComments->count())
+
+            <div class="pinned-container">
+
+                <div class="pinned-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-thumbtack"></i>
+                        <span>Pinned Messages</span>
+                        <span class="pin-count">{{ $pinnedComments->count() }}</span>
+                    </div>
+                </div>
+
+                <div class="pinned-list">
+
+                    @foreach($pinnedComments as $pin)
+
+                    <div class="pinned-preview"
+                        data-target="comment-{{ $pin->id }}">
+
+                        <div class="pinned-content">
+
+                            <div class="pinned-user">
+                                {{ $pin->user->first_name ?? 'User' }}
+                            </div>
+
+                            <div class="pinned-message">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($pin->comments), 90) }}
+                            </div>
+
+                        </div>
+
+                        <!-- Unpin -->
+                        <button class="unpin-btn"
+                                data-id="{{ $pin->id }}"
+                                title="Unpin">
+
+                            <i class="fa fa-thumb-tack"></i>
+
+                        </button>
+
+                    </div>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+            @endif
             @php
               use Carbon\Carbon;
               $lastGroupDate = null;
@@ -577,7 +740,10 @@
                           </div>
                           @php $lastGroupDate = $groupDateLabel; @endphp
                       @endif
-                        <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}">
+                        <!-- <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}"> -->
+                            <div class="message {{ $data->is_pinned ? 'pinned-comment' : '' }}"
+                                data-id="{{ $data->id }}"
+                                id="comment-{{ $data->id }}">
                             <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
                             @if(!$data->is_system)
                                   <div class="user">
@@ -642,7 +808,23 @@
                                                 data-bs-title="Copy link">
                                                 <i class="fa-solid fa-link"></i>
                                             </button>
+                                            <!-- pin comment -->
+                                            @if(in_array(auth()->user()->role_id, [1,3]))
 
+                                                <button type="button"
+                                                        class="btn btn-link p-0 m-0 pin-comment"
+                                                        data-id="{{ $data->id }}"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-title="{{ $data->is_pinned ? 'Unpin Comment' : 'Pin Comment' }}"
+                                                        style="line-height:1;">
+
+                                                    <i class="fa-solid fa-thumbtack
+                                                        {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
+                                                    </i>
+
+                                                </button>
+
+                                            @endif
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
@@ -1697,6 +1879,59 @@ $(function () {
         const data = await response.json();
         return data.url;
     }
+// Pin/Unpin comment
+
+
+$(document).on('click', '.pin-comment, .unpin-btn', function () {
+
+    let id = $(this).data('id');
+
+    $.ajax({
+        url: '/ticket-comments/pin/' + id,
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function () {
+            location.reload();
+        }
+    });
+
+});
+
+$(document).on('click', '.pinned-preview', function (e) {
+
+    if ($(e.target).closest('.unpin-btn').length) {
+        return;
+    }
+
+    let targetId = $(this).data('target');
+    let container = $('#comment-scroll'); // ✅ YOUR CHAT CONTAINER
+    let target = $('#' + targetId);
+
+    if (target.length && container.length) {
+
+        // scroll inside chat container
+        container.animate({
+
+            scrollTop:
+                container.scrollTop()
+                + target.position().top
+                - container.height() / 2
+                + target.outerHeight() / 2
+
+        }, 500);
+
+        // highlight
+        $('.message').removeClass('pin-highlight');
+        target.addClass('pin-highlight');
+
+        setTimeout(() => {
+            target.removeClass('pin-highlight');
+        }, 2500);
+    }
+
+});
 </script>
 
 @endsection

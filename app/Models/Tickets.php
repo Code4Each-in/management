@@ -29,6 +29,7 @@ class Tickets extends Model
         'created_by', 
         'priority',
         'comment', 
+        'is_pinned',
         'sprint_id'  
     ];
     public function ticketAssigns()
