@@ -470,7 +470,7 @@
                             <i class="fa-solid fa-star" style="font-size:14px; color:{{ $i <= $feedback->rating ? '#f59e0b' : '#d1d5db' }};"></i>
                         @endfor
                     </span>
-                    
+
                     {{-- Comment icon — opens modal --}}
                     @if($feedback->comments)
                     <button type="button"
@@ -486,7 +486,7 @@
             @endif
     </div>
   </div>
-  
+
 </div>
 <!-- feedback modal -->
 @if(isset($feedback) && $feedback)
@@ -693,13 +693,13 @@
                         </div>
 
                         <!-- Unpin -->
-                        <button class="unpin-btn"
-                                data-id="{{ $pin->id }}"
-                                title="Unpin">
+                    <button class="unpin-btn"
+                            data-id="{{ $pin->id }}"
+                            title="Unpin">
 
-                            <i class="fa fa-thumb-tack"></i>
+                        <i class="fa-solid fa-thumbtack text-warning"></i>
 
-                        </button>
+                    </button>
 
                     </div>
 
@@ -809,7 +809,6 @@
                                                 <i class="fa-solid fa-link"></i>
                                             </button>
                                             <!-- pin comment -->
-                                            @if(in_array(auth()->user()->role_id, [1,3]))
 
                                                 <button type="button"
                                                         class="btn btn-link p-0 m-0 pin-comment"
@@ -824,7 +823,6 @@
 
                                                 </button>
 
-                                            @endif
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
@@ -896,7 +894,7 @@
                                     @endif
                               @if(!$data->is_system)
                               @php
-                                $canEdit = Auth::id() == $data->comment_by 
+                                $canEdit = Auth::id() == $data->comment_by
                                     && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
                                 @endphp
                                 @if($canEdit)
@@ -913,7 +911,7 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                               </button>
                             @endif
-                    
+
                             @endif
                               <div style="word-break: auto-phrase;">
                                   {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
