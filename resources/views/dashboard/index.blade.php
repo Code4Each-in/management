@@ -445,7 +445,7 @@ use Carbon\Carbon;
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm p-3 rounded-3" style="max-width: 280px;">
 
-                    <h6 class="mb-3 fw-semibold text-primary">
+                    <h6 class="mb-3 fw-semibold text-primary" style="font-size:18px;">
                         Today Attendance Timer
                     </h6>
 
@@ -453,12 +453,12 @@ use Carbon\Carbon;
                     <div id="timerBox" style="display:none;">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <small class="text-muted d-block mb-1" style="font-size:18px;">Started at</small>
-                                <span id="startTime" class="fw-bold fs-6" style="font-size:18px;">--</span>
+                                <small class="text-muted d-block mb-1" style="font-size:14px;">Started at</small>
+                                <span id="startTime" class="fw-bold " style="font-size:18px;">--</span>
                             </div>
                             <div class="text-end">
-                                <small class="text-muted d-block mb-1" style="font-size:18px;">Time Spent</small>
-                                <span id="timeSpent" class="fw-bold text-primary fs-6" style="font-size:18px;">0h 00m 00s</span>
+                                <small class="text-muted d-block mb-1" style="font-size:14px;">Time spent</small>
+                                <span id="timeSpent" class="fw-bold text-primary " style="font-size:18px;">0h 00m 00s</span>
                             </div>
                         </div>
                     </div>
