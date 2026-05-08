@@ -33,6 +33,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BDEController;
 use App\Http\Controllers\SearchDataController;
 use App\Http\Controllers\TeamsController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ClientAccessRequestController;
@@ -225,6 +226,7 @@ Route::middleware(['role_permission'])->group(function () {
     Route::post('/update/hireus', [HiringUsController::class, 'update'])->name('hireus.update');
     Route::delete('/delete/hireus', [HiringUsController::class, 'delete'])->name('hireus.delete');
 
+	
 
 	//Scrum Dashboard
 	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
@@ -242,6 +244,10 @@ Route::middleware(['role_permission'])->group(function () {
     //Permission Routes Ends
 
 
+	// Feedback form (from email link)
+	// Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
+	// Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');
+	// Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('ticketfeedback.index');
 
 	//Commnents Route Without Role Permission Middleware
 	Route::post('/add/comments/', [TicketsController::class, 'addComments'])->name('comments.add');
@@ -437,3 +443,10 @@ Route::resource('templates', EmailTemplateController::class);
 Route::resource('scheduled', ScheduledEmailController::class);
 Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
     ->name('scheduled.tracking');
+// Feedback form (from email link)
+Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
+Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');
+Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('ticketfeedback.index');
+
+Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin'])
+    ->name('ticket-comments.pin');

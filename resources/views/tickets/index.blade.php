@@ -144,7 +144,7 @@
                                     $statusLabels = [
                                         'to_do' => 'To Do',
                                         'in_progress' => 'In Progress',
-                                        'ready' => 'Ready for Review',
+                                        'ready' => 'Ready',
                                         'deployed' => 'Deployed',
                                         'complete' => 'Completed',
                                         'invoice_done' => 'Invoice Sent'

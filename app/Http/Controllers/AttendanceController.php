@@ -283,16 +283,16 @@ class AttendanceController extends Controller
         }
 
             public function history()
-      {
-          $today = now()->toDateString(); 
+            {
+                $today = now()->toDateString(); 
 
-          $attendances = UserAttendancesTemporary::with('user') 
-              ->where('date', $today)
-              ->orderBy('in_time', 'desc') 
-              ->get();
+                $attendances = UserAttendancesTemporary::with('user') 
+                    ->where('date', $today)
+                    ->orderBy('in_time', 'desc') 
+                    ->get();
 
-          return view('attendance.history', compact('attendances'));
-      }
+                return view('attendance.history', compact('attendances'));
+            }
 
 
 

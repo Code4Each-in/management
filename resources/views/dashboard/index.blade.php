@@ -152,6 +152,9 @@ use Carbon\Carbon;
     animation: fadeSlideUp 0.6s ease forwards;
     
 }
+.hover-clr-white a{
+    color: #fff !important;
+}
 
 /* Delay for each card (stagger effect) */
 .announcement-card:nth-child(1) { animation-delay: 0.1s; }
@@ -298,7 +301,7 @@ use Carbon\Carbon;
                     Ticket Summary
                 </h5>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">Completed</span>
                     <a href="/tickets?status=complete"
                     class="badge bg-success px-3 py-2"
@@ -307,7 +310,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">In Progress</span>
                     <a href="/tickets?status=in_progress"
                     class="badge bg-primary px-3 py-2"
@@ -316,7 +319,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 hover-clr-white">
                     <span class="text-muted">To Do</span>
                     <a href="/tickets?status=to_do"
                     class="badge bg-secondary px-3 py-2"
@@ -325,7 +328,7 @@ use Carbon\Carbon;
                     </a>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center hover-clr-white">
                     <span class="text-muted">Pending Approval</span>
                     <a href="/pending-approvals"
                     class="badge bg-warning text-dark px-3 py-2"
@@ -433,6 +436,42 @@ use Carbon\Carbon;
                     </div>
                 </div>
             @endif
+
+        @endif
+        @if(auth()->user()->role_id == 3 )
+                    <!-- attendance -->
+         
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-3 rounded-3" style="max-width: 320px;">
+
+                    <h6 class="mb-2 fw-semibold text-primary">
+                        Attendance Timer
+                    </h6>
+
+                    <!-- TIMER BOX -->
+                    <div id="timerBox" style="display:none;">
+
+                        <div class="mb-2">
+                            <small class="text-muted">Timer Started at</small><br>
+                            <span id="startTime" class="fw-semibold">--</span>
+                        </div>
+
+                        <div class="mt-3 p-2 rounded-3" style="background:#f4f7ff;">
+                            <small class="text-muted">Time Spent</small><br>
+                            <span id="timeSpent" class="fw-bold text-primary fs-5">
+                                00h 00m 00s
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <!-- NOT STARTED -->
+                    <div id="noTimerAlert" class="alert alert-warning bg-warning mt-2 mb-0 py-2 medium text-center" >
+                        Your timer is not started yet.
+                    </div>
+
+                </div>
+            </div>
         @endif
     </div>
 </div>
@@ -603,6 +642,7 @@ use Carbon\Carbon;
                 </div>
             </div>
             @endif
+
         </div>
     </div>
 </div>
@@ -1683,6 +1723,10 @@ use Carbon\Carbon;
     @endsection
     @section('js_scripts')
     <script>
+        const inTime = "{{ optional($attendance)->date ? $attendance->date.' '.$attendance->in_time : '' }}";
+        const outTime = "{{ optional($attendance)->out_time_date ?? '' }}";
+    </script>
+    <script>
         $(document).ready(function() {
 
 
@@ -2121,6 +2165,49 @@ use Carbon\Carbon;
         }
         createAddBtn();
 
+
+
+    function parseDate(str) {
+        if (!str) return null;
+        const d = new Date(str.replace(' ', 'T'));
+        return isNaN(d) ? null : d;
+    }
+
+    const startEl = document.getElementById("startTime");
+    const spentEl = document.getElementById("timeSpent");
+
+    const timerBox = document.getElementById("timerBox");
+    const noTimerAlert = document.getElementById("noTimerAlert");
+
+    const start = parseDate(inTime);
+    const end = outTime ? parseDate(outTime) : null;
+
+    // ✅ IMPORTANT: show/hide UI based on login time
+    if (!start) {
+        timerBox.style.display = "none";
+        noTimerAlert.style.display = "block";
+    } else {
+        timerBox.style.display = "block";
+        noTimerAlert.style.display = "none";
+
+        startEl.textContent = start.toLocaleString();
+
+        function updateTimer() {
+            const now = end ? end : new Date();
+            const diff = now - start;
+
+            if (diff < 0) return;
+
+            const hrs = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            spentEl.textContent = `${hrs}h ${mins}m ${secs}s`;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
     </script>
 
     @endsection

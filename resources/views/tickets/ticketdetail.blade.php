@@ -101,6 +101,115 @@
 .reply-btn-inside:hover {
     color: #2563eb;
 }
+.pinned-container{
+    /* background:#ffffff;
+    border-radius:12px;
+    margin:10px;
+    overflow:hidden;
+    border:1px solid #e4e6eb; */
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.pinned-header{
+    background:#2a7bab;
+    color:#fff;
+    padding:10px 15px;
+    font-size:15px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.pin-count{
+    background:rgba(255,255,255,0.2);
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.pinned-list{
+    max-height:180px;
+    overflow-y:auto;
+    margin-bottom: 5px;
+}
+
+.pinned-preview{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:7px 30px;
+    border-bottom:1px solid #f1f1f1;
+    cursor:pointer;
+    transition:0.2s ease;
+    background:#f9f9f9;
+}
+
+.pinned-preview:last-child{
+    border-bottom:none;
+}
+
+.pinned-preview:hover{
+    background:#fff7d6;
+}
+
+.pinned-content{
+    flex:1;
+    min-width:0;
+}
+
+.pinned-user{
+    font-weight:600;
+    color:#222;
+    font-size:14px;
+    margin-bottom:2px;
+}
+
+.pinned-message{
+    font-size:13px;
+    color:#666;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.unpin-btn{
+    border:none;
+    background:none;
+    color:#999;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    transition:0.2s;
+    flex-shrink:0;
+}
+
+.unpin-btn:hover{
+    background:#ffe5e5;
+    color:#e74c3c;
+}
+
+.pin-highlight{
+    background: #fff3a0 !important;
+    border-left: 5px solid #f1c40f !important;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(241,196,15,0.4);
+    transition: all 0.3s ease;
+}
+.msger-chat{
+    overflow-y:auto;
+    height:100%;
+}
+@keyframes pinFlash{
+    0%{
+        background:#fff3a3;
+    }
+    100%{
+        background:transparent;
+    }
+}
 </style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
@@ -147,34 +256,34 @@
     </div>
 
     <div class="task-details"> <!-- Always visible -->
-     <div class="detail-item">
-        <i class="fa-solid fa-align-left"></i>
-        <strong>Description:</strong>
+        <div class="detail-item">
+            <i class="fa-solid fa-align-left"></i>
+            <strong>Description:</strong>
 
-        @php
-            $description = strip_tags($tickets->description); // Strip HTML for word count
-            $words = explode(' ', $description);
-            $shortDescription = implode(' ', array_slice($words, 0, 100));
-            $isLong = count($words) > 100;
-        @endphp
+            @php
+                $description = strip_tags($tickets->description); // Strip HTML for word count
+                $words = explode(' ', $description);
+                $shortDescription = implode(' ', array_slice($words, 0, 100));
+                $isLong = count($words) > 100;
+            @endphp
 
-        <div>
-            <span class="short-description">{!! nl2br(e($shortDescription)) !!}@if($isLong)... @endif</span>
-            @if($isLong)
-                <span class="full-description" style="display: none;">{!! $tickets->description !!}</span>
-                <a href="javascript:void(0);" class="toggle-description" onclick="toggleDescription(this)">Show More</a>
-            @endif
+            <div>
+                <span class="short-description">{!! nl2br(e($shortDescription)) !!}@if($isLong)... @endif</span>
+                @if($isLong)
+                    <span class="full-description" style="display: none;">{!! $tickets->description !!}</span>
+                    <a href="javascript:void(0);" class="toggle-description" onclick="toggleDescription(this)">Show More</a>
+                @endif
+            </div>
         </div>
-    </div>
 
-      <div class="detail-item">
-        <i class="fa-solid fa-diagram-project"></i>
-        <strong>Project:</strong>
-        @foreach ($projects as $project)
-          <span>{{ $project['project_name'] ?? '---' }}</span>
-        @endforeach
-      </div>
-     @if($tickets->time_estimation)
+        <div class="detail-item">
+                <i class="fa-solid fa-diagram-project"></i>
+                <strong>Project:</strong>
+                @foreach ($projects as $project)
+                <span>{{ $project['project_name'] ?? '---' }}</span>
+                @endforeach
+        </div>
+        @if($tickets->time_estimation)
           <div class="detail-item d-flex align-items-center gap-2">
               <i class="fa-solid fa-diagram-project"></i>
               <strong>Time Estimation:</strong>
@@ -238,117 +347,199 @@
                 @endif
               </span>
           </div>
-      @endif
-      <div class="detail-item">
-        <i class="fa-solid fa-diagram-project"></i>
-        <strong>Category:</strong>
-          <span>
-            {{ $tickets->ticket_category ? trim($tickets->ticket_category, '{}') : '---' }}
-        </span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-user"></i>
-        <strong>Client:</strong>
-        <span>
-          @if($client)
-              <span> {{ $client->pluck('name')->join(', ') }}</span>
-          @else
-              <span>---</span>
-          @endif
-        </span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-user"></i>
-        <strong>Assigned To:</strong>
-        <span>
-          @php
-            $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
-          @endphp
-          {{ $assignedUsers }}
-        </span>
-      </div>
-
-       <div class="detail-item">
-        <i class="fa-solid fa-calendar-day"></i>
-        <strong>Created At:</strong>
-        <span>{{ !empty($tickets->created_at) ? date("d/m/Y", strtotime($tickets->created_at)) : '---' }}</span>
-      </div>
-
-      <div class="detail-item">
-        <i class="fa-solid fa-calendar-day"></i>
-        <strong>ETA:</strong>
-        <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
-      </div>
-
-      @php
-          $priorityColors = [
-              'normal' => '#3f996b',
-              'low' => '#cda21d',
-              'high' => '#D66A00',
-              'urgent' => '#b00000d1',
-          ];
-
-          $priority = $tickets->priority ?? 'urgent';
-          $bgColor = $priorityColors[$priority] ?? '#6c757d';
-      @endphp
-
-      <div class="detail-item">
-          <i class="fa fa-layer-group"></i>
-          <strong>Priority:</strong>
-          <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
-              {{ ucfirst($priority) }}
-          </span>
-      </div>
-      </div>
-
-    @php
-      $statusLabels = [
-          'to_do' => 'To do',
-          'in_progress' => 'In progress',
-          'ready' => 'Ready',
-          'deployed' => 'Deployed',
-          'complete' => 'Complete',
-          'invoice_done' => 'Invoice Done'
-      ];
-      $statusColors = [
-          'to_do' => '#948979',
-          'in_progress' => '#3fa6d7',
-          'ready' => '#e09f3e',
-          'deployed' => '#e76f51',
-          'complete' => '#2a9d8f',
-          'invoice_done' => '#e76f51'
-      ];
-      $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
-  @endphp
-  <div class="detail-item">
-    <i class="fa-solid fa-bolt"></i>
-    <strong>Ticket Status:</strong>
-    @if(Auth::user()->role_id != 6)
-        <div class="dropdown d-inline-block ms-0">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
-                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-            </button>
-            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
-                @foreach(array_keys($statusLabels) as $status)
-                    <li>
-                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
-                            {{ ucfirst(str_replace('_', ' ', $status)) }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
+        @endif
+        <div class="detail-item">
+            <i class="fa-solid fa-diagram-project"></i>
+            <strong>Category:</strong>
+            <span>
+                {{ $tickets->ticket_category ? trim($tickets->ticket_category, '{}') : '---' }}
+            </span>
         </div>
-    @else
-      <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
-      </button>
-    @endif
-  </div>
-  </div>
-  </div>
-</div>
 
+        <div class="detail-item">
+            <i class="fa-solid fa-user"></i>
+            <strong>Client:</strong>
+            <span>
+            @if($client)
+                <span> {{ $client->pluck('name')->join(', ') }}</span>
+            @else
+                <span>---</span>
+            @endif
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-user"></i>
+            <strong>Assigned To:</strong>
+            <span>
+            @php
+                $assignedUsers = $ticketAssign->map(fn($data) => $data->user->first_name)->implode(', ');
+            @endphp
+            {{ $assignedUsers }}
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-calendar-day"></i>
+            <strong>Created At:</strong>
+            <span>{{ !empty($tickets->created_at) ? date("d/m/Y", strtotime($tickets->created_at)) : '---' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <i class="fa-solid fa-calendar-day"></i>
+            <strong>ETA:</strong>
+            <span>{{ !empty($tickets->eta) ? date("d/m/Y", strtotime($tickets->eta)) : '---' }}</span>
+        </div>
+
+        @php
+            $priorityColors = [
+                'normal' => '#3f996b',
+                'low' => '#cda21d',
+                'high' => '#D66A00',
+                'urgent' => '#b00000d1',
+            ];
+
+            $priority = $tickets->priority ?? 'urgent';
+            $bgColor = $priorityColors[$priority] ?? '#6c757d';
+        @endphp
+
+        <div class="detail-item">
+            <i class="fa fa-layer-group"></i>
+            <strong>Priority:</strong>
+                <div><span class="priority {{ $priority }}" style="background-color: {{ $bgColor }}; color: white; padding: 6px 35px; border-radius: 5px; text-align: center;">
+                        {{ ucfirst($priority) }}
+                    </span>
+                </div>
+        </div>
+
+            @php
+            $statusLabels = [
+                'to_do' => 'To do',
+                'in_progress' => 'In progress',
+                'ready' => 'Ready',
+                'deployed' => 'Deployed',
+                'complete' => 'Complete',
+                'invoice_done' => 'Invoice Done'
+            ];
+            $statusColors = [
+                'to_do' => '#948979',
+                'in_progress' => '#3fa6d7',
+                'ready' => '#e09f3e',
+                'deployed' => '#e76f51',
+                'complete' => '#2a9d8f',
+                'invoice_done' => '#e76f51'
+            ];
+            $bgColor = $statusColors[$tickets->status] ?? '#6c757d';
+            @endphp
+            <div class="detail-item">
+                <i class="fa-solid fa-bolt"></i>
+                <strong>Ticket Status:</strong>
+                    @if(Auth::user()->role_id != 6)
+                        <div class="dropdown d-inline-block ms-0">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle status-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white;">
+                                {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+                            </button>
+                            <ul class="dropdown-menu status-options" data-ticket-id="{{ $tickets->id }}">
+                                @foreach(array_keys($statusLabels) as $status)
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-value="{{ $status }}">
+                                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                    <button class="btn btn-sm btn-outline-secondary status-button ms-0" type="button" style="background-color: {{ $bgColor }}; border-color: {{ $bgColor }}; color: white; cursor: default;"> {{ $statusLabels[$tickets->status] ?? ucfirst($tickets->status) }}
+                    </button>
+                    @endif
+            </div>
+            <!-- feedback from client -->
+            @php
+                $feedback = \App\Models\TicketFeedback::where('ticket_id', $tickets->id)->first();
+            @endphp
+
+            @if($feedback)
+            <div class="detail-item">
+                <i class="fa-solid fa-star"></i>
+                <strong>Client Feedback:</strong>
+                <span class="d-flex align-items-center gap-2">
+                    {{-- Filled stars --}}
+                    <span>
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fa-solid fa-star" style="font-size:14px; color:{{ $i <= $feedback->rating ? '#f59e0b' : '#d1d5db' }};"></i>
+                        @endfor
+                    </span>
+                    
+                    {{-- Comment icon — opens modal --}}
+                    @if($feedback->comments)
+                    <button type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#feedbackModal"
+                            style="background:none; border:none; padding:0; cursor:pointer; line-height:1;"
+                            title="View Feedback Comment">
+                        <i class="fa-solid fa-message" style="color:#4F46E5; font-size:15px;"></i>
+                    </button>
+                    @endif
+                </span>
+            </div>
+            @endif
+    </div>
+  </div>
+  
+</div>
+<!-- feedback modal -->
+@if(isset($feedback) && $feedback)
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+
+            <div class="modal-header" style="background: #297bab;border:none;padding:16px 20px;">
+                <div>
+                    <h6 class="modal-title text-white fw-bold mb-0" id="feedbackModalLabel">Client Feedback</h6>
+                    <p class="text-white mb-0" style="font-size:12px; opacity:0.8;">
+                        Ticket #{{ $tickets->id }} — {{ $tickets->title }}
+                    </p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 30px;"></button>
+            </div>
+
+            <div class="modal-body px-4 py-4">
+
+                {{-- Stars --}}
+                <div class="text-center mb-3">
+                    @for($i = 1; $i <= 5; $i++)
+                        <i class="fa-solid fa-star" style="font-size:28px; color:{{ $i <= $feedback->rating ? '#f59e0b' : '#d1d5db' }};"></i>
+                    @endfor
+                    <div style="font-size:13px; color:#6b7280; margin-top:4px;">
+                        {{ $feedback->rating }} out of 5
+                    </div>
+                </div>
+
+                <hr style="border-color:#e5e7eb;">
+
+                {{-- Comment --}}
+                @if($feedback->comments)
+                <div style="background:#f9fafb;border-radius:8px;padding:14px 16px;border-left: 3px solid #297bab;">
+                    <p class="mb-0" style="font-size:13px; color:#374151; line-height:1.6;">
+                        {{ $feedback->comments }}
+                    </p>
+                </div>
+                @endif
+
+                @if($feedback->created_at)
+                <div class="text-end mt-2">
+                    <span style="font-size: 13px;color: #2a7bab;font-weight: 700;">
+                        Submitted {{ $feedback->created_at->format('M d, Y') }}
+                    </span>
+                </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 <!-- Log Hours Modal -->
 <div class="modal fade" id="logHoursModal" tabindex="-1">
   <div class="modal-dialog">
@@ -465,6 +656,60 @@
                 <h1>Comments</h1>
                 <i class="fas fa-comment icon"></i>
             </div>
+            <!-- pinned comment  -->
+            @php
+                $pinnedComments = $CommentsData->where('is_pinned', 1);
+            @endphp
+
+            @if($pinnedComments->count())
+
+            <div class="pinned-container">
+
+                <div class="pinned-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-thumbtack"></i>
+                        <span>Pinned Messages</span>
+                        <span class="pin-count">{{ $pinnedComments->count() }}</span>
+                    </div>
+                </div>
+
+                <div class="pinned-list">
+
+                    @foreach($pinnedComments as $pin)
+
+                    <div class="pinned-preview"
+                        data-target="comment-{{ $pin->id }}">
+
+                        <div class="pinned-content">
+
+                            <div class="pinned-user">
+                                {{ $pin->user->first_name ?? 'User' }}
+                            </div>
+
+                            <div class="pinned-message">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($pin->comments), 90) }}
+                            </div>
+
+                        </div>
+
+                        <!-- Unpin -->
+                        <button class="unpin-btn"
+                                data-id="{{ $pin->id }}"
+                                title="Unpin">
+
+                            <i class="fa fa-thumb-tack"></i>
+
+                        </button>
+
+                    </div>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+            @endif
             @php
               use Carbon\Carbon;
               $lastGroupDate = null;
@@ -495,7 +740,10 @@
                           </div>
                           @php $lastGroupDate = $groupDateLabel; @endphp
                       @endif
-                        <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}">
+                        <!-- <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}"> -->
+                            <div class="message {{ $data->is_pinned ? 'pinned-comment' : '' }}"
+                                data-id="{{ $data->id }}"
+                                id="comment-{{ $data->id }}">
                             <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
                             @if(!$data->is_system)
                                   <div class="user">
@@ -560,7 +808,23 @@
                                                 data-bs-title="Copy link">
                                                 <i class="fa-solid fa-link"></i>
                                             </button>
+                                            <!-- pin comment -->
+                                            @if(in_array(auth()->user()->role_id, [1,3]))
 
+                                                <button type="button"
+                                                        class="btn btn-link p-0 m-0 pin-comment"
+                                                        data-id="{{ $data->id }}"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-title="{{ $data->is_pinned ? 'Unpin Comment' : 'Pin Comment' }}"
+                                                        style="line-height:1;">
+
+                                                    <i class="fa-solid fa-thumbtack
+                                                        {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
+                                                    </i>
+
+                                                </button>
+
+                                            @endif
                                             <!-- Acknowledge -->
                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
@@ -1615,6 +1879,59 @@ $(function () {
         const data = await response.json();
         return data.url;
     }
+// Pin/Unpin comment
+
+
+$(document).on('click', '.pin-comment, .unpin-btn', function () {
+
+    let id = $(this).data('id');
+
+    $.ajax({
+        url: '/ticket-comments/pin/' + id,
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function () {
+            location.reload();
+        }
+    });
+
+});
+
+$(document).on('click', '.pinned-preview', function (e) {
+
+    if ($(e.target).closest('.unpin-btn').length) {
+        return;
+    }
+
+    let targetId = $(this).data('target');
+    let container = $('#comment-scroll'); // ✅ YOUR CHAT CONTAINER
+    let target = $('#' + targetId);
+
+    if (target.length && container.length) {
+
+        // scroll inside chat container
+        container.animate({
+
+            scrollTop:
+                container.scrollTop()
+                + target.position().top
+                - container.height() / 2
+                + target.outerHeight() / 2
+
+        }, 500);
+
+        // highlight
+        $('.message').removeClass('pin-highlight');
+        target.addClass('pin-highlight');
+
+        setTimeout(() => {
+            target.removeClass('pin-highlight');
+        }, 2500);
+    }
+
+});
 </script>
 
 @endsection

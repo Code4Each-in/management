@@ -633,6 +633,18 @@ class DashboardController extends Controller
             }
 
         // dd($projectMap);
+        $attendance = UserAttendancesTemporary::where('user_id', auth()->id())
+            ->where('date', now()->toDateString())
+            ->first();
+
+        $inTime = $attendance
+            ? $attendance->date . ' ' . $attendance->in_time
+            : null;
+
+        $outTime = $attendance
+            ? $attendance->out_time_date
+            : null;
+
         return view('dashboard.index', compact(
             'userCount',
             'users',
@@ -670,6 +682,9 @@ class DashboardController extends Controller
             'ticketSummary',
             'clientProjectCount',
             'clientTicketCount',
+            'attendance',
+            'inTime',
+            'outTime',
             'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }

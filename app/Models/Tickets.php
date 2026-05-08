@@ -29,6 +29,7 @@ class Tickets extends Model
         'created_by', 
         'priority',
         'comment', 
+        'is_pinned',
         'sprint_id'  
     ];
     public function ticketAssigns()
@@ -48,7 +49,7 @@ class Tickets extends Model
 
     public function project()
     {
-        return $this->belongsTo(Projects::class);
+        return $this->belongsTo(Projects::class, 'project_id');
     }
 
     public function sprintDetails()
