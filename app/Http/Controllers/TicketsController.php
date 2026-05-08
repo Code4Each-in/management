@@ -33,7 +33,7 @@ use App\Mail\TicketFeedbackMail;
 
 class TicketsController extends Controller
 {
-  
+
     public function index(Request $request)
     {
             $allTicketsFilter = $request->boolean('all_tickets');
@@ -724,7 +724,7 @@ class TicketsController extends Controller
                 ]);
             }
 
-        
+
             if (auth()->user()->role_id != 6) {
 
                 $now = now();
@@ -1259,7 +1259,11 @@ class TicketsController extends Controller
             ]);
         }
 
+        // Soft delete ticket comment
         $comment->delete();
+
+        // Soft delete related comment status
+        CommentStatus::where('comment_id', $id)->delete();
 
         return response()->json([
             'status' => 200,

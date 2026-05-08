@@ -28,7 +28,7 @@ use Carbon\Carbon;
 }
 
 .reminder-close-btn:hover {
-    color: #721c24; 
+    color: #721c24;
     transform: scale(1.2);
 }
 .reminder-box {
@@ -150,7 +150,7 @@ use Carbon\Carbon;
     opacity: 0;
     transform: translateY(20px);
     animation: fadeSlideUp 0.6s ease forwards;
-    
+
 }
 .hover-clr-white a{
     color: #fff !important;
@@ -247,6 +247,7 @@ use Carbon\Carbon;
 .kpi-slow {
     background: linear-gradient(135deg, #dc3545, #ff7b7b);
 }
+
 </style>
 
 <div class="row mb-4">
@@ -258,7 +259,7 @@ use Carbon\Carbon;
                     Welcome {{ auth()->user()->first_name }} {{ auth()->user()->last_name }} !
                 </h4>
 
-           
+
                     <p class="text-muted mb-2" style="font-size: 15px;">
                         You can manage everything from this dashboard - create tickets, track tasks,
                         set reminders, manage notes, and stay connected with your team.
@@ -440,33 +441,30 @@ use Carbon\Carbon;
         @endif
         @if(auth()->user()->role_id == 3 )
                     <!-- attendance -->
-         
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm p-3 rounded-3" style="max-width: 320px;">
 
-                    <h6 class="mb-2 fw-semibold text-primary">
-                        Attendance Timer
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-3 rounded-3" style="max-width: 280px;">
+
+                    <h6 class="mb-3 fw-semibold text-primary">
+                        Today Attendance Timer
                     </h6>
 
                     <!-- TIMER BOX -->
                     <div id="timerBox" style="display:none;">
-
-                        <div class="mb-2">
-                            <small class="text-muted">Timer Started at</small><br>
-                            <span id="startTime" class="fw-semibold">--</span>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <small class="text-muted d-block mb-1" style="font-size:18px;">Started at</small>
+                                <span id="startTime" class="fw-bold fs-6" style="font-size:18px;">--</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted d-block mb-1" style="font-size:18px;">Time Spent</small>
+                                <span id="timeSpent" class="fw-bold text-primary fs-6" style="font-size:18px;">0h 00m 00s</span>
+                            </div>
                         </div>
-
-                        <div class="mt-3 p-2 rounded-3" style="background:#f4f7ff;">
-                            <small class="text-muted">Time Spent</small><br>
-                            <span id="timeSpent" class="fw-bold text-primary fs-5">
-                                00h 00m 00s
-                            </span>
-                        </div>
-
                     </div>
 
                     <!-- NOT STARTED -->
-                    <div id="noTimerAlert" class="alert alert-warning bg-warning mt-2 mb-0 py-2 medium text-center" >
+                    <div id="noTimerAlert" class="alert alert-warning mb-0 py-2 text-center">
                         Your timer is not started yet.
                     </div>
 
@@ -1029,7 +1027,7 @@ use Carbon\Carbon;
     @endif -->
 
     <!-- End of Employee Of The Month Section -->
-     
+
 
     <div class="row">
         <div class="col-md-8 dashboard">
@@ -1303,7 +1301,7 @@ use Carbon\Carbon;
             @if (auth()->user()->role->name == 'Super Admin' || auth()->user()->role->name == 'HR Manager')
             <div class="col-md-12 dashboard">
                 <div class="card recent-sales overflow-auto">
-                   
+
                     <div class="card-body">
                         <h5 class="card-title">Missing Attendance</h5>
                         <div style="max-height: 300px; overflow-y: auto;">
@@ -2190,7 +2188,7 @@ use Carbon\Carbon;
         timerBox.style.display = "block";
         noTimerAlert.style.display = "none";
 
-        startEl.textContent = start.toLocaleString();
+        startEl.textContent = start.toLocaleTimeString();
 
         function updateTimer() {
             const now = end ? end : new Date();
