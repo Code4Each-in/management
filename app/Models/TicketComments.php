@@ -14,6 +14,7 @@ class TicketComments extends Model
         'document',
         'comment_by',
         'is_system',
+        'pinned_by',
         'reply_to'
 
     ];
@@ -33,5 +34,9 @@ class TicketComments extends Model
     public function parent()
     {
         return $this->belongsTo(TicketComments::class, 'reply_to');
+    }
+    public function pinnedByUser()
+    {
+        return $this->belongsTo(Users::class, 'pinned_by');
     }
 }

@@ -210,6 +210,66 @@
         background:transparent;
     }
 }
+.comment-tabs {
+    border-bottom: none;
+    gap: 10px;
+    padding-left: 10px;
+    background: #297bab;
+}
+
+.comment-tabs .nav-item {
+    margin-bottom: -3px;
+    margin-top: 10px;
+}
+
+.comment-tabs .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: transparent;
+    border: none;
+
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+
+    padding: 12px 18px;
+    border-radius: 12px 12px 0 0;
+
+    transition: all 0.2s ease;
+}
+
+.comment-tabs .nav-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.comment-tabs .nav-link.active {
+    background: #f3f4f6;
+    color: #374151;
+
+    border: none;
+}
+
+.comment-tabs .badge {
+    min-width: 38px;
+    padding: 7px 16px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.comment-tabs .bg-primary {
+    background: #1d6ff2 !important;
+}
+
+.comment-tabs .bg-warning {
+    background: #fbbc04 !important;
+    color: #111827 !important;
+}
 </style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
@@ -652,360 +712,443 @@
 </div>
 
           <div class="main-section">
-            <div class="msger-header">
+            <!-- <div class="msger-header">
                 <h1>Comments</h1>
                 <i class="fas fa-comment icon"></i>
-            </div>
+            </div> -->
             <!-- pinned comment  -->
             @php
                 $pinnedComments = $CommentsData->where('is_pinned', 1);
+
+                use Carbon\Carbon;
+                $lastGroupDate = null;
             @endphp
 
-            @if($pinnedComments->count())
+                <!-- tab navigation -->
+            <ul class="nav nav-tabs mb-3 comment-tabs"
+                id="commentTabs"
+                role="tablist">
 
-            <div class="pinned-container">
+                {{-- COMMENTS TAB --}}
+                <li class="nav-item" role="presentation">
 
-                <div class="pinned-header">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-thumbtack"></i>
-                        <span>Pinned Messages</span>
-                        <span class="pin-count">{{ $pinnedComments->count() }}</span>
-                    </div>
-                </div>
+                    <button class="nav-link active"
+                            id="comments-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#comments-pane"
+                            type="button"
+                            role="tab">
 
-                <div class="pinned-list">
+                        <span>Comments</span><i class="fas fa-comment icon"></i>
 
-                    @foreach($pinnedComments as $pin)
-
-                    <div class="pinned-preview"
-                        data-target="comment-{{ $pin->id }}">
-
-                        <div class="pinned-content">
-
-                            <div class="pinned-user">
-                                {{ $pin->user->first_name ?? 'User' }}
-                            </div>
-
-                            <div class="pinned-message">
-                                {{ \Illuminate\Support\Str::limit(strip_tags($pin->comments), 90) }}
-                            </div>
-
-                        </div>
-
-                        <!-- Unpin -->
-                    <button class="unpin-btn"
-                            data-id="{{ $pin->id }}"
-                            title="Unpin">
-
-                        <i class="fa-solid fa-thumbtack text-warning"></i>
+                        <!-- <span class="badge bg-primary ms-2">
+                            {{ count($CommentsData) }}
+                        </span> -->
 
                     </button>
 
-                    </div>
+                </li>
 
-                    @endforeach
+                {{-- PINNED TAB --}}
+                <li class="nav-item" role="presentation">
 
-                </div>
+                    <button class="nav-link"
+                            id="pinned-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pinned-pane"
+                            type="button"
+                            role="tab">
 
-            </div>
+                        <i class="fa-solid fa-thumbtack text-warning me-1"></i>
 
-            @endif
-            @php
-              use Carbon\Carbon;
-              $lastGroupDate = null;
-            @endphp
-            <div class="chat-container" id="comment-scroll"  style="height: {{ count($CommentsData) ? '600px' : 'auto' }}; overflow-y: auto; padding: 10px; background-color: #f9f9f9; border-radius: 10px;">
-               <div id="spinner_loader" style="display:none; text-align:center; padding: 10px;">
-                  <i class="fas fa-spinner fa-spin" style="font-size: 16px; color: #888;"></i>
-              </div>
-                @if(count($CommentsData) != 0)
-                  <div id="comments-list">
-                    @foreach ($CommentsData as $data)
-                      @php
-                        $commentDate = Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->startOfDay();
-                        $today = Carbon::now()->startOfDay();
-                        $yesterday = Carbon::yesterday()->startOfDay();
+                        <span>Pinned</span>
 
-                        if ($commentDate->eq($today)) {
-                            $groupDateLabel = 'Today';
-                        } elseif ($commentDate->eq($yesterday)) {
-                            $groupDateLabel = 'Yesterday';
-                        } else {
-                            $groupDateLabel = $commentDate->format('M d, Y');
-                        }
-                      @endphp
-                      @if ($lastGroupDate !== $groupDateLabel)
-                          <div class="text-center text-muted my-2 date-label" style="font-weight: bold; font-size: 14px;">
-                              {{ $groupDateLabel }}
-                          </div>
-                          @php $lastGroupDate = $groupDateLabel; @endphp
-                      @endif
-                        <!-- <div class="message" data-id="{{ $data->id }}" id="comment-{{ $data->id }}"> -->
-                            <div class="message {{ $data->is_pinned ? 'pinned-comment' : '' }}"
-                                data-id="{{ $data->id }}"
-                                id="comment-{{ $data->id }}">
-                            <div class="info">{{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}</div>
-                            @if(!$data->is_system)
-                                  <div class="user">
-                                      @if(!empty($data->user->profile_picture))
-                                          <div class="avatar" style="background-color: #27ae60;">
-                                              <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" alt="Profile" class="rounded-circle" width="35" height="35">
-                                          </div>
-                                      @else
-                                          <div class="avatar" style="background-color: #27ae60;">{{ strtoupper(substr($data->user->first_name, 0, 2)) }}</div>
-                                      @endif
-                                      <!-- <div class="d-flex justify-content-between align-items-start w-100">
-                                        <div>
-                                            <span class="name">{{ $data->user->first_name }}</span>
-                                            <span class="role">
-                                                @if ($data->user->role_id == 6)
-                                                    {{ $projectName ?? 'Project Not Assigned' }}
-                                                @else
-                                                    Code4Each
-                                                @endif
-                                            </span>
+                        <span class="badge bg-warning text-dark ms-2">
+                            {{ $pinnedComments->count() }}
+                        </span>
+
+                    </button>
+
+                </li>
+
+            </ul>
+            <!-- tab content -->
+            <div class="tab-content">
+
+                <!-- comment tab -->
+                <div class="tab-pane fade show active"
+                    id="comments-pane"
+                    role="tabpanel">
+
+                    <div class="chat-container"
+                        id="comment-scroll"
+                        style="height: {{ count($CommentsData) ? '600px' : 'auto' }};
+                                overflow-y:auto;
+                                padding:10px;
+                                background:#f9f9f9;
+                                border-radius:10px;">
+
+                        <div id="spinner_loader"
+                            style="display:none; text-align:center; padding:10px;">
+
+                            <i class="fas fa-spinner fa-spin"
+                            style="font-size:16px; color:#888;"></i>
+
+                        </div>
+
+                        @if(count($CommentsData) != 0)
+
+                            <div id="comments-list">
+
+                                @foreach ($CommentsData as $data)
+
+                                    @php
+                                        $commentDate = Carbon::parse($data->created_at)
+                                            ->timezone('Asia/Kolkata')
+                                            ->startOfDay();
+
+                                        $today = Carbon::now()->startOfDay();
+                                        $yesterday = Carbon::yesterday()->startOfDay();
+
+                                        if ($commentDate->eq($today)) {
+                                            $groupDateLabel = 'Today';
+                                        } elseif ($commentDate->eq($yesterday)) {
+                                            $groupDateLabel = 'Yesterday';
+                                        } else {
+                                            $groupDateLabel = $commentDate->format('M d, Y');
+                                        }
+                                    @endphp
+
+                                    {{-- DATE LABEL --}}
+                                    @if ($lastGroupDate !== $groupDateLabel)
+
+                                        <div class="text-center text-muted my-2 date-label"
+                                            style="font-weight:bold; font-size:14px;">
+
+                                            {{ $groupDateLabel }}
+
                                         </div>
 
-                                        <button type="button"
-                                                class="btn btn-sm btn-link p-0 share-comment"
-                                                data-comment-id="{{ $data->id }}"
-                                                title="Copy comment link">
-                                            <i class="fa-solid fa-link"></i>
-                                        </button>
+                                        @php $lastGroupDate = $groupDateLabel; @endphp
 
-                                      </div> -->
-                                    <div class="d-flex align-items-center w-100">
+                                    @endif
 
-                                        <!-- LEFT -->
-                                        <div>
-                                            <span class="name">{{ $data->user->first_name }}</span>
-                                            <span class="role">
-                                                @if ($data->user->role_id == 6)
-                                                    {{ $projectName ?? 'Project Not Assigned' }}
-                                                @else
-                                                    Code4Each
-                                                @endif
-                                            </span>
-                                            @if(!$data->is_system)
-                                              @if($data->updated_at && $data->updated_at != $data->created_at)
-                                                <span style="font-size: 13px;color: #012970;margin-left: 7px;margin-top: 7px;">
-                                                    Edited
-                                                </span>
-                                            @endif
-                                            @endif
+                                    {{-- MESSAGE --}}
+                                    <div class="message {{ $data->is_pinned ? 'pinned-comment' : '' }}"
+                                        data-id="{{ $data->id }}"
+                                        id="comment-{{ $data->id }}">
+
+                                        {{-- TIME --}}
+                                        <div class="info">
+
+                                            {{ \Carbon\Carbon::parse($data->created_at)
+                                                ->timezone('Asia/Kolkata')
+                                                ->format('M d, Y h:i A') }}
+
                                         </div>
 
-                                        <!-- RIGHT (Grouped properly) -->
-                                        <div class="d-flex align-items-center ms-auto" style="gap:6px;">
+                                        {{-- USER --}}
+                                        @if(!$data->is_system)
 
-                                            <!-- Link -->
+                                            <div class="user">
 
-                                            <button type="button"
-                                                class="btn btn-link p-0 m-0 share-comment"
-                                                style="line-height:1;"
-                                                data-comment-id="{{ $data->id }}"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-title="Copy link">
-                                                <i class="fa-solid fa-link"></i>
-                                            </button>
-                                            <!-- pin comment -->
+                                                {{-- AVATAR --}}
+                                                @if(!empty($data->user->profile_picture))
 
-                                                <button type="button"
-                                                        class="btn btn-link p-0 m-0 pin-comment"
-                                                        data-id="{{ $data->id }}"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-title="{{ $data->is_pinned ? 'Unpin Comment' : 'Pin Comment' }}"
-                                                        style="line-height:1;">
+                                                    <div class="avatar"
+                                                        style="background-color:#27ae60;">
 
-                                                    <i class="fa-solid fa-thumbtack
-                                                        {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
-                                                    </i>
+                                                        <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}"
+                                                            alt="Profile"
+                                                            class="rounded-circle"
+                                                            width="35"
+                                                            height="35">
 
-                                                </button>
+                                                    </div>
 
-                                            <!-- Acknowledge -->
-                                        @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
+                                                @else
 
-                                        @php
-                                            $canAcknowledge = in_array(auth()->user()->role_id, [1, 3]);
-                                            $ackUser = $data->ack_user_name ?? '';
-                                        @endphp
+                                                    <div class="avatar"
+                                                        style="background-color:#27ae60;">
 
-                                        <span class="acknowledge-toggle {{ !$canAcknowledge ? 'disabled' : '' }}"
-                                            data-id="{{ $data->id }}"
-                                            data-status="{{ $data->status }}"
-                                            data-ack-user="{{ $ackUser }}"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-title="{{
-                                                $data->status == 'acknowledged'
-                                                ? 'Acknowledged by ' . ($data->ack_user_name ?? 'User')
-                                                : ($canAcknowledge ? 'Click to acknowledge' : 'Waiting for developer')
-                                            }}"
-                                            style="
-                                                position:relative;
-                                                display:inline-flex;
-                                                align-items:center;
-                                                font-size: 19px;
-                                                cursor: {{ $canAcknowledge ? 'pointer' : 'not-allowed' }};
-                                                opacity: {{ $canAcknowledge ? '1' : '0.6' }};
-                                            ">
+                                                        {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
 
-                                            <!--  Icon -->
-                                            <i class="thumb-icon fa-thumbs-up
-                                                {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
-                                            </i>
+                                                    </div>
 
-                                            <!-- Tick -->
-                                            <i class="tick-icon fa-solid fa-check"
-                                                style="
-                                                    position:absolute;
-                                                    top:-5px;
-                                                    right:-5px;
-                                                    font-size:10px;
-                                                    color:#22c55e;
-                                                    background:white;
-                                                    border-radius:50%;
-                                                    display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
-                                            ">
-                                            </i>
+                                                @endif
 
-                                        </span>
+                                                <div class="d-flex align-items-center w-100">
+
+                                                    {{-- LEFT --}}
+                                                    <div>
+
+                                                        <span class="name">
+                                                            {{ $data->user->first_name }}
+                                                        </span>
+
+                                                        <span class="role">
+
+                                                            @if ($data->user->role_id == 6)
+                                                                {{ $projectName ?? 'Project Not Assigned' }}
+                                                            @else
+                                                                Code4Each
+                                                            @endif
+
+                                                        </span>
+
+                                                        {{-- EDITED --}}
+                                                        @if($data->updated_at && $data->updated_at != $data->created_at)
+
+                                                            <span style="font-size:13px;
+                                                                        color:#012970;
+                                                                        margin-left:7px;">
+
+                                                                Edited
+
+                                                            </span>
+
+                                                        @endif
+
+                                                    </div>
+
+                                                    {{-- RIGHT ACTIONS --}}
+                                                    <div class="d-flex align-items-center ms-auto"
+                                                        style="gap:8px;">
+
+                                                        {{-- SHARE --}}
+                                                        <button type="button"
+                                                                class="btn btn-link p-0 m-0 share-comment"
+                                                                data-comment-id="{{ $data->id }}"
+                                                                data-bs-toggle="tooltip"
+                                                                data-bs-title="Copy link">
+
+                                                            <i class="fa-solid fa-link"></i>
+
+                                                        </button>
+
+                                                        {{-- PIN --}}
+                                                        @php
+                                                            $canUnpin = $data->pinned_by == Auth::id();
+                                                        @endphp
+
+                                                        <button type="button"
+                                                                class="btn btn-link p-0 m-0 pin-comment"
+                                                                data-id="{{ $data->id }}">
+
+                                                            <i class="fa-solid fa-thumbtack
+                                                                {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
+                                                            </i>
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
 
                                         @endif
+
+                                        {{-- MESSAGE BODY --}}
+                                        <div class="text message-box d-flex justify-content-between align-items-start">
+
+                                            {{-- LEFT SIDE: COMMENT --}}
+                                            <div class="comment-content" style="word-break:auto-phrase; flex: 1;">
+                                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                                            </div>
+
+                                            {{-- RIGHT SIDE: ACTIONS --}}
+                                            <div class="comment-actions d-flex gap-2 ms-2">
+
+                                                {{-- REPLY --}}
+                                                @if(Auth::id() != $data->comment_by)
+                                                    <button type="button"
+                                                            class="reply-btn-inside"
+                                                            data-id="{{ $data->id }}"
+                                                            data-message="{{ strip_tags($data->comments) }}"
+                                                            data-user="{{ $data->user->first_name }}">
+                                                        <i class="fa fa-reply"></i>
+                                                    </button>
+                                                @endif
+
+                                                {{-- EDIT/DELETE --}}
+                                                @php
+                                                    $canEdit = Auth::id() == $data->comment_by
+                                                        && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
+                                                @endphp
+
+                                                @if($canEdit)
+
+                                                    <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
+                                                            data-id="{{ $data->id }}"
+                                                            title="Delete Comment">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+
+                                                    <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                                                            data-comment-id="{{ $data->id }}"
+                                                            data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
+                                                            title="Edit Comment">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </button>
+
+                                                @endif
+
+                                            </div>
 
                                         </div>
 
                                     </div>
 
-                                  </div>
-                              @endif
+                                @endforeach
 
-                            <div class="text message-box">
-                                  @if(Auth::id() != $data->comment_by)
-                                    <button type="button"
-                                            class="reply-btn-inside"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-title="Reply to this message"
-                                            data-id="{{ $data->id }}"
-                                            data-message="{{ strip_tags($data->comments) }}"
-                                            data-user="{{ $data->user->first_name }}">
-                                        <i class="fa fa-reply"></i>
-                                    </button>
-                                    @endif
-                              @if(!$data->is_system)
-                              @php
-                                $canEdit = Auth::id() == $data->comment_by
-                                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
-                                @endphp
-                                @if($canEdit)
-                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment" data-id="{{ $data->id }}" title="Delete Comment" style="font-size: 17px;line-height: 1;float: right;margin-bottom: 25px;margin-left: 8px;">
-                                  <i class="fa-solid fa-trash"></i>
-                              </button>
-                              @endif
-                              @if($canEdit)
-                              <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
-                                      data-comment-id="{{ $data->id }}"
-                                      data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
-                                      title="Edit Comment"
-                                      style="font-size: 17px; line-height: 1; float: right; margin-bottom: 25px;">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                              </button>
-                            @endif
-
-                            @endif
-                              <div style="word-break: auto-phrase;">
-                                  {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
-                              </div>
-                                {{-- REPLY BOX AT BOTTOM --}}
-                                @if($data->reply_to)
-                                    @php
-                                        $parent = $CommentsData->firstWhere('id', $data->reply_to);
-                                    @endphp
-
-                                    @if($parent)
-                                        <div class="reply-wrapper">
-
-                                            <!-- Arrow -->
-                                               <div class="reply-arrow">
-                                                    <i class="fa-solid fa-reply" style="transform: rotate(180deg);"></i>
-                                                </div>
-                                            <!-- Reply Card -->
-                                            <div class="reply-card"
-                                                data-scroll-id="comment-{{ $parent->id }}">
-
-                                                <div class="reply-top d-flex align-items-start gap-2">
-
-                                                    <!-- Profile -->
-                                                    <div class="reply-avatar">
-                                                        @if(!empty($parent->user->profile_picture))
-                                                            <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
-                                                                class="rounded-circle"
-                                                                width="34" height="34">
-                                                        @else
-                                                            <div class="avatar-fallback">
-                                                                {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
-                                                            </div>
-                                                        @endif
-                                                    </div>
-
-                                                    <!-- Content -->
-                                                    <div class="reply-content">
-
-                                                        <div class="reply-header">
-                                                            {{ $parent->user->first_name ?? 'User' }}
-                                                            <span class="reply-time">
-                                                                {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
-                                                            </span>
-                                                        </div>
-
-                                                        <div class="reply-text">
-                                                            {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
-                                                        </div>
-
-
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endif
-                                @php
-                                    $documents = explode(',', $data->document);
-                                @endphp
-
-                                <!-- Display Documents -->
-                              @foreach ($documents as $doc)
-                                @if (!empty($doc))
-                                    @php
-                                        $fileName = basename($doc);
-                                        $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
-                                        $isExternal = \Illuminate\Support\Str::startsWith($doc, 'http');
-
-                                        $downloadUrl = $isExternal
-                                            ? $doc
-                                            : route('public.file.download', ['filename' => $fileName]);
-                                    @endphp
-
-                                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                        <a href="{{ $downloadUrl }}"
-                                          target="_blank"
-                                          @if ($isCsv) download @endif>
-                                            {{ $fileName }}
-                                        </a>
-                                    </p>
-                                @endif
-                            @endforeach
                             </div>
-                            <!-- Delete button (only for the comment owner) -->
-                        </div>
-                    @endforeach
-                  </div>
-                @else
-                    <div class="center text-center mt-2">
-                        <span id="NoComments" style="color: #6c757d; font-size: 1rem;">No Comments</span>
+
+                        @else
+
+                            <div class="center text-center mt-2">
+
+                                <span id="NoComments"
+                                    style="color:#6c757d; font-size:1rem;">
+
+                                    No Comments
+
+                                </span>
+
+                            </div>
+
+                        @endif
+
                     </div>
-                @endif
+
+                </div>
+                <!-- pinned tab -->
+                <div class="tab-pane fade"
+                    id="pinned-pane"
+                    role="tabpanel">
+
+                    <div class="chat-container"
+                        style="height:600px;
+                                overflow-y:auto;
+                                padding:10px;
+                                background:#f9f9f9;
+                                border-radius:10px;">
+
+                        @if($pinnedComments->count())
+
+                            @foreach($pinnedComments as $data)
+
+                                <div class="message pinned-comment"
+                                    data-id="{{ $data->id }}"
+                                    id="pinned-comment-{{ $data->id }}">
+
+                                    <div class="info">
+
+                                        {{ \Carbon\Carbon::parse($data->created_at)
+                                            ->timezone('Asia/Kolkata')
+                                            ->format('M d, Y h:i A') }}
+
+                                    </div>
+
+                                    <div class="user">
+
+                                        {{-- AVATAR --}}
+                                        @if(!empty($data->user->profile_picture))
+
+                                            <div class="avatar">
+
+                                                <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}"
+                                                    class="rounded-circle"
+                                                    width="35"
+                                                    height="35">
+
+                                            </div>
+
+                                        @else
+
+                                            <div class="avatar">
+
+                                                {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
+
+                                            </div>
+
+                                        @endif
+
+                                        <div class="d-flex align-items-center w-100">
+
+                                            <div>
+
+                                                <span class="name">
+                                                    {{ $data->user->first_name }}
+                                                </span>
+
+                                            </div>
+
+                                            {{-- ACTIONS --}}
+                                            <div class="ms-auto d-flex align-items-center gap-2">
+
+                                                {{-- SHARE --}}
+                                                <button type="button"
+                                                        class="btn btn-link p-0 share-comment"
+                                                        data-comment-id="{{ $data->id }}">
+
+                                                    <i class="fa-solid fa-link"></i>
+
+                                                </button>
+
+                                                {{-- UNPIN --}}
+                                                @php
+                                                    $canUnpin = $data->pinned_by == Auth::id();
+                                                @endphp
+
+                                                <button type="button"
+                                                        class="btn btn-link p-0 pin-comment"
+                                                        data-id="{{ $data->id }}"
+
+                                                        @if(!$canUnpin)
+                                                            disabled
+                                                        @endif
+
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-title="{{ $data->is_pinned
+                                                            ? 'Pinned by ' . optional($data->pinnedByUser)->first_name
+                                                            : 'Pin Comment' }}">
+
+                                                    <i class="fa-solid fa-thumbtack text-warning"></i>
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    {{-- COMMENT --}}
+                                    <div class="text message-box">
+
+                                        {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+
+                                    </div>
+
+                                </div>
+
+                            @endforeach
+
+                        @else
+
+                            <div class="text-center text-muted mt-4">
+
+                                No pinned comments
+
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
             </div>
             <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
@@ -1880,7 +2023,7 @@ $(function () {
 // Pin/Unpin comment
 
 
-$(document).on('click', '.pin-comment, .unpin-btn', function () {
+$(document).on('click', '.pin-comment', function () {
 
     let id = $(this).data('id');
 
@@ -1890,8 +2033,21 @@ $(document).on('click', '.pin-comment, .unpin-btn', function () {
         data: {
             _token: '{{ csrf_token() }}'
         },
-        success: function () {
-            location.reload();
+        success: function (res) {
+
+            if (res.success) {
+                location.reload();
+            } else {
+                toastr.error(res.message);
+            }
+        },
+        error: function (xhr) {
+
+            if (xhr.status === 403) {
+                toastr.error(xhr.responseJSON.message);
+            } else {
+                toastr.error('Something went wrong');
+            }
         }
     });
 
