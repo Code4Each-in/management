@@ -117,7 +117,9 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/edit/ticket/{ticketId}', [TicketsController::class, 'editTicket'])->name('tickets.edit');
 	Route::post('/update/tickets/{ticketId}', [TicketsController::class, 'updateTicket'])->name('tickets.update');
 	Route::delete('/delete/tickets', [TicketsController::class, 'destroy'])->name('tickets.delete');
-	Route::get('/view/ticket/{ticketId}', [TicketsController::class, 'viewTicket'])->name('tickets.ticketdetail');
+	Route::get('/view/ticket/{ticketId}', [TicketsController::class, 'viewTicket'])
+    ->name('tickets.ticketdetail')
+    ->middleware('client.ticket.access');
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
@@ -226,7 +228,7 @@ Route::middleware(['role_permission'])->group(function () {
     Route::post('/update/hireus', [HiringUsController::class, 'update'])->name('hireus.update');
     Route::delete('/delete/hireus', [HiringUsController::class, 'delete'])->name('hireus.delete');
 
-	
+
 
 	//Scrum Dashboard
 	Route::get('/scrumdash', [ScrumdashController::class, 'index'])->name('scrumdash.index');
@@ -375,7 +377,7 @@ Route::middleware(['role_permission'])->group(function () {
 		return redirect()->route('projects.show', ['project' => $projectId, 'chat' => 1]);
 	});
 	Route::post('/user/heartbeat', [UsersController::class, 'heartbeat'])->middleware('auth');
-	
+
 
 	//bde section
 	Route::get('/bid-sprints', [BDEController::class, 'index'])->name('bdeSprint.index');

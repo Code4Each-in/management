@@ -169,7 +169,7 @@ class ReminderController extends Controller
             ]);
         }
     }
-    
+
     public function update(Request $request, $id)
     {
         $data = $request->validate([
@@ -177,7 +177,9 @@ class ReminderController extends Controller
             'description' => 'required',
             'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
             'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
-            'user_id' => 'nullable|exists:users,id', // Ensure this validation
+            'user_id' => 'nullable|array',
+            'user_id.*' => 'exists:users,id',
+            // 'user_id' => 'nullable|exists:users,id', // Ensure this validation
             'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
         ], [
             'type.required' => 'The type field is required.',
@@ -206,7 +208,7 @@ class ReminderController extends Controller
             $userIds[] = auth()->id();
         }
 
-        $data['user_id'] = $userIds;
+        $data['user_id'] = json_encode($userIds);
 
         $now = Carbon::now();
 

@@ -966,7 +966,7 @@ class TicketsController extends Controller
     public function viewTicket($ticketId)
     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
-        $ticket = Tickets::find($ticketId);
+        $ticket = Tickets::where('id', $ticketId)->firstOrFail();
         $projectId = $ticket->project_id;
         // $project = Projects::find($projectId);
         // $projectName = $project ? $project->project_name : 'Project Not Found';
