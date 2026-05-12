@@ -966,7 +966,7 @@ class TicketsController extends Controller
     public function viewTicket($ticketId)
     {
         $ticketsAssign = TicketAssigns::where(['ticket_id' => $ticketId])->get();
-        $ticket = Tickets::find($ticketId);
+        $ticket = Tickets::where('id', $ticketId)->firstOrFail();
         $projectId = $ticket->project_id;
         // $project = Projects::find($projectId);
         // $projectName = $project ? $project->project_name : 'Project Not Found';
@@ -1004,7 +1004,23 @@ class TicketsController extends Controller
         $projects = Projects::where('id', $projectId)->get();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
 
-        $CommentsData = TicketComments::with('user')
+        // $CommentsData = TicketComments::with('user')
+        // ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
+        // ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
+        // ->select(
+        //     'ticket_comments.*',
+        //     'cs.status',
+        //     'cs.acknowledged_by',
+        //     'u.first_name as ack_user_name'
+        // )
+        // ->where('ticket_comments.ticket_id', $ticketId)
+        // ->orderBy('ticket_comments.created_at', 'asc')
+        // ->orderBy('ticket_comments.created_at', 'asc')
+        // ->get();
+        $CommentsData = TicketComments::with([
+        'user',
+        'pinnedByUser'
+        ])
         ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
         ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
         ->select(
@@ -1015,8 +1031,8 @@ class TicketsController extends Controller
         )
         ->where('ticket_comments.ticket_id', $ticketId)
         ->orderBy('ticket_comments.created_at', 'asc')
-        ->orderBy('ticket_comments.created_at', 'asc')
         ->get();
+
     // ✅ find all developer replies
     $developerReplies = $CommentsData->filter(function ($c) {
         return isset($c->user) && $c->user->role_id == 3;
@@ -1621,16 +1637,55 @@ public function uploadImage(Request $request)
         }
     }
 
+    // public function togglePin($id)
+    // {
+    //     $comment = TicketComments::findOrFail($id);
+
+    //     $comment->is_pinned = !$comment->is_pinned;
+
+    //     $comment->save();
+
+    //     return response()->json([
+    //         'success' => true
+    //     ]);
+    // }
     public function togglePin($id)
     {
         $comment = TicketComments::findOrFail($id);
 
-        $comment->is_pinned = !$comment->is_pinned;
+        // =========================
+        // PIN COMMENT
+        // =========================
+        if (!$comment->is_pinned) {
 
+            $comment->is_pinned = 1;
+            $comment->pinned_by = auth()->id();
+            $comment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment pinned'
+            ]);
+        }
+
+        // =========================
+        // UNPIN COMMENT
+        // =========================
+        if ((int)$comment->pinned_by !== (int)auth()->id()) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the user who pinned this comment can unpin it'
+            ], 403);
+        }
+
+        $comment->is_pinned = 0;
+        $comment->pinned_by = null;
         $comment->save();
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'message' => 'Comment unpinned'
         ]);
     }
 }
