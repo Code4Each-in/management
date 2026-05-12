@@ -101,79 +101,6 @@
 .reply-btn-inside:hover {
     color: #2563eb;
 }
-.pinned-container{
-    /* background:#ffffff;
-    border-radius:12px;
-    margin:10px;
-    overflow:hidden;
-    border:1px solid #e4e6eb; */
-    box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
-
-.pinned-header{
-    background:#2a7bab;
-    color:#fff;
-    padding:10px 15px;
-    font-size:15px;
-    font-weight:600;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.pin-count{
-    background:rgba(255,255,255,0.2);
-    padding:2px 8px;
-    border-radius:20px;
-    font-size:12px;
-}
-
-.pinned-list{
-    max-height:180px;
-    overflow-y:auto;
-    margin-bottom: 5px;
-}
-
-.pinned-preview{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:7px 30px;
-    border-bottom:1px solid #f1f1f1;
-    cursor:pointer;
-    transition:0.2s ease;
-    background:#f9f9f9;
-}
-
-.pinned-preview:last-child{
-    border-bottom:none;
-}
-
-.pinned-preview:hover{
-    background:#fff7d6;
-}
-
-.pinned-content{
-    flex:1;
-    min-width:0;
-}
-
-.pinned-user{
-    font-weight:600;
-    color:#222;
-    font-size:14px;
-    margin-bottom:2px;
-}
-
-.pinned-message{
-    font-size:13px;
-    color:#666;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
 .unpin-btn{
     border:none;
     background:none;
@@ -202,12 +129,18 @@
     overflow-y:auto;
     height:100%;
 }
-@keyframes pinFlash{
-    0%{
-        background:#fff3a3;
+.highlight-comment {
+    animation: highlightFade 2.5s ease;
+    background: #fff3cd !important;
+    border-radius: 8px;
+}
+
+@keyframes highlightFade {
+    0% {
+        background: #ffe082;
     }
-    100%{
-        background:transparent;
+    100% {
+        background: transparent;
     }
 }
 .comment-tabs {
@@ -930,16 +863,22 @@
                                                         @php
                                                             $canUnpin = $data->pinned_by == Auth::id();
                                                         @endphp
+                                                        <span data-bs-toggle="tooltip"
+                                                            data-bs-title="{{ $data->is_pinned
+                                                                    ? 'Pinned by ' . ($data->pinnedByUser->first_name ?? 'Unknown')
+                                                                    : 'Pin Comment' }}">
 
-                                                        <button type="button"
-                                                                class="btn btn-link p-0 m-0 pin-comment"
-                                                                data-id="{{ $data->id }}">
+                                                            <button type="button"
+                                                                    class="btn btn-link p-0 m-0 pin-comment"
+                                                                    data-id="{{ $data->id }}">
 
-                                                            <i class="fa-solid fa-thumbtack
-                                                                {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
-                                                            </i>
+                                                                <i class="fa-solid fa-thumbtack
+                                                                    {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
+                                                                </i>
 
-                                                        </button>
+                                                            </button>
+
+                                                        </span>
 
                                                     </div>
 
@@ -1038,9 +977,10 @@
 
                             @foreach($pinnedComments as $data)
 
-                                <div class="message pinned-comment"
+                                <div class="message pinned-comment go-to-comment"
                                     data-id="{{ $data->id }}"
-                                    id="pinned-comment-{{ $data->id }}">
+                                    id="pinned-comment-{{ $data->id }}"
+                                    style="cursor:pointer;">
 
                                     <div class="info">
 
@@ -1101,22 +1041,21 @@
                                                     $canUnpin = $data->pinned_by == Auth::id();
                                                 @endphp
 
-                                                <button type="button"
-                                                        class="btn btn-link p-0 pin-comment"
-                                                        data-id="{{ $data->id }}"
-
-                                                        @if(!$canUnpin)
-                                                            disabled
-                                                        @endif
-
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-title="{{ $data->is_pinned
-                                                            ? 'Pinned by ' . optional($data->pinnedByUser)->first_name
+                                                <span data-bs-toggle="tooltip"
+                                                    data-bs-title="{{ $data->is_pinned
+                                                            ? 'Pinned by ' . ($data->pinnedByUser->first_name ?? 'Unknown')
                                                             : 'Pin Comment' }}">
 
-                                                    <i class="fa-solid fa-thumbtack text-warning"></i>
+                                                    <button type="button"
+                                                            class="btn btn-link p-0 pin-comment"
+                                                            data-id="{{ $data->id }}"
+                                                            @if(!$canUnpin) disabled @endif>
 
-                                                </button>
+                                                        <i class="fa-solid fa-thumbtack text-warning"></i>
+
+                                                    </button>
+
+                                                </span>
 
                                             </div>
 
@@ -2053,39 +1992,48 @@ $(document).on('click', '.pin-comment', function () {
 
 });
 
-$(document).on('click', '.pinned-preview', function (e) {
+    $(document).on('click', '.go-to-comment', function (e) {
 
-    if ($(e.target).closest('.unpin-btn').length) {
-        return;
-    }
+        // prevent clicking inner buttons (pin/share/etc.)
+        if ($(e.target).closest('button').length) {
+            return;
+        }
 
-    let targetId = $(this).data('target');
-    let container = $('#comment-scroll'); // ✅ YOUR CHAT CONTAINER
-    let target = $('#' + targetId);
+        let commentId = $(this).data('id');
 
-    if (target.length && container.length) {
+        // switch to comments tab
+        $('#comments-tab').tab('show');
 
-        // scroll inside chat container
-        container.animate({
+        setTimeout(function () {
 
-            scrollTop:
-                container.scrollTop()
-                + target.position().top
-                - container.height() / 2
-                + target.outerHeight() / 2
+            let container = $('#comment-scroll');
+            let target = $('#comment-' + commentId);
 
-        }, 500);
+            if (!target.length) return;
 
-        // highlight
-        $('.message').removeClass('pin-highlight');
-        target.addClass('pin-highlight');
+            // adjust this value as needed (perfect alignment)
+            let offset = 120;
 
-        setTimeout(() => {
-            target.removeClass('pin-highlight');
-        }, 2500);
-    }
+            let top =
+                target.offset().top
+                - container.offset().top
+                + container.scrollTop()
+                - offset;
 
-});
+            container.animate({
+                scrollTop: top
+            }, 500);
+
+            // highlight effect
+            target.addClass('highlight-comment');
+
+            setTimeout(function () {
+                target.removeClass('highlight-comment');
+            }, 2500);
+
+        }, 200);
+
+    });
 </script>
 
 @endsection
