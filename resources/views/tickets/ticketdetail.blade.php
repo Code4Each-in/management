@@ -858,6 +858,44 @@
                                                             <i class="fa-solid fa-link"></i>
 
                                                         </button>
+                                                        @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
+
+                                                                <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
+                                                                    data-id="{{ $data->id }}"
+                                                                    data-status="{{ $data->status }}"
+                                                                    data-bs-toggle="tooltip"
+                                                                    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                                                    style="
+                                                                        position:relative;
+                                                                        display:inline-flex;
+                                                                        align-items:center;
+                                                                        font-size: 19px;
+                                                                        cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                                        opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
+                                                                    ">
+
+                                                                    <!--  Icon -->
+                                                                    <i class="thumb-icon fa-thumbs-up
+                                                                        {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
+                                                                    </i>
+
+                                                                    <!-- Tick -->
+                                                                    <i class="tick-icon fa-solid fa-check"
+                                                                        style="
+                                                                            position:absolute;
+                                                                            top:-5px;
+                                                                            right:-5px;
+                                                                            font-size:10px;
+                                                                            color:#22c55e;
+                                                                            background:white;
+                                                                            border-radius:50%;
+                                                                            display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
+                                                                    ">
+                                                                    </i>
+
+                                                                </span>
+
+                                                        @endif
 
                                                         {{-- PIN --}}
                                                         @php
