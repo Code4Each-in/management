@@ -12,41 +12,39 @@ use Carbon\Carbon;
 
 class SendReminderEmails extends Command
 {
-    protected $signature = 'reminders:send';
+    // protected $signature = 'reminders:send';
 
-    protected $description = 'Send reminder emails';
+    // protected $description = 'Send reminder emails';
 
-    public function handle()
-    {
-        $today = Carbon::today();
+    // public function handle()
+    // {
+    //     $reminders = Reminder::where('reminder_date', '<=', now())
+    //         ->where('email_sent', false)
+    //         ->get();
 
-        $reminders = Reminder::whereDate('reminder_date', '<=', $today)
-            ->where('email_sent', false)
-            ->get();
+    //     foreach ($reminders as $reminder) {
 
-        foreach ($reminders as $reminder) {
+    //         $userIds = json_decode($reminder->user_id, true);
 
-            $userIds = json_decode($reminder->user_id, true);
+    //         if (!is_array($userIds)) {
+    //             $userIds = [$reminder->user_id];
+    //         }
 
-            if (!is_array($userIds)) {
-                $userIds = [$reminder->user_id];
-            }
+    //         $users = Users::whereIn('id', $userIds)->get();
 
-            $users = Users::whereIn('id', $userIds)->get();
+    //         foreach ($users as $user) {
 
-            foreach ($users as $user) {
+    //             if ($user->email) {
 
-                if ($user->email) {
-                    Mail::to($user->email)
-                        ->send(new ReminderMail($reminder));
-                }
-            }
+    //                 Mail::to($user->email)
+    //                     ->send(new ReminderMail($reminder));
+    //             }
+    //         }
 
-            $reminder->update([
-                'email_sent' => true
-            ]);
-        }
+    //         $reminder->email_sent = true;
+    //         $reminder->save();
+    //     }
 
-        return Command::SUCCESS;
-    }
+    //     return Command::SUCCESS;
+    // }
 }
