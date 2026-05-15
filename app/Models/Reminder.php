@@ -12,7 +12,7 @@ class Reminder extends Model
 
     protected $fillable = [
         'type', 'daily_hour', 'daily_minute', 'weekly_day', 'weekly_hour', 'weekly_minute',
-        'monthly_date', 'monthly_hour', 'monthly_minute', 'description', 'reminder_date', 'is_active', 'clicked_at', 'user_id','custom_date'
+        'monthly_date', 'monthly_hour', 'monthly_minute', 'description', 'reminder_date', 'is_active', 'clicked_at', 'user_id','custom_date','email_sent'
     ];
 
     protected $casts = [
@@ -20,6 +20,7 @@ class Reminder extends Model
         'updated_at'    => 'datetime',
         'reminder_date' => 'datetime',
         'clicked_at'    => 'datetime',
+        'email_sent'    => 'boolean',
     ];
 
     public function user()
