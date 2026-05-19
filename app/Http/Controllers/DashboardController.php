@@ -251,7 +251,7 @@ class DashboardController extends Controller
             })
             ->unique('ticket_id')
             ->values();
-        
+
         $joiningDate = $user->joining_date;
         $userId = $user->id;
         $userAttendances  = $this->getMissingAttendance();
@@ -608,7 +608,7 @@ class DashboardController extends Controller
 
             $avgResponseSeconds = DB::table('comment_status')
                 ->whereNotNull('first_response_time_seconds')
-                ->where('replied_at', '>=', now()->subDays(30)) // important change
+                ->where('replied_at', '>=', now()->subDays(15)) // important change
                 ->avg('first_response_time_seconds');
 
             if ($avgResponseSeconds) {
