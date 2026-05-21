@@ -67,6 +67,7 @@ class CheckReminders extends Command
         }
         $reminder->reminder_date = $nextDate;
         $reminder->clicked_at = null;
+        $reminder->email_sent = 0;
         $reminder->save();
 
         Log::info('Updated next reminder date to: ' . $nextDate->toDateTimeString());
@@ -118,6 +119,7 @@ class CheckReminders extends Command
 
         $reminder->reminder_date = $reminderDate->startOfDay();
         $reminder->clicked_at = null; 
+        $reminder->email_sent = 0;
         $reminder->save();
 
         Log::info("Auto-updated missed reminder ({$reminder->description}), next date: " . $reminderDate . ", marked clicked_at as now.");
