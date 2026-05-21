@@ -339,7 +339,7 @@ use Carbon\Carbon;
                 </div>
                 <div class="d-flex justify-content-between align-items-center hover-clr-white">
                     <span class="text-muted">Ticket Todos</span>
-                    <a href="/todo_list"
+                    <a href="#ticket-todos"
                     class="badge bg-info px-3 py-2"
                     style="border-radius:10px;">
                         {{ $ticketTodoCount ?? 0 }}
@@ -1023,7 +1023,74 @@ use Carbon\Carbon;
             @endif
         </div>
     @endif
+    @if($tickettasks->isNotEmpty())
+        <div class="col-lg-12"  id="ticket-todos">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="task-head" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h5 class="card-title">Your Ticket Todo List</h5>
+                        </div>
+                    </div>
 
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            @if($tickettasks->isEmpty())
+                            <p>No todo items found.</p>
+                            @else
+                            <table class="table table-bordered tickettasks">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Todo</th>
+                                        <th>Created At</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($tickettasks as $task)
+                                    <tr>
+                                        <td>{{ $task->title }}</td>
+                                        <td>{{ $task->created_at->format('d M Y, h:i A') }}</td>
+
+                                        <td>
+                                            @php
+                                            $statusClass = match($task->status) {
+                                                'open' => 'primary',
+                                                'hold' => 'warning',
+                                                'completed' => 'success',
+                                                'canceled' => 'danger',
+                                                default => 'secondary'
+                                            };
+
+                                            $customColor = $task->status === 'hold'
+                                                ? ''
+                                                : 'background-color: #4154f1 !important;';
+                                            @endphp
+
+                                            <span class="badge bg-{{ $statusClass }}"
+                                                style="{{ $customColor }} border-radius: 20px;">
+                                                {{ ucfirst($task->status) }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a href="{{ route('tickets.ticketdetail', $task->ticket_id) }}"
+                                            class="btn btn-sm btn-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <!-- ---------- To Do List Ended ---------------- -->
     <!-- Employee Of The Month Section -->
     <!-- @php
@@ -1711,6 +1778,7 @@ use Carbon\Carbon;
         </div>
     </div>
 @endif
+
     <!-- Sticky Notes Started -->
         <div class="col-lg-12 stickyNotes" id="stickyNotes">
             <div class="card">
