@@ -180,7 +180,7 @@ class ReminderController extends Controller
             'user_id' => 'nullable|array',
             'user_id.*' => 'exists:users,id',
             // 'user_id' => 'nullable|exists:users,id', // Ensure this validation
-            'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
+            'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation  
         ], [
             'type.required' => 'The type field is required.',
             'type.in' => 'The type must be one of the following: daily, weekly, monthly, or custom.',
