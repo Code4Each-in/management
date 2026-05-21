@@ -50,9 +50,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:project-reports')->monthlyOn(1, '10:00');
         // Runs every minute — checks if any emails are due
             $schedule->command('emails:send-scheduled')->everyMinute();
-            // $schedule->command('reminders:send')
-            // ->everyMinute()
-            // ->withoutOverlapping();
+            $schedule->command('reminders:send')
+            ->everyMinute()
+            ->withoutOverlapping();
 
     }
 

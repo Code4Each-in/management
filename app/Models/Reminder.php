@@ -21,6 +21,7 @@ class Reminder extends Model
         'reminder_date' => 'datetime',
         'clicked_at'    => 'datetime',
         'email_sent'    => 'boolean',
+        'user_id'       => 'array',
     ];
 
     public function user()
