@@ -57,7 +57,7 @@
                         <td>{{ $reminder->created_at->timezone('Asia/Kolkata')->format('Y-m-d') }}</td>
                         <td>{{ $reminder->reminder_date->timezone('Asia/Kolkata')->format('Y-m-d') }}</td>
                         <td>
-                            @if(auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager' || $reminder->user_id === auth()->id())
+                            @if(auth()->user()->role->name === 'Super Admin' || auth()->user()->role->name === 'Manager' || in_array(auth()->id(), $reminder->user_id ?? []))
                             <a href="{{ route('reminders.edit', $reminder->id) }}" class="text-primary">
                                 <i class="fa fa-edit fa-fw pointer"></i>
                             </a>

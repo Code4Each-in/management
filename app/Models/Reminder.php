@@ -24,8 +24,13 @@ class Reminder extends Model
         'user_id'       => 'array',
     ];
 
-    public function user()
+    // public function user()
+    // {
+    //     return $this->belongsTo(Users::class, 'user_id', 'id');
+    // }
+
+    public function assignedUsers()
     {
-        return $this->belongsTo(Users::class, 'user_id', 'id');
+        return Users::whereIn('id', $this->user_id ?? []);
     }
 }
