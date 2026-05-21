@@ -48,7 +48,11 @@ class DashboardController extends Controller
             ->count();
         $clientProjectCount = 0;
         $clientTicketCount = 0;
-        $tasks = TodoList::where('user_id', Auth::id())
+        $tasks = TodoList::where('user_id', Auth::id())->whereNull('ticket_id')
+        ->whereRaw("LOWER(status) != 'completed'")
+        ->orderBy('created_at', 'desc')
+        ->get();
+        $tickettasks = TodoList::where('user_id', Auth::id())->whereNotNull('ticket_id')
         ->whereRaw("LOWER(status) != 'completed'")
         ->orderBy('created_at', 'desc')
         ->get();
@@ -690,6 +694,7 @@ class DashboardController extends Controller
             'inTime',
             'outTime',
             'ticketTodoCount',
+            'tickettasks',
             'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }

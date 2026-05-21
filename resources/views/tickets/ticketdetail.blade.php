@@ -867,7 +867,7 @@
     <div class="container">
         @if($ticketTodos->count() > 0)
             <!-- ticket todo section -->
-            <div class="task-card expanded ">
+            <div class="task-card">
 
                 {{-- Header --}}
                 <div class="task-header"
@@ -1973,15 +1973,18 @@
     // todo list
     function toggleTodoSection(element)
     {
+        let card = element.closest('.task-card');
         let details = element.nextElementSibling;
 
-        if(details.style.display === 'none')
+        if(details.style.display === 'none' || details.style.display === '')
         {
             details.style.display = 'block';
+            card.classList.add('expanded');
         }
         else
         {
             details.style.display = 'none';
+            card.classList.remove('expanded');
         }
     }
     function openEditTodoModal(id, title, userId)
