@@ -56,41 +56,9 @@ class SendReminderEmails extends Command
 
                 $now = now();
 
-                if ($reminder->type === 'daily') {
-
-                    $reminder->update([
-                        'reminder_date' => now()->addDay(),
-                        'email_sent' => 0
-                    ]);
-
-                } elseif ($reminder->type === 'weekly') {
-
-                    $reminder->update([
-                        'reminder_date' => now()->addWeek(),
-                        'email_sent' => 0
-                    ]);
-
-                } elseif ($reminder->type === 'biweekly') {
-
-                    $reminder->update([
-                        'reminder_date' => now()->addDays(15),
-                        'email_sent' => 0
-                    ]);
-
-                } elseif ($reminder->type === 'monthly') {
-
-                    $reminder->update([
-                        'reminder_date' => now()->addMonth(),
-                        'email_sent' => 0
-                    ]);
-
-                } else {
-
-                    // one-time
                     $reminder->update([
                         'email_sent' => 1
                     ]);
-                }
 
                 $this->info("Reminder updated: {$reminder->id}");
 
