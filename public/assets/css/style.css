@@ -2380,6 +2380,12 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     text-align: left;
     vertical-align: middle;
 }
+.tickettasks th {
+    background: #4154f1;
+    color: white;
+    text-align: left;
+    vertical-align: middle;
+}
 .line-space {
     line-height: 40px;
 }
@@ -2422,10 +2428,10 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
 
 
 .comment-design .comment-bubble {
-    flex: 1; 
+    flex: 1;
     padding: 15px 20px;
     font-size: 0.95rem;
-    
+
     overflow-wrap: break-word;
     display: inline-block;
 }
@@ -2436,9 +2442,9 @@ button.btn.btn-warning.btn-sm.btn-hold.me-1.d-none{
     color: #012970;
     text-align: right;
     background: #e1e0e0;
-    border-radius: 20px 20px 5px 20px; 
+    border-radius: 20px 20px 5px 20px;
     font-family: "Poppins", sans-serif;
- 
+
 }
 .comment-design
     h1 {
@@ -2615,7 +2621,7 @@ textarea#comment
     padding-left:12px;
 }
 
- 
+
 .blockquote h4:first-letter {
   margin-left:-12px;
 }
@@ -3130,7 +3136,7 @@ font-weight: 500;
 }
 
 @media (max-width: 767px) {
- 
+
   .blockquote h4 {
        padding-left: 0px;
        text-align: center;
@@ -3147,7 +3153,7 @@ font-weight: 500;
       row-gap: 10px;
       padding: 0;
    }
- 
+
   .pagetitle.scrumquotes {
      display: flex;
      flex-direction: column;
@@ -3166,7 +3172,7 @@ font-weight: 500;
   border-left: none;
   z-index: 3;
 }
- 
+
 .blockquote h1:before {
     content:"";
     position: absolute;
@@ -3176,7 +3182,7 @@ font-weight: 500;
     left: 50px;
     z-index: 2;
 }
- 
+
 }
 @media (max-width: 767px) {
   .detail-item strong {
@@ -3701,7 +3707,7 @@ span.badge.inactive {
 @media (max-width: 767px) {
         .main-section {
         width: 100%;
-      
+
         margin: auto;
     }
 }
@@ -3779,13 +3785,13 @@ div#notification_length {
     flex-wrap: wrap;
     gap: 50px;
     justify-content: center;
-    overflow-y: auto; 
+    overflow-y: auto;
     overflow-x: hidden;
     max-height: 600px;
     padding: 40px 0px;
     height: auto;
   }
-  
+
   .note {
     width: 300px;
     max-height: fit-content;
@@ -3801,11 +3807,11 @@ div#notification_length {
     transition: all 0.3s ease-in-out;
     transform: rotate(0deg);
   }
-  
+
   .note.expanded {
     max-height: none;
   }
-  
+
   .note:hover {
     transform: rotate(0deg) scale(1.05) !important; /* Ensure hover state works */
     box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.25);
@@ -3813,26 +3819,26 @@ div#notification_length {
     -webkit-box-shadow: 10px 10px 7px rgba(0, 0, 0, .2);
     -webkit-transform: scale(1.1);
   }
-  
+
   .note-title,
   .note-body {
     border: none;
     outline: none;
     background: transparent;
   }
-  
+
   .note-title {
     font-weight: bold;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .note-body {
     font-size: 1rem;
     white-space: pre-wrap;
     word-wrap: break-word;
   }
-  
+
   .read-more-link {
     font-size: 0.85rem;
     color: #007bff;
@@ -3840,7 +3846,7 @@ div#notification_length {
     margin-top: 0.3rem;
     display: inline-block;
   }
-  
+
   .delete-btn {
     position: absolute;
     top: 6px;
@@ -3849,7 +3855,7 @@ div#notification_length {
     font-size: 1.2rem;
     cursor: pointer;
   }
-  
+
   .dots-menu {
     position: absolute;
     top: 6px;
@@ -3858,7 +3864,7 @@ div#notification_length {
     font-size: 1.2rem;
     cursor: pointer;
   }
-  
+
   .add-note {
     width: 250px;
     height: 250px;
@@ -3874,12 +3880,12 @@ div#notification_length {
     transition: 0.3s;
     transform: rotate(-5deg) scale(1.02);
   }
-  
+
   .add-note:hover {
     background: #fdfdfd;
     transform: rotate(0deg) scale(1.05) !important;
   }
-  
+
   @keyframes popIn {
     from {
       transform: scale(0.6) rotate(10deg);
@@ -3890,17 +3896,17 @@ div#notification_length {
       opacity: 1;
     }
   }
-  
+
   .color-yellow { background: #fff9a0; }
   .color-green  { background: #d4f4be; }
   .color-blue   { background: #cce5ff; }
   .color-pink   { background: #ffd6e0; }
   .color-purple { background: #ede7f6; }
-  
+
   .note:nth-child(odd) {
     transform: rotate(-3deg) scale(1.02);
   }
-   
+
   .note:nth-child(even) {
     transform: rotate(4deg) scale(1.02);
   }
@@ -3911,13 +3917,13 @@ div#notification_length {
     margin-top: 30px; /* Reduced margin for a more compact look */
     color: #000000; /* A darker color for the text to ensure readability */
   }
-  
+
   .vbo-sticky-note-sign-dt {
     display: block; /* Ensures the date and time are on a new line */
     margin-bottom: 4px; /* Adds a little space between the date and user */
     text-transform: uppercase !important;
   }
-  
+
   .vbo-sticky-note-sign-user {
     font-weight: bold; /* Make the user name stand out */
     color: #085cb6; /* A blue color to highlight the username */
@@ -3933,7 +3939,7 @@ div#notification_length {
   .main-section {
   width: 100%;
 margin: auto;
-  
+
 }
 .row.row-design {
 display: flex;
@@ -3959,7 +3965,7 @@ div#addSprints .modal-header {
 div#addSprints .modal-content {
   width: 100% !important;
 }
-} 
+}
 h3.sticky-heading {
   color: #012999;
   font-family: "Poppins", sans-serif;
@@ -3986,7 +3992,7 @@ card.upcoming-holidays {
   margin-bottom: 0px !important;
 }
 
-.ql-container {   
+.ql-container {
   font-size: 16px !important;
 }
 div#dev-listing_filter {
@@ -4037,7 +4043,7 @@ div#tickets_filter {
   .ticket-design{
     display: flex;
     row-gap: 20px;
-  
+
   }
 
     .documents-grid {
@@ -4229,7 +4235,7 @@ span#unread-message-counts {
     }
 
     .msg-section-title {
-     
+
           color: #012999;
           font-family: "Poppins", sans-serif;
           font-size: 18px;
@@ -4246,7 +4252,7 @@ span#unread-message-counts {
         flex-direction: column;
         row-gap: 0px;
     }
-    
+
     .main-div {
         margin-bottom: 30px;
         /* background: #fff; */
@@ -4272,11 +4278,11 @@ span#unread-message-counts {
     @keyframes blinkDot {
       0%, 100% {
         opacity: 1;
-        
+
       }
       50% {
         opacity: 0.3;
-        
+
       }
     }
     .action_btn {
@@ -4458,7 +4464,7 @@ form#searchForm {
   gap: 6px;
   padding-right: 28px; /* extra space for the cross */
 }
- 
+
 #Projectsdata .ticketfile {
   position: absolute;
   right: 6px;
@@ -4489,13 +4495,13 @@ form#searchForm {
   align-items: start;
   gap: 0px;
 }
- 
+
 .notification-icon {
   font-size: 1rem;
   margin-top: 4px;
   color: #297bab !important;
 }
- 
+
 /* Bounce Animation */
 
 @keyframes bounce {
@@ -4506,7 +4512,7 @@ form#searchForm {
     transform: translateY(-3px);
   }
 }
- 
+
 .animate-bounce {
   animation: bounce 1s infinite;
 }

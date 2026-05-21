@@ -9,12 +9,7 @@
     text-align: center;
     border-radius: 5px;
     }
-    .reply-wrapper {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-top: 10px;
-}
+
 
 .reply-arrow {
     font-size: 14px;
@@ -28,10 +23,6 @@
     padding: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
-}
-
-.reply-card:hover {
-    background: #e5e7eb;
 }
 
 .reply-avatar img {
@@ -81,10 +72,22 @@
     color: #22c55e;
     cursor: pointer;
 }
-.message-box {
-    position: relative;
+.message-box{
+    display:flex;
+    flex-direction:column;
 }
 
+.reply-wrapper{
+    margin-top:10px;
+    margin-left:20px;
+}
+
+.reply-card{
+    background:#f5f5f5;
+    border-radius:10px;
+    padding:10px;
+    max-width:350px;
+}
 .reply-btn-inside {
     position: absolute;
     right: 10px;
@@ -861,228 +864,230 @@
             </div>
         </div>
     </div>
-    @if($ticketTodos->count() > 0)
-        <!-- ticket todo section -->
-        <div class="task-item mt-3 mb-3">
+    <div class="container">
+        @if($ticketTodos->count() > 0)
+            <!-- ticket todo section -->
+            <div class="task-card expanded ">
 
-            {{-- Header --}}
-            <div class="task-header"
-                onclick="toggleTodoSection(this)">
+                {{-- Header --}}
+                <div class="task-header"
+                    onclick="toggleTodoSection(this)">
 
-                <div class="task-icon">
-                    <i class="fa-solid fa-list-check"></i>
+                    <div class="task-icon">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+
+                    <div class="task-title">
+                        <h4 class="mb-0">
+                            Ticket Todos
+                        </h4>
+                    </div>
+
+                    <div class="task-toggle-icon">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
                 </div>
 
-                <div class="task-title">
-                    <h4 class="mb-0">
-                        Ticket Todos
-                    </h4>
-                </div>
+                {{-- Body --}}
+                <div class="task-details"
+                    style="display:none;">
 
-                <div class="task-toggle-icon">
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
+                    <div class="mt-3">
+                        {{-- Todo Table --}}
+                        <div class="table-responsive">
 
-            </div>
+                            <table class="table table-resposnive table-bordered tickettasks">
 
-            {{-- Body --}}
-            <div class="task-details"
-                style="display:none;">
+                                <thead>
 
-                <div class="mt-3">
-                    {{-- Todo Table --}}
-                    <div class="table-responsive">
+                                    <tr>
+                                        <th width="35%">Todo</th>
+                                        <th>Created At</th>
+                                        <th>Assigned To</th>
+                                        <th>Status</th>
+                                        <th width="180">Actions</th>
+                                    </tr>
 
-                        <table class="table table-bordered align-middle">
+                                </thead>
 
-                            <thead>
+                                <tbody>
 
-                                <tr>
-                                    <th width="35%">Todo</th>
-                                    <th>Created At</th>
-                                    <th>Assigned To</th>
-                                    <th>Status</th>
-                                    <th width="180">Actions</th>
-                                </tr>
+                                    @forelse($ticketTodos as $todo)
 
-                            </thead>
+                                        <tr id="todo_row_{{ $todo->id }}">
 
-                            <tbody>
+                                            {{-- Todo Text --}}
+                                            <td>
 
-                                @forelse($ticketTodos as $todo)
+                                                <div class="todo-title-view-{{ $todo->id }}">
+                                                    {{ $todo->title }}
+                                                </div>
 
-                                    <tr id="todo_row_{{ $todo->id }}">
+                                                {{-- Edit textarea --}}
+                                                <div class="todo-title-edit-{{ $todo->id }} d-none">
 
-                                        {{-- Todo Text --}}
-                                        <td>
-
-                                            <div class="todo-title-view-{{ $todo->id }}">
-                                                {{ $todo->title }}
-                                            </div>
-
-                                            {{-- Edit textarea --}}
-                                            <div class="todo-title-edit-{{ $todo->id }} d-none">
-
-                                                <textarea class="form-control todo-edit-text"
-                                                        rows="3"
-                                                        id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
-
-                                            </div>
-
-                                        </td>
-
-                                        {{-- Created --}}
-                                        <td>
-                                            {{ $todo->created_at->format('d M Y') }}
-                                        </td>
-
-                                        {{-- Assigned User --}}
-                                        <td>
-
-                                            <div class="todo-user-view-{{ $todo->id }}">
-
-                                                {{ $todo->assignedUser->first_name ?? 'N/A' }}
-
-                                            </div>
-
-                                            {{-- Edit Dropdown --}}
-                                            <div class="todo-user-edit-{{ $todo->id }} d-none">
-
-                                                <select class="form-control"
-                                                        id="todo_user_{{ $todo->id }}">
-
-                                                    @foreach($ticketAssign as $assign)
-
-                                                        @if($assign->user)
-
-                                                            <option value="{{ $assign->user->id }}"
-                                                                {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
-
-                                                                {{ $assign->user->first_name }}
-
-                                                            </option>
-
-                                                        @endif
-
-                                                    @endforeach
-
-                                                </select>
-
-                                            </div>
-
-                                        </td>
-
-                                        {{-- Status --}}
-                                        <td>
-
-                                            <span class="badge"
-
-                                                @if($todo->status == 'completed')
-
-                                                    style="background:green;border-radius:20px;"
-
-                                                @elseif($todo->status == 'hold')
-
-                                                    style="background:#ffc720;border-radius:20px;"
-
-                                                @else
-
-                                                    style="background:#4154f1;border-radius:20px;"
-
-                                                @endif>
-
-                                                {{ ucfirst($todo->status) }}
-
-                                            </span>
-
-                                        </td>
-
-                                        {{-- Actions --}}
-                                        <td>
-                                            @php
-                                                $authUser = auth()->user();
-                                                $canManageTodo =
-                                                $authUser->role->name === 'Super Admin'
-                                                || $authUser->role->name === 'Admin'
-                                                || $authUser->id == $todo->user_id;
-                                            @endphp
-                                            @if($canManageTodo)
-
-                                                <div class="d-flex align-items-center gap-2">
-
-                                                    {{-- Hold --}}
-                                                    @if($todo->status == 'open')
-                                                        <button class="btn btn-warning btn-sm"
-                                                                onclick="holdTask({{ $todo->id }})">
-                                                            Hold
-                                                        </button>
-                                                    @endif
-
-                                                    {{-- Reopen --}}
-                                                    @if($todo->status != 'open')
-                                                        <button type="button"
-                                                                class="btn btn-primary btn-sm"
-                                                                onclick="reopenTask({{ $todo->id }})">
-                                                            Reopen
-                                                        </button>
-                                                    @endif
-
-                                                    {{-- Complete --}}
-                                                    @if($todo->status != 'completed')
-                                                        <button class="btn btn-success btn-sm"
-                                                                onclick="completeTodo({{ $todo->id }})">
-                                                            Complete
-                                                        </button>
-                                                    @endif
-
-                                                    {{-- Edit --}}
-                                                    <i class="fas fa-edit text-dark cursor-pointer"
-                                                    onclick="openEditTodoModal(
-                                                            '{{ $todo->id }}',
-                                                            `{{ $todo->title }}`,
-                                                            '{{ $todo->user_id }}'
-                                                    )"></i>
-
-                                                    {{-- Delete --}}
-                                                    <i class="fas fa-trash-alt text-danger cursor-pointer"
-                                                    onclick="confirmDelete({{ $todo->id }})"></i>
+                                                    <textarea class="form-control todo-edit-text"
+                                                            rows="3"
+                                                            id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
 
                                                 </div>
 
-                                            @else
+                                            </td>
 
-                                                <span class="text-muted">No actions allowed</span>
+                                            {{-- Created --}}
+                                            <td>
+                                                {{ $todo->created_at->format('d M Y') }}
+                                            </td>
 
-                                            @endif
+                                            {{-- Assigned User --}}
+                                            <td>
 
-                                        </td>
+                                                <div class="todo-user-view-{{ $todo->id }}">
 
-                                    </tr>
+                                                    {{ $todo->assignedUser->first_name ?? 'N/A' }}
 
-                                @empty
+                                                </div>
 
-                                    <tr>
+                                                {{-- Edit Dropdown --}}
+                                                <div class="todo-user-edit-{{ $todo->id }} d-none">
 
-                                        <td colspan="5" class="text-center">
-                                            No todos found
-                                        </td>
+                                                    <select class="form-control"
+                                                            id="todo_user_{{ $todo->id }}">
 
-                                    </tr>
+                                                        @foreach($ticketAssign as $assign)
 
-                                @endforelse
+                                                            @if($assign->user)
 
-                            </tbody>
+                                                                <option value="{{ $assign->user->id }}"
+                                                                    {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
 
-                        </table>
+                                                                    {{ $assign->user->first_name }}
+
+                                                                </option>
+
+                                                            @endif
+
+                                                        @endforeach
+
+                                                    </select>
+
+                                                </div>
+
+                                            </td>
+
+                                            {{-- Status --}}
+                                            <td>
+
+                                                <span class="badge"
+
+                                                    @if($todo->status == 'completed')
+
+                                                        style="background:green;border-radius:20px;"
+
+                                                    @elseif($todo->status == 'hold')
+
+                                                        style="background:#ffc720;border-radius:20px;"
+
+                                                    @else
+
+                                                        style="background:#4154f1;border-radius:20px;"
+
+                                                    @endif>
+
+                                                    {{ ucfirst($todo->status) }}
+
+                                                </span>
+
+                                            </td>
+
+                                            {{-- Actions --}}
+                                            <td>
+                                                @php
+                                                    $authUser = auth()->user();
+                                                    $canManageTodo =
+                                                    $authUser->role->name === 'Super Admin'
+                                                    || $authUser->role->name === 'Admin'
+                                                    || $authUser->id == $todo->user_id;
+                                                @endphp
+                                                @if($canManageTodo)
+
+                                                    <div class="d-flex align-items-center gap-2">
+
+                                                        {{-- Hold --}}
+                                                        @if($todo->status == 'open')
+                                                            <button class="btn btn-warning btn-sm"
+                                                                    onclick="holdTask({{ $todo->id }})">
+                                                                Hold
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Reopen --}}
+                                                        @if($todo->status != 'open')
+                                                            <button type="button"
+                                                                    class="btn btn-primary btn-sm"
+                                                                    onclick="reopenTask({{ $todo->id }})">
+                                                                Reopen
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Complete --}}
+                                                        @if($todo->status != 'completed')
+                                                            <button class="btn btn-success btn-sm"
+                                                                    onclick="completeTodo({{ $todo->id }})">
+                                                                Complete
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Edit --}}
+                                                        <i class="fas fa-edit text-dark cursor-pointer"
+                                                        onclick="openEditTodoModal(
+                                                                '{{ $todo->id }}',
+                                                                `{{ $todo->title }}`,
+                                                                '{{ $todo->user_id }}'
+                                                        )"></i>
+
+                                                        {{-- Delete --}}
+                                                        <i class="fas fa-trash-alt text-danger cursor-pointer"
+                                                        onclick="confirmDelete({{ $todo->id }})"></i>
+
+                                                    </div>
+
+                                                @else
+
+                                                    <span class="text-muted">No actions allowed</span>
+
+                                                @endif
+
+                                            </td>
+
+                                        </tr>
+
+                                    @empty
+
+                                        <tr>
+
+                                            <td colspan="5" class="text-center">
+                                                No todos found
+                                            </td>
+
+                                        </tr>
+
+                                    @endforelse
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
 
                     </div>
 
                 </div>
 
             </div>
-
-        </div>
-    @endif
+        @endif
+    </div>
           <div class="main-section">
             <!-- <div class="msger-header">
                 <h1>Comments</h1>
@@ -1366,53 +1371,113 @@
                                         @endif
 
                                         {{-- MESSAGE BODY --}}
-                                        <div class="text message-box d-flex justify-content-between align-items-start">
+<div class="text message-box">
 
-                                            {{-- LEFT SIDE: COMMENT --}}
-                                            <div class="comment-content" style="word-break:auto-phrase; flex: 1;">
-                                                {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
-                                            </div>
+    {{-- TOP ROW --}}
+    <div class="d-flex justify-content-between align-items-start">
 
-                                            {{-- RIGHT SIDE: ACTIONS --}}
-                                            <div class="comment-actions d-flex gap-2 ms-2">
+        {{-- COMMENT --}}
+        <div style="word-break:auto-phrase; flex:1;">
+            {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+        </div>
 
-                                                {{-- REPLY --}}
-                                                @if(Auth::id() != $data->comment_by)
-                                                    <button type="button"
-                                                            class="reply-btn-inside"
-                                                            data-id="{{ $data->id }}"
-                                                            data-message="{{ strip_tags($data->comments) }}"
-                                                            data-user="{{ $data->user->first_name }}">
-                                                        <i class="fa fa-reply"></i>
-                                                    </button>
-                                                @endif
+        {{-- ACTIONS --}}
+        <div class="comment-actions d-flex gap-2 ms-2">
 
-                                                {{-- EDIT/DELETE --}}
-                                                @php
-                                                    $canEdit = Auth::id() == $data->comment_by
-                                                        && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
-                                                @endphp
+            @if(Auth::id() != $data->comment_by)
+                <button type="button"
+                        class="reply-btn-inside"
+                        data-id="{{ $data->id }}"
+                        data-message="{{ strip_tags($data->comments) }}"
+                        data-user="{{ $data->user->first_name }}">
+                    <i class="fa fa-reply"></i>
+                </button>
+            @endif
 
-                                                @if($canEdit)
+            @php
+                $canEdit = Auth::id() == $data->comment_by
+                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
+            @endphp
 
-                                                    <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
-                                                            data-id="{{ $data->id }}"
-                                                            title="Delete Comment">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </button>
+            @if($canEdit)
 
-                                                    <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
-                                                            data-comment-id="{{ $data->id }}"
-                                                            data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}"
-                                                            title="Edit Comment">
-                                                        <i class="fa-solid fa-pen-to-square"></i>
-                                                    </button>
+                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
+                        data-id="{{ $data->id }}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
 
-                                                @endif
+                <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                        data-comment-id="{{ $data->id }}"
+                        data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
 
-                                            </div>
+            @endif
 
-                                        </div>
+        </div>
+
+    </div>
+
+    {{-- REPLY SECTION --}}
+    @if($data->reply_to)
+
+        @php
+            $parent = $CommentsData->firstWhere('id', $data->reply_to);
+        @endphp
+
+        @if($parent)
+
+            <div class="reply-wrapper mt-2 d-flex align-items-start gap-2">
+
+                <div class="reply-arrow">
+                    <i class="fa-solid fa-reply"
+                       style="transform: rotate(180deg);"></i>
+                </div>
+
+                <div class="reply-card"
+                     data-scroll-id="comment-{{ $parent->id }}">
+
+                    <div class="reply-top d-flex align-items-start gap-2">
+
+                        <div class="reply-avatar">
+                            @if(!empty($parent->user->profile_picture))
+                                <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
+                                     class="rounded-circle"
+                                     width="34"
+                                     height="34">
+                            @else
+                                <div class="avatar-fallback">
+                                    {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="reply-content">
+
+                            <div class="reply-header">
+                                {{ $parent->user->first_name ?? 'User' }}
+
+                                <span class="reply-time">
+                                    {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
+                                </span>
+                            </div>
+
+                            <div class="reply-text">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
+    @endif
+
+</div>
 
                                     </div>
 
