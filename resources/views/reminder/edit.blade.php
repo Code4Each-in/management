@@ -77,9 +77,7 @@
         </div>
           <!-- Show Assign to User field only if user is Super Admin or Manager -->
         @php
-            $selectedUserIds = is_array($reminder->user_id)
-                ? $reminder->user_id
-                : json_decode($reminder->user_id, true);
+            $selectedUserIds = $reminder->user_id ?? [];
         @endphp
 
         @if (in_array(auth()->user()->role->name, ['Super Admin', 'Manager']))

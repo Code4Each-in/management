@@ -15,8 +15,10 @@ class ReminderController extends Controller
     {
         $user = auth()->user()->load('role');
         $reminders = $this->isAdmin($user)
-            ? Reminder::with('user')->get()  // Admins/Managers can view all reminders
-            : Reminder::where('user_id', $user->id)->get();  // Regular users can view only their own reminders
+                ? Reminder::get()
+                : Reminder::whereJsonContains('user_id', (string) $user->id)
+                    ->orWhereJsonContains('user_id', $user->id)
+                    ->get();  // Regular users can view only their own reminders
         $users = $this->isAdmin($user)
             ? Users::select('id', 'first_name')->get()  // Fetch users for assignment
             : [];
@@ -32,7 +34,9 @@ class ReminderController extends Controller
             'description' => 'required',
             'weekly_day' => 'required_if:type,weekly|nullable|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
             'monthly_date' => 'required_if:type,monthly|nullable|integer|min:1|max:31',
-            'user_id' => 'nullable|exists:users,id', // Ensure this validation
+            // 'user_id' => 'nullable|exists:users,id', // Ensure this validation
+            'user_id' => 'nullable|array',
+            'user_id.*' => 'exists:users,id',
             'custom_date' => 'required_if:type,custom|nullable|date|after:today',  // Custom date validation
         ], [
             'type.required' => 'The type field is required.',
@@ -88,9 +92,10 @@ class ReminderController extends Controller
             $userIds = array_map('intval', $userIds);
             $userIds[] = auth()->id();
 
-            $data['user_id'] = json_encode(array_values(array_unique($userIds)));
+            // $data['user_id'] = json_encode(array_values(array_unique($userIds)));
+            $data['user_id'] = array_values(array_unique($userIds));
         } else {
-            $data['user_id'] = auth()->id();
+            $data['user_id'] = [auth()->id()];
         }
 
         $reminder = Reminder::create($data);
@@ -147,7 +152,9 @@ class ReminderController extends Controller
         $user = auth()->user()->load('role');
         $reminders = ($user->role->name === 'Super Admin' || $user->role->name === 'Manager')
             ? Reminder::all()  // Super Admins/Managers see all reminders
-            : Reminder::where('user_id', auth()->id())->get();  // Regular users only see their own
+            : Reminder::whereJsonContains('user_id', (string) auth()->id())
+                ->orWhereJsonContains('user_id', auth()->id())
+                ->get();  // Regular users only see their own
 
         return view('reminder.indexing', compact('reminders'));
     }
@@ -208,7 +215,7 @@ class ReminderController extends Controller
             $userIds[] = auth()->id();
         }
 
-        $data['user_id'] = json_encode($userIds);
+        $data['user_id'] = $userIds;
 
         $now = Carbon::now();
 
