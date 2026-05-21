@@ -43,6 +43,9 @@ class DashboardController extends Controller
             'to_do' => 0,
             'pending_approval' => 0,
         ];
+        $ticketTodoCount = TodoList::whereNotNull('ticket_id')
+            ->where('user_id', Auth::id())
+            ->count();
         $clientProjectCount = 0;
         $clientTicketCount = 0;
         $tasks = TodoList::where('user_id', Auth::id())
@@ -145,7 +148,8 @@ class DashboardController extends Controller
                     ->whereDoesntHave('estimationApproval')
                     ->count(),
             ];
-
+            $ticketTodoCount = TodoList::whereNotNull('ticket_id')
+                ->count();
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
                 ->whereYear('created_at', $currentYear)
@@ -685,6 +689,7 @@ class DashboardController extends Controller
             'attendance',
             'inTime',
             'outTime',
+            'ticketTodoCount',
             'announcements','avgResponseFormatted', 'avgResponseSeconds'
         ));
     }
