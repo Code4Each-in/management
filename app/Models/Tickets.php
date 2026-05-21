@@ -20,17 +20,17 @@ class Tickets extends Model
         'project_id',
         'assign',
         'eta',
-        'ticket_priority', 
+        'ticket_priority',
         'ticket_category',
         'time_estimation',
-        'upload',   
-        'status', 
-        'status_changed_by', 
-        'created_by', 
+        'upload',
+        'status',
+        'status_changed_by',
+        'created_by',
         'priority',
-        'comment', 
+        'comment',
         'is_pinned',
-        'sprint_id'  
+        'sprint_id'
     ];
     public function ticketAssigns()
     {
@@ -42,7 +42,7 @@ class Tickets extends Model
         return $this->belongsTo(Projects::class, 'project_id', 'id');
     }
 
-    public function ticketby() 
+    public function ticketby()
     {
         return $this->belongsTo(Users::class, 'created_by', 'id');
     }
@@ -66,5 +66,8 @@ class Tickets extends Model
     {
         return $this->hasMany(TicketWorkLog::class, 'ticket_id');
     }
-
+    public function todos()
+    {
+        return $this->hasMany(TodoList::class, 'ticket_id');
+    }
 }

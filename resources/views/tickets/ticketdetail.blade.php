@@ -216,6 +216,14 @@
     <a href="{{ url('/edit/ticket/'.$tickets->id) }}?source=sprint" class="btn btn-primary">
         Edit Ticket
     </a>
+    {{-- Add Todo Button --}}
+    <button type="button"
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#ticketTodoModal">
+        Add Todo
+    </button>
+
 
 </div>
 <div id="loader">
@@ -644,6 +652,432 @@
     </div>
 </div>
 
+    <!-- modal for adding todo -->
+    <div class="modal fade"
+        id="ticketTodoModal"
+        tabindex="-1"
+        aria-labelledby="ticketTodoModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form method="POST"
+                    action="{{ route('todo_list.store') }}">
+
+                    @csrf
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title"
+                            id="ticketTodoModalLabel">
+                            Create Ticket Todo
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        {{-- Hidden Ticket ID --}}
+                        <input type="hidden"
+                            name="ticket_id"
+                            value="{{ $tickets->id }}">
+
+                        {{-- Todo Title --}}
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Todo Title
+                            </label>
+
+                            <textarea name="title"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Enter todo details..."
+                                    required></textarea>
+
+                        </div>
+
+                        {{-- Assign Developer --}}
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Assign Developer
+                            </label>
+
+                            <select name="assigned_user_id"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+                                    Select Developer
+                                </option>
+
+                                @foreach($ticketAssign as $assign)
+
+                                    @if($assign->user)
+
+                                        <option value="{{ $assign->user->id }}">
+
+                                            {{ $assign->user->first_name }}
+                                            {{ $assign->user->last_name ?? '' }}
+
+                                        </option>
+
+                                    @endif
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Close
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Create Todo
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <!-- Edit Todo Modal -->
+    <div class="modal fade"
+        id="editTodoModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form id="editTodoForm">
+
+                    @csrf
+                    @method('PUT')
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title">
+                            Edit Todo
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"></button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden"
+                            id="edit_todo_id">
+
+                        {{-- Todo --}}
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Todo
+                            </label>
+
+                            <textarea class="form-control"
+                                    rows="4"
+                                    name="title"
+                                    id="edit_todo_title"
+                                    required></textarea>
+
+                        </div>
+
+                        {{-- Assign User --}}
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Assign User
+                            </label>
+
+                            <select class="form-control"
+                                    name="assigned_user_id"
+                                    id="edit_assigned_user">
+
+                                @foreach($ticketAssign as $assign)
+
+                                    @if($assign->user)
+
+                                        <option value="{{ $assign->user->id }}">
+
+                                            {{ $assign->user->first_name }}
+
+                                        </option>
+
+                                    @endif
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Close
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Update Todo
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    @if($ticketTodos->count() > 0)
+        <!-- ticket todo section -->
+        <div class="task-item mt-3 mb-3">
+
+            {{-- Header --}}
+            <div class="task-header"
+                onclick="toggleTodoSection(this)">
+
+                <div class="task-icon">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+
+                <div class="task-title">
+                    <h4 class="mb-0">
+                        Ticket Todos
+                    </h4>
+                </div>
+
+                <div class="task-toggle-icon">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+
+            </div>
+
+            {{-- Body --}}
+            <div class="task-details"
+                style="display:none;">
+
+                <div class="mt-3">
+                    {{-- Todo Table --}}
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered align-middle">
+
+                            <thead>
+
+                                <tr>
+                                    <th width="35%">Todo</th>
+                                    <th>Created At</th>
+                                    <th>Assigned To</th>
+                                    <th>Status</th>
+                                    <th width="180">Actions</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @forelse($ticketTodos as $todo)
+
+                                    <tr id="todo_row_{{ $todo->id }}">
+
+                                        {{-- Todo Text --}}
+                                        <td>
+
+                                            <div class="todo-title-view-{{ $todo->id }}">
+                                                {{ $todo->title }}
+                                            </div>
+
+                                            {{-- Edit textarea --}}
+                                            <div class="todo-title-edit-{{ $todo->id }} d-none">
+
+                                                <textarea class="form-control todo-edit-text"
+                                                        rows="3"
+                                                        id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
+
+                                            </div>
+
+                                        </td>
+
+                                        {{-- Created --}}
+                                        <td>
+                                            {{ $todo->created_at->format('d M Y') }}
+                                        </td>
+
+                                        {{-- Assigned User --}}
+                                        <td>
+
+                                            <div class="todo-user-view-{{ $todo->id }}">
+
+                                                {{ $todo->assignedUser->first_name ?? 'N/A' }}
+
+                                            </div>
+
+                                            {{-- Edit Dropdown --}}
+                                            <div class="todo-user-edit-{{ $todo->id }} d-none">
+
+                                                <select class="form-control"
+                                                        id="todo_user_{{ $todo->id }}">
+
+                                                    @foreach($ticketAssign as $assign)
+
+                                                        @if($assign->user)
+
+                                                            <option value="{{ $assign->user->id }}"
+                                                                {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
+
+                                                                {{ $assign->user->first_name }}
+
+                                                            </option>
+
+                                                        @endif
+
+                                                    @endforeach
+
+                                                </select>
+
+                                            </div>
+
+                                        </td>
+
+                                        {{-- Status --}}
+                                        <td>
+
+                                            <span class="badge"
+
+                                                @if($todo->status == 'completed')
+
+                                                    style="background:green;border-radius:20px;"
+
+                                                @elseif($todo->status == 'hold')
+
+                                                    style="background:#ffc720;border-radius:20px;"
+
+                                                @else
+
+                                                    style="background:#4154f1;border-radius:20px;"
+
+                                                @endif>
+
+                                                {{ ucfirst($todo->status) }}
+
+                                            </span>
+
+                                        </td>
+
+                                        {{-- Actions --}}
+                                        <td>
+                                            @php
+                                                $authUser = auth()->user();
+                                                $canManageTodo =
+                                                $authUser->role->name === 'Super Admin'
+                                                || $authUser->role->name === 'Admin'
+                                                || $authUser->id == $todo->user_id;
+                                            @endphp
+                                            @if($canManageTodo)
+
+                                                <div class="d-flex align-items-center gap-2">
+
+                                                    {{-- Hold --}}
+                                                    @if($todo->status == 'open')
+                                                        <button class="btn btn-warning btn-sm"
+                                                                onclick="holdTask({{ $todo->id }})">
+                                                            Hold
+                                                        </button>
+                                                    @endif
+
+                                                    {{-- Reopen --}}
+                                                    @if($todo->status != 'open')
+                                                        <button type="button"
+                                                                class="btn btn-primary btn-sm"
+                                                                onclick="reopenTask({{ $todo->id }})">
+                                                            Reopen
+                                                        </button>
+                                                    @endif
+
+                                                    {{-- Complete --}}
+                                                    @if($todo->status != 'completed')
+                                                        <button class="btn btn-success btn-sm"
+                                                                onclick="completeTodo({{ $todo->id }})">
+                                                            Complete
+                                                        </button>
+                                                    @endif
+
+                                                    {{-- Edit --}}
+                                                    <i class="fas fa-edit text-dark cursor-pointer"
+                                                    onclick="openEditTodoModal(
+                                                            '{{ $todo->id }}',
+                                                            `{{ $todo->title }}`,
+                                                            '{{ $todo->user_id }}'
+                                                    )"></i>
+
+                                                    {{-- Delete --}}
+                                                    <i class="fas fa-trash-alt text-danger cursor-pointer"
+                                                    onclick="confirmDelete({{ $todo->id }})"></i>
+
+                                                </div>
+
+                                            @else
+
+                                                <span class="text-muted">No actions allowed</span>
+
+                                            @endif
+
+                                        </td>
+
+                                    </tr>
+
+                                @empty
+
+                                    <tr>
+
+                                        <td colspan="5" class="text-center">
+                                            No todos found
+                                        </td>
+
+                                    </tr>
+
+                                @endforelse
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endif
           <div class="main-section">
             <!-- <div class="msger-header">
                 <h1>Comments</h1>
@@ -1466,7 +1900,154 @@
       const card = headerElement.closest('.task-card');
       card.classList.toggle('expanded');
   }
+    // todo list
+    function toggleTodoSection(element)
+    {
+        let details = element.nextElementSibling;
 
+        if(details.style.display === 'none')
+        {
+            details.style.display = 'block';
+        }
+        else
+        {
+            details.style.display = 'none';
+        }
+    }
+    function openEditTodoModal(id, title, userId)
+    {
+        $('#edit_todo_id').val(id); // MUST NOT be empty
+
+        $('#edit_todo_title').val(title);
+
+        $('#edit_assigned_user').val(userId);
+
+        $('#editTodoModal').modal('show');
+    }
+    $('#editTodoForm').submit(function(e){
+
+        e.preventDefault();
+
+        let todoId = $('#edit_todo_id').val();
+
+        $.ajax({
+
+            url: "/todo_list/" + todoId,
+            type: "POST",
+
+            data: {
+                _token: "{{ csrf_token() }}",
+                _method: "PUT",
+
+                title: $('#edit_todo_title').val(),
+                assigned_user_id: $('#edit_assigned_user').val()
+            },
+
+            success: function(response){
+
+                location.reload();
+
+            },
+
+            error: function(xhr){
+
+                console.log(xhr.responseText);
+
+                alert("Update failed");
+            }
+
+        });
+
+    });
+    function holdTask(taskId) {
+            $.ajax({
+                type: 'PUT',
+                url: "{{ url('/todo_list') }}/" + taskId + "/hold",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    console.log("Task put on hold:", response);
+
+                    let taskItem = $("#task_" + taskId); // ✅ Correctly select task row
+                    taskItem.removeClass('completed').addClass('hold');
+
+                    taskItem.find('input[type="checkbox"]').hide();
+                    taskItem.find('.btn-reopen-hold .btn-hold').hide();
+                    taskItem.find('.btn-reopen-hold .btn-primary').show();
+
+                    location.reload(); // ✅ Refresh to reflect changes
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Failed to put task on hold. Please check the console for details.");
+                }
+            });
+    }
+    function reopenTask(taskId)
+    {
+        $.ajax({
+            type: 'PUT',
+            url: "{{ url('/todo_list') }}/" + taskId + "/status",
+            data: {
+                status: 'open',
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    }
+    // delet todo
+    window.confirmDelete = function (id) {
+        if (confirm("Are you sure you want to delete this personal task?")) {
+            $.ajax({
+                type: 'DELETE',
+                url: "{{ url('/todo_list') }}/" + id,
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    $('#todo_row_' + id).remove();
+                    alert("Ticket todo task deleted successfully!");
+                },
+                error: function(error) {
+                    console.log(error);
+                    alert("Error deleting ticket todo task.");
+                }
+            });
+        }
+    };
+    function completeTodo(taskId) {
+
+        $.ajax({
+            type: 'PUT',
+            url: "{{ url('/todo_list') }}/" + taskId + "/status",
+            data: {
+                _token: "{{ csrf_token() }}",
+                status: "completed"
+            },
+            success: function(response) {
+
+                console.log("Task completed:", response);
+
+                let taskItem = $("#todo_row_" + taskId);
+
+                taskItem.removeClass('open hold').addClass('completed');
+
+                location.reload(); // keep simple like your hold function
+
+            },
+            error: function(xhr) {
+
+                console.error("Error:", xhr.responseText);
+                alert("Failed to complete task.");
+            }
+        });
+    }
   document.addEventListener('click', function (e) {
     const btn = e.target.closest('.share-comment');
     if (!btn) return;

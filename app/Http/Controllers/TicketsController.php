@@ -8,6 +8,7 @@ use App\Models\Users;
 use App\Models\Tickets;
 use App\Models\TicketAssigns;
 use App\Models\TicketComments;
+use App\Models\TodoList;
 use App\Models\TicketFiles;
 use App\Models\Client;
 use App\Notifications\EmailNotification;
@@ -1064,8 +1065,16 @@ class TicketsController extends Controller
         $remainingHours = $tickets->time_estimation - $spentHours;
 
         $ticketsCreatedByUser = Tickets::with('ticketby')->where('id',$ticketId)->first();
+        $ticketTodos = TodoList::with([
+            'assignedUser',
+            'creator',
+            'completedUser'
+        ])
+        ->where('ticket_id', $ticketId)
+        ->latest()
+        ->get();
 
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours'));
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos'));
 
     }
 
