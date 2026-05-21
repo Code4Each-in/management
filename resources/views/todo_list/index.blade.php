@@ -139,9 +139,6 @@
 </div>
 @endif
 
-
-
-
 @endsection
 @section('js_scripts')
 <script>
