@@ -148,7 +148,8 @@ class DashboardController extends Controller
                     ->whereDoesntHave('estimationApproval')
                     ->count(),
             ];
-
+            $ticketTodoCount = TodoList::whereNotNull('ticket_id')
+                ->count();
             $notifications = TicketComments::where('comments', '!=', '')
                 ->where('comment_by', '!=', auth()->id())
                 ->whereYear('created_at', $currentYear)

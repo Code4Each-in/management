@@ -217,12 +217,17 @@
         Edit Ticket
     </a>
     {{-- Add Todo Button --}}
-    <button type="button"
-            class="btn btn-success"
-            data-bs-toggle="modal"
-            data-bs-target="#ticketTodoModal">
-        Add Todo
-    </button>
+
+    @if(in_array(Auth::user()->role_id, [1,3]))
+
+        <button type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#ticketTodoModal">
+            Add Todo
+        </button>
+
+    @endif
 
 
 </div>
