@@ -857,220 +857,222 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        @if($ticketTodos->count() > 0)
-            <!-- ticket todo section -->
-            <div class="task-card">
+    @if(in_array(Auth::user()->role_id, [1,3]))
+        <div class="container">
+            @if($ticketTodos->count() > 0)
+                <!-- ticket todo section -->
+                <div class="task-card">
 
-                {{-- Header --}}
-                <div class="task-header"
-                    onclick="toggleTodoSection(this)">
+                    {{-- Header --}}
+                    <div class="task-header"
+                        onclick="toggleTodoSection(this)">
 
-                    <div class="task-icon">
-                        <i class="fa-solid fa-list-check"></i>
+                        <div class="task-icon">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+
+                        <div class="task-title">
+                            <h4 class="mb-0">
+                                Ticket Todos
+                            </h4>
+                        </div>
+
+                        <div class="task-toggle-icon">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+
                     </div>
 
-                    <div class="task-title">
-                        <h4 class="mb-0">
-                            Ticket Todos
-                        </h4>
-                    </div>
+                    {{-- Body --}}
+                    <div class="task-details"
+                        style="display:none;">
 
-                    <div class="task-toggle-icon">
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
+                        <div class="mt-3">
+                            {{-- Todo Table --}}
+                            <div class="table-responsive">
 
-                </div>
+                                <table class="table table-resposnive table-bordered tickettasks">
 
-                {{-- Body --}}
-                <div class="task-details"
-                    style="display:none;">
+                                    <thead>
 
-                    <div class="mt-3">
-                        {{-- Todo Table --}}
-                        <div class="table-responsive">
+                                        <tr>
+                                            <th width="35%">Todo</th>
+                                            <th>Created At</th>
+                                            <th>Assigned To</th>
+                                            <th>Status</th>
+                                            <th width="180">Actions</th>
+                                        </tr>
 
-                            <table class="table table-resposnive table-bordered tickettasks">
+                                    </thead>
 
-                                <thead>
+                                    <tbody>
 
-                                    <tr>
-                                        <th width="35%">Todo</th>
-                                        <th>Created At</th>
-                                        <th>Assigned To</th>
-                                        <th>Status</th>
-                                        <th width="180">Actions</th>
-                                    </tr>
+                                        @forelse($ticketTodos as $todo)
 
-                                </thead>
+                                            <tr id="todo_row_{{ $todo->id }}">
 
-                                <tbody>
+                                                {{-- Todo Text --}}
+                                                <td>
 
-                                    @forelse($ticketTodos as $todo)
+                                                    <div class="todo-title-view-{{ $todo->id }}">
+                                                        {{ $todo->title }}
+                                                    </div>
 
-                                        <tr id="todo_row_{{ $todo->id }}">
+                                                    {{-- Edit textarea --}}
+                                                    <div class="todo-title-edit-{{ $todo->id }} d-none">
 
-                                            {{-- Todo Text --}}
-                                            <td>
-
-                                                <div class="todo-title-view-{{ $todo->id }}">
-                                                    {{ $todo->title }}
-                                                </div>
-
-                                                {{-- Edit textarea --}}
-                                                <div class="todo-title-edit-{{ $todo->id }} d-none">
-
-                                                    <textarea class="form-control todo-edit-text"
-                                                            rows="3"
-                                                            id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
-
-                                                </div>
-
-                                            </td>
-
-                                            {{-- Created --}}
-                                            <td>
-                                                {{ $todo->created_at->format('d M Y') }}
-                                            </td>
-
-                                            {{-- Assigned User --}}
-                                            <td>
-
-                                                <div class="todo-user-view-{{ $todo->id }}">
-
-                                                    {{ $todo->assignedUser->first_name ?? 'N/A' }}
-
-                                                </div>
-
-                                                {{-- Edit Dropdown --}}
-                                                <div class="todo-user-edit-{{ $todo->id }} d-none">
-
-                                                    <select class="form-control"
-                                                            id="todo_user_{{ $todo->id }}">
-
-                                                        @foreach($ticketAssign as $assign)
-
-                                                            @if($assign->user)
-
-                                                                <option value="{{ $assign->user->id }}"
-                                                                    {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
-
-                                                                    {{ $assign->user->first_name }}
-
-                                                                </option>
-
-                                                            @endif
-
-                                                        @endforeach
-
-                                                    </select>
-
-                                                </div>
-
-                                            </td>
-
-                                            {{-- Status --}}
-                                            <td>
-
-                                                <span class="badge"
-
-                                                    @if($todo->status == 'completed')
-
-                                                        style="background:green;border-radius:20px;"
-
-                                                    @elseif($todo->status == 'hold')
-
-                                                        style="background:#ffc720;border-radius:20px;"
-
-                                                    @else
-
-                                                        style="background:#4154f1;border-radius:20px;"
-
-                                                    @endif>
-
-                                                    {{ ucfirst($todo->status) }}
-
-                                                </span>
-
-                                            </td>
-
-                                            {{-- Actions --}}
-                                            <td>
-
-                                                    <div class="d-flex align-items-center gap-2">
-
-                                                        {{-- Hold --}}
-                                                        @if($todo->status == 'open')
-                                                            <button class="btn btn-warning btn-sm"
-                                                                    onclick="holdTask({{ $todo->id }})">
-                                                                Hold
-                                                            </button>
-                                                        @endif
-
-                                                        {{-- Reopen --}}
-                                                        @if($todo->status != 'open')
-                                                            <button type="button"
-                                                                    class="btn btn-primary btn-sm"
-                                                                    onclick="reopenTask({{ $todo->id }})">
-                                                                Reopen
-                                                            </button>
-                                                        @endif
-
-                                                        {{-- Complete --}}
-                                                        @if($todo->status != 'completed')
-                                                            <button class="btn btn-success btn-sm"
-                                                                    onclick="completeTodo({{ $todo->id }})">
-                                                                Complete
-                                                            </button>
-                                                        @endif
-
-                                                        {{-- Edit --}}
-                                                        <i class="fas fa-edit text-dark cursor-pointer"
-                                                        onclick="openEditTodoModal(
-                                                                '{{ $todo->id }}',
-                                                                `{{ $todo->title }}`,
-                                                                '{{ $todo->user_id }}'
-                                                        )"></i>
-
-                                                        {{-- Delete --}}
-                                                        <i class="fas fa-trash-alt text-danger cursor-pointer"
-                                                        onclick="confirmDelete({{ $todo->id }})"></i>
+                                                        <textarea class="form-control todo-edit-text"
+                                                                rows="3"
+                                                                id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
 
                                                     </div>
 
+                                                </td>
+
+                                                {{-- Created --}}
+                                                <td>
+                                                    {{ $todo->created_at->format('d M Y') }}
+                                                </td>
+
+                                                {{-- Assigned User --}}
+                                                <td>
+
+                                                    <div class="todo-user-view-{{ $todo->id }}">
+
+                                                        {{ $todo->assignedUser->first_name ?? 'N/A' }}
+
+                                                    </div>
+
+                                                    {{-- Edit Dropdown --}}
+                                                    <div class="todo-user-edit-{{ $todo->id }} d-none">
+
+                                                        <select class="form-control"
+                                                                id="todo_user_{{ $todo->id }}">
+
+                                                            @foreach($ticketAssign as $assign)
+
+                                                                @if($assign->user)
+
+                                                                    <option value="{{ $assign->user->id }}"
+                                                                        {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
+
+                                                                        {{ $assign->user->first_name }}
+
+                                                                    </option>
+
+                                                                @endif
+
+                                                            @endforeach
+
+                                                        </select>
+
+                                                    </div>
+
+                                                </td>
+
+                                                {{-- Status --}}
+                                                <td>
+
+                                                    <span class="badge"
+
+                                                        @if($todo->status == 'completed')
+
+                                                            style="background:green;border-radius:20px;"
+
+                                                        @elseif($todo->status == 'hold')
+
+                                                            style="background:#ffc720;border-radius:20px;"
+
+                                                        @else
+
+                                                            style="background:#4154f1;border-radius:20px;"
+
+                                                        @endif>
+
+                                                        {{ ucfirst($todo->status) }}
+
+                                                    </span>
+
+                                                </td>
+
+                                                {{-- Actions --}}
+                                                <td>
+
+                                                        <div class="d-flex align-items-center gap-2">
+
+                                                            {{-- Hold --}}
+                                                            @if($todo->status == 'open')
+                                                                <button class="btn btn-warning btn-sm"
+                                                                        onclick="holdTask({{ $todo->id }})">
+                                                                    Hold
+                                                                </button>
+                                                            @endif
+
+                                                            {{-- Reopen --}}
+                                                            @if($todo->status != 'open')
+                                                                <button type="button"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        onclick="reopenTask({{ $todo->id }})">
+                                                                    Reopen
+                                                                </button>
+                                                            @endif
+
+                                                            {{-- Complete --}}
+                                                            @if($todo->status != 'completed')
+                                                                <button class="btn btn-success btn-sm"
+                                                                        onclick="completeTodo({{ $todo->id }})">
+                                                                    Complete
+                                                                </button>
+                                                            @endif
+
+                                                            {{-- Edit --}}
+                                                            <i class="fas fa-edit text-dark cursor-pointer"
+                                                            onclick="openEditTodoModal(
+                                                                    '{{ $todo->id }}',
+                                                                    `{{ $todo->title }}`,
+                                                                    '{{ $todo->user_id }}'
+                                                            )"></i>
+
+                                                            {{-- Delete --}}
+                                                            <i class="fas fa-trash-alt text-danger cursor-pointer"
+                                                            onclick="confirmDelete({{ $todo->id }})"></i>
+
+                                                        </div>
 
 
 
 
-                                            </td>
 
-                                        </tr>
+                                                </td>
 
-                                    @empty
+                                            </tr>
 
-                                        <tr>
+                                        @empty
 
-                                            <td colspan="5" class="text-center">
-                                                No todos found
-                                            </td>
+                                            <tr>
 
-                                        </tr>
+                                                <td colspan="5" class="text-center">
+                                                    No todos found
+                                                </td>
 
-                                    @endforelse
+                                            </tr>
 
-                                </tbody>
+                                        @endforelse
 
-                            </table>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
 
                         </div>
 
                     </div>
 
                 </div>
-
-            </div>
-        @endif
-    </div>
+            @endif
+        </div>
+    @endif
           <div class="main-section">
             <!-- <div class="msger-header">
                 <h1>Comments</h1>
