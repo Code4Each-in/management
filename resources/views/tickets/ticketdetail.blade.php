@@ -718,30 +718,26 @@
                                 Assign Developer
                             </label>
 
-                            <select name="assigned_user_id"
-                                    class="form-control"
-                                    required>
+                                <select name="assigned_user_id"
+                                        class="form-control"
+                                        required>
 
-                                <option value="">
-                                    Select Developer
-                                </option>
+                                    <option value="">
+                                        Select Developer
+                                    </option>
 
-                                @foreach($ticketAssign as $assign)
+                                    @foreach($developers as $developer)
 
-                                    @if($assign->user)
+                                        <option value="{{ $developer->id }}">
 
-                                        <option value="{{ $assign->user->id }}">
-
-                                            {{ $assign->user->first_name }}
-                                            {{ $assign->user->last_name ?? '' }}
+                                            {{ $developer->first_name }}
+                                            {{ $developer->last_name ?? '' }}
 
                                         </option>
 
-                                    @endif
+                                    @endforeach
 
-                                @endforeach
-
-                            </select>
+                                </select>
 
                         </div>
 
@@ -819,27 +815,24 @@
                             <label class="form-label">
                                 Assign User
                             </label>
+                                <select class="form-control"
+                                        name="assigned_user_id"
+                                        id="edit_assigned_user">
 
-                            <select class="form-control"
-                                    name="assigned_user_id"
-                                    id="edit_assigned_user">
+                                    <option value="">Select Developer</option>
 
-                                @foreach($ticketAssign as $assign)
+                                    @foreach($developers as $developer)
 
-                                    @if($assign->user)
+                                        <option value="{{ $developer->id }}"
+                                            id="dev_{{ $developer->id }}">
 
-                                        <option value="{{ $assign->user->id }}">
-
-                                            {{ $assign->user->first_name }}
+                                            {{ $developer->first_name }}
 
                                         </option>
 
-                                    @endif
+                                    @endforeach
 
-                                @endforeach
-
-                            </select>
-
+                                </select>
                         </div>
 
                     </div>
@@ -1003,14 +996,6 @@
 
                                             {{-- Actions --}}
                                             <td>
-                                                @php
-                                                    $authUser = auth()->user();
-                                                    $canManageTodo =
-                                                    $authUser->role->name === 'Super Admin'
-                                                    || $authUser->role->name === 'Admin'
-                                                    || $authUser->id == $todo->user_id;
-                                                @endphp
-                                                @if($canManageTodo)
 
                                                     <div class="d-flex align-items-center gap-2">
 
@@ -1053,11 +1038,9 @@
 
                                                     </div>
 
-                                                @else
 
-                                                    <span class="text-muted">No actions allowed</span>
 
-                                                @endif
+
 
                                             </td>
 
@@ -1371,138 +1354,113 @@
                                         @endif
 
                                         {{-- MESSAGE BODY --}}
-                                        <div class="text message-box">
+<div class="text message-box">
 
-                                                    {{-- TOP ROW --}}
-                                                    <div class="d-flex justify-content-between align-items-start">
+    {{-- TOP ROW --}}
+    <div class="d-flex justify-content-between align-items-start">
 
-                                                        {{-- COMMENT --}}
-                                                        <div style="word-break:auto-phrase; flex:1;">
-                                                            {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
-                                                        </div>
+        {{-- COMMENT --}}
+        <div style="word-break:auto-phrase; flex:1;">
+            {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+        </div>
 
-                                                        {{-- ACTIONS --}}
-                                                        <div class="comment-actions d-flex gap-2 ms-2">
+        {{-- ACTIONS --}}
+        <div class="comment-actions d-flex gap-2 ms-2">
 
-                                                            @if(Auth::id() != $data->comment_by)
-                                                                <button type="button"
-                                                                        class="reply-btn-inside"
-                                                                        data-id="{{ $data->id }}"
-                                                                        data-message="{{ strip_tags($data->comments) }}"
-                                                                        data-user="{{ $data->user->first_name }}">
-                                                                    <i class="fa fa-reply"></i>
-                                                                </button>
-                                                            @endif
+            @if(Auth::id() != $data->comment_by)
+                <button type="button"
+                        class="reply-btn-inside"
+                        data-id="{{ $data->id }}"
+                        data-message="{{ strip_tags($data->comments) }}"
+                        data-user="{{ $data->user->first_name }}">
+                    <i class="fa fa-reply"></i>
+                </button>
+            @endif
 
-                                                            @php
-                                                                $canEdit = Auth::id() == $data->comment_by
-                                                                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
-                                                            @endphp
+            @php
+                $canEdit = Auth::id() == $data->comment_by
+                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
+            @endphp
 
-                                                            @if($canEdit)
+            @if($canEdit)
 
-                                                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
-                                                                        data-id="{{ $data->id }}">
-                                                                    <i class="fa-solid fa-trash"></i>
-                                                                </button>
+                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
+                        data-id="{{ $data->id }}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
 
-                                                                <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
-                                                                        data-comment-id="{{ $data->id }}"
-                                                                        data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}">
-                                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                                </button>
+                <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                        data-comment-id="{{ $data->id }}"
+                        data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
 
-                                                            @endif
+            @endif
 
-                                                        </div>
+        </div>
 
-                                                    </div>
+    </div>
 
-                                                    {{-- REPLY SECTION --}}
-                                                    @if($data->reply_to)
+    {{-- REPLY SECTION --}}
+    @if($data->reply_to)
 
-                                                        @php
-                                                            $parent = $CommentsData->firstWhere('id', $data->reply_to);
-                                                        @endphp
+        @php
+            $parent = $CommentsData->firstWhere('id', $data->reply_to);
+        @endphp
 
-                                                        @if($parent)
+        @if($parent)
 
-                                                            <div class="reply-wrapper mt-2 d-flex align-items-start gap-2">
+            <div class="reply-wrapper mt-2 d-flex align-items-start gap-2">
 
-                                                                <div class="reply-arrow">
-                                                                    <i class="fa-solid fa-reply"
-                                                                    style="transform: rotate(180deg);"></i>
-                                                                </div>
+                <div class="reply-arrow">
+                    <i class="fa-solid fa-reply"
+                       style="transform: rotate(180deg);"></i>
+                </div>
 
-                                                                <div class="reply-card"
-                                                                    data-scroll-id="comment-{{ $parent->id }}">
+                <div class="reply-card"
+                     data-scroll-id="comment-{{ $parent->id }}">
 
-                                                                    <div class="reply-top d-flex align-items-start gap-2">
+                    <div class="reply-top d-flex align-items-start gap-2">
 
-                                                                        <div class="reply-avatar">
-                                                                            @if(!empty($parent->user->profile_picture))
-                                                                                <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
-                                                                                    class="rounded-circle"
-                                                                                    width="34"
-                                                                                    height="34">
-                                                                            @else
-                                                                                <div class="avatar-fallback">
-                                                                                    {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
-                                                                                </div>
-                                                                            @endif
-                                                                        </div>
+                        <div class="reply-avatar">
+                            @if(!empty($parent->user->profile_picture))
+                                <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
+                                     class="rounded-circle"
+                                     width="34"
+                                     height="34">
+                            @else
+                                <div class="avatar-fallback">
+                                    {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
+                                </div>
+                            @endif
+                        </div>
 
-                                                                        <div class="reply-content">
+                        <div class="reply-content">
 
-                                                                            <div class="reply-header">
-                                                                                {{ $parent->user->first_name ?? 'User' }}
+                            <div class="reply-header">
+                                {{ $parent->user->first_name ?? 'User' }}
 
-                                                                                <span class="reply-time">
-                                                                                    {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
-                                                                                </span>
-                                                                            </div>
+                                <span class="reply-time">
+                                    {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
+                                </span>
+                            </div>
 
-                                                                            <div class="reply-text">
-                                                                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
-                                                                            </div>
+                            <div class="reply-text">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
+                            </div>
 
-                                                                        </div>
+                        </div>
 
-                                                                    </div>
+                    </div>
 
-                                                                </div>
+                </div>
 
-                                                            </div>
+            </div>
 
-                                                        @endif
-                                                    @endif
-                                                @php
-                                                    $documents = explode(',', $data->document);
-                                                @endphp
+        @endif
+    @endif
 
-                                                <!-- Display Documents -->
-                                            @foreach ($documents as $doc)
-                                                @if (!empty($doc))
-                                                    @php
-                                                        $fileName = basename($doc);
-                                                        $isCsv = \Illuminate\Support\Str::endsWith(strtolower($fileName), '.csv');
-                                                        $isExternal = \Illuminate\Support\Str::startsWith($doc, 'http');
-
-                                                        $downloadUrl = $isExternal
-                                                            ? $doc
-                                                            : route('public.file.download', ['filename' => $fileName]);
-                                                    @endphp
-
-                                                    <p style="font-size: 0.9rem; color: #212529; line-height: 1.4;">
-                                                        <a href="{{ $downloadUrl }}"
-                                                        target="_blank"
-                                                        @if ($isCsv) download @endif>
-                                                            {{ $fileName }}
-                                                        </a>
-                                                    </p>
-                                                @endif
-                                            @endforeach
-                                        </div>
+</div>
 
                                     </div>
 
@@ -2014,8 +1972,7 @@
     }
     function openEditTodoModal(id, title, userId)
     {
-        $('#edit_todo_id').val(id); // MUST NOT be empty
-
+        $('#edit_todo_id').val(id);
         $('#edit_todo_title').val(title);
 
         $('#edit_assigned_user').val(userId);

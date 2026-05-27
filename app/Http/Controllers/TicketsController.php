@@ -1005,19 +1005,10 @@ class TicketsController extends Controller
         $projects = Projects::where('id', $projectId)->get();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
 
-        // $CommentsData = TicketComments::with('user')
-        // ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
-        // ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
-        // ->select(
-        //     'ticket_comments.*',
-        //     'cs.status',
-        //     'cs.acknowledged_by',
-        //     'u.first_name as ack_user_name'
-        // )
-        // ->where('ticket_comments.ticket_id', $ticketId)
-        // ->orderBy('ticket_comments.created_at', 'asc')
-        // ->orderBy('ticket_comments.created_at', 'asc')
-        // ->get();
+        $developers = Users::where('role_id', 3)
+            ->where('status', '!=', 0)
+            ->orderBy('first_name')
+            ->get();
         $CommentsData = TicketComments::with([
         'user',
         'pinnedByUser'
@@ -1034,32 +1025,32 @@ class TicketsController extends Controller
         ->orderBy('ticket_comments.created_at', 'asc')
         ->get();
 
-    // ✅ find all developer replies
-    $developerReplies = $CommentsData->filter(function ($c) {
-        return isset($c->user) && $c->user->role_id == 3;
-    });
+        // ✅ find all developer replies
+        $developerReplies = $CommentsData->filter(function ($c) {
+            return isset($c->user) && $c->user->role_id == 3;
+        });
 
-    foreach ($CommentsData as $comment) {
+        foreach ($CommentsData as $comment) {
 
-        if (!isset($comment->user)) {
-            $comment->is_replied = false;
-            continue;
+            if (!isset($comment->user)) {
+                $comment->is_replied = false;
+                continue;
+            }
+
+            if ($comment->user->role_id == 6) {
+
+                $hasReplyAfter = $developerReplies->first(function ($reply) use ($comment) {
+
+                    if (!isset($reply->created_at) || !isset($comment->created_at)) {
+                        return false;
+                    }
+
+                    return strtotime($reply->created_at) > strtotime($comment->created_at);
+                });
+
+                $comment->is_replied = $hasReplyAfter ? true : false;
+            }
         }
-
-        if ($comment->user->role_id == 6) {
-
-            $hasReplyAfter = $developerReplies->first(function ($reply) use ($comment) {
-
-                if (!isset($reply->created_at) || !isset($comment->created_at)) {
-                    return false;
-                }
-
-                return strtotime($reply->created_at) > strtotime($comment->created_at);
-            });
-
-            $comment->is_replied = $hasReplyAfter ? true : false;
-        }
-    }
 
         $spentHours = $tickets->workLogs()->sum('hours');
         $remainingHours = $tickets->time_estimation - $spentHours;
@@ -1074,7 +1065,7 @@ class TicketsController extends Controller
         ->latest()
         ->get();
 
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos'));
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers'));
 
     }
 
