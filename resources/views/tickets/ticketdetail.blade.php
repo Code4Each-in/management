@@ -1296,7 +1296,7 @@
                                                                     data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
                                                                     style="
                                                                         position:relative;
-                                                                        display:inline-flex;
+                                                                        display:inline-flex; 
                                                                         align-items:center;
                                                                         font-size: 19px;
                                                                         cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
