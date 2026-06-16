@@ -1287,6 +1287,37 @@
                                                             <i class="fa-solid fa-link"></i>
 
                                                         </button>
+                                               <?php 
+                                                    $plainCommentText = trim(strip_tags($data->comments ?? ''));
+                                                    $normalizedCommentText = strtolower(
+                                                        trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
+                                                    );
+
+                                                    $commentWordCount = $plainCommentText === '' 
+                                                        ? 0 
+                                                        : count(preg_split('/\s+/', $plainCommentText));
+
+                                                    $noResponsePhrases = [
+                                                        'thanks', 'thank you', 'thanks a lot', 'thank you so much',
+                                                        'ok', 'okay', 'noted', 'fine', 'alright', 'sure',
+                                                        'cool', 'perfect', 'great', 'nice', 'no problem'
+                                                    ];
+
+
+                                                    $isShortClientReply = false;
+                                            
+                                                    if ($data->user->role_id == 6) {
+                                                        if (in_array($normalizedCommentText, $noResponsePhrases)) {
+
+                                                            // ✅ Step 2: THEN check word count
+                                                            if ($commentWordCount > 0 && $commentWordCount <= 5) {
+                                                                $isShortClientReply = true;
+                                                            }
+                                                        }
+                                                    }
+                                                 
+                                                    ?>
+                                                    
                                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
 
                                                                 <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
@@ -1296,14 +1327,14 @@
                                                                     data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
                                                                     style="
                                                                         position:relative;
-                                                                        display:inline-flex; 
+                                                                        display:inline-flex;
                                                                         align-items:center;
                                                                         font-size: 19px;
                                                                         cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
                                                                         opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
                                                                     ">
 
-                                                                    <!--  Icon -->
+                                            
                                                                     <i class="thumb-icon fa-thumbs-up
                                                                         {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
                                                                     </i>
@@ -1326,6 +1357,8 @@
 
                                                         @endif
 
+                                               
+
                                                         {{-- PIN --}}
                                                         @php
                                                             $canUnpin = $data->pinned_by == Auth::id();
@@ -1338,37 +1371,59 @@
                                                             <button type="button"
                                                                     class="btn btn-link p-0 m-0 pin-comment"
                                                                     data-id="{{ $data->id }}">
-
                                                                 <i class="fa-solid fa-thumbtack
                                                                     {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
                                                                 </i>
-
                                                             </button>
-
                                                         </span>
-
+                                                        {{-- NO RESPONSE NEEDED (short closing client replies like "thanks" / "ok") --}}
+                                      
+                                                       @if(auth()->user()->designation != "Client") 
+                                                        @if($isShortClientReply && $data->status != 'acknowledged')
+                                                            <span data-bs-toggle="tooltip"
+                                                                data-bs-title="{{ $data->status == 'no_response' ? 'Marked as No Response Needed' : (in_array(auth()->user()->role_id, [1,3]) ? 'Mark as No Response Needed' : 'No action required') }}">
+                                                                <button type="button"   data-comment-id = "{{ $data->id }}" data-ticket-id = "{{ $data->ticket_id }}"
+                                                                        class="btn btn-sm no-response-toggle {{ !in_array(auth()->user()->role_id, [1,3]) ? 'disabled' : '' }}"
+                                                                        data-id="{{ $data->id }}"
+                                                                        data-status="{{ $data->status }}"
+                                                                        style="font-size: 11px;padding: 3px 10px;border-radius: 12px;
+                                                                            border: 1px solid {{ $data->status == 'no_response' ? '#e74c3c' : '#cbd5e1' }};
+                                                                            background: {{ $data->status == 'no_response' ? '#fdecea' : '#fff' }};
+                                                                            color: {{ $data->status == 'no_response' ? '#e74c3c' : '#6b7280' }};
+                                                                            cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                                            opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
+                                                                        ">
+                                                                    <i class="fa-solid fa-comment-slash" style="font-size:10px;"></i>
+                                                                    {{ $data->status == 'no_response' ? 'No Response Needed' : 'No Response' }}
+                                                                </button>
+                                                            </span>
+                                                        @endif
+                                                        @if(!empty($data->response_by))
+                                                                <span data-bs-toggle="tooltip"
+                                                                    data-bs-title="Response marked by {{ $data->response_user_first_name }} {{ $data->response_user_last_name }}">
+                                                                    
+                                                                    <i class="fa-solid fa-comment-slash text-danger"
+                                                                    style="font-size:14px; margin-left:5px;"></i>
+                                                                </span>
+                                                        @endif
+                                                        @endif
                                                     </div>
-
                                                 </div>
-
                                             </div>
 
                                         @endif
-
                                         {{-- MESSAGE BODY --}}
                                         <div class="text message-box">
 
                                             {{-- TOP ROW --}}
                                             <div class="d-flex justify-content-between align-items-start">
-
                                                 {{-- COMMENT --}}
                                                 <div style="word-break:auto-phrase; flex:1;">
+                                                  
                                                     {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                                 </div>
-
                                                 {{-- ACTIONS --}}
                                                 <div class="comment-actions d-flex gap-2 ms-2">
-
                                                     @if(Auth::id() != $data->comment_by)
                                                         <button type="button"
                                                                 class="reply-btn-inside"
@@ -1378,7 +1433,6 @@
                                                             <i class="fa fa-reply"></i>
                                                         </button>
                                                     @endif
-
                                                     @php
                                                         $canEdit = Auth::id() == $data->comment_by
                                                             && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
@@ -1597,49 +1651,29 @@
                                                     data-bs-title="{{ $data->is_pinned
                                                             ? 'Pinned by ' . ($data->pinnedByUser->first_name ?? 'Unknown')
                                                             : 'Pin Comment' }}">
-
                                                     <button type="button"
                                                             class="btn btn-link p-0 pin-comment"
                                                             data-id="{{ $data->id }}"
                                                             @if(!$canUnpin) disabled @endif>
-
                                                         <i class="fa-solid fa-thumbtack text-warning"></i>
-
                                                     </button>
-
                                                 </span>
-
                                             </div>
-
                                         </div>
-
                                     </div>
-
                                     {{-- COMMENT --}}
                                     <div class="text message-box">
-
                                         {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
-
                                     </div>
-
                                 </div>
-
                             @endforeach
-
                         @else
-
                             <div class="text-center text-muted mt-4">
-
                                 No pinned comments
-
                             </div>
-
                         @endif
-
                     </div>
-
                 </div>
-
             </div>
             <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
@@ -2608,6 +2642,70 @@ $(document).on('click', '.acknowledge-toggle', function () {
     });
 
 });
+
+// No Response Needed toggle (for short closing client replies like "thanks" / "ok")
+$(document).on('click', '.no-response-toggle', function () { 
+    const role = {{ auth()->user()->role_id }};
+    if (![1, 3].includes(role)) {
+        return;
+    }
+
+    let el = $(this);
+
+    // ✅ Get correct values
+    let commentId = el.data('comment-id');
+    let ticketId  = el.data('ticket-id');
+
+    console.log('Comment ID:', commentId);
+    console.log('Ticket ID:', ticketId);
+
+    $.ajax({
+        url: '/no-response-comment',
+        type: 'POST',
+        data: {
+            comment_id: commentId,
+            ticket_id: ticketId, // ✅ send this also
+            _token: '{{ csrf_token() }}'
+        },
+        success: function (res) {
+            el.tooltip('dispose');
+
+            if (res.new_status === 'no_response') {
+
+                el.attr('data-status', 'no_response');
+                el.attr('data-bs-title', 'Marked as No Response Needed');
+                el.css({
+                    borderColor: '#e74c3c',
+                    background: '#fdecea',
+                    color: '#e74c3c'
+                });
+                el.html('<i class="fa-solid fa-comment-slash" style="font-size:10px;"></i> No Response Needed');
+
+                showAcknowledgeMsg("Marked as no response needed", el[0]);
+                   setTimeout(function () {
+                    location.reload();
+                }, 1000); // 1 second delay
+
+
+            } else {
+
+                el.attr('data-status', 'replied');
+                el.attr('data-bs-title', 'Mark as No Response Needed');
+                el.css({
+                    borderColor: '#cbd5e1',
+                    background: '#fff',
+                    color: '#6b7280'
+                });
+                el.html('<i class="fa-solid fa-comment-slash" style="font-size:10px;"></i> No Response');
+
+                showAcknowledgeMsg("No response flag removed", el[0]);
+            }
+
+            el.tooltip();
+        }
+    });
+});
+
 $(document).ready(function () {
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -2711,7 +2809,7 @@ $(document).on('click', '.pin-comment', function () {
             let target = $('#comment-' + commentId);
 
             if (!target.length) return;
-
+ 
             // adjust this value as needed (perfect alignment)
             let offset = 120;
 

@@ -436,6 +436,7 @@ Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('
 
 
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
+Route::post('/no-response-comment', [TicketsController::class, 'no_response_comment']);
 // routes/web.php
 
 // Email Templates
