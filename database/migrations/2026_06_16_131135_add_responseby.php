@@ -14,7 +14,8 @@ class AddResponseby extends Migration
     public function up()
     {
         Schema::table('comment_status', function (Blueprint $table) {
-          $table->unsignedBigInteger('response_by')->nullable()->after('acknowledged_at');        });
+          $table->unsignedBigInteger('response_by')->nullable()->after('acknowledged_at');       
+           });
     }
 
     /**

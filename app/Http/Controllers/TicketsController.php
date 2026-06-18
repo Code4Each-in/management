@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use App\Models\TicketEstimationApproval;
 use App\Models\TicketWorkLog;
 use App\Models\CommentStatus;
+use App\Models\TicketUpdate;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -1042,6 +1043,7 @@ class TicketsController extends Controller
                             'cs.status',
                             'cs.acknowledged_by',
                             'u.first_name as ack_user_name',
+                            'u.last_name as ack_last_name',
 
                             // ✅ Add this
                             'cs.response_by',
@@ -1051,6 +1053,8 @@ class TicketsController extends Controller
                         ->where('ticket_comments.ticket_id', $ticketId)
                         ->orderBy('ticket_comments.created_at', 'asc')
                         ->get();
+
+        $daily_updates = TicketUpdate::with('user')->where('ticket_id', $ticketId)->get();           
 
 
         // ✅ find all developer replies
@@ -1093,7 +1097,7 @@ class TicketsController extends Controller
         ->latest()
         ->get();
 
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers'));
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers', 'ticketId', 'daily_updates'));
 
     }
 
@@ -1103,12 +1107,12 @@ class TicketsController extends Controller
         $comment_id = $request->comment_id;
         $login_id = auth()->id();
 
-        CommentStatus::where('ticket_id', $ticket_id)
-            ->where('comment_id', $comment_id)
-            ->update([
-                'response_by' => $login_id,
-                'status' => 'acknowledged'
-            ]);
+        CommentStatus::where('ticket_id', $ticket_id)->where('comment_id', $comment_id)
+                    ->update([
+                        'response_by'     => $login_id,
+                        'acknowledged_by' => $login_id,
+                        'status'          => 'acknowledged'
+                    ]);
 
         return response()->json([
             'new_status' => 'no_response' // or toggle logic if needed
@@ -1732,6 +1736,25 @@ public function uploadImage(Request $request)
         return response()->json([
             'success' => true,
             'message' => 'Comment unpinned'
+        ]);
+    }
+
+    public function storeUpdate(Request $request)
+    {   
+        $request->validate([
+            'update_text' => 'required|string|max:5000',
+        ]);
+
+        TicketUpdate::create([
+            'ticket_id'   => $request->ticket_id,
+            'user_id'     => auth()->id(),
+            'update_date' => now(),
+            'update_text' => $request->update_text,
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Update saved successfully'
         ]);
     }
 }

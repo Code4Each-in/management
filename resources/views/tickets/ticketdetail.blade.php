@@ -222,16 +222,12 @@
     {{-- Add Todo Button --}}
 
     @if(in_array(Auth::user()->role_id, [1,3]))
-
-        <button type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#ticketTodoModal">
-            Add Todo
-        </button>
-
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ticketTodoModal"> Add Todo </button>
     @endif
 
+    @if(in_array(Auth::user()->role_id, [1,3]))
+        <a type="button" class="btn btn-primary openUpdateModal" data-ticket-id="{{ $ticketId }}"> Private Comment </a>
+    @endif
 
 </div>
 <div id="loader">
@@ -245,19 +241,6 @@
       </div>
       <div class="task-title">
         <h4>{{ $tickets->title }}</h4>
-        <!-- <span class="task-status">
-          @if($tickets->status == 'complete')
-            <i class="fa-solid fa-circle-check"></i> Complete
-          @elseif($tickets->status == 'ready')
-            <i class="fa-solid fa-circle-check"></i> Ready
-            @elseif($tickets->status == 'deployed')
-            <i class="fa-solid fa-circle-check"></i> Deployed
-          @elseif($tickets->status == 'in_progress')
-            <i class="fa-solid fa-spinner fa-spin"></i> In Progress
-          @else
-            <i class="fa-solid fa-circle-dot"></i> To Do
-          @endif
-        </span> -->
       </div>
       <div class="task-toggle-icon">
         <i class="fa-solid fa-chevron-down"></i>
@@ -661,108 +644,45 @@
 </div>
 
     <!-- modal for adding todo -->
-    <div class="modal fade"
-        id="ticketTodoModal"
-        tabindex="-1"
-        aria-labelledby="ticketTodoModalLabel"
-        aria-hidden="true">
-
+    <div class="modal fade" id="ticketTodoModal" tabindex="-1" aria-labelledby="ticketTodoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-
                 <form method="POST"
                     action="{{ route('todo_list.store') }}">
-
                     @csrf
-
                     <div class="modal-header">
-
-                        <h5 class="modal-title"
-                            id="ticketTodoModalLabel">
-                            Create Ticket Todo
-                        </h5>
-
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-
+                        <h5 class="modal-title" id="ticketTodoModalLabel"> Create Ticket Todo </h5>
+                        <button type="button" class="btn-close"  data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
                     <div class="modal-body">
-
                         {{-- Hidden Ticket ID --}}
-                        <input type="hidden"
-                            name="ticket_id"
-                            value="{{ $tickets->id }}">
-
+                        <input type="hidden" name="ticket_id" value="{{ $tickets->id }}">
                         {{-- Todo Title --}}
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Todo Title
-                            </label>
-
-                            <textarea name="title"
-                                    class="form-control"
-                                    rows="4"
-                                    placeholder="Enter todo details..."
-                                    required></textarea>
-
+                            <label class="form-label"> Todo Title </label>
+                            <textarea name="title" class="form-control" rows="4" placeholder="Enter todo details..." required></textarea>
                         </div>
-
                         {{-- Assign Developer --}}
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Assign Developer
-                            </label>
-
-                                <select name="assigned_user_id"
-                                        class="form-control"
-                                        required>
-
-                                    <option value="">
-                                        Select Developer
-                                    </option>
-
+                            <label class="form-label"> Assign Developer </label>
+                                <select name="assigned_user_id" class="form-control" required>
+                                    <option value="">  Select Developer</option>
                                     @foreach($developers as $developer)
-
-                                        <option value="{{ $developer->id }}">
-
-                                            {{ $developer->first_name }}
-                                            {{ $developer->last_name ?? '' }}
-
-                                        </option>
-
+                                        <option value="{{ $developer->id }}"> {{ $developer->first_name }} {{ $developer->last_name ?? '' }} </option>
                                     @endforeach
-
                                 </select>
-
                         </div>
-
                     </div>
-
                     <div class="modal-footer">
-
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal">
-                            Close
-                        </button>
-
-                        <button type="submit"
-                                class="btn btn-primary">
-                            Create Todo
-                        </button>
-
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">  Close </button>
+                        <button type="submit" class="btn btn-primary">Create Todo</button>
                     </div>
-
                 </form>
-
             </div>
         </div>
     </div>
+
+  
     <!-- Edit Todo Modal -->
     <div class="modal fade"
         id="editTodoModal"
@@ -1113,25 +1033,25 @@
 
                 {{-- PINNED TAB --}}
                 <li class="nav-item" role="presentation">
-
-                    <button class="nav-link"
-                            id="pinned-tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#pinned-pane"
-                            type="button"
-                            role="tab">
-
+                    <button class="nav-link" id="pinned-tab" data-bs-toggle="tab" data-bs-target="#pinned-pane" type="button" role="tab">
                         <i class="fa-solid fa-thumbtack text-warning me-1"></i>
-
                         <span>Pinned</span>
-
                         <span class="badge bg-warning text-dark ms-2">
                             {{ $pinnedComments->count() }}
                         </span>
-
                     </button>
-
                 </li>
+                @if(in_array(Auth::user()->role_id, [1,3]))
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="updates-tab" data-bs-toggle="tab" data-bs-target="#updates-pane" type="button" role="tab">
+                        <i class="fa-solid fa-bolt me-1"></i>
+                        <span> Private Comments </span>
+                        <span class="badge bg-primary ms-2">
+                            {{ $daily_updates->count() }}
+                        </span>
+                    </button>
+                </li>
+                @endif
 
             </ul>
             <!-- tab content -->
@@ -1317,47 +1237,24 @@
                                                     }
                                                  
                                                     ?>
-                                                    
+                                                      
                                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
-
                                                                 <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
-                                                                    data-id="{{ $data->id }}"
-                                                                    data-status="{{ $data->status }}"
-                                                                    data-bs-toggle="tooltip"
-                                                                    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
-                                                                    style="
-                                                                        position:relative;
-                                                                        display:inline-flex;
-                                                                        align-items:center;
-                                                                        font-size: 19px;
-                                                                        cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                                 data-id="{{ $data->id }}" data-status="{{ $data->status }}" data-bs-toggle="tooltip"
+                                                                    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged by '.$data->ack_user_name .' '.$data->ack_last_name  : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                                                    style="position:relative;display:inline-flex;align-items:center;font-size: 19px;cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
                                                                         opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
                                                                     ">
-
-                                            
                                                                     <i class="thumb-icon fa-thumbs-up
                                                                         {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
                                                                     </i>
-
                                                                     <!-- Tick -->
                                                                     <i class="tick-icon fa-solid fa-check"
-                                                                        style="
-                                                                            position:absolute;
-                                                                            top:-5px;
-                                                                            right:-5px;
-                                                                            font-size:10px;
-                                                                            color:#22c55e;
-                                                                            background:white;
-                                                                            border-radius:50%;
-                                                                            display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
-                                                                    ">
+                                                                        style="position:absolute; top:-5px; right:-5px; font-size:10px; color:#22c55e; background:white;
+                                                                            border-radius:50%; display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }}; ">
                                                                     </i>
-
                                                                 </span>
-
                                                         @endif
-
-                                               
 
                                                         {{-- PIN --}}
                                                         @php
@@ -1378,7 +1275,7 @@
                                                         </span>
                                                         {{-- NO RESPONSE NEEDED (short closing client replies like "thanks" / "ok") --}}
                                       
-                                                       @if(auth()->user()->designation != "Client") 
+                                                       @if(auth()->user()->designation != "Client" && $data->status != "replied") 
                                                         @if($isShortClientReply && $data->status != 'acknowledged')
                                                             <span data-bs-toggle="tooltip"
                                                                 data-bs-title="{{ $data->status == 'no_response' ? 'Marked as No Response Needed' : (in_array(auth()->user()->role_id, [1,3]) ? 'Mark as No Response Needed' : 'No action required') }}">
@@ -1400,13 +1297,16 @@
                                                         @endif
                                                         @if(!empty($data->response_by))
                                                                 <span data-bs-toggle="tooltip"
-                                                                    data-bs-title="Response marked by {{ $data->response_user_first_name }} {{ $data->response_user_last_name }}">
+                                                                    data-bs-title="No Response marked by {{ $data->response_user_first_name }} {{ $data->response_user_last_name }}">
                                                                     
                                                                     <i class="fa-solid fa-comment-slash text-danger"
                                                                     style="font-size:14px; margin-left:5px;"></i>
                                                                 </span>
                                                         @endif
+
                                                         @endif
+
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1542,92 +1442,50 @@
                                                 @endif
                                             @endforeach
                                         </div>
-
                                     </div>
-
                                 @endforeach
-
                             </div>
-
                         @else
-
                             <div class="center text-center mt-2">
-
                                 <span id="NoComments"
                                     style="color:#6c757d; font-size:1rem;">
-
                                     No Comments
-
                                 </span>
-
                             </div>
-
                         @endif
-
                     </div>
-
                 </div>
                 <!-- pinned tab -->
-                <div class="tab-pane fade"
-                    id="pinned-pane"
-                    role="tabpanel">
-
-                    <div class="chat-container"
-                        style="height:600px;
-                                overflow-y:auto;
-                                padding:10px;
-                                background:#f9f9f9;
-                                border-radius:10px;">
-
+                <div class="tab-pane fade" id="pinned-pane" role="tabpanel">
+                    <div class="chat-container" style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
                         @if($pinnedComments->count())
-
                             @foreach($pinnedComments as $data)
-
                                 <div class="message pinned-comment go-to-comment"
                                     data-id="{{ $data->id }}"
                                     id="pinned-comment-{{ $data->id }}"
                                     style="cursor:pointer;">
-
                                     <div class="info">
-
-                                        {{ \Carbon\Carbon::parse($data->created_at)
-                                            ->timezone('Asia/Kolkata')
-                                            ->format('M d, Y h:i A') }}
-
+                                        {{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}
                                     </div>
-
                                     <div class="user">
-
                                         {{-- AVATAR --}}
                                         @if(!empty($data->user->profile_picture))
-
                                             <div class="avatar">
-
                                                 <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}"
                                                     class="rounded-circle"
                                                     width="35"
                                                     height="35">
-
                                             </div>
-
                                         @else
-
                                             <div class="avatar">
-
                                                 {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
-
                                             </div>
-
                                         @endif
-
                                         <div class="d-flex align-items-center w-100">
-
                                             <div>
-
                                                 <span class="name">
                                                     {{ $data->user->first_name }}
                                                 </span>
-
                                             </div>
 
                                             {{-- ACTIONS --}}
@@ -1664,6 +1522,86 @@
                                     {{-- COMMENT --}}
                                     <div class="text message-box">
                                         {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="text-center text-muted mt-4">
+                                No pinned comments
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- // My Update section  -->
+                <!-- <div class="tab-pane fade" id="updates-pane" role="tabpanel">
+                        <div class="chat-container"
+                            style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
+                            @forelse($daily_updates as $update)
+                                <div class="message mb-2 p-2" style="background:#eef6ff; border-radius:8px;">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>love</strong>
+                                        <small>preet</small>
+                                    </div>
+                                    <div class="mt-1">
+                                        singh
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center text-muted mt-4">
+                                    No updates added
+                                </div>
+                            @endforelse
+
+                        </div>
+                </div> -->
+                  <div class="tab-pane fade" id="updates-pane" role="tabpanel">
+                    <div class="chat-container" style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
+                        @if($daily_updates->count())
+                            @foreach($daily_updates as $data)
+                                <div class="message pinned-comment go-to-comment"
+                                    data-id="{{ $data->id }}"
+                                    id="pinned-comment-{{ $data->id }}"
+                                    style="cursor:pointer;">
+                                    <div class="info">
+                                        {{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}
+                                    </div>
+                                    
+                                    <div class="user">
+                                        {{-- AVATAR --}}
+                                        @if(!empty($data->user->profile_picture))
+                                            <div class="avatar">
+                                                <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" class="rounded-circle" width="35" height="35">
+                                            </div>
+                                        @else
+                                            <div class="avatar">
+                                                {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
+                                              
+                                            </div>
+                                        @endif
+                                        <div class="d-flex align-items-center w-100">
+                                            <div>
+                                                <span class="name">
+                                                   {{ $data->user->first_name }}
+                                                </span>
+                                            </div>
+
+                                            {{-- ACTIONS --}}
+                                            <div class="ms-auto d-flex align-items-center gap-2">
+
+                                                {{-- SHARE --}}
+                                                <button type="button" 
+                                                    class="btn btn-link p-0 copy-comment"
+                                                    data-comment-id="{{ $data->id }}"
+                                                    data-comment-text="{{ strip_tags(preg_replace('/<p>(h|g)?<\/p>/', '', $data->update_text)) }}">
+                                                    <i class="fa-solid fa-link"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- COMMENT --}}
+                                    <div class="text message-box">
+                                        {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->update_text) !!}
                                     </div>
                                 </div>
                             @endforeach
@@ -1772,12 +1710,38 @@
               </div>
           </form>
             </div>
+            <!-- // Daily updates  -->
+            <div class="modal fade" id="othersUpdateModal">
+                <div class="modal-dialog">
+                    <form id="othersUpdateForm">
+                        @csrf
+                        <input type="hidden" name="ticket_id" id="ticket_id">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5>Private Comment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Update -->
+                             <div id="dailyUpdateEditor" style="height: 300px;"></div>
+                             <input type="hidden" name="update_text" id="update_text_input">
+                                   <small class="text-danger error-text update_text_error"></small>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-success">Share Update</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
   let loading = false;
   let doneLoadingAll = false;
+  let dailyUpdateQuill = null;
 
 //   $(document).ready(function () {
 
@@ -1848,6 +1812,17 @@
     }
 
     editor.__quillInstance = quill;
+
+    // Separate Quill instance for the Daily Update modal.
+    // (It needs its own instance + toolbar — it can't reuse #editor/#toolbar-container,
+    // those belong to the comment box editor above.)
+    const dailyUpdateEditorEl = document.querySelector('#dailyUpdateEditor');
+    if (dailyUpdateEditorEl) {
+      dailyUpdateQuill = new Quill(dailyUpdateEditorEl, {
+        theme: 'snow',
+        placeholder: 'Write update for other developers...'
+      });
+    }
 
     function decodeHTMLEntities(str) {
       const txt = document.createElement('textarea');
@@ -2831,8 +2806,144 @@ $(document).on('click', '.pin-comment', function () {
             }, 2500);
 
         }, 200);
-
     });
+
+     $(document).on('click', '.openUpdateModal', function (e) {
+            var ticketId = $(".openUpdateModal").data("ticket-id"); 
+            $('#ticket_id').val(ticketId);
+            $('#othersUpdateModal').modal('show');
+        });
+
+  $('#othersUpdateForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let form = $(this);
+
+        if (dailyUpdateQuill) {
+            let text = dailyUpdateQuill.getText().trim(); // plain text check
+            let html = dailyUpdateQuill.root.innerHTML.trim();
+
+            if (text === '') {
+                $('.update_text_error').text('Update field is required');
+                return; // stop submit
+            }
+
+            $('#update_text_input').val(html);
+        }
+
+        let formData = form.serialize();
+        $('.error-text').text('');
+
+        $.ajax({
+            url: "{{ route('ticket.update.store') }}",
+            type: "POST",
+            data: formData,
+            success: function(response) {
+                if (response.status == 1) {
+                    $('#othersUpdateModal').modal('hide');
+                    form[0].reset();
+
+                    if (dailyUpdateQuill) {
+                        dailyUpdateQuill.setContents([{ insert: '\n' }]);
+                    }
+                   setTimeout(() => {
+                      alert('Private Comment saved successfully');
+                     location.reload();
+                   }, 1000);
+
+                  
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+
+                    $.each(errors, function(key, value) {
+                        $('.' + key + '_error').text(value[0]);
+                    });
+                }
+            }
+        });
+    });
+
+$(document).on('click', '.copy-comment', function(e) {
+    e.stopPropagation();
+
+    let btn = this;
+    let $btn = $(this);
+
+    let text = $btn.closest('.message').find('.message-box').text().trim();
+    if (!text) return;
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    }
+
+    function successUI() {
+        let icon = $btn.find('i');
+
+        icon.removeClass('fa-link').addClass('fa-check');
+
+        showCopyTooltip(btn, "Copied successfully");
+
+        setTimeout(() => {
+            icon.removeClass('fa-check').addClass('fa-link');
+        }, 1500);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+            .then(successUI)
+            .catch(() => {
+                fallbackCopy(text);
+                successUI();
+            });
+    } else {
+        fallbackCopy(text);
+        successUI();
+    }
+});
+
+function showCopyTooltip(btn, message) {
+    // remove existing tooltip if any
+    $('.custom-copy-tooltip').remove();
+
+    let tooltip = $('<div class="custom-copy-tooltip"></div>')
+            .text(message)
+            .css({
+                position: 'absolute',
+                background: '#25581a',
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '5px',
+                fontSize: '12px',
+                zIndex: 9999,
+                whiteSpace: 'nowrap'
+
+    
+            });
+
+        $('body').append(tooltip);
+
+        let offset = $(btn).offset();
+
+        tooltip.css({
+            top: offset.top - tooltip.outerHeight() - 8,
+            left: offset.left + ($(btn).outerWidth() / 2) - (tooltip.outerWidth() / 2)
+        });
+
+        // auto remove
+        setTimeout(() => {
+            tooltip.fadeOut(200, function() {
+                $(this).remove();
+            });
+        }, 1500);
+}
 </script>
 
 @endsection
