@@ -120,7 +120,7 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/view/ticket/{ticketId}', [TicketsController::class, 'viewTicket'])->name('tickets.ticketdetail')->middleware('client.ticket.access');
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
-	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
+	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']); 
 	
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
