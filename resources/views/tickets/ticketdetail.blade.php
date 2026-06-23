@@ -1208,33 +1208,71 @@
 
                                                         </button>
                                                <?php 
+                                                    // $plainCommentText = trim(strip_tags($data->comments ?? ''));
+                                                    // $normalizedCommentText = strtolower(
+                                                    //     trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
+                                                    // );
+
+                                                    // $commentWordCount = $plainCommentText === '' 
+                                                    //     ? 0 
+                                                    //     : count(preg_split('/\s+/', $plainCommentText));
+
+                                                    // $noResponsePhrases = [
+                                                    //     'thanks', 'thank you', 'thanks a lot', 'thank you so much',
+                                                    //     'ok', 'okay', 'noted', 'fine', 'alright', 'sure',
+                                                    //     'cool', 'perfect', 'great', 'nice', 'no problem'
+                                                    // ];
+
+
+                                                    // $isShortClientReply = false;
+                                            
+                                                    // if ($data->user->role_id == 6) {
+                                                    //     if (in_array($normalizedCommentText, $noResponsePhrases)) {
+
+                                                    //         // ✅ Step 2: THEN check word count
+                                                    //         if ($commentWordCount > 0 && $commentWordCount <= 5) {
+                                                    //             $isShortClientReply = true;
+                                                    //         }
+                                                    //     }
+                                                    // }
+                                                
                                                     $plainCommentText = trim(strip_tags($data->comments ?? ''));
+
+                                                    // Normalize text (lowercase + remove special characters)
                                                     $normalizedCommentText = strtolower(
                                                         trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
                                                     );
 
+                                                    // Count words
                                                     $commentWordCount = $plainCommentText === '' 
                                                         ? 0 
                                                         : count(preg_split('/\s+/', $plainCommentText));
 
+                                                    // Common short reply phrases
                                                     $noResponsePhrases = [
                                                         'thanks', 'thank you', 'thanks a lot', 'thank you so much',
                                                         'ok', 'okay', 'noted', 'fine', 'alright', 'sure',
                                                         'cool', 'perfect', 'great', 'nice', 'no problem'
                                                     ];
 
-
                                                     $isShortClientReply = false;
-                                            
-                                                    if ($data->user->role_id == 6) {
-                                                        if (in_array($normalizedCommentText, $noResponsePhrases)) {
 
-                                                            // ✅ Step 2: THEN check word count
-                                                            if ($commentWordCount > 0 && $commentWordCount <= 5) {
-                                                                $isShortClientReply = true;
+                                                    if ($data->user->role_id == 6) {
+
+                                                        foreach ($noResponsePhrases as $phrase) {
+
+                                                            // Match whole phrase inside comment (safe match)
+                                                            if (preg_match('/\b' . preg_quote($phrase, '/') . '\b/', $normalizedCommentText)) {
+
+                                                                // Check word count condition
+                                                                if ($commentWordCount > 0 && $commentWordCount <= 5) {
+                                                                    $isShortClientReply = true;
+                                                                    break; // stop after first match
+                                                                }
                                                             }
                                                         }
                                                     }
+
                                                  
                                                     ?>
                                                       
@@ -2635,7 +2673,7 @@ $(document).on('click', '.no-response-toggle', function () {
     console.log('Ticket ID:', ticketId);
 
     $.ajax({
-        url: '/no-response-comment',
+        url: '/no-response-comment', 
         type: 'POST',
         data: {
             comment_id: commentId,
