@@ -2827,6 +2827,7 @@ $(document).on('click', '.acknowledge-pending-comment', function () {
                     .addClass('fa-solid text-success');
 
                 el.find('.tick-icon').show();
+                location.reload();
             }
         }
     });
