@@ -121,7 +121,7 @@ Route::middleware(['role_permission'])->group(function () {
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
 	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
-	
+
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
@@ -438,6 +438,8 @@ Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('
 
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
 Route::post('/no-response-comment', [TicketsController::class, 'no_response_comment']);
+Route::post('/private-comment/acknowledge', [TicketsController::class, 'acknowledgePrivateComment'])
+    ->name('private-comment.acknowledge');
 // routes/web.php
 
 // Email Templates

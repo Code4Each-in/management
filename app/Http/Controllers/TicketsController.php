@@ -24,7 +24,7 @@ use Carbon\Carbon;
 use App\Models\TicketEstimationApproval;
 use App\Models\TicketWorkLog;
 use App\Models\CommentStatus;
-use App\Models\TicketUpdate;
+use App\Models\PrivateComment;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -1048,13 +1048,13 @@ class TicketsController extends Controller
                             // ✅ Add this
                             'cs.response_by',
                              'ru.first_name as response_user_first_name',
-                            'ru.last_name as response_user_last_name' 
+                            'ru.last_name as response_user_last_name'
                         )
                         ->where('ticket_comments.ticket_id', $ticketId)
                         ->orderBy('ticket_comments.created_at', 'asc')
                         ->get();
 
-        $daily_updates = TicketUpdate::with('user')->where('ticket_id', $ticketId)->get();           
+        $daily_updates = PrivateComment::with('user')->where('ticket_id', $ticketId)->get();
 
 
         // ✅ find all developer replies
@@ -1096,8 +1096,12 @@ class TicketsController extends Controller
         ->where('ticket_id', $ticketId)
         ->latest()
         ->get();
-
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers', 'ticketId', 'daily_updates'));
+        $pendingComments = PrivateComment::with('user')
+            ->where('ticket_id', $ticketId)
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'pendingComments', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers', 'ticketId', 'daily_updates'));
 
     }
 
@@ -1741,21 +1745,33 @@ public function uploadImage(Request $request)
     }
 
     public function storeUpdate(Request $request)
-    {   
+    {
         $request->validate([
             'update_text' => 'required|string|max:5000',
         ]);
 
-        TicketUpdate::create([
+        PrivateComment::create([
             'ticket_id'   => $request->ticket_id,
             'user_id'     => auth()->id(),
             'update_date' => now(),
             'update_text' => $request->update_text,
+            'status'      => 'pending',
         ]);
 
         return response()->json([
             'status' => 1,
             'message' => 'Update saved successfully'
+        ]);
+    }
+    public function acknowledgePrivateComment(Request $request)
+    {
+        $comment = PrivateComment::findOrFail($request->id);
+
+        $comment->status = 'acknowledged';
+        $comment->save();
+
+        return response()->json([
+            'success' => true
         ]);
     }
 }

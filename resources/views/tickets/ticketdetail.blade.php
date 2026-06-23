@@ -682,7 +682,7 @@
         </div>
     </div>
 
-  
+
     <!-- Edit Todo Modal -->
     <div class="modal fade"
         id="editTodoModal"
@@ -991,6 +991,66 @@
 
                 </div>
             @endif
+            @if($pendingComments->count() > 0)
+
+                <div style="margin-bottom: 1rem;">
+
+                    {{-- Section Title --}}
+                    <p style="font-size:15px; font-weight:500; color:inherit; margin:0 0 12px;">
+                        Private Comments
+                        <span style="font-weight:400; opacity:0.6;">({{ $pendingComments->count() }})</span>
+                    </p>
+
+                    {{-- Accordion Card --}}
+                    <div style="border:0.5px solid #e5e7eb; border-radius:12px; overflow:hidden;">
+
+                        {{-- Header --}}
+                        <div onclick="toggleTodoSection(this)"
+                            style="background:#f06a6a; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;">
+                            <h4 style="margin:0; color:#fff; font-size:15px; font-weight:500;">
+                                Private Comments
+                            </h4>
+                            <i class="fa-solid fa-chevron-down"
+                            style="color:#fff; font-size:16px; transition:transform 0.2s;"></i>
+                        </div>
+
+                        {{-- Body --}}
+                        <div style="padding:12px; background:var(--color-background-primary, #fff);">
+
+                            @foreach($pendingComments as $comment)
+
+                                <div class="comment-item"
+                                    data-id="{{ $comment->id }}"
+                                    style="border:0.5px solid #e5e7eb;
+                                        border-radius:8px;
+                                        padding:10px 14px;
+                                        margin-bottom:8px;
+                                        display:flex;
+                                        justify-content:space-between;
+                                        align-items:center;
+                                        cursor:pointer;
+                                        transition:background 0.15s;"
+                                    onmouseover="this.style.background='#f9fafb'"
+                                    onmouseout="this.style.background=''">
+
+                                    {{-- LEFT SIDE --}}
+                                    <div style="font-size:13.5px; color:inherit;">
+                                        A private comment was added by
+                                        <span style="font-weight:500; color:#3b82f6;">
+                                            {{ $comment->user->first_name ?? 'Unknown' }}
+                                        </span>
+                                        on {{ $comment->created_at->format('M d, Y \a\t g:i A') }}.
+                                    </div>
+                                </div>
+
+                            @endforeach
+
+                        </div>
+                    </div>
+
+                </div>
+
+            @endif
         </div>
     @endif
           <div class="main-section">
@@ -1022,10 +1082,6 @@
                             role="tab">
 
                         <span>Comments</span><i class="fas fa-comment icon"></i>
-
-                        <!-- <span class="badge bg-primary ms-2">
-                            {{ count($CommentsData) }}
-                        </span> -->
 
                     </button>
 
@@ -1207,14 +1263,14 @@
                                                             <i class="fa-solid fa-link"></i>
 
                                                         </button>
-                                               <?php 
+                                               <?php
                                                     // $plainCommentText = trim(strip_tags($data->comments ?? ''));
                                                     // $normalizedCommentText = strtolower(
                                                     //     trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
                                                     // );
 
-                                                    // $commentWordCount = $plainCommentText === '' 
-                                                    //     ? 0 
+                                                    // $commentWordCount = $plainCommentText === ''
+                                                    //     ? 0
                                                     //     : count(preg_split('/\s+/', $plainCommentText));
 
                                                     // $noResponsePhrases = [
@@ -1225,7 +1281,7 @@
 
 
                                                     // $isShortClientReply = false;
-                                            
+
                                                     // if ($data->user->role_id == 6) {
                                                     //     if (in_array($normalizedCommentText, $noResponsePhrases)) {
 
@@ -1235,7 +1291,7 @@
                                                     //         }
                                                     //     }
                                                     // }
-                                                
+
                                                     $plainCommentText = trim(strip_tags($data->comments ?? ''));
 
                                                     // Normalize text (lowercase + remove special characters)
@@ -1244,8 +1300,8 @@
                                                     );
 
                                                     // Count words
-                                                    $commentWordCount = $plainCommentText === '' 
-                                                        ? 0 
+                                                    $commentWordCount = $plainCommentText === ''
+                                                        ? 0
                                                         : count(preg_split('/\s+/', $plainCommentText));
 
                                                     // Common short reply phrases
@@ -1273,9 +1329,9 @@
                                                         }
                                                     }
 
-                                                 
+
                                                     ?>
-                                                      
+
                                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
                                                                 <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
                                                                  data-id="{{ $data->id }}" data-status="{{ $data->status }}" data-bs-toggle="tooltip"
@@ -1312,8 +1368,8 @@
                                                             </button>
                                                         </span>
                                                         {{-- NO RESPONSE NEEDED (short closing client replies like "thanks" / "ok") --}}
-                                      
-                                                       @if(auth()->user()->designation != "Client" && $data->status != "replied") 
+
+                                                       @if(auth()->user()->designation != "Client" && $data->status != "replied")
                                                         @if($isShortClientReply && $data->status != 'acknowledged')
                                                             <span data-bs-toggle="tooltip"
                                                                 data-bs-title="{{ $data->status == 'no_response' ? 'Marked as No Response Needed' : (in_array(auth()->user()->role_id, [1,3]) ? 'Mark as No Response Needed' : 'No action required') }}">
@@ -1336,7 +1392,7 @@
                                                         @if(!empty($data->response_by))
                                                                 <span data-bs-toggle="tooltip"
                                                                     data-bs-title="No Response marked by {{ $data->response_user_first_name }} {{ $data->response_user_last_name }}">
-                                                                    
+
                                                                     <i class="fa-solid fa-comment-slash text-danger"
                                                                     style="font-size:14px; margin-left:5px;"></i>
                                                                 </span>
@@ -1357,7 +1413,7 @@
                                             <div class="d-flex justify-content-between align-items-start">
                                                 {{-- COMMENT --}}
                                                 <div style="word-break:auto-phrase; flex:1;">
-                                                  
+
                                                     {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                                 </div>
                                                 {{-- ACTIONS --}}
@@ -1593,18 +1649,19 @@
 
                         </div>
                 </div> -->
-                  <div class="tab-pane fade" id="updates-pane" role="tabpanel">
+                <!-- private comment section -->
+                <div class="tab-pane fade" id="updates-pane" role="tabpanel">
                     <div class="chat-container" style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
                         @if($daily_updates->count())
                             @foreach($daily_updates as $data)
-                                <div class="message pinned-comment go-to-comment"
+                                <div class="message pinned-comment "
                                     data-id="{{ $data->id }}"
                                     id="pinned-comment-{{ $data->id }}"
                                     style="cursor:pointer;">
                                     <div class="info">
                                         {{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}
                                     </div>
-                                    
+
                                     <div class="user">
                                         {{-- AVATAR --}}
                                         @if(!empty($data->user->profile_picture))
@@ -1614,7 +1671,7 @@
                                         @else
                                             <div class="avatar">
                                                 {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
-                                              
+
                                             </div>
                                         @endif
                                         <div class="d-flex align-items-center w-100">
@@ -1628,12 +1685,38 @@
                                             <div class="ms-auto d-flex align-items-center gap-2">
 
                                                 {{-- SHARE --}}
-                                                <button type="button" 
+                                                <button type="button"
                                                     class="btn btn-link p-0 copy-comment"
                                                     data-comment-id="{{ $data->id }}"
                                                     data-comment-text="{{ strip_tags(preg_replace('/<p>(h|g)?<\/p>/', '', $data->update_text)) }}">
-                                                    <i class="fa-solid fa-link"></i>
+                                                    <i class="fa-solid fa-copy"></i>
                                                 </button>
+                                                <span class="acknowledge-pending-comment"
+                                                    data-id="{{ $data->id }}"
+                                                    data-status="{{ $data->status }}"
+                                                    style="position:relative;
+                                                            display:inline-flex;
+                                                            align-items:center;
+                                                            font-size:19px;
+                                                            cursor:{{ $data->status == 'pending' ? 'pointer' : 'default' }};">
+
+                                                    <i class="thumb-icon fa-thumbs-up
+                                                        {{ $data->status == 'acknowledged'
+                                                            ? 'fa-solid text-success'
+                                                            : 'fa-regular text-muted' }}">
+                                                    </i>
+
+                                                    <i class="tick-icon fa-solid fa-check"
+                                                    style="position:absolute;
+                                                            top:-5px;
+                                                            right:-5px;
+                                                            font-size:10px;
+                                                            color:#22c55e;
+                                                            background:#fff;
+                                                            border-radius:50%;
+                                                            display:{{ $data->status == 'acknowledged' ? 'block' : 'none' }};">
+                                                    </i>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -2657,7 +2740,7 @@ $(document).on('click', '.acknowledge-toggle', function () {
 });
 
 // No Response Needed toggle (for short closing client replies like "thanks" / "ok")
-$(document).on('click', '.no-response-toggle', function () { 
+$(document).on('click', '.no-response-toggle', function () {
     const role = {{ auth()->user()->role_id }};
     if (![1, 3].includes(role)) {
         return;
@@ -2673,7 +2756,7 @@ $(document).on('click', '.no-response-toggle', function () {
     console.log('Ticket ID:', ticketId);
 
     $.ajax({
-        url: '/no-response-comment', 
+        url: '/no-response-comment',
         type: 'POST',
         data: {
             comment_id: commentId,
@@ -2718,7 +2801,44 @@ $(document).on('click', '.no-response-toggle', function () {
         }
     });
 });
+$(document).on('click', '.acknowledge-pending-comment', function () {
 
+    let el = $(this);
+
+    if (el.data('status') === 'acknowledged') {
+        return;
+    }
+
+    $.ajax({
+        url: "{{ route('private-comment.acknowledge') }}",
+        type: "POST",
+        data: {
+            id: el.data('id'),
+            _token: "{{ csrf_token() }}"
+        },
+        success: function (response) {
+
+            if (response.success) {
+
+                el.attr('data-status', 'acknowledged');
+
+                el.find('.thumb-icon')
+                    .removeClass('fa-regular text-muted')
+                    .addClass('fa-solid text-success');
+
+                el.find('.tick-icon').show();
+            }
+        }
+    });
+
+});
+$(document).on('click', '.comment-item', function () {
+
+    // Open Private Comments tab
+    let tabTrigger = new bootstrap.Tab(document.querySelector('#updates-tab'));
+    tabTrigger.show();
+
+});
 $(document).ready(function () {
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -2822,7 +2942,7 @@ $(document).on('click', '.pin-comment', function () {
             let target = $('#comment-' + commentId);
 
             if (!target.length) return;
- 
+
             // adjust this value as needed (perfect alignment)
             let offset = 120;
 
@@ -2847,7 +2967,7 @@ $(document).on('click', '.pin-comment', function () {
     });
 
      $(document).on('click', '.openUpdateModal', function (e) {
-            var ticketId = $(".openUpdateModal").data("ticket-id"); 
+            var ticketId = $(".openUpdateModal").data("ticket-id");
             $('#ticket_id').val(ticketId);
             $('#othersUpdateModal').modal('show');
         });
@@ -2889,7 +3009,7 @@ $(document).on('click', '.pin-comment', function () {
                      location.reload();
                    }, 1000);
 
-                  
+
                 }
             },
             error: function(xhr) {
@@ -2925,12 +3045,12 @@ $(document).on('click', '.copy-comment', function(e) {
     function successUI() {
         let icon = $btn.find('i');
 
-        icon.removeClass('fa-link').addClass('fa-check');
+        icon.removeClass('fa-copy').addClass('fa-check');
 
         showCopyTooltip(btn, "Copied successfully");
 
         setTimeout(() => {
-            icon.removeClass('fa-check').addClass('fa-link');
+            icon.removeClass('fa-check').addClass('fa-copy');
         }, 1500);
     }
 
@@ -2963,7 +3083,7 @@ function showCopyTooltip(btn, message) {
                 zIndex: 9999,
                 whiteSpace: 'nowrap'
 
-    
+
             });
 
         $('body').append(tooltip);
