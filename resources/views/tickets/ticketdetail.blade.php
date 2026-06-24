@@ -1728,7 +1728,7 @@
                             @endforeach
                         @else
                             <div class="text-center text-muted mt-4">
-                                No pinned comments
+                                No private comments
                             </div>
                         @endif
                     </div>
@@ -1849,7 +1849,7 @@
                                    <small class="text-danger error-text update_text_error"></small>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-success">Share Update</button>
+                                <button class="btn btn-success">Save Comment</button>
                             </div>
                         </div>
                     </form>
@@ -1941,7 +1941,7 @@
     if (dailyUpdateEditorEl) {
       dailyUpdateQuill = new Quill(dailyUpdateEditorEl, {
         theme: 'snow',
-        placeholder: 'Write update for other developers...'
+        placeholder: 'Please write your private comment here...',
       });
     }
 
