@@ -1112,7 +1112,7 @@ class TicketsController extends Controller
         $login_id = auth()->id();
 
         CommentStatus::where('ticket_id', $ticket_id)
-                    // ->where('comment_id', $comment_id)
+                     ->where('comment_id', $comment_id)
                     ->update([
                         'response_by'     => $login_id,
                         'acknowledged_by' => $login_id,
