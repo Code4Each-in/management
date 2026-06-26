@@ -382,6 +382,14 @@
 </li>
 @endif
 
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('deployment/dashboard') ? '' : 'collapsed' }}" href="{{ route('deployment.dashboard') }}">
+        <i class="bi bi-person-badge"></i>
+        <span>Deployment Status</span>
+    </a>
+</li>
+
+
 </ul>
 </aside>
 

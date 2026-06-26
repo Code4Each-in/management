@@ -42,7 +42,14 @@ use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
-use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SettingsController; 
+// -------------------------------------------------------------------
+// Deployment Dashboard
+use App\Http\Controllers\DeploymentDashboardController;
+use App\Http\Controllers\DeploymentTicketController;
+use App\Http\Controllers\DeploymentBugController;
+use App\Http\Controllers\DeploymentReportController;
+use App\Http\Controllers\DeploymentNotificationController; 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -454,3 +461,49 @@ Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('tick
 
 Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin'])
     ->name('ticket-comments.pin');
+	
+Route::middleware(['web', 'auth'])->prefix('deployment')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [DeploymentDashboardController::class, 'index'])->name('deployment.dashboard');
+    // Tickets
+    Route::get('/tickets', [DeploymentTicketController::class, 'index'])->name('deployment.tickets.index');
+    Route::get('/tickets/create', [DeploymentTicketController::class, 'create'])->name('deployment.tickets.create');
+    Route::post('/tickets', [DeploymentTicketController::class, 'store'])->name('deployment.tickets.store');
+    Route::get('/tickets/{ticket}', [DeploymentTicketController::class, 'show'])->name('deployment.tickets.show');
+    Route::get('/tickets/{ticket}/edit', [DeploymentTicketController::class, 'edit'])->name('deployment.tickets.edit');
+    Route::put('/tickets/{ticket}', [DeploymentTicketController::class, 'update'])->name('deployment.tickets.update');
+    Route::delete('/tickets/{ticket}', [DeploymentTicketController::class, 'destroy'])->name('deployment.tickets.destroy');
+
+    // Workflow actions
+    Route::post('/tickets/{ticket}/submit-for-review', [DeploymentTicketController::class, 'submitForReview'])->name('deployment.tickets.submitForReview');
+    Route::post('/tickets/{ticket}/resubmit', [DeploymentTicketController::class, 'resubmit'])->name('deployment.tickets.resubmit');
+    Route::post('/tickets/{ticket}/review', [DeploymentTicketController::class, 'review'])->name('deployment.tickets.review');
+    Route::post('/tickets/{ticket}/start-testing', [DeploymentTicketController::class, 'startTesting'])->name('deployment.tickets.startTesting');
+    Route::post('/tickets/{ticket}/testing', [DeploymentTicketController::class, 'testing'])->name('deployment.tickets.testing');
+    Route::post('/tickets/{ticket}/mark-ready', [DeploymentTicketController::class, 'markReadyForDeployment'])->name('deployment.tickets.markReady');
+    Route::post('/tickets/{ticket}/approve-deployment', [DeploymentTicketController::class, 'approveDeployment'])->name('deployment.tickets.approveDeployment');
+    Route::post('/tickets/{ticket}/mark-deployed', [DeploymentTicketController::class, 'markDeployed'])->name('deployment.tickets.markDeployed');
+    Route::post('/tickets/{ticket}/rollback', [DeploymentTicketController::class, 'rollback'])->name('deployment.tickets.rollback');
+    Route::post('/tickets/{ticket}/override-status', [DeploymentTicketController::class, 'overrideStatus'])->name('deployment.tickets.overrideStatus');
+    Route::post('/tickets/{ticket}/comments', [DeploymentTicketController::class, 'addComment'])->name('deployment.tickets.comments.store');
+    Route::delete('/attachments/{attachment}', [DeploymentTicketController::class, 'deleteAttachment'])->name('deployment.attachments.destroy');
+
+    // Bugs (nested under ticket for creation, standalone for everything else)
+    Route::post('/tickets/{ticket}/bugs', [DeploymentBugController::class, 'store'])->name('deployment.bugs.store');
+    Route::get('/bugs/{bug}', [DeploymentBugController::class, 'show'])->name('deployment.bugs.show');
+    Route::get('/bugs/{bug}/edit', [DeploymentBugController::class, 'edit'])->name('deployment.bugs.edit');
+    Route::put('/bugs/{bug}', [DeploymentBugController::class, 'update'])->name('deployment.bugs.update');
+    Route::post('/bugs/{bug}/status', [DeploymentBugController::class, 'changeStatus'])->name('deployment.bugs.changeStatus');
+    Route::post('/bugs/{bug}/verify', [DeploymentBugController::class, 'verify'])->name('deployment.bugs.verify');
+    Route::post('/bugs/{bug}/comments', [DeploymentBugController::class, 'addComment'])->name('deployment.bugs.comments.store');
+    Route::delete('/bugs/{bug}', [DeploymentBugController::class, 'destroy'])->name('deployment.bugs.destroy');
+
+    // Reports
+    Route::get('/reports', [DeploymentReportController::class, 'index'])->name('deployment.reports.index');
+
+    // Notifications
+    Route::get('/notifications', [DeploymentNotificationController::class, 'index'])->name('deployment.notifications.index');
+    Route::post('/notifications/{notification}/read', [DeploymentNotificationController::class, 'markAsRead'])->name('deployment.notifications.read');
+    Route::post('/notifications/read-all', [DeploymentNotificationController::class, 'markAllAsRead'])->name('deployment.notifications.readAll');
+});
