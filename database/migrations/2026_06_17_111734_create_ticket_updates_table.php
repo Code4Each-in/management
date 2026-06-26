@@ -15,11 +15,11 @@ class CreateTicketUpdatesTable extends Migration
     {
         Schema::create('ticket_updates', function (Blueprint $table) {
             $table->id();
-            $table->Integer('ticket_id')->nullable();  
-            $table->Integer('user_id')->nullable(); 
-            $table->date('update_date')->nullable(); 
-            $table->longText('update_text')->nullable();    
-            $table->timestamps(); 
+            $table->Integer('ticket_id')->nullable();
+            $table->Integer('user_id')->nullable();
+            $table->date('update_date')->nullable();
+            $table->longText('update_text')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

@@ -42,14 +42,14 @@ use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Response;
-use App\Http\Controllers\SettingsController; 
+use App\Http\Controllers\SettingsController;
 // -------------------------------------------------------------------
 // Deployment Dashboard
 use App\Http\Controllers\DeploymentDashboardController;
 use App\Http\Controllers\DeploymentTicketController;
 use App\Http\Controllers\DeploymentBugController;
 use App\Http\Controllers\DeploymentReportController;
-use App\Http\Controllers\DeploymentNotificationController; 
+use App\Http\Controllers\DeploymentNotificationController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -127,8 +127,8 @@ Route::middleware(['role_permission'])->group(function () {
 	Route::get('/view/ticket/{ticketId}', [TicketsController::class, 'viewTicket'])->name('tickets.ticketdetail')->middleware('client.ticket.access');
 	// Route::get('/view-document/{filename}', [TicketsController::class, 'viewDocument'])->name('document.view');
 	Route::get('/tickets/create', [TicketsController::class, 'create'])->name('tickets.create');
-	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']); 
-	
+	Route::post('/tickets/{id}/update-status', [TicketsController::class, 'updateStatus']);
+
 
 	// Route::resource('/departments', DepartmentsController::class)->name('departments.index');
 
@@ -445,6 +445,8 @@ Route::post('/ticket/log-hours', [TicketsController::class, 'logHours'])->name('
 
 Route::post('/acknowledge-comment', [TicketsController::class, 'acknowledgeComment']);
 Route::post('/no-response-comment', [TicketsController::class, 'no_response_comment']);
+Route::post('/private-comment/acknowledge', [TicketsController::class, 'acknowledgePrivateComment'])
+    ->name('private-comment.acknowledge');
 // routes/web.php
 
 // Email Templates
@@ -461,7 +463,7 @@ Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('tick
 
 Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin'])
     ->name('ticket-comments.pin');
-	
+
 Route::middleware(['web', 'auth'])->prefix('deployment')->group(function () {
 
     // Dashboard

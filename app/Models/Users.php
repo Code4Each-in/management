@@ -147,7 +147,7 @@ class Users extends Authenticatable
 
     public function dailyUpdateUser()
     {
-        return $this->hasMany(TicketUpdate::class, 'user_id', 'id');
+        return $this->hasMany(PrivateComment::class, 'user_id', 'id');
     }
 
 }
