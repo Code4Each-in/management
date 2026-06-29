@@ -8,6 +8,7 @@ use App\Models\DeploymentReviewHistory;
 use App\Models\DeploymentStatusHistory;
 use App\Models\Users;
 use App\Models\Projects;
+use App\Models\Tickets;
 use App\Services\DeploymentActivityLogger;
 use App\Services\DeploymentCodeGenerator;
 use App\Services\DeploymentNotifier;
@@ -53,7 +54,7 @@ class DeploymentTicketController extends Controller
         }
 
         $tickets = $query->orderByDesc('id')->paginate(15)->withQueryString();
-        $projects = Projects::where('status', 'active')->orderBy('project_name')->get();       
+        $projects = Projects::where('status', 'active')->orderBy('project_name')->get();
         $developers = Users::whereIn('role_id', [1, 3])->where('status', 1)->orderBy('first_name')->get();
         $statusOptions = DeploymentTicket::statusOptions();
 
@@ -62,9 +63,8 @@ class DeploymentTicketController extends Controller
 
     public function create()
     {
-        $projects =  Projects::where('status', 'active')->orderBy('project_name')->get();    
+        $projects =  Projects::where('status', 'active')->orderBy('project_name')->get();
         $users = Users::whereIn('role_id', [1, 3])->where('status', 1)->orderBy('first_name')->get();
-
         return view('deployment.tickets.create', compact('projects', 'users'));
     }
 
@@ -131,21 +131,24 @@ class DeploymentTicketController extends Controller
     }
 
     public function show(DeploymentTicket $ticket)
-    { 
-        $ticket->load([ 
+    {
+        $ticket->load([
             'project', 'creator', 'developer', 'reviewer', 'qaTester',
             'attachments', 'reviewHistory.reviewer', 'bugs.developer', 'bugs.reporter',
             'statusHistory.changedBy', 'activityLogs.user', 'comments.user',
         ]);
-        
+
         $users = Users::orderBy('first_name')->get();
-    
-        return view('deployment.tickets.show', compact('ticket', 'users'));
+        $relatedTicket = null;
+            if ($ticket->related_ticket_ids) {
+                $relatedTicket = Tickets::select('id', 'title')->find($ticket->related_ticket_ids);
+            }
+        return view('deployment.tickets.show', compact('ticket', 'users', 'relatedTicket'));
     }
 
     public function edit(DeploymentTicket $ticket)
-    { 
-        $projects = Projects::where('status', 'active')->orderBy('project_name')->get();    
+    {
+        $projects = Projects::where('status', 'active')->orderBy('project_name')->get();
         $users =    $users = Users::whereIn('role_id', [1, 3])->where('status', 1)->orderBy('first_name')->get();
 
         return view('deployment.tickets.edit', compact('ticket', 'projects', 'users'));
@@ -586,5 +589,18 @@ class DeploymentTicketController extends Controller
         DeploymentActivityLogger::log($ticket, 'Attachment Removed', $attachment->original_name, null);
 
         return back()->with('success', 'Attachment removed.');
+    }
+    /**
+     * Get in-progress tickets for a given project (AJAX).
+     */
+    public function getTicketsByProject($projectId)
+    {
+        $tickets = Tickets::where('project_id', $projectId)
+            ->where('status', 'in_progress')
+            ->select('id', 'title')
+            ->orderBy('title')
+            ->get();
+
+        return response()->json($tickets);
     }
 }

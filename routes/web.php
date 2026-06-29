@@ -476,6 +476,8 @@ Route::middleware(['web', 'auth'])->prefix('deployment')->group(function () {
     Route::get('/tickets/{ticket}/edit', [DeploymentTicketController::class, 'edit'])->name('deployment.tickets.edit');
     Route::put('/tickets/{ticket}', [DeploymentTicketController::class, 'update'])->name('deployment.tickets.update');
     Route::delete('/tickets/{ticket}', [DeploymentTicketController::class, 'destroy'])->name('deployment.tickets.destroy');
+    Route::get('/tickets/by-project/{project}', [DeploymentTicketController::class, 'getTicketsByProject'])
+        ->name('deployment.tickets.byProject');
 
     // Workflow actions
     Route::post('/tickets/{ticket}/submit-for-review', [DeploymentTicketController::class, 'submitForReview'])->name('deployment.tickets.submitForReview');

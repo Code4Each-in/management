@@ -202,16 +202,6 @@ class DeploymentTicket extends Model
             && ! $this->hasOpenBugs();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Per-ticket role checks
-    |--------------------------------------------------------------------------
-    | There is no separate "Developer / Reviewer / QA" role table - whoever is
-    | assigned to assigned_developer_id / reviewer_id / qa_tester_id on THIS
-    | ticket is treated as that role, for THIS ticket only. role_id = 1
-    | (Super Admin) always passes every check.
-    */
-
     public function isSuperAdmin(?int $userId = null): bool
     {
         $userId = $userId ?? auth()->id();
