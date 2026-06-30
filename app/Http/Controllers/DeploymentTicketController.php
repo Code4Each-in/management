@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeploymentAttachment;
 use App\Models\DeploymentTicket;
 use App\Models\DeploymentBug;
 use App\Models\Projects;
 use App\Models\User;
 use App\Models\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class DeploymentTicketController extends Controller
@@ -259,5 +261,86 @@ class DeploymentTicketController extends Controller
         $ticket->changeStatus('qa_review', auth()->id());
 
         return back()->with('success', 'Deployment rolled back — sent  for re-review.');
+    }
+    public function edit(DeploymentTicket $ticket)
+    {
+        $isAssignedDeveloper = $ticket->developers->pluck('id')->contains(auth()->id());
+        // if (!in_array($ticket->status, ['draft', 'needs_fix', 'qa_review'])
+        //     || !($ticket->created_by == auth()->id() || $isAssignedDeveloper)) {
+        //     abort(403, 'This ticket can no longer be edited.');
+        // }
+
+        $projects = Projects::all();
+        $users = Users::all();
+
+        return view('deployment.edit', compact('ticket', 'projects', 'users'));
+    }
+
+    public function update(Request $request, DeploymentTicket $ticket)
+    {
+        $validated = $request->validate([
+            'deployment_name' => 'required|string|max:255',
+            'project_id' => 'required|exists:projects,id',
+            'priority' => 'required|in:Low,Medium,High,Critical',
+            'assigned_developer_ids' => 'nullable|array',
+            'assigned_developer_ids.*' => 'exists:users,id',
+            'qa_id' => 'nullable|exists:users,id',
+        ]);
+
+        $validated['db_changes_required'] = $request->boolean('db_changes_required');
+
+        $validated += $request->only([
+            'related_ticket_ids', 'changes_done', 'files_modified', 'modules_affected',
+            'testing_done', 'deployment_notes', 'migration_details',
+            'current_version', 'new_version', 'deployment_date',
+        ]);
+
+        $developerIds = $validated['assigned_developer_ids'] ?? [];
+        unset($validated['assigned_developer_ids']);
+
+        $ticket->update($validated);
+        $ticket->developers()->sync($developerIds);
+
+        if ($request->filled('remove_attachments')) {
+            $toRemove = $ticket->attachments()->whereIn('id', $request->remove_attachments)->get();
+            foreach ($toRemove as $attachment) {
+                Storage::disk('public')->delete($attachment->file_path);
+                $attachment->delete();
+            }
+        }
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $i => $file) {
+                if (!$file) continue;
+                $path = $file->store('deployment_attachments', 'public');
+                $ticket->attachments()->create([
+                    'type' => $request->attachment_types[$i] ?? 'Other',
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        return redirect()->route('deployment.tickets.show', $ticket)
+            ->with('success', 'Deployment ticket updated.');
+    }
+
+    public function deleteAttachment(DeploymentAttachment $attachment)
+    {
+        // get related ticket id
+        $ticketId = $attachment->deployment_ticket_id;
+
+        // delete file from storage
+        if ($attachment->file_path && Storage::exists($attachment->file_path)) {
+            Storage::delete($attachment->file_path);
+        }
+
+        // delete DB record
+        $attachment->delete();
+
+        // redirect back to edit page
+        return redirect()
+            ->route('deployment.tickets.edit', $ticketId)
+            ->with('success', 'Attachment deleted successfully.');
     }
 }

@@ -1,21 +1,22 @@
 @extends('layout')
 
-@section('title', 'New Deployment Ticket')
+@section('title', 'Edit ' . $ticket->deployment_code)
 
 @section('content')
 <div style="margin: 3rem auto; font-family: 'Nunito', sans-serif;">
 
   {{-- Page header --}}
   <div class="mb-4">
-    <a href="{{ route('deployment.tickets.index') }}" class="text-muted small text-decoration-none d-inline-flex align-items-center gap-1 mb-2" style="font-weight: 600; font-size: 13px;">
+    <a href="{{ route('deployment.tickets.show', $ticket) }}" class="text-muted small text-decoration-none d-inline-flex align-items-center gap-1 mb-2" style="font-weight: 600; font-size: 13px;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back to tickets
+      Back to ticket
     </a>
-    <p class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Fill in the details below to create a new deployment ticket.</p>
+    <p class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Editing {{ $ticket->deployment_code }} — update the details below.</p>
   </div>
 
-  <form method="POST" action="{{ route('deployment.tickets.store') }}" enctype="multipart/form-data">
+  <form method="POST" action="{{ route('deployment.tickets.update', $ticket) }}" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
 
     {{-- Basic Information --}}
     <div class="card border rounded-3 overflow-hidden mb-3 shadow-none">
@@ -29,30 +30,39 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Deployment name <span class="text-danger">*</span></label>
-            <input type="text" name="deployment_name" class="form-control form-control-sm" required value="{{ old('deployment_name') }}" placeholder="e.g. Auth token refresh flow" style="font-family: 'Nunito', sans-serif;">
+            <input type="text" name="deployment_name" class="form-control form-control-sm" required
+              value="{{ old('deployment_name', $ticket->deployment_name) }}" placeholder="e.g. Auth token refresh flow" style="font-family: 'Nunito', sans-serif;">
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Project <span class="text-danger">*</span></label>
             <select name="project_id" id="projectSelect" class="form-select form-select-sm" required style="font-family: 'Nunito', sans-serif;">
               <option value="">Select project</option>
               @foreach ($projects as $project)
-                <option value="{{ $project->id }}" @selected(old('project_id') == $project->
-                  {{ $project->project_name }}
+                <option value="{{ $project->id }}"
+                    {{ old('project_id', $ticket->project_id) == $project->id ? 'selected' : '' }}>
+                    {{ $project->project_name }}
                 </option>
-              @endforeach
+                            @endforeach
             </select>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Related ticket / task</label>
             <select name="related_ticket_ids" id="ticketSelect" class="form-select form-select-sm" style="font-family: 'Nunito', sans-serif;">
-              <option value="">Select project first</option>
+              @if($ticket->relatedTicket)
+                <option value="{{ $ticket->relatedTicket->id }}" selected>{{ $ticket->relatedTicket->title }}</option>
+              @else
+                <option value="">Select project first</option>
+              @endif
             </select>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Priority <span class="text-danger">*</span></label>
             <select name="priority" class="form-select form-select-sm" required style="font-family: 'Nunito', sans-serif;">
               @foreach (['Low', 'Medium', 'High', 'Critical'] as $p)
-                <option value="{{ $p }}" @selected(old('priority', 'Medium') === $p)>{{ $p }}</option>
+                <option value="{{ $p }}"
+                    {{ old('priority', $ticket->priority) === $p ? 'selected' : '' }}>
+                    {{ $p }}
+                </option>
               @endforeach
             </select>
           </div>
@@ -60,23 +70,29 @@
             <label class="form-label small fw-bold text-secondary mb-1">
                 Assigned Developers
             </label>
-
+            @php
+              $selectedDeveloperIds = array_map('intval', old('assigned_developer_ids', $ticket->developers->pluck('id')->toArray()));
+            @endphp
             <select name="assigned_developer_ids[]"
                     class="form-select select2"
                     multiple>
                 @foreach($users as $user)
-                    <option value="{{ $user->id }}">
-                        {{ $user->first_name }} {{ $user->last_name }}
-                    </option>
+                <option value="{{ $user->id }}"
+                    {{ in_array($user->id, $selectedDeveloperIds) ? 'selected' : '' }}>
+                    {{ $user->first_name }} {{ $user->last_name }}
+                </option>
                 @endforeach
             </select>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-bold text-secondary mb-1">Reviewer</label>
+            <label class="form-label small fw-bold text-secondary mb-1">QA</label>
             <select name="qa_id" class="form-select form-select-sm" style="font-family: 'Nunito', sans-serif;">
-              <option value="">Select reviewer</option>
+              <option value="">Reviewer</option>
               @foreach ($users as $user)
-                <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
+                <option value="{{ $user->id }}"
+                    {{ old('qa_id', $ticket->qa_id) == $user->id ? 'selected' : '' }}>
+                    {{ $user->first_name }} {{ $user->last_name }}
+                </option>
               @endforeach
             </select>
           </div>
@@ -96,34 +112,35 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Changes done</label>
-            <textarea name="changes_done" class="form-control form-control-sm" rows="3" placeholder="Summarize what was changed" style="font-family: 'Nunito', sans-serif;">{{ old('changes_done') }}</textarea>
+            <textarea name="changes_done" class="form-control form-control-sm" rows="3" placeholder="Summarize what was changed" style="font-family: 'Nunito', sans-serif;">{{ old('changes_done', $ticket->changes_done) }}</textarea>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Files modified</label>
-            <textarea name="files_modified" class="form-control form-control-sm" rows="3" placeholder="List changed files or paths" style="font-family: 'Nunito', sans-serif;">{{ old('files_modified') }}</textarea>
+            <textarea name="files_modified" class="form-control form-control-sm" rows="3" placeholder="List changed files or paths" style="font-family: 'Nunito', sans-serif;">{{ old('files_modified', $ticket->files_modified) }}</textarea>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Modules affected</label>
-            <textarea name="modules_affected" class="form-control form-control-sm" rows="2" placeholder="e.g. Auth, Notifications" style="font-family: 'Nunito', sans-serif;">{{ old('modules_affected') }}</textarea>
+            <textarea name="modules_affected" class="form-control form-control-sm" rows="2" placeholder="e.g. Auth, Notifications" style="font-family: 'Nunito', sans-serif;">{{ old('modules_affected', $ticket->modules_affected) }}</textarea>
           </div>
-        <div class="col-md-6">
+          <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary mb-1">Testing done</label>
+            @php $testingDoneVal = old('testing_done', $ticket->testing_done); @endphp
             <div class="d-flex align-items-center gap-3">
-                <div class="form-check form-check-inline">
+              <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="testing_done" id="testingDoneYes" value="1"
-                    @checked(old('testing_done') == '1')>
+                  @checked((string) $testingDoneVal === '1')>
                 <label class="form-check-label small" for="testingDoneYes" style="font-weight: 600;">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
+              </div>
+              <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="testing_done" id="testingDoneNo" value="0"
-                    @checked(old('testing_done', '0') == '0')>
+                  @checked((string) $testingDoneVal === '0')>
                 <label class="form-check-label small" for="testingDoneNo" style="font-weight: 600;">No</label>
-                </div>
+              </div>
             </div>
-        </div>
+          </div>
           <div class="col-12">
             <label class="form-label small fw-bold text-secondary mb-1">Deployment notes</label>
-            <textarea name="deployment_notes" class="form-control form-control-sm" rows="2" placeholder="Any instructions or caveats for the deployment step" style="font-family: 'Nunito', sans-serif;">{{ old('deployment_notes') }}</textarea>
+            <textarea name="deployment_notes" class="form-control form-control-sm" rows="2" placeholder="Any instructions or caveats for the deployment step" style="font-family: 'Nunito', sans-serif;">{{ old('deployment_notes', $ticket->deployment_notes) }}</textarea>
           </div>
         </div>
       </div>
@@ -143,14 +160,16 @@
             <label class="form-label small fw-bold text-secondary mb-2">Changes required?</label>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" name="db_changes_required" value="1"
-                id="dbChangesSwitch" @checked(old('db_changes_required'))>
-              <label class="form-check-label small" for="dbChangesSwitch" id="dbLabel" style="font-weight: 700;">No</label>
+                id="dbChangesSwitch" @checked(old('db_changes_required', $ticket->db_changes_required))>
+              <label class="form-check-label small" for="dbChangesSwitch" id="dbLabel" style="font-weight: 700;">
+                {{ old('db_changes_required', $ticket->db_changes_required) ? 'Yes' : 'No' }}
+              </label>
             </div>
           </div>
           <div class="col-md-9">
             <label class="form-label small fw-bold text-secondary mb-1">Migration details</label>
             <textarea name="migration_details" class="form-control form-control-sm" rows="3"
-              placeholder="Describe migrations or SQL script details. Attach the .sql file below if applicable." style="font-family: 'Nunito', sans-serif;">{{ old('migration_details') }}</textarea>
+              placeholder="Describe migrations or SQL script details. Attach the .sql file below if applicable." style="font-family: 'Nunito', sans-serif;">{{ old('migration_details', $ticket->migration_details) }}</textarea>
           </div>
         </div>
       </div>
@@ -165,7 +184,36 @@
         <span class="fw-bold small">Attachments</span>
       </div>
       <div class="card-body p-3">
-        <p class="text-muted mb-3" style="font-size: 12px; font-weight: 600;">Add screenshots, documents, SQL files, or other supporting files. You can add more from the ticket page later.</p>
+
+        @if($ticket->attachments->count())
+        <p class="text-muted mb-2" style="font-size: 12px; font-weight: 600;">Existing files. Check "Remove" to delete on save.</p>
+        <div class="mb-3">
+          @foreach($ticket->attachments as $attachment)
+          @php
+            $typeIcon = match($attachment->type ?? 'Other') {
+              'Screenshot' => 'bi-image',
+              'Document'   => 'bi-file-earmark-text',
+              'SQL'        => 'bi-filetype-sql',
+              default      => 'bi-file-earmark',
+            };
+          @endphp
+          <div class="d-flex align-items-center gap-2 py-2 border-bottom" style="font-size:13.5px;">
+            <i class="bi {{ $typeIcon }} text-muted" style="font-size:15px;"></i>
+            <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="text-decoration-none flex-grow-1 min-w-0 text-truncate" style="font-weight:600;">
+              {{ $attachment->original_name ?? basename($attachment->file_path) }}
+            </a>
+            <span class="badge bg-light text-secondary border" style="font-size:10.5px; font-weight:700;">{{ $attachment->type ?? 'Other' }}</span>
+            <a href="{{ route('deployment.attachments.destroy', $attachment->id) }}"
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Delete this attachment?')">
+                    <i class="bi bi-trash"></i> Delete
+            </a>
+          </div>
+          @endforeach
+        </div>
+        @endif
+
+        <p class="text-muted mb-3" style="font-size: 12px; font-weight: 600;">Add new screenshots, documents, SQL files, or other supporting files.</p>
         <div id="attachment-rows">
           <div class="row g-2 mb-2 attachment-row">
             <div class="col-md-3">
@@ -189,7 +237,7 @@
     </div>
 
     <div class="d-flex justify-content-end align-items-center gap-2 pb-4">
-        <a href="{{ route('deployment.tickets.index') }}"
+        <a href="{{ route('deployment.tickets.show', $ticket) }}"
         class="btn btn-outline-secondary btn-sm"
         style="min-width:120px; font-weight:700;">
             Cancel
@@ -197,7 +245,7 @@
         <button type="submit"
                 class="btn btn-primary btn-sm d-inline-flex align-items-center"
                 style="width:auto; display:inline-flex; font-weight:600;">
-            <i class="bi bi-send me-1"></i> Submit for Review
+            <i class="bi bi-save me-1"></i> Save Changes
         </button>
     </div>
 
@@ -237,6 +285,10 @@ $(function () {
         placeholder: 'Select Developers',
         width: '100%'
     });
+
+    // Explicitly set pre-selected developers (fixes select2 not showing existing values on edit)
+    var preselectedDevelopers = @json($selectedDeveloperIds ?? []);
+    $('.select2').val(preselectedDevelopers.map(String)).trigger('change');
 });
 </script>
 @endsection

@@ -47,40 +47,122 @@
         </button>
     </form>
     @endif
-
+    <a href="{{ route('deployment.tickets.edit', $ticket) }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+        <i class="bi bi-pencil"></i> Edit
+    </a>
     </div>
   <div class="mb-4"></div>
 
-  {{-- Info card --}}
-  <div class="card border rounded-3 shadow-none mb-3">
+  {{-- Basic Information --}}
+  <div class="card border rounded-3 overflow-hidden mb-3 shadow-none">
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background: var(--bs-light);">
+      <div class="d-flex align-items-center justify-content-center rounded-2 border bg-white" style="width:28px;height:28px;color:#6b7280;">
+        <i class="bi bi-info-circle" style="font-size:13px;"></i>
+      </div>
+      <span class="fw-bold small">Basic information</span>
+    </div>
     <div class="row g-0" style="font-size:14px;">
       @foreach([
-        ['Project',    $ticket->project->project_name ?? '—'],
-        ['Priority',   $ticket->priority],
-        ['Developers', $ticket->developers->pluck('first_name')->implode(', ') ?: '—'],
-        ['QA',         $ticket->qa->first_name ?? '—'],
+        ['Deployment name', $ticket->deployment_name],
+        ['Project',         $ticket->project->project_name ?? '—'],
+        ['Related ticket',  $ticket->relatedTicket->title ?? '—'],
+        ['Priority',        $ticket->priority],
+        ['Assigned developers', $ticket->developers->pluck('first_name')->implode(', ') ?: '—'],
+        ['QA',              $ticket->qa->first_name ?? '—'],
       ] as [$label, $value])
       <div class="col-md-6 px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
         <div class="text-uppercase text-muted fw-bold mb-1" style="font-size:11px;letter-spacing:.05em;">{{ $label }}</div>
         <div style="font-weight: 600;">{{ $value }}</div>
       </div>
       @endforeach
+    </div>
+  </div>
 
+  {{-- Deployment Details --}}
+  <div class="card border rounded-3 overflow-hidden mb-3 shadow-none">
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background: var(--bs-light);">
+      <div class="d-flex align-items-center justify-content-center rounded-2 border bg-white" style="width:28px;height:28px;color:#6b7280;">
+        <i class="bi bi-file-earmark-text" style="font-size:13px;"></i>
+      </div>
+      <span class="fw-bold small">Deployment details</span>
+    </div>
+    <div class="row g-0" style="font-size:14px;">
       @foreach([
         ['Changes done',      $ticket->changes_done],
         ['Files modified',    $ticket->files_modified],
-        ['Testing done',      $ticket->testing_done],
+        ['Modules affected',  $ticket->modules_affected],
         ['Deployment notes',  $ticket->deployment_notes],
       ] as [$label, $value])
-      @if($value)
-      <div class="col-12 px-3 py-2 border-top">
+      <div class="col-md-6 px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
         <div class="text-uppercase text-muted fw-bold mb-1" style="font-size:11px;letter-spacing:.05em;">{{ $label }}</div>
-        <div @if($label === 'Files modified') class="font-monospace" style="font-size:13px;" @endif>{{ $value }}</div>
+        <div @if($label === 'Files modified') class="font-monospace" style="font-size:13px;" @endif style="font-weight: 600;">{{ $value ?: '—' }}</div>
+      </div>
+      @endforeach
+
+      {{-- Testing done: Yes / No / hidden if not set --}}
+      @if(!is_null($ticket->testing_done))
+      <div class="col-md-6 px-3 py-2 border-bottom">
+        <div class="text-uppercase text-muted fw-bold mb-1" style="font-size:11px;letter-spacing:.05em;">Testing done</div>
+        <div style="font-weight: 600;">{{ $ticket->testing_done == 1 ? 'Yes' : 'No' }}</div>
       </div>
       @endif
+    </div>
+  </div>
+
+  {{-- Database Changes --}}
+  <div class="card border rounded-3 overflow-hidden mb-3 shadow-none">
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background: var(--bs-light);">
+      <div class="d-flex align-items-center justify-content-center rounded-2 border bg-white" style="width:28px;height:28px;color:#6b7280;">
+        <i class="bi bi-database" style="font-size:13px;"></i>
+      </div>
+      <span class="fw-bold small">Database changes</span>
+    </div>
+    <div class="row g-0" style="font-size:14px;">
+      <div class="col-md-3 px-3 py-2 {{ $ticket->db_changes_required ? 'border-bottom border-md-bottom-0 border-md-end' : '' }}">
+        <div class="text-uppercase text-muted fw-bold mb-1" style="font-size:11px;letter-spacing:.05em;">Changes required?</div>
+        <div style="font-weight: 600;">{{ $ticket->db_changes_required ? 'Yes' : 'No' }}</div>
+      </div>
+      @if($ticket->db_changes_required)
+      <div class="col-md-9 px-3 py-2">
+        <div class="text-uppercase text-muted fw-bold mb-1" style="font-size:11px;letter-spacing:.05em;">Migration details</div>
+        <div style="font-size:13px;">{{ $ticket->migration_details ?: '—' }}</div>
+      </div>
+      @endif
+    </div>
+  </div>
+
+  {{-- Attachments --}}
+  @if($ticket->attachments->count())
+  <div class="card border rounded-3 overflow-hidden shadow-none mb-3">
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background:var(--bs-light);">
+      <div class="d-flex align-items-center justify-content-center rounded-2 border bg-white" style="width:26px;height:26px;color:#6b7280;">
+        <i class="bi bi-paperclip" style="font-size:13px;"></i>
+      </div>
+      <span class="fw-bold small">Attachments</span>
+      <span class="text-muted ms-auto" style="font-size:11px; font-weight: 700;">{{ $ticket->attachments->count() }} {{ Str::plural('file', $ticket->attachments->count()) }}</span>
+    </div>
+
+    <div class="px-3 py-2">
+      @foreach($ticket->attachments as $attachment)
+      @php
+        $typeIcon = match($attachment->type ?? 'Other') {
+          'Screenshot' => 'bi-image',
+          'Document'   => 'bi-file-earmark-text',
+          'SQL'        => 'bi-filetype-sql',
+          default      => 'bi-file-earmark',
+        };
+      @endphp
+      <div class="d-flex align-items-center gap-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="font-size:13.5px;">
+        <i class="bi {{ $typeIcon }} text-muted" style="font-size:15px;"></i>
+        <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="text-decoration-none flex-grow-1 min-w-0 text-truncate" style="font-weight:600;">
+          {{ $attachment->original_name ?? basename($attachment->file_path) }}
+        </a>
+        <span class="badge bg-light text-secondary border" style="font-size:10.5px; font-weight:700;">{{ $attachment->type ?? 'Other' }}</span>
+      </div>
       @endforeach
     </div>
   </div>
+  @endif
 
   {{-- Action buttons --}}
   @php

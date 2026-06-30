@@ -74,4 +74,8 @@ class DeploymentTicket extends Model
             'new_status' => $newStatus,
         ]);
     }
+    public function relatedTicket()
+    {
+        return $this->belongsTo(Tickets::class, 'related_ticket_ids');
+    }
 }
