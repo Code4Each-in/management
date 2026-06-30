@@ -14,23 +14,98 @@ use Illuminate\Support\Str;
 
 class DeploymentTicketController extends Controller
 {
-    public function index()
-    {
-        $tickets = DeploymentTicket::with(['project', 'developers', 'qa'])->latest()->paginate(20);
+    // public function index()
+    // {
+    //     $tickets = DeploymentTicket::with(['project', 'developers', 'qa'])->latest()->paginate(20);
 
-        $stats = [
-            'total' => DeploymentTicket::count(),
-            'qa_review' => DeploymentTicket::where('status', 'qa_review')->count(),
-            'needs_fix' => DeploymentTicket::where('status', 'needs_fix')->count(),
-            'approved' => DeploymentTicket::where('status', 'approved')->count(),
-            'deployed' => DeploymentTicket::where('status', 'deployed')->count(),
-            'open_bugs' => DeploymentBug::whereIn('status', ['open', 'fixed'])->count(),
-            'rolled_back' => DeploymentTicket::where('status', 'rolled_back')->count(),
-        ];
+    //     $stats = [
+    //         'total' => DeploymentTicket::count(),
+    //         'deplyoment_pending' => DeploymentTicket::where('status', 'deplyoment_pending')->count(),
+    //         'needs_fix' => DeploymentTicket::where('status', 'needs_fix')->count(),
+    //         'approved' => DeploymentTicket::where('status', 'approved')->count(),
+    //         'deployed' => DeploymentTicket::where('status', 'deployed')->count(),
+    //         'open_bugs' => DeploymentBug::whereIn('status', ['open', 'fixed'])->count(),
+    //         'rolled_back' => DeploymentTicket::where('status', 'rolled_back')->count(),
+    //     ];
 
-        return view('deployment.index', compact('tickets', 'stats'));
+    //     return view('deployment.index', compact('tickets', 'stats'));
+    // }
+public function index(Request $request)
+{
+    $search = $request->input('search');
+    $filterText = $request->input('filter_text');
+    $projectId = $request->input('project_id');
+
+    $query = DeploymentTicket::with(['project', 'developers', 'qa'])
+        ->when($projectId, function ($q) use ($projectId) {
+            $q->where('project_id', $projectId);
+        })
+        ->when($search, function ($q) use ($search) {
+            $q->where(function ($qq) use ($search) {
+                $qq->where('deployment_code', 'like', "%{$search}%")
+                   ->orWhere('deployment_name', 'like', "%{$search}%")
+                   ->orWhereHas('project', fn($pq) => $pq->where('project_name', 'like', "%{$search}%"))
+                   ->orWhereHas('developers', fn($dq) => $dq->where('first_name', 'like', "%{$search}%")->orWhere('last_name', 'like', "%{$search}%"))
+                   ->orWhereHas('qa', fn($qaq) => $qaq->where('first_name', 'like', "%{$search}%")->orWhere('last_name', 'like', "%{$search}%"));
+            });
+        })
+        ->when($filterText, function ($q) use ($filterText) {
+            $q->where(function ($qq) use ($filterText) {
+                $qq->where('modules_affected', 'like', "%{$filterText}%")
+                   ->orWhere('files_modified', 'like', "%{$filterText}%")
+                   ->orWhere('migration_details', 'like', "%{$filterText}%");
+            });
+        });
+
+    $filteredIds = (clone $query)->pluck('id');
+
+    $stats = [
+        'total'       => $filteredIds->count(),
+        'deplyoment_pending'   => (clone $query)->where('status', 'deplyoment_pending')->count(),
+        'needs_fix'   => (clone $query)->where('status', 'needs_fix')->count(),
+        'approved'    => (clone $query)->where('status', 'approved')->count(),
+        'deployed'    => (clone $query)->where('status', 'deployed')->count(),
+        'rolled_back' => (clone $query)->where('status', 'rolled_back')->count(),
+        'open_bugs'   => DeploymentBug::whereIn('deployment_ticket_id', $filteredIds)
+                            ->whereIn('status', ['open', 'fixed'])->count(),
+    ];
+
+    $tickets = $query->latest()->paginate(20)
+        ->appends(['search' => $search, 'filter_text' => $filterText, 'project_id' => $projectId]);
+
+    if ($request->ajax() || $request->wantsJson()) {
+        return response()->json([
+            'stats' => $stats,
+            'tickets' => $tickets->map(function ($t) {
+                return [
+                    'code' => $t->deployment_code,
+                    'name' => $t->deployment_name,
+                    'project' => $t->project->project_name ?? '—',
+                    'developers' => $t->developers->pluck('first_name')->implode(', ') ?: '—',
+                    'qa' => $t->qa->first_name ?? '—',
+                    'status' => $t->status,
+                    'status_label' => str_replace('_', ' ', $t->status),
+                    'priority' => $t->priority,
+                    'show_url' => route('deployment.tickets.show', $t),
+                ];
+            }),
+            'pagination' => [
+                'current_page' => $tickets->currentPage(),
+                'last_page' => $tickets->lastPage(),
+                'first_item' => $tickets->firstItem(),
+                'last_item' => $tickets->lastItem(),
+                'total' => $tickets->total(),
+                'links' => collect($tickets->linkCollection())->map(fn($l) => [
+                    'url' => $l['url'], 'label' => $l['label'], 'active' => $l['active'],
+                ]),
+            ],
+        ]);
     }
 
+    $projects = Projects::orderBy('project_name')->get();
+
+    return view('deployment.index', compact('tickets', 'stats', 'search', 'filterText', 'projectId', 'projects'));
+}
     public function create()
     {
         $projects = Projects::where('status', 'active')->orderBy('project_name')->get();
@@ -56,7 +131,7 @@ class DeploymentTicketController extends Controller
         $nextId = DeploymentTicket::max('id') + 1;
         $validated['deployment_code'] = 'DEP-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
         $validated['created_by'] = auth()->id();
-        $validated['status'] = 'qa_review';
+        $validated['status'] = 'deplyoment_pending';
         $validated['db_changes_required'] = $request->boolean('db_changes_required');
 
         $validated += $request->only([
@@ -74,7 +149,7 @@ class DeploymentTicketController extends Controller
         $ticket->logs()->create([
             'user_id' => auth()->id(),
             'old_status' => null,
-            'new_status' => 'qa_review',
+            'new_status' => 'deplyoment_pending',
         ]);
 
         if ($request->hasFile('attachments')) {
@@ -101,7 +176,7 @@ class DeploymentTicketController extends Controller
 
     public function submitForQA(DeploymentTicket $ticket)
     {
-        $ticket->changeStatus('qa_review', auth()->id());
+        $ticket->changeStatus('deplyoment_pending', auth()->id());
         return back()->with('success', 'Submitted for QA.');
     }
 
@@ -258,14 +333,14 @@ class DeploymentTicketController extends Controller
             return back()->with('error', 'Only deployed tickets can be rolled back.');
         }
 
-        $ticket->changeStatus('qa_review', auth()->id());
+        $ticket->changeStatus('deplyoment_pending', auth()->id());
 
         return back()->with('success', 'Deployment rolled back — sent  for re-review.');
     }
     public function edit(DeploymentTicket $ticket)
     {
         $isAssignedDeveloper = $ticket->developers->pluck('id')->contains(auth()->id());
-        // if (!in_array($ticket->status, ['draft', 'needs_fix', 'qa_review'])
+        // if (!in_array($ticket->status, ['draft', 'needs_fix', 'deplyoment_pending'])
         //     || !($ticket->created_by == auth()->id() || $isAssignedDeveloper)) {
         //     abort(403, 'This ticket can no longer be edited.');
         // }
