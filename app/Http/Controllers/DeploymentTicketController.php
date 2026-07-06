@@ -146,23 +146,47 @@ public function index(Request $request)
         $ticket = DeploymentTicket::create($validated);
         $ticket->developers()->sync($developerIds);
 
-        $ticket->logs()->create([
+        $ticket->logs()->create([ 
             'user_id' => auth()->id(),
             'old_status' => null,
             'new_status' => 'deplyoment_pending',
         ]);
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $i => $file) {
-                if (!$file) continue;
-                $path = $file->store('deployment_attachments', 'public');
-                $ticket->attachments()->create([
-                    'type' => $request->attachment_types[$i] ?? 'Other',
-                    'file_path' => $path,
-                    'original_name' => $file->getClientOriginalName(),
-                ]);
-            }
-        }
+            // if ($request->hasFile('attachments')) {
+            //     foreach ($request->file('attachments') as $i => $file) {
+            //         if (!$file) continue;
+            //         $path = $file->store('deployment_attachments', 'public');
+            //         $ticket->attachments()->create([
+            //             'type' => $request->attachment_types[$i] ?? 'Other',
+            //             'file_path' => $path,
+            //             'original_name' => $file->getClientOriginalName(),
+            //         ]);
+            //     }
+            // }
+
+               if ($request->hasFile('attachments')) {
+                    foreach ($request->file('attachments') as $i => $file) {
+                        if (!$file) {
+                            continue;
+                        }
+
+                        $filename = time() . '_' . $file->getClientOriginalName();
+
+                        // Ensure the directory exists
+                        if (!file_exists(public_path('storage/deployment_attachments'))) {
+                            mkdir(public_path('storage/deployment_attachments'), 0755, true);
+                        }
+
+                        // Move the file
+                        $file->move(public_path('storage/deployment_attachments'), $filename);
+
+                        $ticket->attachments()->create([
+                            'type' => $request->attachment_types[$i] ?? 'Other',
+                            'file_path' => 'deployment_attachments/' . $filename,
+                            'original_name' => $file->getClientOriginalName(),
+                        ]);
+                    }
+                }
 
         return redirect()->route('deployment.tickets.show', $ticket)
             ->with('success', 'Deployment ticket created.');
