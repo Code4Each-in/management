@@ -37,7 +37,7 @@ class CreateDeploymentTicketsTable extends Migration
             $table->string('new_version')->nullable();
             $table->date('deployment_date')->nullable();
 
-            $table->string('status')->default('draft'); // draft, qa_review, needs_fix, approved, deployed
+            $table->string('status')->default('draft'); // draft, deplyoment_pending, needs_fix, approved, deployed
             $table->boolean('qa_approved')->default(false);
             $table->unsignedInteger('fix_attempts')->default(0);
 

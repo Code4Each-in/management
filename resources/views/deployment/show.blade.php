@@ -23,7 +23,7 @@
   @php
     $statusMeta = match($ticket->status) {
       'draft'      => ['label' => 'Draft',      'color' => '#6b7280', 'bg' => 'rgba(107,114,128,.1)'],
-      'qa_review'      => ['label' => 'Deplyoment pending',      'color' => 'var(--bs-primary)', 'bg' => 'rgba(var(--bs-primary-rgb),.1)'],
+      'deplyoment_pending'      => ['label' => 'Deplyoment pending',      'color' => 'var(--bs-primary)', 'bg' => 'rgba(var(--bs-primary-rgb),.1)'],
       'needs_fix'  => ['label' => 'Needs fix',  'color' => 'var(--bs-warning)', 'bg' => 'rgba(var(--bs-warning-rgb),.12)'],
       'approved'   => ['label' => 'Approved',   'color' => 'var(--bs-success)', 'bg' => 'rgba(var(--bs-success-rgb),.12)'],
       'deployed'   => ['label' => 'Deployed',   'color' => '#0f172a', 'bg' => 'rgba(15,23,42,.06)'],
@@ -32,24 +32,30 @@
     };
   @endphp
 
-    <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+    <div class="d-flex align-items-center justify-content-between gap-3 mb-3 flex-wrap">
 
-    <span class="badge rounded-pill fw-bold py-2 px-3 flex-shrink-0"
-            style="font-size:12px;color:{{ $statusMeta['color'] }};background:{{ $statusMeta['bg'] }}">
-        {{ $statusMeta['label'] }}
-    </span>
+        <span class="badge rounded-pill fw-semibold py-2 px-3"
+            style="font-size:12px; letter-spacing:0.02em; color:{{ $statusMeta['color'] }}; background:{{ $statusMeta['bg'] }};">
+            {{ $statusMeta['label'] }}
+        </span>
 
-    @if($ticket->status === 'deployed' && auth()->user()->role_id == 1)
-    <form method="POST" action="{{ route('deployment.tickets.rollback', $ticket) }}">
-        @csrf
-        <button class="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1">
-            <i class="bi bi-arrow-counterclockwise"></i> Undo Deployment
-        </button>
-    </form>
-    @endif
-    <a href="{{ route('deployment.tickets.edit', $ticket) }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
-        <i class="bi bi-pencil"></i> Edit
-    </a>
+        <div class="d-flex align-items-center gap-2">
+            @if($ticket->status === 'deployed' && auth()->user()->role_id == 1)
+            <form method="POST" action="{{ route('deployment.tickets.rollback', $ticket) }}" class="m-0">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1"
+                        onclick="return confirm('Roll back this deployment? It will be sent back for re-review.');">
+                    <i class="bi bi-arrow-counterclockwise"></i> Undo Deployment
+                </button>
+            </form>
+            @endif
+
+            <a href="{{ route('deployment.tickets.edit', $ticket) }}"
+            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+        </div>
+
     </div>
   <div class="mb-4"></div>
 
@@ -181,7 +187,7 @@
     </form>
     @endif
 
-    @if(($ticket->status === 'qa_review' || $ticket->status === 'rolled_back') && $isAssignedQA)
+    @if(($ticket->status === 'deplyoment_pending' || $ticket->status === 'rolled_back') && $isAssignedQA)
     <form method="POST" action="{{ route('deployment.tickets.approve', $ticket) }}">
         @csrf
         <button class="btn btn-success btn-sm d-inline-flex align-items-center gap-1" style="font-weight: 700;">
@@ -276,7 +282,7 @@
       @forelse($ticket->logs as $log)
       @php
         $statusMap = [
-          'qa_review'     => ['label' => 'Deplyoment pending',     'color' => '#0d6efd', 'icon' => 'bi-search'],
+          'deplyoment_pending'     => ['label' => 'Deplyoment pending',     'color' => '#0d6efd', 'icon' => 'bi-search'],
           'needs_fix' => ['label' => 'Needs fix', 'color' => '#f59e0b', 'icon' => 'bi-tools'],
           'approved'  => ['label' => 'Approved',  'color' => '#198754', 'icon' => 'bi-check-circle'],
           'deployed'  => ['label' => 'Deployed',  'color' => '#0f172a', 'icon' => 'bi-rocket-takeoff'],
@@ -301,7 +307,7 @@
 
         // Human-readable sentence for what happened
         $verb = match($log->new_status) {
-          'qa_review'     => $oldMeta ? 'submitted this for QA review' : 'created this ticket and sent it for QA Review',
+          'deplyoment_pending'     => $oldMeta ? 'submitted this for QA review' : 'created this ticket and sent it for QA Review',
           'needs_fix' => $relatedBug ? 'raised a bug' : 'sent this back for fixes',
           'approved'  => 'approved this ticket',
           'deployed'  => 'marked this as deployed',
