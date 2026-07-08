@@ -17,7 +17,7 @@ class ScheduledEmailRecipient extends Model
         'sent_at' => 'datetime',  // NEW
     ];
 
-    public function client() 
+    public function client()
     {
         return $this->belongsTo(Client::class);
     }

@@ -21,7 +21,7 @@
                 <div class="card-body pt-4">
 
                     <form action="{{ route('templates.update', $template->id) }}"
-                          method="POST" enctype="multipart/form-data" id="template-form">
+                          method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -105,66 +105,22 @@
                                         style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
                                     + project_name
                                 </button>
-                                <button type="button" onclick="insertPlaceholder('banner_image')"
+                                <button type="button" onclick="insertPlaceholder('sender_name')"
                                         class="btn btn-sm me-1 mb-1"
                                         style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
-                                    + banner_image
+                                    + sender_name
+                                </button>
+                                <button type="button" onclick="insertPlaceholder('meeting_date')"
+                                        class="btn btn-sm me-1 mb-1"
+                                        style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
+                                    + meeting_date
                                 </button>
                             </div>
 
-                            <div class="col-sm-12">
-                                <div id="toolbar-container">
-                                    <span class="ql-formats">
-                                        <select class="ql-font"></select>
-                                        <select class="ql-size"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-script" value="sub"></button>
-                                        <button class="ql-script" value="super"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-header" value="1"></button>
-                                        <button class="ql-header" value="2"></button>
-                                        <button class="ql-blockquote"></button>
-                                        <button class="ql-code-block"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                        <button class="ql-indent" value="-1"></button>
-                                        <button class="ql-indent" value="+1"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-direction" value="rtl"></button>
-                                        <select class="ql-align"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="ql-image"></button>
-                                        <button class="ql-video"></button>
-                                        <button class="ql-formula"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-clean"></button>
-                                    </span>
-                                </div>
-                                <div id="editor" style="height: 300px;">{!! old('body', $template->body) !!}</div>
-                                <input type="hidden" name="body" id="body-input" value="{{ old('body', $template->body) }}">
-
-                                @error('body')
-                                <span style="font-size: 12px;" class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
+                            {{-- NO placeholder= attribute here to avoid Blade parsing issues --}}
+                            <textarea name="body" id="body-textarea" rows="7"
+                                      class="form-control @error('body') is-invalid @enderror">{{ old('body', $template->body) }}</textarea>
+                            @error('body')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         {{-- Live preview --}}
@@ -172,9 +128,9 @@
                             <label class="form-label fw-semibold">Live Preview</label>
                             <div class="border rounded overflow-hidden">
                                 @if($template->banner_image)
-                                <!-- <img id="preview-banner"
+                                <img id="preview-banner"
                                      src="{{ asset('storage/' . $template->banner_image) }}"
-                                     class="w-100" style="max-height:80px;object-fit:cover"> -->
+                                     class="w-100" style="max-height:80px;object-fit:cover">
                                 @else
                                 <div id="preview-banner-placeholder"
                                      style="height:50px;background:linear-gradient(90deg,#EEEDFE,#E6F1FB);
@@ -183,6 +139,7 @@
                                 </div>
                                 @endif
 
+                                {{-- Use {!! !!} so innerText updates work, body is set via JS not Blade echo --}}
                                 <div class="p-3" style="font-size:13px;color:#555;line-height:1.7" id="live-preview"></div>
 
                                 <div class="px-3 py-2 border-top" style="background:#f8f9fa;font-size:11px;color:#999">
@@ -192,6 +149,13 @@
                         </div>
 
                         <div class="d-flex gap-2 justify-content-between">
+                            <form action="{{ route('templates.destroy', $template->id) }}" method="POST"
+                                  onsubmit="return confirm('Delete this template?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('templates.index') }}" class="btn btn-secondary">Cancel</a>
                                 <button type="submit" class="btn btn-primary">
@@ -214,10 +178,12 @@
                     </h6>
                     <table class="table table-sm table-borderless">
                         <tbody>
+                            {{-- Use @{{ to escape curly braces from Blade --}}
                             <tr><td><code>@{{client_name}}</code></td><td class="text-muted small">Client's name</td></tr>
                             <tr><td><code>@{{company_name}}</code></td><td class="text-muted small">App name</td></tr>
                             <tr><td><code>@{{project_name}}</code></td><td class="text-muted small">Project name</td></tr>
-                            <tr><td><code>@{{banner_image}}</code></td><td class="text-muted small">Banner image (inline)</td></tr>
+                            <tr><td><code>@{{sender_name}}</code></td><td class="text-muted small">Logged-in user</td></tr>
+                            <tr><td><code>@{{meeting_date}}</code></td><td class="text-muted small">Custom date</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -227,121 +193,47 @@
     </div>
 </section>
 
-{{-- Quill CSS + JS (skip these two lines if Quill is already loaded in your layout) --}}
-<link href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
-
+@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const editorEl = document.getElementById('editor');
-        const bodyInput = document.getElementById('body-input');
-        const form = document.getElementById('template-form');
+    // Set live preview content from PHP on page load
+    var templateBody = @json(old('body', $template->body));
+    document.getElementById('live-preview').innerText = templateBody;
 
-        if (!editorEl || !bodyInput || !form) {
-            console.error('Init failed: missing #editor, #body-input, or #template-form');
-            return;
+    function previewBanner(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('banner-preview-img').src = e.target.result;
+                document.getElementById('banner-preview-wrap').classList.remove('d-none');
+                document.getElementById('upload-zone').style.display = 'none';
+                const pb = document.getElementById('preview-banner');
+                if (pb) pb.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
         }
+    }
 
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: '#toolbar-container'
-            }
-        });
+    function removeBanner() {
+        document.getElementById('banner_image').value = '';
+        document.getElementById('banner-preview-wrap').classList.add('d-none');
+        document.getElementById('upload-zone').style.display = 'block';
+    }
 
-        // Track whichever banner is currently "active" — either the
-        // originally saved one, or a newly chosen file (base64 preview)
-        let currentBannerSrc = @json($template->banner_image ? asset('storage/' . $template->banner_image) : null);
-        const originalBannerSrc = currentBannerSrc; // remembered so removeBanner() can restore it
+    function insertPlaceholder(name) {
+        const ph = '{' + '{' + name + '}' + '}';
+        const ta = document.getElementById('body-textarea');
+        const start = ta.selectionStart;
+        const end   = ta.selectionEnd;
+        ta.value = ta.value.substring(0, start) + ph + ta.value.substring(end);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = start + ph.length;
+        document.getElementById('live-preview').innerText = ta.value;
+    }
 
-        function syncBody() {
-            bodyInput.value = quill.root.innerHTML;
-        }
-
-   
-        // or a muted placeholder box if no banner is set yet
-        function renderBodyForPreview(html) {
-            const placeholderRegex = /\{\{\s*banner_image\s*\}\}/gi;
-
-            if (currentBannerSrc) {
-                const imgTag = '<img src="' + currentBannerSrc + '" '
-                    + 'style="max-width:100%;border-radius:6px;margin:6px 0;display:block;" '
-                    + 'alt="Banner image">';
-                return html.replace(placeholderRegex, imgTag);
-            }
-
-            const emptyBox = '<span style="display:inline-block;padding:10px 14px;'
-                + 'background:#f1f1f1;color:#999;border-radius:4px;font-size:12px;">'
-                + '[ Banner image will appear here ]</span>';
-            return html.replace(placeholderRegex, emptyBox);
-        }
-
-        function updateLivePreview() {
-            const preview = document.getElementById('live-preview');
-            if (preview) preview.innerHTML = renderBodyForPreview(quill.root.innerHTML);
-        }
-
-        syncBody();
-        updateLivePreview();
-
-        quill.on('text-change', function () {
-            syncBody();
-            updateLivePreview();
-        });
-
-        form.addEventListener('submit', function (e) {
-            syncBody();
-            if (quill.getText().trim().length === 0) {
-                e.preventDefault();
-                alert('Email body cannot be empty.');
-            }
-        });
-
-        window.previewBanner = function (input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('banner-preview-img').src = e.target.result;
-                    document.getElementById('banner-preview-wrap').classList.remove('d-none');
-                    document.getElementById('upload-zone').style.display = 'none';
-
-                    const pb = document.getElementById('preview-banner');
-                    if (pb) pb.src = e.target.result;
-
-                  
-                    currentBannerSrc = e.target.result;
-                    updateLivePreview();
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
-
-        window.removeBanner = function () {
-            document.getElementById('banner_image').value = '';
-            document.getElementById('banner-preview-wrap').classList.add('d-none');
-            document.getElementById('upload-zone').style.display = 'block';
-
-            // Revert inline preview back to the originally saved banner (if any)
-            currentBannerSrc = originalBannerSrc;
-            updateLivePreview();
-        };
-
-        window.insertPlaceholder = function (name) {
-            const open = '{' + '{';
-            const close = '}' + '}';
-            const ph = open + ' ' + name + ' ' + close;
-
-            let range = quill.getSelection();
-            if (!range) {
-                quill.focus();
-                const length = quill.getLength();
-                range = { index: length > 0 ? length - 1 : 0 };
-            }
-
-            quill.insertText(range.index, ph, 'user');
-            quill.setSelection(range.index + ph.length);
-        };
+    document.getElementById('body-textarea').addEventListener('input', function () {
+        document.getElementById('live-preview').innerText = this.value;
     });
 </script>
+@endpush
 
 @endsection
