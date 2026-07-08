@@ -24,17 +24,17 @@ class SendEmailToClientTemplate extends Command
 
     public function handle()
     {
-    Log::info('SendMailToClient command started');
+
         $scheduled_mails = ScheduledEmail::with([
                             'template',
                             'recipients.client.allprojects'
                         ])
                         ->where('status', 'scheduled')
-                    
+                        ->where('send_at', '<=', now())
+                        ->whereHas('recipients', function ($q) {
+                            $q->where('status', 'pending');
+                        })
                         ->get();
-           Log::info('Scheduled mails', [
-    'mails' => $scheduled_mails->toArray()
-]);
 
     
         foreach ($scheduled_mails as $mail) {
@@ -75,15 +75,8 @@ class SendEmailToClientTemplate extends Command
 
                 try {
                     // ✅ send to real client email
-
-                    Log::info('Before notify', [
-    'client' => $client->email,
-]);
-
      
                     $client->notify(new EmailTemplateNotification($message));
-
-                    Log::info('After notify');
 
                     // mark as sent
                     $recipient->update([
@@ -91,7 +84,7 @@ class SendEmailToClientTemplate extends Command
                         
                     ]);
 
-                } catch (\Throwable $e) {
+                } catch (\Exception $e) {
 
                     // mark as failed
                     $recipient->update([
@@ -104,15 +97,6 @@ class SendEmailToClientTemplate extends Command
                     //     'email'     => $client->email,
                     //     'error'     => $e->getMessage(),
                     // ]);
-
-                         Log::error('Email failed', [
-        'message' => $e->getMessage(),
-        'file'    => $e->getFile(),
-        'line'    => $e->getLine(),
-        'trace'   => $e->getTraceAsString(),
-    ]);
-
-    throw $e;
                 }
             }
 
