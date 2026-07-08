@@ -35,6 +35,7 @@ class SendEmailToClientTemplate extends Command
                             $q->where('status', 'pending');
                         })
                         ->get();
+            Log::info('Scheduled mails count', $scheduled_mails);
 
     
         foreach ($scheduled_mails as $mail) {
