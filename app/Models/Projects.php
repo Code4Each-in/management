@@ -36,7 +36,7 @@ class Projects extends Model
     //   return $this->belongsTo(Client::class);
     // }
 
-    public function clients() 
+    public function clients()
     {
         return $this->belongsToMany(
             Client::class,
@@ -46,11 +46,6 @@ class Projects extends Model
         )->withTimestamps();
     }
 
-    public function allClient()
-    {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
-    }
- 
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');

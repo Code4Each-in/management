@@ -445,13 +445,11 @@ Route::post('/private-comment/acknowledge', [TicketsController::class, 'acknowle
 
 // Email Templates
 Route::resource('templates', EmailTemplateController::class);
-Route::get('/mailtoclient', [EmailTemplateController::class, 'mailtoclient'])->name('mailtoclient');
-Route::post('/send/mail', [EmailTemplateController::class, 'send'])->name('mail.send');
-
 
 // Scheduled Emails
 Route::resource('scheduled', ScheduledEmailController::class);
-Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])->name('scheduled.tracking');
+Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
+    ->name('scheduled.tracking');
 // Feedback form (from email link)
 Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
 Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');

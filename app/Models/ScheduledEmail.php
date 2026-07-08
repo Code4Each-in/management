@@ -18,7 +18,7 @@ class ScheduledEmail extends Model
 
     public function template()
     {
-        return $this->belongsTo(EmailTemplate::class); 
+        return $this->belongsTo(EmailTemplate::class);
     }
 
     public function project()

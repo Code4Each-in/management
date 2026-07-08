@@ -19,7 +19,7 @@ class EmailTemplate extends Model
         return str_replace(
             [
                 '{{client_name}}',
-                '{{company_name}}', 
+                '{{company_name}}',
                 '{{project_name}}',
                 '{{sender_name}}',
             ],

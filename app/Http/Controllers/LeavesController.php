@@ -164,20 +164,19 @@ class LeavesController extends Controller
     
 
         if (auth()->user()->role->name == 'Super Admin')
-		{
+		{ 
             $teamLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
-        }elseif (auth()->user()->role->name == 'HR Manager') {
+        }elseif (auth()->user()->role->name == 'HR Manager') { 
             $teamLeaves= UserLeaves::join('users', 'user_leaves.user_id', '=', 'users.id')->where('user_leaves.user_id','!=', auth()->user()->id)->orderBy('id','desc')->get(['user_leaves.*','users.first_name']);
             
         }
          else
          {
-             $teamLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->get(['user_leaves.*', 'managers.user_id','users.first_name']);
+             $teamLeaves = UserLeaves::join('managers', 'user_leaves.user_id', '=', 'managers.user_id')->join('users', 'user_leaves.user_id', '=', 'users.id')->where('managers.parent_user_id',auth()->user()->id)->orderBy('id','desc')->get(['user_leaves.*', 'managers.user_id','users.first_name']);
          }
-         if (!empty($teamLeaves)){
+         if (!empty($teamLeaves)){ 
             $leaveStatus = UserLeaves::join('users', 'user_leaves.status_change_by', '=', 'users.id')
-        ->select('user_leaves.leave_status','user_leaves.id as leave_id','user_leaves.updated_at', 'users.first_name', 'users.last_name', )
-        ->get();
+        ->select('user_leaves.leave_status','user_leaves.id as leave_id','user_leaves.updated_at', 'users.first_name', 'users.last_name')->orderBy('user_leaves.id', 'desc')->get();
          }
 
         return view('leaves.team',compact('teamLeaves','leaveStatus','members'));

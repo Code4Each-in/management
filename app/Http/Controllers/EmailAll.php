@@ -12,7 +12,7 @@ class EmailAll extends Controller
      * Show the form to send emails to employees.
      */
     public function index()
-    { 
+    {
         $employees = Users::where('status', 1)->whereNull('client_id')->get();
 
         return view('Email.hrEmail', compact('employees'));
