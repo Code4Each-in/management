@@ -31,9 +31,6 @@ class SendEmailToClientTemplate extends Command
                         ])
                         ->where('status', 'scheduled')
                         ->where('send_at', '<=', now())
-                        ->whereHas('recipients', function ($q) {
-                            $q->where('status', 'pending');
-                        })
                         ->get();
            Log::info('Scheduled mails', [
     'mails' => $scheduled_mails->toArray()
