@@ -28,15 +28,13 @@ class Kernel extends ConsoleKernel
             try {
                 Artisan::call('leaves:quarterly');
                 info('Cron job for quarterly leave executed successfully!');
-                //   Artisan::call('test:scheduler');
-                // info('Cron job executed successfully!');
+            
             } catch (\Exception $e) {
-                // Log or handle the exception
+           
                 \Log::error('Error executing cron job: ' . $e->getMessage());
             }
         })->cron('0 0 1 */3 *');
-        // $schedule->command('credit-leaves:quarterly')->cron('0 0 1 */3 *');
-        // $schedule->command('credit-leaves:quarterly')->everyMinute();
+    
         $schedule->call(function () {
             try {
                 Artisan::call('votes:winner');
@@ -45,7 +43,7 @@ class Kernel extends ConsoleKernel
                 \Log::error('Error executing cron job: ' . $e->getMessage());
             }
         })->monthlyOn(1, '00:01');
-        //->everyMinute();
+       
         $schedule->command('reminders:check')->everyMinute();
         $schedule->command('send:project-reports')->monthlyOn(1, '10:00');
         // Runs every minute — checks if any emails are due
@@ -53,6 +51,8 @@ class Kernel extends ConsoleKernel
             $schedule->command('reminders:send')
             ->everyMinute()
             ->withoutOverlapping();
+
+        $schedule->command('SendMailToClient')->everyMinute();
 
     }
 

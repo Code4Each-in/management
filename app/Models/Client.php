@@ -3,10 +3,12 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Client extends Model
 {
     use HasFactory;
+     use Notifiable;
     protected $table = "clients";
     protected $fillable = [
         'name',
@@ -34,10 +36,12 @@ class Client extends Model
     const STATE_INACTIVE = 1;
     const STATE_TALKED = 2;
 
-//    public function projects()
-//    {
-//       return $this->hasMany(Project::class);
-//    }
+    public function allprojects()
+    {
+        return $this->hasMany(Projects::class, 'client_id', 'id');
+    }
+
+
     public function projects()
     {
         return $this->belongsToMany(Projects::class, 'project_clients', 'client_id', 'project_id')->withTimestamps();

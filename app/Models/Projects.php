@@ -68,6 +68,11 @@ class Projects extends Model
         return $this->hasMany(GroupMessage::class);
     }
 
+    public function allClient()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
+
 
 
 

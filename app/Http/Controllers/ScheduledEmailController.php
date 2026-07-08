@@ -31,13 +31,17 @@ class ScheduledEmailController extends Controller
         'send_at' => $request->send_date . ' ' . $request->send_time
     ]);
 
-    $request->validate([
-        'template_id'  => 'required|exists:email_templates,id',
-        'client_ids'   => 'required|array|min:1',
-        'client_ids.*' => 'exists:clients,id',
-        'project_id'   => 'nullable|exists:projects,id',
-        'send_at'      => 'required|date|after:now',
-    ]);
+        $request->validate([
+            'template_id'  => 'required|exists:email_templates,id',
+            'client_ids'   => 'required|array|min:1',
+            'client_ids.*' => 'exists:clients,id',
+            'project_id'   => 'nullable|exists:projects,id',
+
+            'send_date' => 'required|date|after_or_equal:today',
+            'send_time' => 'required',
+
+            'send_at'   => 'required|date|after:now',
+        ]);
         $email = ScheduledEmail::create([
             'template_id' => $request->template_id,
             'project_id'  => $request->project_id,   // NEW
