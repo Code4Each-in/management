@@ -60,13 +60,13 @@
             <div class="company-status">
                 <span class="status-indicator {{ $isOnline ? 'online' : 'offline' }}"></span>
                 <span class="status-text">
-                    Code4Each is 
-                    {{ $isOnline 
-                        ? 'Online' 
-                        : ($isHoliday 
-                            ? 'Offline (Holiday)' 
-                            : ($isWeekend 
-                                ? 'Offline (Weekend)' 
+                    Code4Each is
+                    {{ $isOnline
+                        ? 'Online'
+                        : ($isHoliday
+                            ? 'Offline (Holiday)'
+                            : ($isWeekend
+                                ? 'Offline (Weekend)'
                                 : 'Offline (Outside Working Hours)'
                             )
                         )
@@ -217,7 +217,7 @@
 
         <li><a class="{{ request()->is('projects*') ? 'active' : '' }}" href="{{ route('projects.index') }}"><i class="bi bi-circle"></i>Projects</a></li>
         <li><a class="{{ request()->is('tickets*') ? 'active' : '' }}" href="{{ route('tickets.index') }}"><i class="bi bi-circle"></i>Tickets</a></li>
-        
+
 
         @if(auth()->user()->role_id != 6)
         <li><a class="{{ request()->is('ticket-logs*') ? 'active' : '' }}" href="{{ route('ticket-logs.index') }}"><i class="bi bi-circle"></i>Ticket Logs</a></li>
@@ -248,7 +248,7 @@
     <ul id="comm-nav"
         class="nav-content collapse {{ request()->is('messages*','teamchat*','comments*','search*') ? 'show' : '' }}"
         data-bs-parent="#sidebar-nav">
-        
+
         @if(auth()->user()->role_id != 6)
         <li><a class="{{ request()->is('comments') ? 'active' : '' }}" href="{{ route('comments') }}"><i class="bi bi-circle"></i>Comments</a></li>
         <li><a class="{{ request()->is('search*') ? 'active' : '' }}" href="{{ route('search.index') }}"><i class="bi bi-circle"></i>Comment Search</a></li>
@@ -260,7 +260,7 @@
 
         <li><a class="{{ request()->is('teamchat*') ? 'active' : '' }}" href="{{ route('teamchat') }}"><i class="bi bi-circle"></i>Team Chat</a></li>
 
-       
+
 
 
     </ul>
@@ -292,7 +292,7 @@
         @if(auth()->user()->role->name == 'HR Manager' || auth()->user()->role->name == 'Super Admin')
         <li><a class="{{ request()->is('holidays') ? 'active' : '' }}" href="{{ route('holidays.index') }}"><i class="bi bi-circle"></i>Holidays</a></li>
         <li><a class="{{ request()->is('attendance/history') ? 'active' : '' }}" href="{{ route('attendance.history') }}"><i class="bi bi-circle"></i>Attendance History</a></li>
-        <li><a class="{{ request()->is('announcement') ? 'active' : '' }}" href="{{ route('announcement.create') }}"><i class="bi bi-circle"></i>Announcements</a></li>
+        <li><a class="{{ request()->is('announcement') ? 'active' : '' }}" href="{{ route('announcement.index') }}"><i class="bi bi-circle"></i>Announcements</a></li>
         <li><a class="{{ request()->is('developer.feedback') ? 'active' : '' }}" href="{{ route('developer.feedback') }}"><i class="bi bi-circle"></i>Feedbacks</a></li>
         @endif
 
@@ -382,6 +382,53 @@
 </li>
 @endif
 
+@if(auth()->user()->role->name == 'Super Admin')    
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('templates*','sendTemplate*') ? '' : 'collapsed' }}"
+       data-bs-target="#templates-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-sliders"></i><span>Templates</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="templates-nav" 
+        class="nav-content collapse {{ request()->is('templates*','mailtoclient*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+        <li>
+            <a class="{{ request()->is('templates*') ? 'active' : '' }}" href="{{ url('templates') }}">
+                <i class="bi bi-circle"></i>All Templates
+            </a>
+        </li>
+        <!-- <li>
+            <a class="{{ request()->is('mailtoclient*') ? 'active' : '' }}" href="{{ url('mailtoclient') }}">
+                <i class="bi bi-circle"></i>Mail To Client
+            </a>
+        </li> -->
+        <li>
+            <a class="{{ request()->is('scheduled*') ? 'active' : '' }}" href="{{ url('scheduled') }}">
+                <i class="bi bi-circle"></i>Scheduled Mail
+            </a>
+        </li>
+    </ul>
+</li>
+@endif
+
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('deployment*') ? '' : 'collapsed' }}"
+       data-bs-target="#deployment-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-rocket-takeoff"></i><span>Deployment</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="deployment-nav"
+        class="nav-content collapse {{ request()->is('deployment*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+
+        <li><a class="{{ request()->is('deployment') ? 'active' : '' }}" href="{{ route('deployment.tickets.index') }}"><i class="bi bi-circle"></i>Deployment Tickets</a></li>
+
+        <li><a class="{{ request()->is('deployment/reports') ? 'active' : '' }}" href="{{ route('deployment.reports') }}"><i class="bi bi-circle"></i>Reports</a></li>
+
+    </ul>
+</li>
 </ul>
 </aside>
 
