@@ -7,6 +7,7 @@ use App\Models\Projects;
 use App\Models\ScheduledEmail;
 use App\Models\ScheduledEmailRecipient;
 use Illuminate\Http\Request;
+Use Illuminate\Support\Carbon;
 
 class ScheduledEmailController extends Controller
 {
@@ -27,21 +28,31 @@ class ScheduledEmailController extends Controller
 
     public function store(Request $request)
     {
-    $request->merge([
-        'send_at' => $request->send_date . ' ' . $request->send_time
+      $request->validate([
+        'template_id'  => 'required|exists:email_templates,id',
+        'client_ids'   => 'required|array|min:1',
+        'client_ids.*' => 'exists:clients,id',
+        'project_id'   => 'nullable|exists:projects,id',
+
+        'send_date' => 'required|date|after_or_equal:today',
+        'send_time' => 'required',
     ]);
 
-        $request->validate([
-            'template_id'  => 'required|exists:email_templates,id',
-            'client_ids'   => 'required|array|min:1',
-            'client_ids.*' => 'exists:clients,id',
-            'project_id'   => 'nullable|exists:projects,id',
+    // ✅ Step 2: Combine date + time safely
+    $sendAt = Carbon::parse($request->send_date . ' ' . $request->send_time);
 
-            'send_date' => 'required|date|after_or_equal:today',
-            'send_time' => 'required',
+    // ✅ Step 3: Validate future datetime
+    if ($sendAt->isPast()) {
+        return back()->withErrors([
+            'send_time' => 'The selected time must be in the future.'
+        ])->withInput();
+    }
 
-            'send_at'   => 'required|date|after:now',
-        ]);
+    // ✅ Step 4: Save (example)
+    $request->merge([
+        'send_at' => $sendAt
+    ]);
+       
         $email = ScheduledEmail::create([
             'template_id' => $request->template_id,
             'project_id'  => $request->project_id,   // NEW

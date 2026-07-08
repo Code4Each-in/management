@@ -126,10 +126,11 @@
                                 <input type="time" name="send_time"
                                        class="form-control"
                                        value="09:00">
-                            </div>
-                            @error('send_time')
+                                           @error('send_time')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
+                            </div>
+                        
 
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">Timezone</label>
