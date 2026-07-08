@@ -97,6 +97,12 @@ class SendEmailToClientTemplate extends Command
                     //     'email'     => $client->email,
                     //     'error'     => $e->getMessage(),
                     // ]);
+
+                        \Log::error('Email failed', [
+                            'message' => $e->getMessage(),
+                            'file'    => $e->getFile(),
+                            'line'    => $e->getLine(),
+                        ]);
                 }
             }
 
