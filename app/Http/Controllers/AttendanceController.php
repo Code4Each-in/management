@@ -151,7 +151,6 @@ class AttendanceController extends Controller
                 $teamAttendance = UserAttendances::
                 select('user_attendances.*', 'users.first_name')
                 ->join('users', 'user_attendances.user_id', '=', 'users.id')
-                ->orderBy('user_attendances.id', 'desc')
                 ->when($request->has('team_member_filter'), function ($query) use ($request) {
                   $query->where('user_attendances.user_id', $request->get('team_member_filter'));
                 })
@@ -184,7 +183,6 @@ class AttendanceController extends Controller
                 select('user_attendances.*', 'users.first_name')
                 ->join('users', 'user_attendances.user_id', '=', 'users.id')
                 ->where('user_attendances.user_id','!=', auth()->user()->id)
-                ->orderBy('user_attendances.id', 'desc')
                 ->when($request->has('team_member_filter'), function ($query) use ($request) {
                   $query->where('user_attendances.user_id', $request->get('team_member_filter'));
                 })
@@ -217,7 +215,6 @@ class AttendanceController extends Controller
               ->join('users', 'user_attendances.user_id', '=', 'users.id')
               ->orderBy('created_at', 'desc')
               ->where('managers.parent_user_id', auth()->user()->id)
-               ->orderBy('user_attendances.id', 'desc')
               ->when($request->has('team_member_filter'), function ($query) use ($request) {
                 $query->where('user_attendances.user_id', $request->get('team_member_filter'));
               })

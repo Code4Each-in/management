@@ -23,8 +23,6 @@ use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Carbon\Carbon;
 use App\Models\TicketEstimationApproval;
 use App\Models\TicketWorkLog;
-use App\Models\CommentStatus;
-use App\Models\PrivateComment;
 use App\Notifications\EstimationApprovedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -1007,82 +1005,61 @@ class TicketsController extends Controller
         $projects = Projects::where('id', $projectId)->get();
         $ticketAssign = TicketAssigns::with('user')->where('ticket_id',$ticketId)->get();
 
-        $developers = Users::where('role_id', 3)
-            ->where('status', '!=', 0)
-            ->orderBy('first_name')
-            ->get();
-
-        // $CommentsData = TicketComments::with([
-        //                 'user',
-        //                 'pinnedByUser'
-        //                 ])
-        //                 ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
-        //                 ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
-        //                 ->select(
-        //                     'ticket_comments.*',
-        //                     'cs.status',
-        //                     'cs.acknowledged_by',
-        //                     'u.first_name as ack_user_name'
-        //                 )
-        //                 ->where('ticket_comments.ticket_id', $ticketId)
-        //                 ->orderBy('ticket_comments.created_at', 'asc')
-        //                 ->get();
-
-
+        // $CommentsData = TicketComments::with('user')
+        // ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
+        // ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
+        // ->select(
+        //     'ticket_comments.*',
+        //     'cs.status',
+        //     'cs.acknowledged_by',
+        //     'u.first_name as ack_user_name'
+        // )
+        // ->where('ticket_comments.ticket_id', $ticketId)
+        // ->orderBy('ticket_comments.created_at', 'asc')
+        // ->orderBy('ticket_comments.created_at', 'asc')
+        // ->get();
         $CommentsData = TicketComments::with([
-                            'user',
-                            'pinnedByUser'
-                        ])
-                        ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
-                        // ✅ Acknowledged By User
-                        ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
-                        // ✅ Response By User (NEW JOIN)
-                        ->leftJoin('users as ru', 'cs.response_by', '=', 'ru.id')
-                        ->select(
-                            'ticket_comments.*',
-                            'cs.status',
-                            'cs.acknowledged_by',
-                            'u.first_name as ack_user_name',
-                            'u.last_name as ack_last_name',
+        'user',
+        'pinnedByUser'
+        ])
+        ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
+        ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
+        ->select(
+            'ticket_comments.*',
+            'cs.status',
+            'cs.acknowledged_by',
+            'u.first_name as ack_user_name'
+        )
+        ->where('ticket_comments.ticket_id', $ticketId)
+        ->orderBy('ticket_comments.created_at', 'asc')
+        ->get();
 
-                            // ✅ Add this
-                            'cs.response_by',
-                             'ru.first_name as response_user_first_name',
-                            'ru.last_name as response_user_last_name'
-                        )
-                        ->where('ticket_comments.ticket_id', $ticketId)
-                        ->orderBy('ticket_comments.created_at', 'asc')
-                        ->get();
+    // ✅ find all developer replies
+    $developerReplies = $CommentsData->filter(function ($c) {
+        return isset($c->user) && $c->user->role_id == 3;
+    });
 
-        $daily_updates = PrivateComment::with('user')->where('ticket_id', $ticketId)->get();
+    foreach ($CommentsData as $comment) {
 
-
-        // ✅ find all developer replies
-        $developerReplies = $CommentsData->filter(function ($c) {
-            return isset($c->user) && $c->user->role_id == 3;
-        });
-
-        foreach ($CommentsData as $comment) {
-
-            if (!isset($comment->user)) {
-                $comment->is_replied = false;
-                continue;
-            }
-
-            if ($comment->user->role_id == 6) {
-
-                $hasReplyAfter = $developerReplies->first(function ($reply) use ($comment) {
-
-                    if (!isset($reply->created_at) || !isset($comment->created_at)) {
-                        return false;
-                    }
-
-                    return strtotime($reply->created_at) > strtotime($comment->created_at);
-                });
-
-                $comment->is_replied = $hasReplyAfter ? true : false;
-            }
+        if (!isset($comment->user)) {
+            $comment->is_replied = false;
+            continue;
         }
+
+        if ($comment->user->role_id == 6) {
+
+            $hasReplyAfter = $developerReplies->first(function ($reply) use ($comment) {
+
+                if (!isset($reply->created_at) || !isset($comment->created_at)) {
+                    return false;
+                }
+
+                return strtotime($reply->created_at) > strtotime($comment->created_at);
+            });
+
+            $comment->is_replied = $hasReplyAfter ? true : false;
+        }
+    }
 
         $spentHours = $tickets->workLogs()->sum('hours');
         $remainingHours = $tickets->time_estimation - $spentHours;
@@ -1096,32 +1073,9 @@ class TicketsController extends Controller
         ->where('ticket_id', $ticketId)
         ->latest()
         ->get();
-        $pendingComments = PrivateComment::with('user')
-            ->where('ticket_id', $ticketId)
-            ->where('status', 'pending')
-            ->latest()
-            ->get();
-       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'pendingComments', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos','developers', 'ticketId', 'daily_updates'));
 
-    }
+       return view('tickets.ticketdetail', compact('tickets','ticketAssign','user','CommentsData' ,'userCount','TicketDocuments','projects', 'ticketsCreatedByUser',  'projectName', 'client', 'spentHours', 'remainingHours','ticketTodos'));
 
-    public function no_response_comment(Request $request)
-    {
-        $ticket_id = $request->ticket_id;
-        $comment_id = $request->comment_id;
-        $login_id = auth()->id();
-
-        CommentStatus::where('ticket_id', $ticket_id)
-                     ->where('comment_id', $comment_id)
-                    ->update([
-                        'response_by'     => $login_id,
-                        'acknowledged_by' => $login_id,
-                        'status'          => 'acknowledged'
-                    ]);
-
-        return response()->json([
-            'new_status' => 'no_response' // or toggle logic if needed
-        ]);
     }
 
     public function logHours(Request $request)
@@ -1741,37 +1695,6 @@ public function uploadImage(Request $request)
         return response()->json([
             'success' => true,
             'message' => 'Comment unpinned'
-        ]);
-    }
-
-    public function storeUpdate(Request $request)
-    {
-        $request->validate([
-            'update_text' => 'required|string|max:5000',
-        ]);
-
-        PrivateComment::create([
-            'ticket_id'   => $request->ticket_id,
-            'user_id'     => auth()->id(),
-            'update_date' => now(),
-            'update_text' => $request->update_text,
-            'status'      => 'pending',
-        ]);
-
-        return response()->json([
-            'status' => 1,
-            'message' => 'Update saved successfully'
-        ]);
-    }
-    public function acknowledgePrivateComment(Request $request)
-    {
-        $comment = PrivateComment::findOrFail($request->id);
-
-        $comment->status = 'acknowledged';
-        $comment->save();
-
-        return response()->json([
-            'success' => true
         ]);
     }
 }

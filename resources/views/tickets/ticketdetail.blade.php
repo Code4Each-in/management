@@ -222,12 +222,16 @@
     {{-- Add Todo Button --}}
 
     @if(in_array(Auth::user()->role_id, [1,3]))
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ticketTodoModal"> Add Todo </button>
+
+        <button type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#ticketTodoModal">
+            Add Todo
+        </button>
+
     @endif
 
-    @if(in_array(Auth::user()->role_id, [1,3]))
-        <a type="button" class="btn btn-primary openUpdateModal" data-ticket-id="{{ $ticketId }}"> Private Comment </a>
-    @endif
 
 </div>
 <div id="loader">
@@ -241,6 +245,19 @@
       </div>
       <div class="task-title">
         <h4>{{ $tickets->title }}</h4>
+        <!-- <span class="task-status">
+          @if($tickets->status == 'complete')
+            <i class="fa-solid fa-circle-check"></i> Complete
+          @elseif($tickets->status == 'ready')
+            <i class="fa-solid fa-circle-check"></i> Ready
+            @elseif($tickets->status == 'deployed')
+            <i class="fa-solid fa-circle-check"></i> Deployed
+          @elseif($tickets->status == 'in_progress')
+            <i class="fa-solid fa-spinner fa-spin"></i> In Progress
+          @else
+            <i class="fa-solid fa-circle-dot"></i> To Do
+          @endif
+        </span> -->
       </div>
       <div class="task-toggle-icon">
         <i class="fa-solid fa-chevron-down"></i>
@@ -644,45 +661,112 @@
 </div>
 
     <!-- modal for adding todo -->
-    <div class="modal fade" id="ticketTodoModal" tabindex="-1" aria-labelledby="ticketTodoModalLabel" aria-hidden="true">
+    <div class="modal fade"
+        id="ticketTodoModal"
+        tabindex="-1"
+        aria-labelledby="ticketTodoModalLabel"
+        aria-hidden="true">
+
         <div class="modal-dialog">
             <div class="modal-content">
+
                 <form method="POST"
                     action="{{ route('todo_list.store') }}">
+
                     @csrf
+
                     <div class="modal-header">
-                        <h5 class="modal-title" id="ticketTodoModalLabel"> Create Ticket Todo </h5>
-                        <button type="button" class="btn-close"  data-bs-dismiss="modal" aria-label="Close"></button>
+
+                        <h5 class="modal-title"
+                            id="ticketTodoModalLabel">
+                            Create Ticket Todo
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+
                     </div>
+
                     <div class="modal-body">
+
                         {{-- Hidden Ticket ID --}}
-                        <input type="hidden" name="ticket_id" value="{{ $tickets->id }}">
+                        <input type="hidden"
+                            name="ticket_id"
+                            value="{{ $tickets->id }}">
+
                         {{-- Todo Title --}}
                         <div class="mb-3">
-                            <label class="form-label"> Todo Title </label>
-                            <textarea name="title" class="form-control" rows="4" placeholder="Enter todo details..." required></textarea>
+
+                            <label class="form-label">
+                                Todo Title
+                            </label>
+
+                            <textarea name="title"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Enter todo details..."
+                                    required></textarea>
+
                         </div>
+
                         {{-- Assign Developer --}}
                         <div class="mb-3">
-                            <label class="form-label"> Assign Developer </label>
-                                <select name="assigned_user_id" class="form-control" required>
-                                    <option value="">  Select Developer</option>
-                                    @foreach($developers as $developer)
-                                        <option value="{{ $developer->id }}"> {{ $developer->first_name }} {{ $developer->last_name ?? '' }} </option>
-                                    @endforeach
-                                </select>
+
+                            <label class="form-label">
+                                Assign Developer
+                            </label>
+
+                            <select name="assigned_user_id"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+                                    Select Developer
+                                </option>
+
+                                @foreach($ticketAssign as $assign)
+
+                                    @if($assign->user)
+
+                                        <option value="{{ $assign->user->id }}">
+
+                                            {{ $assign->user->first_name }}
+                                            {{ $assign->user->last_name ?? '' }}
+
+                                        </option>
+
+                                    @endif
+
+                                @endforeach
+
+                            </select>
+
                         </div>
+
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">  Close </button>
-                        <button type="submit" class="btn btn-primary">Create Todo</button>
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Close
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Create Todo
+                        </button>
+
                     </div>
+
                 </form>
+
             </div>
         </div>
     </div>
-
-
     <!-- Edit Todo Modal -->
     <div class="modal fade"
         id="editTodoModal"
@@ -735,24 +819,27 @@
                             <label class="form-label">
                                 Assign User
                             </label>
-                                <select class="form-control"
-                                        name="assigned_user_id"
-                                        id="edit_assigned_user">
 
-                                    <option value="">Select Developer</option>
+                            <select class="form-control"
+                                    name="assigned_user_id"
+                                    id="edit_assigned_user">
 
-                                    @foreach($developers as $developer)
+                                @foreach($ticketAssign as $assign)
 
-                                        <option value="{{ $developer->id }}"
-                                            id="dev_{{ $developer->id }}">
+                                    @if($assign->user)
 
-                                            {{ $developer->first_name }}
+                                        <option value="{{ $assign->user->id }}">
+
+                                            {{ $assign->user->first_name }}
 
                                         </option>
 
-                                    @endforeach
+                                    @endif
 
-                                </select>
+                                @endforeach
+
+                            </select>
+
                         </div>
 
                     </div>
@@ -777,282 +864,230 @@
             </div>
         </div>
     </div>
-    @if(in_array(Auth::user()->role_id, [1,3]))
-        <div class="container">
-            @if($ticketTodos->count() > 0)
-                <!-- ticket todo section -->
-                <div class="task-card">
+    <div class="container">
+        @if($ticketTodos->count() > 0)
+            <!-- ticket todo section -->
+            <div class="task-card">
 
-                    {{-- Header --}}
-                    <div class="task-header"
-                        onclick="toggleTodoSection(this)">
+                {{-- Header --}}
+                <div class="task-header"
+                    onclick="toggleTodoSection(this)">
 
-                        <div class="task-icon">
-                            <i class="fa-solid fa-list-check"></i>
-                        </div>
-
-                        <div class="task-title">
-                            <h4 class="mb-0">
-                                Ticket Todos
-                            </h4>
-                        </div>
-
-                        <div class="task-toggle-icon">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-
+                    <div class="task-icon">
+                        <i class="fa-solid fa-list-check"></i>
                     </div>
 
-                    {{-- Body --}}
-                    <div class="task-details"
-                        style="display:none;">
+                    <div class="task-title">
+                        <h4 class="mb-0">
+                            Ticket Todos
+                        </h4>
+                    </div>
 
-                        <div class="mt-3">
-                            {{-- Todo Table --}}
-                            <div class="table-responsive">
+                    <div class="task-toggle-icon">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
 
-                                <table class="table table-resposnive table-bordered tickettasks">
+                </div>
 
-                                    <thead>
+                {{-- Body --}}
+                <div class="task-details"
+                    style="display:none;">
 
-                                        <tr>
-                                            <th width="35%">Todo</th>
-                                            <th>Created At</th>
-                                            <th>Assigned To</th>
-                                            <th>Status</th>
-                                            <th width="180">Actions</th>
+                    <div class="mt-3">
+                        {{-- Todo Table --}}
+                        <div class="table-responsive">
+
+                            <table class="table table-resposnive table-bordered tickettasks">
+
+                                <thead>
+
+                                    <tr>
+                                        <th width="35%">Todo</th>
+                                        <th>Created At</th>
+                                        <th>Assigned To</th>
+                                        <th>Status</th>
+                                        <th width="180">Actions</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    @forelse($ticketTodos as $todo)
+
+                                        <tr id="todo_row_{{ $todo->id }}">
+
+                                            {{-- Todo Text --}}
+                                            <td>
+
+                                                <div class="todo-title-view-{{ $todo->id }}">
+                                                    {{ $todo->title }}
+                                                </div>
+
+                                                {{-- Edit textarea --}}
+                                                <div class="todo-title-edit-{{ $todo->id }} d-none">
+
+                                                    <textarea class="form-control todo-edit-text"
+                                                            rows="3"
+                                                            id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
+
+                                                </div>
+
+                                            </td>
+
+                                            {{-- Created --}}
+                                            <td>
+                                                {{ $todo->created_at->format('d M Y') }}
+                                            </td>
+
+                                            {{-- Assigned User --}}
+                                            <td>
+
+                                                <div class="todo-user-view-{{ $todo->id }}">
+
+                                                    {{ $todo->assignedUser->first_name ?? 'N/A' }}
+
+                                                </div>
+
+                                                {{-- Edit Dropdown --}}
+                                                <div class="todo-user-edit-{{ $todo->id }} d-none">
+
+                                                    <select class="form-control"
+                                                            id="todo_user_{{ $todo->id }}">
+
+                                                        @foreach($ticketAssign as $assign)
+
+                                                            @if($assign->user)
+
+                                                                <option value="{{ $assign->user->id }}"
+                                                                    {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
+
+                                                                    {{ $assign->user->first_name }}
+
+                                                                </option>
+
+                                                            @endif
+
+                                                        @endforeach
+
+                                                    </select>
+
+                                                </div>
+
+                                            </td>
+
+                                            {{-- Status --}}
+                                            <td>
+
+                                                <span class="badge"
+
+                                                    @if($todo->status == 'completed')
+
+                                                        style="background:green;border-radius:20px;"
+
+                                                    @elseif($todo->status == 'hold')
+
+                                                        style="background:#ffc720;border-radius:20px;"
+
+                                                    @else
+
+                                                        style="background:#4154f1;border-radius:20px;"
+
+                                                    @endif>
+
+                                                    {{ ucfirst($todo->status) }}
+
+                                                </span>
+
+                                            </td>
+
+                                            {{-- Actions --}}
+                                            <td>
+                                                @php
+                                                    $authUser = auth()->user();
+                                                    $canManageTodo =
+                                                    $authUser->role->name === 'Super Admin'
+                                                    || $authUser->role->name === 'Admin'
+                                                    || $authUser->id == $todo->user_id;
+                                                @endphp
+                                                @if($canManageTodo)
+
+                                                    <div class="d-flex align-items-center gap-2">
+
+                                                        {{-- Hold --}}
+                                                        @if($todo->status == 'open')
+                                                            <button class="btn btn-warning btn-sm"
+                                                                    onclick="holdTask({{ $todo->id }})">
+                                                                Hold
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Reopen --}}
+                                                        @if($todo->status != 'open')
+                                                            <button type="button"
+                                                                    class="btn btn-primary btn-sm"
+                                                                    onclick="reopenTask({{ $todo->id }})">
+                                                                Reopen
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Complete --}}
+                                                        @if($todo->status != 'completed')
+                                                            <button class="btn btn-success btn-sm"
+                                                                    onclick="completeTodo({{ $todo->id }})">
+                                                                Complete
+                                                            </button>
+                                                        @endif
+
+                                                        {{-- Edit --}}
+                                                        <i class="fas fa-edit text-dark cursor-pointer"
+                                                        onclick="openEditTodoModal(
+                                                                '{{ $todo->id }}',
+                                                                `{{ $todo->title }}`,
+                                                                '{{ $todo->user_id }}'
+                                                        )"></i>
+
+                                                        {{-- Delete --}}
+                                                        <i class="fas fa-trash-alt text-danger cursor-pointer"
+                                                        onclick="confirmDelete({{ $todo->id }})"></i>
+
+                                                    </div>
+
+                                                @else
+
+                                                    <span class="text-muted">No actions allowed</span>
+
+                                                @endif
+
+                                            </td>
+
                                         </tr>
 
-                                    </thead>
+                                    @empty
 
-                                    <tbody>
+                                        <tr>
 
-                                        @forelse($ticketTodos as $todo)
+                                            <td colspan="5" class="text-center">
+                                                No todos found
+                                            </td>
 
-                                            <tr id="todo_row_{{ $todo->id }}">
+                                        </tr>
 
-                                                {{-- Todo Text --}}
-                                                <td>
+                                    @endforelse
 
-                                                    <div class="todo-title-view-{{ $todo->id }}">
-                                                        {{ $todo->title }}
-                                                    </div>
+                                </tbody>
 
-                                                    {{-- Edit textarea --}}
-                                                    <div class="todo-title-edit-{{ $todo->id }} d-none">
-
-                                                        <textarea class="form-control todo-edit-text"
-                                                                rows="3"
-                                                                id="todo_text_{{ $todo->id }}">{{ $todo->title }}</textarea>
-
-                                                    </div>
-
-                                                </td>
-
-                                                {{-- Created --}}
-                                                <td>
-                                                    {{ $todo->created_at->format('d M Y') }}
-                                                </td>
-
-                                                {{-- Assigned User --}}
-                                                <td>
-
-                                                    <div class="todo-user-view-{{ $todo->id }}">
-
-                                                        {{ $todo->assignedUser->first_name ?? 'N/A' }}
-
-                                                    </div>
-
-                                                    {{-- Edit Dropdown --}}
-                                                    <div class="todo-user-edit-{{ $todo->id }} d-none">
-
-                                                        <select class="form-control"
-                                                                id="todo_user_{{ $todo->id }}">
-
-                                                            @foreach($ticketAssign as $assign)
-
-                                                                @if($assign->user)
-
-                                                                    <option value="{{ $assign->user->id }}"
-                                                                        {{ $todo->user_id == $assign->user->id ? 'selected' : '' }}>
-
-                                                                        {{ $assign->user->first_name }}
-
-                                                                    </option>
-
-                                                                @endif
-
-                                                            @endforeach
-
-                                                        </select>
-
-                                                    </div>
-
-                                                </td>
-
-                                                {{-- Status --}}
-                                                <td>
-
-                                                    <span class="badge"
-
-                                                        @if($todo->status == 'completed')
-
-                                                            style="background:green;border-radius:20px;"
-
-                                                        @elseif($todo->status == 'hold')
-
-                                                            style="background:#ffc720;border-radius:20px;"
-
-                                                        @else
-
-                                                            style="background:#4154f1;border-radius:20px;"
-
-                                                        @endif>
-
-                                                        {{ ucfirst($todo->status) }}
-
-                                                    </span>
-
-                                                </td>
-
-                                                {{-- Actions --}}
-                                                <td>
-
-                                                        <div class="d-flex align-items-center gap-2">
-
-                                                            {{-- Hold --}}
-                                                            @if($todo->status == 'open')
-                                                                <button class="btn btn-warning btn-sm"
-                                                                        onclick="holdTask({{ $todo->id }})">
-                                                                    Hold
-                                                                </button>
-                                                            @endif
-
-                                                            {{-- Reopen --}}
-                                                            @if($todo->status != 'open')
-                                                                <button type="button"
-                                                                        class="btn btn-primary btn-sm"
-                                                                        onclick="reopenTask({{ $todo->id }})">
-                                                                    Reopen
-                                                                </button>
-                                                            @endif
-
-                                                            {{-- Complete --}}
-                                                            @if($todo->status != 'completed')
-                                                                <button class="btn btn-success btn-sm"
-                                                                        onclick="completeTodo({{ $todo->id }})">
-                                                                    Complete
-                                                                </button>
-                                                            @endif
-
-                                                            {{-- Edit --}}
-                                                            <i class="fas fa-edit text-dark cursor-pointer"
-                                                            onclick="openEditTodoModal(
-                                                                    '{{ $todo->id }}',
-                                                                    `{{ $todo->title }}`,
-                                                                    '{{ $todo->user_id }}'
-                                                            )"></i>
-
-                                                            {{-- Delete --}}
-                                                            <i class="fas fa-trash-alt text-danger cursor-pointer"
-                                                            onclick="confirmDelete({{ $todo->id }})"></i>
-
-                                                        </div>
-
-
-
-
-
-                                                </td>
-
-                                            </tr>
-
-                                        @empty
-
-                                            <tr>
-
-                                                <td colspan="5" class="text-center">
-                                                    No todos found
-                                                </td>
-
-                                            </tr>
-
-                                        @endforelse
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
+                            </table>
 
                         </div>
 
                     </div>
 
                 </div>
-            @endif
-            @if($pendingComments->count() > 0)
 
-                <div style="margin-bottom: 1rem;">
-
-                    {{-- Section Title --}}
-                    <p style="font-size:15px; font-weight:500; color:inherit; margin:0 0 12px;">
-                        Private Comments
-                        <span style="font-weight:400; opacity:0.6;">({{ $pendingComments->count() }})</span>
-                    </p>
-
-                    {{-- Accordion Card --}}
-                    <div style="border:0.5px solid #e5e7eb; border-radius:12px; overflow:hidden;">
-
-                        {{-- Header --}}
-                        <div onclick="toggleTodoSection(this)"
-                            style="background:#f06a6a; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;">
-                            <h4 style="margin:0; color:#fff; font-size:15px; font-weight:500;">
-                                Private Comments
-                            </h4>
-                            <i class="fa-solid fa-chevron-down"
-                            style="color:#fff; font-size:16px; transition:transform 0.2s;"></i>
-                        </div>
-
-                        {{-- Body --}}
-                        <div style="padding:12px; background:var(--color-background-primary, #fff);">
-
-                            @foreach($pendingComments as $comment)
-
-                                <div class="comment-item"
-                                    data-id="{{ $comment->id }}"
-                                    style="border:0.5px solid #e5e7eb;
-                                        border-radius:8px;
-                                        padding:10px 14px;
-                                        margin-bottom:8px;
-                                        display:flex;
-                                        justify-content:space-between;
-                                        align-items:center;
-                                        cursor:pointer;
-                                        transition:background 0.15s;"
-                                    onmouseover="this.style.background='#f9fafb'"
-                                    onmouseout="this.style.background=''">
-
-                                    {{-- LEFT SIDE --}}
-                                    <div style="font-size:13.5px; color:inherit;">
-                                        A private comment was added by
-                                        <span style="font-weight:500; color:#3b82f6;">
-                                            {{ $comment->user->first_name ?? 'Unknown' }}
-                                        </span>
-                                        on {{ $comment->created_at->format('M d, Y \a\t g:i A') }}.
-                                    </div>
-                                </div>
-
-                            @endforeach
-
-                        </div>
-                    </div>
-
-                </div>
-
-            @endif
-        </div>
-    @endif
+            </div>
+        @endif
+    </div>
           <div class="main-section">
             <!-- <div class="msger-header">
                 <h1>Comments</h1>
@@ -1083,31 +1118,35 @@
 
                         <span>Comments</span><i class="fas fa-comment icon"></i>
 
+                        <!-- <span class="badge bg-primary ms-2">
+                            {{ count($CommentsData) }}
+                        </span> -->
+
                     </button>
 
                 </li>
 
                 {{-- PINNED TAB --}}
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pinned-tab" data-bs-toggle="tab" data-bs-target="#pinned-pane" type="button" role="tab">
+
+                    <button class="nav-link"
+                            id="pinned-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pinned-pane"
+                            type="button"
+                            role="tab">
+
                         <i class="fa-solid fa-thumbtack text-warning me-1"></i>
+
                         <span>Pinned</span>
+
                         <span class="badge bg-warning text-dark ms-2">
                             {{ $pinnedComments->count() }}
                         </span>
+
                     </button>
+
                 </li>
-                @if(in_array(Auth::user()->role_id, [1,3]))
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="updates-tab" data-bs-toggle="tab" data-bs-target="#updates-pane" type="button" role="tab">
-                        <i class="fa-solid fa-bolt me-1"></i>
-                        <span> Private Comments </span>
-                        <span class="badge bg-primary ms-2">
-                            {{ $daily_updates->count() }}
-                        </span>
-                    </button>
-                </li>
-                @endif
 
             </ul>
             <!-- tab content -->
@@ -1263,91 +1302,43 @@
                                                             <i class="fa-solid fa-link"></i>
 
                                                         </button>
-                                               <?php
-                                                    // $plainCommentText = trim(strip_tags($data->comments ?? ''));
-                                                    // $normalizedCommentText = strtolower(
-                                                    //     trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
-                                                    // );
-
-                                                    // $commentWordCount = $plainCommentText === ''
-                                                    //     ? 0
-                                                    //     : count(preg_split('/\s+/', $plainCommentText));
-
-                                                    // $noResponsePhrases = [
-                                                    //     'thanks', 'thank you', 'thanks a lot', 'thank you so much',
-                                                    //     'ok', 'okay', 'noted', 'fine', 'alright', 'sure',
-                                                    //     'cool', 'perfect', 'great', 'nice', 'no problem'
-                                                    // ];
-
-
-                                                    // $isShortClientReply = false;
-
-                                                    // if ($data->user->role_id == 6) {
-                                                    //     if (in_array($normalizedCommentText, $noResponsePhrases)) {
-
-                                                    //         // ✅ Step 2: THEN check word count
-                                                    //         if ($commentWordCount > 0 && $commentWordCount <= 5) {
-                                                    //             $isShortClientReply = true;
-                                                    //         }
-                                                    //     }
-                                                    // }
-
-                                                    $plainCommentText = trim(strip_tags($data->comments ?? ''));
-
-                                                    // Normalize text (lowercase + remove special characters)
-                                                    $normalizedCommentText = strtolower(
-                                                        trim(preg_replace('/[^a-z0-9\s]/i', '', $plainCommentText))
-                                                    );
-
-                                                    // Count words
-                                                    $commentWordCount = $plainCommentText === ''
-                                                        ? 0
-                                                        : count(preg_split('/\s+/', $plainCommentText));
-
-                                                    // Common short reply phrases
-                                                    $noResponsePhrases = [
-                                                        'thanks', 'thank you', 'thanks a lot', 'thank you so much',
-                                                        'ok', 'okay', 'noted', 'fine', 'alright', 'sure',
-                                                        'cool', 'perfect', 'great', 'nice', 'no problem'
-                                                    ];
-
-                                                    $isShortClientReply = false;
-
-                                                    if ($data->user->role_id == 6) {
-
-                                                        foreach ($noResponsePhrases as $phrase) {
-
-                                                            // Match whole phrase inside comment (safe match)
-                                                            if (preg_match('/\b' . preg_quote($phrase, '/') . '\b/', $normalizedCommentText)) {
-
-                                                                // Check word count condition
-                                                                if ($commentWordCount > 0 && $commentWordCount <= 5) {
-                                                                    $isShortClientReply = true;
-                                                                    break; // stop after first match
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-
-                                                    ?>
-
                                                         @if($data->user->role_id == 6 && in_array($data->status, ['replied','acknowledged']))
+
                                                                 <span class="acknowledge-toggle {{ auth()->user()->role_id != 3 ? 'disabled' : '' }}"
-                                                                 data-id="{{ $data->id }}" data-status="{{ $data->status }}" data-bs-toggle="tooltip"
-                                                                    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged by '.$data->ack_user_name .' '.$data->ack_last_name  : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
-                                                                    style="position:relative;display:inline-flex;align-items:center;font-size: 19px;cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
+                                                                    data-id="{{ $data->id }}"
+                                                                    data-status="{{ $data->status }}"
+                                                                    data-bs-toggle="tooltip"
+                                                                    data-bs-title="{{ $data->status == 'acknowledged' ? 'Acknowledged' : (in_array(auth()->user()->role_id, [1,3]) ? 'Click to acknowledge' : 'Waiting for developer') }}"
+                                                                    style="
+                                                                        position:relative;
+                                                                        display:inline-flex;
+                                                                        align-items:center;
+                                                                        font-size: 19px;
+                                                                        cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
                                                                         opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
                                                                     ">
+
+                                                                    <!--  Icon -->
                                                                     <i class="thumb-icon fa-thumbs-up
                                                                         {{ $data->status == 'acknowledged' ? 'fa-solid text-success' : 'fa-regular text-muted' }}">
                                                                     </i>
+
                                                                     <!-- Tick -->
                                                                     <i class="tick-icon fa-solid fa-check"
-                                                                        style="position:absolute; top:-5px; right:-5px; font-size:10px; color:#22c55e; background:white;
-                                                                            border-radius:50%; display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }}; ">
+                                                                        style="
+                                                                            position:absolute;
+                                                                            top:-5px;
+                                                                            right:-5px;
+                                                                            font-size:10px;
+                                                                            color:#22c55e;
+                                                                            background:white;
+                                                                            border-radius:50%;
+                                                                            display: {{ $data->status == 'acknowledged' ? 'block' : 'none' }};
+                                                                    ">
                                                                     </i>
+
                                                                 </span>
+
                                                         @endif
 
                                                         {{-- PIN --}}
@@ -1362,156 +1353,132 @@
                                                             <button type="button"
                                                                     class="btn btn-link p-0 m-0 pin-comment"
                                                                     data-id="{{ $data->id }}">
+
                                                                 <i class="fa-solid fa-thumbtack
                                                                     {{ $data->is_pinned ? 'text-warning' : 'text-muted' }}">
                                                                 </i>
+
                                                             </button>
+
                                                         </span>
-                                                        {{-- NO RESPONSE NEEDED (short closing client replies like "thanks" / "ok") --}}
-
-                                                       @if(auth()->user()->designation != "Client" && $data->status != "replied")
-                                                        @if($isShortClientReply && $data->status != 'acknowledged')
-                                                            <span data-bs-toggle="tooltip"
-                                                                data-bs-title="{{ $data->status == 'no_response' ? 'Marked as No Response Needed' : (in_array(auth()->user()->role_id, [1,3]) ? 'Mark as No Response Needed' : 'No action required') }}">
-                                                                <button type="button"   data-comment-id = "{{ $data->id }}" data-ticket-id = "{{ $data->ticket_id }}"
-                                                                        class="btn btn-sm no-response-toggle {{ !in_array(auth()->user()->role_id, [1,3]) ? 'disabled' : '' }}"
-                                                                        data-id="{{ $data->id }}"
-                                                                        data-status="{{ $data->status }}"
-                                                                        style="font-size: 11px;padding: 3px 10px;border-radius: 12px;
-                                                                            border: 1px solid {{ $data->status == 'no_response' ? '#e74c3c' : '#cbd5e1' }};
-                                                                            background: {{ $data->status == 'no_response' ? '#fdecea' : '#fff' }};
-                                                                            color: {{ $data->status == 'no_response' ? '#e74c3c' : '#6b7280' }};
-                                                                            cursor: {{ in_array(auth()->user()->role_id, [1,3]) ? 'pointer' : 'not-allowed' }};
-                                                                            opacity: {{ in_array(auth()->user()->role_id, [1,3]) ? '1' : '0.6' }};
-                                                                        ">
-                                                                    <i class="fa-solid fa-comment-slash" style="font-size:10px;"></i>
-                                                                    {{ $data->status == 'no_response' ? 'No Response Needed' : 'No Response' }}
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                        @if(!empty($data->response_by))
-                                                                <span data-bs-toggle="tooltip"
-                                                                    data-bs-title="No Response marked by {{ $data->response_user_first_name }} {{ $data->response_user_last_name }}">
-
-                                                                    <i class="fa-solid fa-comment-slash text-danger"
-                                                                    style="font-size:14px; margin-left:5px;"></i>
-                                                                </span>
-                                                        @endif
-
-                                                        @endif
-
 
                                                     </div>
+
                                                 </div>
+
                                             </div>
 
                                         @endif
+
                                         {{-- MESSAGE BODY --}}
                                         <div class="text message-box">
 
-                                            {{-- TOP ROW --}}
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                {{-- COMMENT --}}
-                                                <div style="word-break:auto-phrase; flex:1;">
+                                                    {{-- TOP ROW --}}
+                                                    <div class="d-flex justify-content-between align-items-start">
 
-                                                    {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
-                                                </div>
-                                                {{-- ACTIONS --}}
-                                                <div class="comment-actions d-flex gap-2 ms-2">
-                                                    @if(Auth::id() != $data->comment_by)
-                                                        <button type="button"
-                                                                class="reply-btn-inside"
-                                                                data-id="{{ $data->id }}"
-                                                                data-message="{{ strip_tags($data->comments) }}"
-                                                                data-user="{{ $data->user->first_name }}">
-                                                            <i class="fa fa-reply"></i>
-                                                        </button>
-                                                    @endif
-                                                    @php
-                                                        $canEdit = Auth::id() == $data->comment_by
-                                                            && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
-                                                    @endphp
-
-                                                    @if($canEdit)
-
-                                                        <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
-                                                                data-id="{{ $data->id }}">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </button>
-
-                                                        <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
-                                                                data-comment-id="{{ $data->id }}"
-                                                                data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}">
-                                                            <i class="fa-solid fa-pen-to-square"></i>
-                                                        </button>
-
-                                                    @endif
-
-                                                </div>
-
-                                            </div>
-
-                                            {{-- REPLY SECTION --}}
-                                            @if($data->reply_to)
-
-                                                @php
-                                                    $parent = $CommentsData->firstWhere('id', $data->reply_to);
-                                                @endphp
-
-                                                @if($parent)
-
-                                                    <div class="reply-wrapper mt-2 d-flex align-items-start gap-2">
-
-                                                        <div class="reply-arrow">
-                                                            <i class="fa-solid fa-reply"
-                                                            style="transform: rotate(180deg);"></i>
+                                                        {{-- COMMENT --}}
+                                                        <div style="word-break:auto-phrase; flex:1;">
+                                                            {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
                                                         </div>
 
-                                                        <div class="reply-card"
-                                                            data-scroll-id="comment-{{ $parent->id }}">
+                                                        {{-- ACTIONS --}}
+                                                        <div class="comment-actions d-flex gap-2 ms-2">
 
-                                                            <div class="reply-top d-flex align-items-start gap-2">
+                                                            @if(Auth::id() != $data->comment_by)
+                                                                <button type="button"
+                                                                        class="reply-btn-inside"
+                                                                        data-id="{{ $data->id }}"
+                                                                        data-message="{{ strip_tags($data->comments) }}"
+                                                                        data-user="{{ $data->user->first_name }}">
+                                                                    <i class="fa fa-reply"></i>
+                                                                </button>
+                                                            @endif
 
-                                                                <div class="reply-avatar">
-                                                                    @if(!empty($parent->user->profile_picture))
-                                                                        <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
-                                                                            class="rounded-circle"
-                                                                            width="34"
-                                                                            height="34">
-                                                                    @else
-                                                                        <div class="avatar-fallback">
-                                                                            {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
-                                                                        </div>
-                                                                    @endif
+                                                            @php
+                                                                $canEdit = Auth::id() == $data->comment_by
+                                                                    && \Carbon\Carbon::parse($data->created_at)->diffInHours(now()) <= 5;
+                                                            @endphp
+
+                                                            @if($canEdit)
+
+                                                                <button class="btn p-0 border-0 bg-transparent text-danger delete-comment"
+                                                                        data-id="{{ $data->id }}">
+                                                                    <i class="fa-solid fa-trash"></i>
+                                                                </button>
+
+                                                                <button class="btn p-0 border-0 bg-transparent text-primary edit-comment"
+                                                                        data-comment-id="{{ $data->id }}"
+                                                                        data-content="{{ htmlspecialchars($data->comments, ENT_QUOTES) }}">
+                                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                                </button>
+
+                                                            @endif
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- REPLY SECTION --}}
+                                                    @if($data->reply_to)
+
+                                                        @php
+                                                            $parent = $CommentsData->firstWhere('id', $data->reply_to);
+                                                        @endphp
+
+                                                        @if($parent)
+
+                                                            <div class="reply-wrapper mt-2 d-flex align-items-start gap-2">
+
+                                                                <div class="reply-arrow">
+                                                                    <i class="fa-solid fa-reply"
+                                                                    style="transform: rotate(180deg);"></i>
                                                                 </div>
 
-                                                                <div class="reply-content">
+                                                                <div class="reply-card"
+                                                                    data-scroll-id="comment-{{ $parent->id }}">
 
-                                                                    <div class="reply-header">
-                                                                        {{ $parent->user->first_name ?? 'User' }}
+                                                                    <div class="reply-top d-flex align-items-start gap-2">
 
-                                                                        <span class="reply-time">
-                                                                            {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
-                                                                        </span>
-                                                                    </div>
+                                                                        <div class="reply-avatar">
+                                                                            @if(!empty($parent->user->profile_picture))
+                                                                                <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
+                                                                                    class="rounded-circle"
+                                                                                    width="34"
+                                                                                    height="34">
+                                                                            @else
+                                                                                <div class="avatar-fallback">
+                                                                                    {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
 
-                                                                    <div class="reply-text">
-                                                                        {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
+                                                                        <div class="reply-content">
+
+                                                                            <div class="reply-header">
+                                                                                {{ $parent->user->first_name ?? 'User' }}
+
+                                                                                <span class="reply-time">
+                                                                                    {{ \Carbon\Carbon::parse($parent->created_at)->format('M d, h:i A') }}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            <div class="reply-text">
+                                                                                {{ \Illuminate\Support\Str::limit(strip_tags($parent->comments), 120) }}
+                                                                            </div>
+
+                                                                        </div>
+
                                                                     </div>
 
                                                                 </div>
 
                                                             </div>
 
-                                                        </div>
-
-                                                    </div>
-
-                                                @endif
-                                            @endif
-                                            @php
-                                                $documents = explode(',', $data->document);
-                                            @endphp
+                                                        @endif
+                                                    @endif
+                                                @php
+                                                    $documents = explode(',', $data->document);
+                                                @endphp
 
                                                 <!-- Display Documents -->
                                             @foreach ($documents as $doc)
@@ -1536,50 +1503,92 @@
                                                 @endif
                                             @endforeach
                                         </div>
+
                                     </div>
+
                                 @endforeach
+
                             </div>
+
                         @else
+
                             <div class="center text-center mt-2">
+
                                 <span id="NoComments"
                                     style="color:#6c757d; font-size:1rem;">
+
                                     No Comments
+
                                 </span>
+
                             </div>
+
                         @endif
+
                     </div>
+
                 </div>
                 <!-- pinned tab -->
-                <div class="tab-pane fade" id="pinned-pane" role="tabpanel">
-                    <div class="chat-container" style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
+                <div class="tab-pane fade"
+                    id="pinned-pane"
+                    role="tabpanel">
+
+                    <div class="chat-container"
+                        style="height:600px;
+                                overflow-y:auto;
+                                padding:10px;
+                                background:#f9f9f9;
+                                border-radius:10px;">
+
                         @if($pinnedComments->count())
+
                             @foreach($pinnedComments as $data)
+
                                 <div class="message pinned-comment go-to-comment"
                                     data-id="{{ $data->id }}"
                                     id="pinned-comment-{{ $data->id }}"
                                     style="cursor:pointer;">
+
                                     <div class="info">
-                                        {{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}
+
+                                        {{ \Carbon\Carbon::parse($data->created_at)
+                                            ->timezone('Asia/Kolkata')
+                                            ->format('M d, Y h:i A') }}
+
                                     </div>
+
                                     <div class="user">
+
                                         {{-- AVATAR --}}
                                         @if(!empty($data->user->profile_picture))
+
                                             <div class="avatar">
+
                                                 <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}"
                                                     class="rounded-circle"
                                                     width="35"
                                                     height="35">
+
                                             </div>
+
                                         @else
+
                                             <div class="avatar">
+
                                                 {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
+
                                             </div>
+
                                         @endif
+
                                         <div class="d-flex align-items-center w-100">
+
                                             <div>
+
                                                 <span class="name">
                                                     {{ $data->user->first_name }}
                                                 </span>
+
                                             </div>
 
                                             {{-- ACTIONS --}}
@@ -1603,136 +1612,49 @@
                                                     data-bs-title="{{ $data->is_pinned
                                                             ? 'Pinned by ' . ($data->pinnedByUser->first_name ?? 'Unknown')
                                                             : 'Pin Comment' }}">
+
                                                     <button type="button"
                                                             class="btn btn-link p-0 pin-comment"
                                                             data-id="{{ $data->id }}"
                                                             @if(!$canUnpin) disabled @endif>
+
                                                         <i class="fa-solid fa-thumbtack text-warning"></i>
+
                                                     </button>
+
                                                 </span>
+
                                             </div>
+
                                         </div>
+
                                     </div>
+
                                     {{-- COMMENT --}}
                                     <div class="text message-box">
+
                                         {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->comments) !!}
+
                                     </div>
+
                                 </div>
+
                             @endforeach
+
                         @else
+
                             <div class="text-center text-muted mt-4">
+
                                 No pinned comments
+
                             </div>
+
                         @endif
+
                     </div>
+
                 </div>
 
-                <!-- // My Update section  -->
-                <!-- <div class="tab-pane fade" id="updates-pane" role="tabpanel">
-                        <div class="chat-container"
-                            style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
-                            @forelse($daily_updates as $update)
-                                <div class="message mb-2 p-2" style="background:#eef6ff; border-radius:8px;">
-                                    <div class="d-flex justify-content-between">
-                                        <strong>love</strong>
-                                        <small>preet</small>
-                                    </div>
-                                    <div class="mt-1">
-                                        singh
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="text-center text-muted mt-4">
-                                    No updates added
-                                </div>
-                            @endforelse
-
-                        </div>
-                </div> -->
-                <!-- private comment section -->
-                <div class="tab-pane fade" id="updates-pane" role="tabpanel">
-                    <div class="chat-container" style="height:600px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px;">
-                        @if($daily_updates->count())
-                            @foreach($daily_updates as $data)
-                                <div class="message pinned-comment "
-                                    data-id="{{ $data->id }}"
-                                    id="pinned-comment-{{ $data->id }}"
-                                    style="cursor:pointer;">
-                                    <div class="info">
-                                        {{ \Carbon\Carbon::parse($data->created_at)->timezone('Asia/Kolkata')->format('M d, Y h:i A') }}
-                                    </div>
-
-                                    <div class="user">
-                                        {{-- AVATAR --}}
-                                        @if(!empty($data->user->profile_picture))
-                                            <div class="avatar">
-                                                <img src="{{ asset('assets/img/' . $data->user->profile_picture) }}" class="rounded-circle" width="35" height="35">
-                                            </div>
-                                        @else
-                                            <div class="avatar">
-                                                {{ strtoupper(substr($data->user->first_name, 0, 2)) }}
-
-                                            </div>
-                                        @endif
-                                        <div class="d-flex align-items-center w-100">
-                                            <div>
-                                                <span class="name">
-                                                   {{ $data->user->first_name }}
-                                                </span>
-                                            </div>
-
-                                            {{-- ACTIONS --}}
-                                            <div class="ms-auto d-flex align-items-center gap-2">
-
-                                                {{-- SHARE --}}
-                                                <button type="button"
-                                                    class="btn btn-link p-0 copy-comment"
-                                                    data-comment-id="{{ $data->id }}"
-                                                    data-comment-text="{{ strip_tags(preg_replace('/<p>(h|g)?<\/p>/', '', $data->update_text)) }}">
-                                                    <i class="fa-solid fa-copy"></i>
-                                                </button>
-                                                <span class="acknowledge-pending-comment"
-                                                    data-id="{{ $data->id }}"
-                                                    data-status="{{ $data->status }}"
-                                                    style="position:relative;
-                                                            display:inline-flex;
-                                                            align-items:center;
-                                                            font-size:19px;
-                                                            cursor:{{ $data->status == 'pending' ? 'pointer' : 'default' }};">
-
-                                                    <i class="thumb-icon fa-thumbs-up
-                                                        {{ $data->status == 'acknowledged'
-                                                            ? 'fa-solid text-success'
-                                                            : 'fa-regular text-muted' }}">
-                                                    </i>
-
-                                                    <i class="tick-icon fa-solid fa-check"
-                                                    style="position:absolute;
-                                                            top:-5px;
-                                                            right:-5px;
-                                                            font-size:10px;
-                                                            color:#22c55e;
-                                                            background:#fff;
-                                                            border-radius:50%;
-                                                            display:{{ $data->status == 'acknowledged' ? 'block' : 'none' }};">
-                                                    </i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- COMMENT --}}
-                                    <div class="text message-box">
-                                        {!! preg_replace('/<p>(h|g)?<\/p>/', '', $data->update_text) !!}
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="text-center text-muted mt-4">
-                                No private comments
-                            </div>
-                        @endif
-                    </div>
-                </div>
             </div>
             <div class="card mt-3 card-designform">
             <form method="POST" id="commentsData" action="{{ route('comments.add') }}">
@@ -1831,38 +1753,12 @@
               </div>
           </form>
             </div>
-            <!-- // Daily updates  -->
-            <div class="modal fade" id="othersUpdateModal">
-                <div class="modal-dialog">
-                    <form id="othersUpdateForm">
-                        @csrf
-                        <input type="hidden" name="ticket_id" id="ticket_id">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5>Private Comment</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Update -->
-                             <div id="dailyUpdateEditor" style="height: 300px;"></div>
-                             <input type="hidden" name="update_text" id="update_text_input">
-                                   <small class="text-danger error-text update_text_error"></small>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-success">Save Comment</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
   let loading = false;
   let doneLoadingAll = false;
-  let dailyUpdateQuill = null;
 
 //   $(document).ready(function () {
 
@@ -1933,17 +1829,6 @@
     }
 
     editor.__quillInstance = quill;
-
-    // Separate Quill instance for the Daily Update modal.
-    // (It needs its own instance + toolbar — it can't reuse #editor/#toolbar-container,
-    // those belong to the comment box editor above.)
-    const dailyUpdateEditorEl = document.querySelector('#dailyUpdateEditor');
-    if (dailyUpdateEditorEl) {
-      dailyUpdateQuill = new Quill(dailyUpdateEditorEl, {
-        theme: 'snow',
-        placeholder: 'Please write your private comment here...',
-      });
-    }
 
     function decodeHTMLEntities(str) {
       const txt = document.createElement('textarea');
@@ -2129,7 +2014,8 @@
     }
     function openEditTodoModal(id, title, userId)
     {
-        $('#edit_todo_id').val(id);
+        $('#edit_todo_id').val(id); // MUST NOT be empty
+
         $('#edit_todo_title').val(title);
 
         $('#edit_assigned_user').val(userId);
@@ -2738,108 +2624,6 @@ $(document).on('click', '.acknowledge-toggle', function () {
     });
 
 });
-
-// No Response Needed toggle (for short closing client replies like "thanks" / "ok")
-$(document).on('click', '.no-response-toggle', function () {
-    const role = {{ auth()->user()->role_id }};
-    if (![1, 3].includes(role)) {
-        return;
-    }
-
-    let el = $(this);
-
-    // ✅ Get correct values
-    let commentId = el.data('comment-id');
-    let ticketId  = el.data('ticket-id');
-
-    console.log('Comment ID:', commentId);
-    console.log('Ticket ID:', ticketId);
-
-    $.ajax({
-        url: '/no-response-comment',
-        type: 'POST',
-        data: {
-            comment_id: commentId,
-            ticket_id: ticketId, // ✅ send this also
-            _token: '{{ csrf_token() }}'
-        },
-        success: function (res) {
-            el.tooltip('dispose');
-
-            if (res.new_status === 'no_response') {
-
-                el.attr('data-status', 'no_response');
-                el.attr('data-bs-title', 'Marked as No Response Needed');
-                el.css({
-                    borderColor: '#e74c3c',
-                    background: '#fdecea',
-                    color: '#e74c3c'
-                });
-                el.html('<i class="fa-solid fa-comment-slash" style="font-size:10px;"></i> No Response Needed');
-
-                showAcknowledgeMsg("Marked as no response needed", el[0]);
-                   setTimeout(function () {
-                    location.reload();
-                }, 1000); // 1 second delay
-
-
-            } else {
-
-                el.attr('data-status', 'replied');
-                el.attr('data-bs-title', 'Mark as No Response Needed');
-                el.css({
-                    borderColor: '#cbd5e1',
-                    background: '#fff',
-                    color: '#6b7280'
-                });
-                el.html('<i class="fa-solid fa-comment-slash" style="font-size:10px;"></i> No Response');
-
-                showAcknowledgeMsg("No response flag removed", el[0]);
-            }
-
-            el.tooltip();
-        }
-    });
-});
-$(document).on('click', '.acknowledge-pending-comment', function () {
-
-    let el = $(this);
-
-    if (el.data('status') === 'acknowledged') {
-        return;
-    }
-
-    $.ajax({
-        url: "{{ route('private-comment.acknowledge') }}",
-        type: "POST",
-        data: {
-            id: el.data('id'),
-            _token: "{{ csrf_token() }}"
-        },
-        success: function (response) {
-
-            if (response.success) {
-
-                el.attr('data-status', 'acknowledged');
-
-                el.find('.thumb-icon')
-                    .removeClass('fa-regular text-muted')
-                    .addClass('fa-solid text-success');
-
-                el.find('.tick-icon').show();
-                location.reload();
-            }
-        }
-    });
-
-});
-$(document).on('click', '.comment-item', function () {
-
-    // Open Private Comments tab
-    let tabTrigger = new bootstrap.Tab(document.querySelector('#updates-tab'));
-    tabTrigger.show();
-
-});
 $(document).ready(function () {
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -2965,144 +2749,8 @@ $(document).on('click', '.pin-comment', function () {
             }, 2500);
 
         }, 200);
+
     });
-
-     $(document).on('click', '.openUpdateModal', function (e) {
-            var ticketId = $(".openUpdateModal").data("ticket-id");
-            $('#ticket_id').val(ticketId);
-            $('#othersUpdateModal').modal('show');
-        });
-
-  $('#othersUpdateForm').on('submit', function(e) {
-        e.preventDefault();
-
-        let form = $(this);
-
-        if (dailyUpdateQuill) {
-            let text = dailyUpdateQuill.getText().trim(); // plain text check
-            let html = dailyUpdateQuill.root.innerHTML.trim();
-
-            if (text === '') {
-                $('.update_text_error').text('Update field is required');
-                return; // stop submit
-            }
-
-            $('#update_text_input').val(html);
-        }
-
-        let formData = form.serialize();
-        $('.error-text').text('');
-
-        $.ajax({
-            url: "{{ route('ticket.update.store') }}",
-            type: "POST",
-            data: formData,
-            success: function(response) {
-                if (response.status == 1) {
-                    $('#othersUpdateModal').modal('hide');
-                    form[0].reset();
-
-                    if (dailyUpdateQuill) {
-                        dailyUpdateQuill.setContents([{ insert: '\n' }]);
-                    }
-                   setTimeout(() => {
-                      alert('Private Comment saved successfully');
-                     location.reload();
-                   }, 1000);
-
-
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-
-                    $.each(errors, function(key, value) {
-                        $('.' + key + '_error').text(value[0]);
-                    });
-                }
-            }
-        });
-    });
-
-$(document).on('click', '.copy-comment', function(e) {
-    e.stopPropagation();
-
-    let btn = this;
-    let $btn = $(this);
-
-    let text = $btn.closest('.message').find('.message-box').text().trim();
-    if (!text) return;
-
-    function fallbackCopy(text) {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-    }
-
-    function successUI() {
-        let icon = $btn.find('i');
-
-        icon.removeClass('fa-copy').addClass('fa-check');
-
-        showCopyTooltip(btn, "Copied successfully");
-
-        setTimeout(() => {
-            icon.removeClass('fa-check').addClass('fa-copy');
-        }, 1500);
-    }
-
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text)
-            .then(successUI)
-            .catch(() => {
-                fallbackCopy(text);
-                successUI();
-            });
-    } else {
-        fallbackCopy(text);
-        successUI();
-    }
-});
-
-function showCopyTooltip(btn, message) {
-    // remove existing tooltip if any
-    $('.custom-copy-tooltip').remove();
-
-    let tooltip = $('<div class="custom-copy-tooltip"></div>')
-            .text(message)
-            .css({
-                position: 'absolute',
-                background: '#25581a',
-                color: '#fff',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                zIndex: 9999,
-                whiteSpace: 'nowrap'
-
-
-            });
-
-        $('body').append(tooltip);
-
-        let offset = $(btn).offset();
-
-        tooltip.css({
-            top: offset.top - tooltip.outerHeight() - 8,
-            left: offset.left + ($(btn).outerWidth() / 2) - (tooltip.outerWidth() / 2)
-        });
-
-        // auto remove
-        setTimeout(() => {
-            tooltip.fadeOut(200, function() {
-                $(this).remove();
-            });
-        }, 1500);
-}
 </script>
 
 @endsection

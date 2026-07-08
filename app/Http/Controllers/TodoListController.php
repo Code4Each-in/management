@@ -61,25 +61,16 @@ class TodoListController extends Controller
     // {
     //     $request->validate([
     //         'title' => 'required|string|max:255',
-    //         'assigned_user_id' => 'nullable|exists:users,id',
-    //         'ticket_id' => 'nullable|exists:tickets,id',
+    //         'assigned_user_id' => 'nullable|exists:users,id' // Allow it to be null for personal tasks
     //     ]);
 
     //     $task = new TodoList();
+    //     $task->title = $request->input('title');
 
-    //     $task->title = $request->title;
+    //     // ✅ If 'assigned_user_id' is provided, assign to team member; otherwise, assign to the manager
+    //     $task->user_id = $request->input('assigned_user_id') ?? Auth::id();
 
-    //     // Assigned user
-    //     $task->user_id = $request->assigned_user_id ?? Auth::id();
-
-    //     // Ticket relation
-    //     $task->ticket_id = $request->ticket_id ?? null;
-
-    //     // Creator
-    //     $task->created_by = Auth::id();
-
-    //     $task->status = 'open';
-
+    //     $task->status = 'open'; // Default status
     //     $task->save();
 
     //     return redirect()->back()->with('success', 'Task added successfully!');
@@ -88,7 +79,7 @@ class TodoListController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'assigned_user_id' => 'required|exists:users,id',
+            'assigned_user_id' => 'nullable|exists:users,id',
             'ticket_id' => 'nullable|exists:tickets,id',
         ]);
 
@@ -96,11 +87,13 @@ class TodoListController extends Controller
 
         $task->title = $request->title;
 
-        // selected developer only
-        $task->user_id = $request->assigned_user_id;
+        // Assigned user
+        $task->user_id = $request->assigned_user_id ?? Auth::id();
 
+        // Ticket relation
         $task->ticket_id = $request->ticket_id ?? null;
 
+        // Creator
         $task->created_by = Auth::id();
 
         $task->status = 'open';

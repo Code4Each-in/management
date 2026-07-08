@@ -141,13 +141,9 @@ class Users extends Authenticatable
         return $this->hasMany(TodoList::class, 'user_id');
     }
     public function readGroupMessages()
-    {
-        return $this->belongsToMany(GroupMessage::class, 'group_message_reads')->withTimestamps();
-    }
-
-    public function dailyUpdateUser()
-    {
-        return $this->hasMany(PrivateComment::class, 'user_id', 'id');
-    }
+{
+    return $this->belongsToMany(GroupMessage::class, 'group_message_reads')
+                ->withTimestamps();
+}
 
 }
