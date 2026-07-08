@@ -24,7 +24,7 @@ class SendEmailToClientTemplate extends Command
 
     public function handle()
     {
-
+    Log::info('SendMailToClient command started');
         $scheduled_mails = ScheduledEmail::with([
                             'template',
                             'recipients.client.allprojects'
@@ -75,8 +75,15 @@ class SendEmailToClientTemplate extends Command
 
                 try {
                     // ✅ send to real client email
+
+                    Log::info('Before notify', [
+    'client' => $client->email,
+]);
+
      
                     $client->notify(new EmailTemplateNotification($message));
+
+                    Log::info('After notify');
 
                     // mark as sent
                     $recipient->update([
@@ -84,7 +91,7 @@ class SendEmailToClientTemplate extends Command
                         
                     ]);
 
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
 
                     // mark as failed
                     $recipient->update([
@@ -98,11 +105,14 @@ class SendEmailToClientTemplate extends Command
                     //     'error'     => $e->getMessage(),
                     // ]);
 
-                        \Log::error('Email failed', [
-                            'message' => $e->getMessage(),
-                            'file'    => $e->getFile(),
-                            'line'    => $e->getLine(),
-                        ]);
+                         Log::error('Email failed', [
+        'message' => $e->getMessage(),
+        'file'    => $e->getFile(),
+        'line'    => $e->getLine(),
+        'trace'   => $e->getTraceAsString(),
+    ]);
+
+    throw $e;
                 }
             }
 
