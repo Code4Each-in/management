@@ -34,9 +34,29 @@ public function index()
         $data = $request->only(['name', 'category', 'subject', 'body']);
 
         // Handle banner image upload
-        if ($request->hasFile('banner_image')) {
-            $data['banner_image'] = $request->file('banner_image')->store('email-banners', 'public');
-        }
+        // if ($request->hasFile('banner_image')) {
+        //     $data['banner_image'] = $request->file('banner_image')->store('email-banners', 'public');
+        // }
+            if ($request->hasFile('banner_image')) {
+
+                $file = $request->file('banner_image');
+
+                // Generate unique filename
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                // Ensure the directory exists
+                $path = public_path('storage/email-banners');
+
+                if (!file_exists($path)) {
+                    mkdir($path, 0755, true);
+                }
+
+                // Move the file
+                $file->move($path, $filename);
+
+                // Save path in DB
+                $data['banner_image'] = 'email-banners/' . $filename;
+            }
 
         EmailTemplate::create($data);
         return redirect()->route('templates.index')->with('success', 'Template created!');

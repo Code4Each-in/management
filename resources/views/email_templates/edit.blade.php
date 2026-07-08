@@ -53,7 +53,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Banner Image</label>
-
+                        
                             @if($template->banner_image)
                             <div class="mb-2 position-relative" id="existing-banner">
                                 <img src="{{ asset('storage/' . $template->banner_image) }}"
@@ -339,7 +339,7 @@
             }
 
             quill.insertText(range.index, ph, 'user');
-            quill.setSelection(range.index + ph.length);
+            quill.setSelection(range.index + ph.length); 
         };
     });
 </script>
