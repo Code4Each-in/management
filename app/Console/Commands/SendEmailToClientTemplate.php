@@ -30,7 +30,7 @@ class SendEmailToClientTemplate extends Command
                             'recipients.client.allprojects'
                         ])
                         ->where('status', 'scheduled')
-                        ->where('send_at', '<=', now())
+                    
                         ->get();
            Log::info('Scheduled mails', [
     'mails' => $scheduled_mails->toArray()
