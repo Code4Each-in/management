@@ -16,7 +16,7 @@
 
 <section class="section">
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="card">
                 <div class="card-body pt-4">
                     <form action="{{ route('templates.store') }}" method="POST" enctype="multipart/form-data" id="template-form">
@@ -110,52 +110,7 @@
                             </div>
 
                             <div class="col-sm-12">
-                                <div id="toolbar-container">
-                                    <span class="ql-formats">
-                                        <select class="ql-font"></select>
-                                        <select class="ql-size"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-script" value="sub"></button>
-                                        <button class="ql-script" value="super"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-header" value="1"></button>
-                                        <button class="ql-header" value="2"></button>
-                                        <button class="ql-blockquote"></button>
-                                        <button class="ql-code-block"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                        <button class="ql-indent" value="-1"></button>
-                                        <button class="ql-indent" value="+1"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-direction" value="rtl"></button>
-                                        <select class="ql-align"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="ql-image"></button>
-                                        <button class="ql-video"></button>
-                                        <button class="ql-formula"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-clean"></button>
-                                    </span>
-                                </div>
-                                <div id="editor" style="height: 300px;">{!! old('body') !!}</div>
+                                <div id="mail_editor" style="height: 300px;">{!! old('body') !!}</div>
                                 <input type="hidden" name="body" id="body-input">
 
                                 @error('body')
@@ -179,25 +134,41 @@
     </div>
 </section>
 
-{{-- Quill CSS + JS (skip these two lines if Quill is already loaded in your layout) --}}
-<link href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
+@endsection
+
+@section('js_scripts')
 
 <script>
-    // Initialize Quill with your custom toolbar
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: '#toolbar-container'
-        }
-    });
+
+
+let email_quill;
+document.addEventListener('DOMContentLoaded', function () {
+    const editor = document.getElementById('mail_editor');
+
+    if (editor) {
+        email_quill = new Quill('#mail_editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ header: [1, 2, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link', 'image'],
+                    ['code-block'],
+                    ['clean']
+                ]
+            }
+        });
+    }
+});
+
 
     // Sync Quill's HTML content into the hidden input right before submit
     document.getElementById('template-form').addEventListener('submit', function (e) {
         const bodyInput = document.getElementById('body-input');
-        bodyInput.value = quill.root.innerHTML;
+        bodyInput.value = email_quill.root.innerHTML;
 
-        if (quill.getText().trim().length === 0) {
+        if (email_quill.getText().trim().length === 0) {
             e.preventDefault();
             alert('Email body cannot be empty.');
         }
@@ -224,12 +195,12 @@
 
     function insertPlaceholder(name) {
         const open = '{' + '{';
-        const close = '}' + '}';
+        const close = '}' + '}'; 
         const ph = open + ' ' + name + ' ' + close; 
 
-        const range = quill.getSelection(true); 
-        quill.insertText(range.index, ph, 'user');
-        quill.setSelection(range.index + ph.length);
+        const range = email_quill.getSelection(true); 
+        email_quill.insertText(range.index, ph, 'user');
+        email_quill.setSelection(range.index + ph.length);
     }
 </script>
 

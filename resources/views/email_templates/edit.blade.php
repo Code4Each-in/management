@@ -113,51 +113,6 @@
                             </div>
 
                             <div class="col-sm-12">
-                                <div id="toolbar-container">
-                                    <span class="ql-formats">
-                                        <select class="ql-font"></select>
-                                        <select class="ql-size"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-script" value="sub"></button>
-                                        <button class="ql-script" value="super"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-header" value="1"></button>
-                                        <button class="ql-header" value="2"></button>
-                                        <button class="ql-blockquote"></button>
-                                        <button class="ql-code-block"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                        <button class="ql-indent" value="-1"></button>
-                                        <button class="ql-indent" value="+1"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-direction" value="rtl"></button>
-                                        <select class="ql-align"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="ql-image"></button>
-                                        <button class="ql-video"></button>
-                                        <button class="ql-formula"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-clean"></button>
-                                    </span>
-                                </div>
                                 <div id="editor" style="height: 300px;">{!! old('body', $template->body) !!}</div>
                                 <input type="hidden" name="body" id="body-input" value="{{ old('body', $template->body) }}">
 
@@ -172,9 +127,6 @@
                             <label class="form-label fw-semibold">Live Preview</label>
                             <div class="border rounded overflow-hidden">
                                 @if($template->banner_image)
-                                <!-- <img id="preview-banner"
-                                     src="{{ asset('storage/' . $template->banner_image) }}"
-                                     class="w-100" style="max-height:80px;object-fit:cover"> -->
                                 @else
                                 <div id="preview-banner-placeholder"
                                      style="height:50px;background:linear-gradient(90deg,#EEEDFE,#E6F1FB);
@@ -227,10 +179,8 @@
     </div>
 </section>
 
-{{-- Quill CSS + JS (skip these two lines if Quill is already loaded in your layout) --}}
-<link href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
-
+@endsection
+@section('js_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const editorEl = document.getElementById('editor');
@@ -242,12 +192,19 @@
             return;
         }
 
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: '#toolbar-container'
-            }
-        });
+       const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'image'],
+                ['code-block'],
+                ['clean']
+            ]
+        }
+    });
 
         // Track whichever banner is currently "active" — either the
         // originally saved one, or a newly chosen file (base64 preview)

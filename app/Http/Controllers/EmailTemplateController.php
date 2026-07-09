@@ -123,59 +123,6 @@ public function index()
     }
 
 
-    // public function send(Request $request)
-    // {
-    //     $request->validate([
-    //         'client_ids' => 'required|array|min:1',
-    //         'template_id' => 'required|exists:email_templates,id',
-    //     ]);
-
-    //     $template = EmailTemplate::findOrFail($request->template_id);
-
-    //     $clients = Client::with('allprojects')->whereIn('id', $request->client_ids)->get();
-     
-    //     foreach ($clients as $client) {
-    //         $projectNames = $client->allprojects
-    //             ->pluck('project_name')  
-    //             ->implode(', ');
-
-    //     $body = str_replace(
-    //                 ['{{client_name}}', '{{company_name}}', '{{project_name}}', '{{banner_image}}'],
-    //                 [
-    //                     $client->name,
-    //                     $client->company ?? '',
-    //                     $projectNames ?: 'N/A',
-    //                     '<img src="'.asset('storage/'.$template->banner_image).'" style="max-width:100%; height:auto;" />'
-    //                 ],
-    //                 $template->body
-    //             );
-
-    //         $message = [
-    //                 'client_name' => $client->name,
-    //                 'subject'     => $template->subject,
-    //                 'body'        => $body,
-    //                 'banner_img'  =>  $template->banner_image,
-    //             ];
-
-    //          //  dd($message);
-    //          $client = Client::where('email', 'sandhu065@gmail.com')->first();
-    //           try {
-    //             $client->notify(new EmailTemplateNotification($message));
-
-    //             } catch (\Exception $e) {
-    //                 // Log the error with client info
-    //                 Log::error('Email sending failed', [
-    //                     'client_id' => $client->id,
-    //                     'email'     => $client->email,
-    //                     'error'     => $e->getMessage(),
-    //                 ]);
-    //             }
-    //     }
-   
-
-    //     return back()->with('success', 'Mail sent to ' . count($clients) . ' client(s).');
-    // }
-
     public function send(Request $request)
     {
         $request->validate([
@@ -197,13 +144,18 @@ public function index()
                 ->implode(', ');
 
             // Prepare placeholders
-        // dd($template->banner_image);
-            $placeholders = [
-                '{{ client_name }}'   => $client->name,
-                '{{ company_name }}'  => $client->company ?? '',
-                '{{ project_name }}'  => $projectNames ?: 'N/A',
+      
+            // $placeholders = [ 
+            //     '{{ client_name }}'   => $client->name,
+            //     '{{ company_name }}'  => $client->company ?? '',
+            //     '{{ project_name }}'  => $projectNames ?: 'N/A',
                
-            ];
+            // ];
+            $placeholders = [
+                    config('app.placeholders.client_name')  => $client->name,
+                    config('app.placeholders.company_name') => $client->company ?? '',
+                    config('app.placeholders.project_name') => $projectNames ?: 'N/A',
+                ];
 
             // Replace placeholders
             $body = str_replace(

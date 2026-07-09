@@ -53,12 +53,12 @@ class SendEmailToClientTemplate extends Command
                     ->implode(', ');
 
                 // Prepare placeholders
-                $placeholders = [
-                    '{{ client_name }}'  => $client->name,
-                    '{{ company_name }}' => $client->company ?? '',
-                    '{{ project_name }}' => $projectNames ?: 'N/A',
+              $placeholders = [
+                    config('app.placeholders.client_name')  => $client->name,
+                    config('app.placeholders.company_name') => $client->company ?? '',
+                    config('app.placeholders.project_name') => $projectNames ?: 'N/A',
                 ];
-
+                
                 // Replace placeholders
                 $body = str_replace(
                     array_keys($placeholders),
@@ -73,10 +73,7 @@ class SendEmailToClientTemplate extends Command
                     'banner_img'  => $template->banner_image,
                 ];
 
-                try {
-                    // ✅ send to real client email
-                // $client = Client::where('email', 'sandhu065@gmail.com')->first(); 
-               //  Log::info($message);          
+                try {         
                   $client->notify(new EmailTemplateNotification($message));
 
                     // mark as sent

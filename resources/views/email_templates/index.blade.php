@@ -68,7 +68,7 @@
                                         Updated {{ $template->updated_at->diffForHumans() }}
                                     </small>
                                 </div>
-                                <div class="d-flex gap-2 align-items-center">
+                                <div class="d-flex gap-2 align-items-center" style="padding-top:23px">
                                     {{-- Category badge --}}
                                     @php
                                         $badgeColors = [
