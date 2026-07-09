@@ -371,6 +371,36 @@
 </li>
 @endif
 
+@if(auth()->user()->role->name == 'Super Admin')    
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('templates*','sendTemplate*') ? '' : 'collapsed' }}"
+       data-bs-target="#templates-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-sliders"></i><span>Templates</span>
+        <i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+
+    <ul id="templates-nav" 
+        class="nav-content collapse {{ request()->is('templates*','mailtoclient*') ? 'show' : '' }}"
+        data-bs-parent="#sidebar-nav">
+        <li>
+            <a class="{{ request()->is('templates*') ? 'active' : '' }}" href="{{ url('templates') }}">
+                <i class="bi bi-circle"></i>All Templates
+            </a>
+        </li>
+        <!-- <li>
+            <a class="{{ request()->is('mailtoclient*') ? 'active' : '' }}" href="{{ url('mailtoclient') }}">
+                <i class="bi bi-circle"></i>Mail To Client
+            </a>
+        </li> -->
+        <li>
+            <a class="{{ request()->is('scheduled*') ? 'active' : '' }}" href="{{ url('scheduled') }}">
+                <i class="bi bi-circle"></i>Scheduled Mail
+            </a>
+        </li>
+    </ul>
+</li>
+@endif
+
 
 {{-- ================= EXTRA ================= --}}
 @if(auth()->user()->designation == 'BDE' || auth()->user()->role->name == 'Super Admin')

@@ -232,4 +232,10 @@ return [
         'Input' => Illuminate\Support\Facades\Request::class,
 
     ],
+
+    'placeholders' => [
+        'client_name'  => '{{ client_name }}',
+        'company_name' => '{{ company_name }}',
+        'project_name' => '{{ project_name }}',
+    ],
 ];

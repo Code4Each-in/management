@@ -72,7 +72,6 @@
                                 <tr>
                                     <th>Template</th>
                                     <th>Client(s)</th>
-                                    <th>Project</th>
                                     <th>Scheduled For</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -85,19 +84,40 @@
                                     <strong>{{ $email->template->name ?? 'Deleted Template' }}</strong><br>
                                     <small class="text-muted">{{ $email->template->subject ?? '—' }}</small>
                                     </td>
-                                    <td>
-                                        @foreach($email->recipients->take(2) as $r)
-                                            <span class="badge bg-light text-dark border">
+                                 <td>
+                                        @php
+                                            $recipients = $email->recipients;
+                                            $visibleRecipients = $recipients->take(2);
+                                            $hiddenRecipients = $recipients->slice(2);
+                                        @endphp
+
+                                        @forelse($visibleRecipients as $r)
+                                            <span class="badge bg-light text-dark border mb-1">
                                                 {{ $r->client->name ?? 'N/A' }}
                                             </span>
-                                        @endforeach
-                                        @if($email->recipients->count() > 2)
-                                            <span class="badge bg-secondary">
-                                                +{{ $email->recipients->count() - 2 }} more
-                                            </span>
+                                        @empty
+                                            <span class="text-muted">No Clients</span>
+                                        @endforelse
+
+                                        @if($hiddenRecipients->count() > 0)
+                                            <div class="collapse" id="clients-{{ $email->id }}">
+                                                @foreach($hiddenRecipients as $r)
+                                                    <span class="badge bg-light text-dark border mb-1">
+                                                        {{ $r->client->name ?? 'N/A' }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                            <br>
+                                            <button class="btn btn-link btn-sm p-0 toggle-clients-btn"
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#clients-{{ $email->id }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="clients-{{ $email->id }}">
+                                                +{{ $hiddenRecipients->count() }} more
+                                            </button>
                                         @endif
                                     </td>
-                                    <td>{{ $email->project->name ?? '—' }}</td>
                                     <td>
                                     {{ $email->send_at ? $email->send_at->format('d M Y') : '—' }}<br>
                                     <small class="text-muted">{{ $email->send_at ? $email->send_at->format('h:i A') : '' }}</small>
@@ -149,4 +169,24 @@
     </div>
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.toggle-clients-btn').forEach(function (btn) {
+        const targetSelector = btn.getAttribute('data-bs-target');
+        const targetEl = document.querySelector(targetSelector);
+        const moreText = btn.textContent.trim();
+
+        targetEl.addEventListener('shown.bs.collapse', function () {
+            btn.textContent = 'Show less';
+        });
+        targetEl.addEventListener('hidden.bs.collapse', function () {
+            btn.textContent = moreText;
+        });
+    });
+});
+</script>
+
+
 @endsection
+
+
