@@ -12,15 +12,6 @@
 
 <!-- Main Container -->
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.08);">
-
-    <!-- Header -->
-    <tr>
-        <td style="background:linear-gradient(135deg, #4e73df, #1cc88a); padding:25px; text-align:center; color:#ffffff;">
-            <h1 style="margin:0; font-size:24px;">
-                {!! $subject !!}
-            </h1>
-        </td>
-    </tr>
 @php
     $content = preg_replace(
         '/\{\{\s*banner_image\s*\}\}/',
@@ -41,22 +32,6 @@
                 {!! $content !!}
             </div>
 
-        </td>
-    </tr>
-
-    <!-- Footer -->
-    <tr>
-        <td style="background:#ffffff; ">
-            <table width="100%">
-                <tr>
-                    <td align="left">
-                        <img src="{{ $message->embed(public_path('assets/img/code4each_logo.png')) }}" 
-                             alt="Company Logo" 
-                             width="120" 
-                             style="display:block; margin-bottom:8px;margin-left: 21px;">
-                    </td>
-                </tr>
-            </table>
         </td>
     </tr>
 
