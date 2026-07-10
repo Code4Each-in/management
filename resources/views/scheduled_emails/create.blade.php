@@ -187,7 +187,7 @@
 @section('js_scripts')
 
 {{-- TinyMCE CDN --}}
-<script src="https://cdn.tiny.cloud/1/zcnv3wpknfdm4lkpqq5gopif0az219stkskraxdyyb3cfb44/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/mfhlch1z0ky97217fc0jx6wktt3uh1uo7euvbtx415h9jyhb/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
 
