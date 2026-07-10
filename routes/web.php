@@ -448,8 +448,9 @@ Route::resource('templates', EmailTemplateController::class);
 
 // Scheduled Emails
 Route::resource('scheduled', ScheduledEmailController::class);
-Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
-    ->name('scheduled.tracking');
+Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])->name('scheduled.tracking');
+Route::get('/scheduled/{id}/preview', [ScheduledEmailController::class, 'preview'])->name('scheduled.preview');
+Route::post('/scheduled/cancel/{id}', [ScheduledEmailController::class, 'cancel_scheduler'])->name('scheduled.cancel');
 // Feedback form (from email link)
 Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
 Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');

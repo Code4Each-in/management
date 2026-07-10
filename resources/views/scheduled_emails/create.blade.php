@@ -32,7 +32,7 @@
 
                             <select name="template_id" id="template-select"
                                     class="form-select @error('template_id') is-invalid @enderror"
-                                    onchange="loadPreview(this)">
+                                    onchange="onTemplateChange(this)">
                                 <option value="">-- Choose a template --</option>
 
                                 @foreach($templates as $t)
@@ -50,20 +50,41 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        {{-- PREVIEW --}}
-                        <div id="template-preview" class="mb-3 d-none">
-                            <label class="form-label fw-semibold small text-muted">Preview</label>
-                            <div class="border rounded overflow-hidden" style="background:#fbfbff">
-                                <div class="p-3">
-                                    <div class="fw-semibold mb-2"
-                                         id="preview-subject"
-                                         style="color:#3C3489"></div>
 
-                                    <div id="preview-body"
-                                         style="font-size:14px;color:#555;line-height:1.7"></div>
-                                </div>
-                            </div>
+                        {{-- EMAIL BODY (loads the full template, editable directly here) --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email Body <span class="text-danger">*</span></label>
+                            <small class="text-muted d-block mb-2">
+                                Selecting a template loads it here fully rendered (banner included) — edit anything before scheduling.
+                            </small>
+
+                            <!-- <div class="mb-2">
+                                <small class="text-muted me-2">Insert placeholder:</small>
+                                <button type="button" onclick="insertPlaceholder('client_name')"
+                                    class="btn btn-sm me-1 mb-1"
+                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
+                                    + client_name
+                                </button>
+                                <button type="button" onclick="insertPlaceholder('company_name')"
+                                    class="btn btn-sm me-1 mb-1"
+                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
+                                    + company_name
+                                </button>
+                                <button type="button" onclick="insertPlaceholder('project_name')"
+                                    class="btn btn-sm me-1 mb-1"
+                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
+                                    + project_name
+                                </button>
+                            </div> -->
+
+                            <textarea id="email_body_editor">{!! old('body') !!}</textarea>
+                            <input type="hidden" name="body" id="body-input">
+
+                            @error('body')
+                            <span style="font-size: 12px;" class="text-danger">{{ $message }}</span>
+                            @enderror
                         </div>
+
                         {{-- CLIENTS --}}
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
@@ -106,7 +127,7 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-                        
+
 
                         {{-- DATE TIME --}}
                         <div class="row mb-3">
@@ -119,7 +140,7 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                             </div>
-                         
+
 
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Time</label>
@@ -130,7 +151,7 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                             </div>
-                        
+
 
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">Timezone</label>
@@ -161,13 +182,48 @@
     </div>
 </section>
 
+@endsection
+
+@section('js_scripts')
+
+{{-- TinyMCE CDN --}}
+<script src="https://cdn.tiny.cloud/1/zcnv3wpknfdm4lkpqq5gopif0az219stkskraxdyyb3cfb44/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
 <script>
+
+let email_editor;
+
 const clientCheckboxes = document.querySelectorAll('.client-checkbox');
 const selectAll = document.getElementById('select-all');
 const selectedCountEl = document.getElementById('selected-count');
 const footerCountEl = document.getElementById('footer-count');
 const scheduleBtn = document.getElementById('schedule-btn');
 const templateSelect = document.getElementById('template-select');
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    tinymce.init({
+        selector: '#email_body_editor',
+        height: 450,
+        menubar: false,
+        plugins: 'lists link image code',
+        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
+        setup: function (editor) {
+            email_editor = editor;
+
+            editor.on('init', function () {
+                let oldHtml = `{!! old('body') !!}`;
+                if (oldHtml) {
+                    editor.setContent(oldHtml);
+                } else if (templateSelect.value) {
+                    loadTemplateIntoEditor(templateSelect);
+                }
+            });
+
+            editor.on('keyup change', toggleButton);
+        }
+    });
+});
 
 function updateCounts() {
     const count = document.querySelectorAll('.client-checkbox:checked').length;
@@ -179,7 +235,8 @@ function updateCounts() {
 function toggleButton() {
     const hasClients = document.querySelectorAll('.client-checkbox:checked').length > 0;
     const hasTemplate = templateSelect.value !== '';
-    scheduleBtn.disabled = !(hasClients && hasTemplate);
+    const hasBody = email_editor ? email_editor.getContent({ format: 'text' }).trim().length > 0 : false;
+    scheduleBtn.disabled = !(hasClients && hasTemplate && hasBody);
 }
 
 clientCheckboxes.forEach(cb => cb.addEventListener('change', updateCounts));
@@ -189,62 +246,53 @@ selectAll.addEventListener('change', function () {
     updateCounts();
 });
 
-function renderBodyForPreview(html, bannerSrc) {
-    const regex = /\{\{\s*banner_image\s*\}\}/gi;
+// ✅ Merge banner_image into the raw template so it shows inline in the editor
+function mergeBanner(templateHtml, bannerSrc) {
+    const bannerRegex = /\{\{\s*banner_image\s*\}\}/gi;
 
-    if (bannerSrc) {
-        return html.replace(regex,
-            '<img src="'+bannerSrc+'" style="max-width:100%;margin:6px 0;border-radius:6px;">');
-    }
-
-    return html.replace(regex,
-        '<span style="background:#eee;padding:6px 10px;border-radius:4px;">No Banner</span>');
+    return bannerSrc
+        ? templateHtml.replace(bannerRegex, '<img src="' + bannerSrc + '" style="max-width:100%;margin:6px 0;border-radius:6px;">')
+        : templateHtml.replace(bannerRegex, '<span style="background:#eee;padding:6px 10px;border-radius:4px;">No Banner</span>');
 }
 
-function loadPreview(sel) {
+// ✅ Loads the selected template's full body (banner merged in) straight into the editor
+function loadTemplateIntoEditor(sel) {
     const opt = sel.options[sel.selectedIndex];
-    const preview = document.getElementById('template-preview');
 
-    if (!opt.value) {
-        preview.classList.add('d-none');
-        toggleButton();
-        return;
-    }
-
-    document.getElementById('preview-subject').textContent = opt.dataset.subject;
+    if (!opt.value || !email_editor) return;
 
     const rawHtml = atob(opt.dataset.body || '');
     const banner = opt.dataset.banner || '';
 
-    document.getElementById('preview-body').innerHTML =
-        renderBodyForPreview(rawHtml, banner);
-
-    // const img = document.getElementById('preview-banner');
-    // const ph = document.getElementById('preview-banner-placeholder');
-
-    // if (banner) {
-    //     img.src = banner;
-    //     img.classList.remove('d-none');
-    //     ph.style.display = 'none';
-    // } else {
-    //     img.classList.add('d-none');
-    //     ph.style.display = 'flex';
-    // }
-
-    preview.classList.remove('d-none');
+    email_editor.setContent(mergeBanner(rawHtml, banner));
     toggleButton();
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    if (templateSelect.value) loadPreview(templateSelect);
-});
+function onTemplateChange(sel) {
+    if (!sel.value) {
+        toggleButton();
+        return;
+    }
+    loadTemplateIntoEditor(sel);
+}
 
-document.getElementById('schedule-form').addEventListener('submit', function(e){
+function insertPlaceholder(name) {
+    const open = '{' + '{';
+    const close = '}' + '}';
+    const ph = open + ' ' + name + ' ' + close;
+
+    email_editor.execCommand('mceInsertContent', false, ph);
+}
+
+document.getElementById('schedule-form').addEventListener('submit', function (e) {
+    document.getElementById('body-input').value = email_editor ? email_editor.getContent() : '';
+
     const count = document.querySelectorAll('.client-checkbox:checked').length;
+    const hasBody = email_editor ? email_editor.getContent({ format: 'text' }).trim().length > 0 : false;
 
-    if (count === 0 || !templateSelect.value) {
+    if (count === 0 || !templateSelect.value || !hasBody) {
         e.preventDefault();
-        alert('Select at least one client and template');
+        alert('Select a template, write the email body, and pick at least one client.');
     }
 });
 </script>

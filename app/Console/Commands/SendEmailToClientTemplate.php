@@ -34,9 +34,6 @@ class SendEmailToClientTemplate extends Command
                         })
                         ->get();
 
-              Log::info($scheduled_mails);       
-
-    
         foreach ($scheduled_mails as $mail) {
 
             $template = $mail->template;
@@ -52,18 +49,18 @@ class SendEmailToClientTemplate extends Command
                     ->pluck('project_name')
                     ->implode(', ');
 
-                // Prepare placeholders
-              $placeholders = [
+                // Prepare placeholders dynamically per client
+                $placeholders = [
                     config('app.placeholders.client_name')  => $client->name,
                     config('app.placeholders.company_name') => $client->company ?? '',
                     config('app.placeholders.project_name') => $projectNames ?: 'N/A',
                 ];
-                
-                // Replace placeholders
+
+                // ✅ Use the body saved on scheduled_emails, not the template's raw body
                 $body = str_replace(
                     array_keys($placeholders),
                     array_values($placeholders),
-                    $template->body
+                    $mail->body
                 );
 
                 $message = [
@@ -73,18 +70,17 @@ class SendEmailToClientTemplate extends Command
                     'banner_img'  => $template->banner_image,
                 ];
 
-                try {         
-                  $client->notify(new EmailTemplateNotification($message));
+                 
 
-                    // mark as sent
+                try {
+                    $client->notify(new EmailTemplateNotification($message));
+
                     $recipient->update([
-                        'status'  => 'sent',
-                        
+                        'status' => 'sent',
                     ]);
 
                 } catch (\Exception $e) {
 
-                    // mark as failed
                     $recipient->update([
                         'status' => 'failed',
                         'error'  => $e->getMessage(),

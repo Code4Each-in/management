@@ -50,36 +50,7 @@
                             @error('subject')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Banner / Header Image
-                                <small class="text-muted fw-normal">(optional, shown at top of email)</small>
-                            </label>
-
-                            {{-- Upload zone --}}
-                            <div id="upload-zone"
-                                onclick="document.getElementById('banner_image').click()"
-                                style="border:2px dashed #7F77DD;border-radius:10px;padding:30px;
-                                        text-align:center;cursor:pointer;background:#EEEDFE;transition:background 0.2s">
-                                <i class="bi bi-cloud-upload fs-2" style="color:#7F77DD"></i>
-                                <p class="mb-0 mt-1 fw-semibold" style="color:#3C3489">Click to upload banner image</p>
-                                <small style="color:#7F77DD">PNG, JPG, GIF · max 5MB</small>
-                            </div>
-                            <input type="file" id="banner_image" name="banner_image"
-                                accept="image/*" class="d-none @error('banner_image') is-invalid @enderror"
-                                onchange="previewBanner(this)">
-                            @error('banner_image')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-
-                            {{-- Preview --}}
-                            <div id="banner-preview-wrap" class="mt-2 d-none position-relative">
-                                <img id="banner-preview-img" class="img-fluid rounded w-100"
-                                    style="max-height:120px;object-fit:cover">
-                                <button type="button" onclick="removeBanner()"
-                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        </div>
+                    
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Email Body <span class="text-danger">*</span></label>
@@ -87,6 +58,11 @@
                             {{-- Placeholder buttons --}}
                             <div class="mb-2">
                                 <small class="text-muted me-2">Insert placeholder:</small>
+                                <button type="button" onclick="insertPlaceholder('email_body')"
+                                    class="btn btn-sm me-1 mb-1"
+                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
+                                    + email_body
+                                </button>
                                 <button type="button" onclick="insertPlaceholder('client_name')"
                                     class="btn btn-sm me-1 mb-1"
                                     style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
@@ -97,20 +73,11 @@
                                     style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
                                     + company_name
                                 </button>
-                                <button type="button" onclick="insertPlaceholder('project_name')"
-                                    class="btn btn-sm me-1 mb-1"
-                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
-                                    + project_name
-                                </button>
-                                <button type="button" onclick="insertPlaceholder('banner_image')"
-                                    class="btn btn-sm me-1 mb-1"
-                                    style="background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;font-size:11px">
-                                    + banner_image                             
-                                </button>
                             </div>
 
                             <div class="col-sm-12">
-                                <div id="mail_editor" style="height: 300px;">{!! old('body') !!}</div>
+                                <!-- <div id="mail_editor" style="height: 300px;">{!! old('body') !!}</div> -->
+                                <textarea id="mail_editor">{!! old('body') !!}</textarea>
                                 <input type="hidden" name="body" id="body-input">
 
                                 @error('body')
@@ -138,70 +105,81 @@
 
 @section('js_scripts')
 
+
+
+{{-- TinyMCE CDN --}}
+<script src="https://cdn.tiny.cloud/1/zcnv3wpknfdm4lkpqq5gopif0az219stkskraxdyyb3cfb44/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
 <script>
 
+let email_editor;
 
-let email_quill;
 document.addEventListener('DOMContentLoaded', function () {
-    const editor = document.getElementById('mail_editor');
 
-    if (editor) {
-        email_quill = new Quill('#mail_editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    [{ header: [1, 2, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['link', 'image'],
-                    ['code-block'],
-                    ['clean']
-                ]
-            }
-        });
+    tinymce.init({
+        selector: '#mail_editor',
+        height: 500,
+        menubar: false,
+        plugins: 'lists link image code',
+        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
+
+        setup: function (editor) {
+            email_editor = editor;
+
+            editor.on('init', function () {
+                // ✅ Load old content
+                let oldHtml = `{!! old('body') !!}`;
+                if (oldHtml) {
+                    editor.setContent(oldHtml);
+                }
+            });
+        }
+    });
+
+});
+
+
+// ✅ Sync TinyMCE content before submit
+document.getElementById('template-form').addEventListener('submit', function (e) {
+    const content = tinymce.get('mail_editor').getContent();
+    document.getElementById('body-input').value = content;
+
+    if (tinymce.get('mail_editor').getContent({ format: 'text' }).trim().length === 0) {
+        e.preventDefault();
+        alert('Email body cannot be empty.');
     }
 });
 
 
-    // Sync Quill's HTML content into the hidden input right before submit
-    document.getElementById('template-form').addEventListener('submit', function (e) {
-        const bodyInput = document.getElementById('body-input');
-        bodyInput.value = email_quill.root.innerHTML;
+// ✅ Placeholder insert (TinyMCE version)
+function insertPlaceholder(name) {
+    const open = '{' + '{';
+    const close = '}' + '}';
+    const ph = open + ' ' + name + ' ' + close;
 
-        if (email_quill.getText().trim().length === 0) {
-            e.preventDefault();
-            alert('Email body cannot be empty.');
-        }
-    });
+    tinymce.get('mail_editor').execCommand('mceInsertContent', false, ph);
+}
 
-    function previewBanner(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('banner-preview-img').src = e.target.result;
-                document.getElementById('banner-preview-wrap').classList.remove('d-none');
-                document.getElementById('upload-zone').style.display = 'none';
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
+
+// ✅ Banner preview (same as before)
+function previewBanner(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('banner-preview-img').src = e.target.result;
+            document.getElementById('banner-preview-wrap').classList.remove('d-none');
+            document.getElementById('upload-zone').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
+}
 
-    function removeBanner() {
-        document.getElementById('banner_image').value = '';
-        document.getElementById('banner-preview-wrap').classList.add('d-none');
-        document.getElementById('upload-zone').style.display = 'block';
-    }
+function removeBanner() {
+    document.getElementById('banner_image').value = '';
+    document.getElementById('banner-preview-wrap').classList.add('d-none');
+    document.getElementById('upload-zone').style.display = 'block';
+}
 
-
-    function insertPlaceholder(name) {
-        const open = '{' + '{';
-        const close = '}' + '}'; 
-        const ph = open + ' ' + name + ' ' + close; 
-
-        const range = email_quill.getSelection(true); 
-        email_quill.insertText(range.index, ph, 'user');
-        email_quill.setSelection(range.index + ph.length);
-    }
 </script>
 
 @endsection
