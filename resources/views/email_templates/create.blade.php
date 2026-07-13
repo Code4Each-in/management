@@ -49,7 +49,7 @@
                                 placeholder="e.g. Happy Diwali !">
                             @error('subject')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-
+ 
                     
 
                         <div class="mb-3">
@@ -116,25 +116,48 @@ let email_editor;
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // tinymce.init({
+    //     selector: '#mail_editor',
+    //     height: 500,
+    //     menubar: false,
+    //     plugins: 'lists link image code',
+    //     toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
+
+    //     setup: function (editor) {
+    //         email_editor = editor;
+
+    //         editor.on('init', function () {
+    //             // ✅ Load old content
+    //             let oldHtml = `{!! old('body') !!}`;
+    //             if (oldHtml) {
+    //                 editor.setContent(oldHtml);
+    //             }
+    //         });
+    //     }
+    // });
     tinymce.init({
-        selector: '#mail_editor',
-        height: 500,
-        menubar: false,
-        plugins: 'lists link image code',
-        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
+    selector: '#mail_editor',
+    height: 500,
+    menubar: false,
+    plugins: 'lists link image code',
+    toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
 
-        setup: function (editor) {
-            email_editor = editor;
+    // ✅ IMPORTANT FIXES
+    relative_urls: false,
+    remove_script_host: false,
+    convert_urls: false,
 
-            editor.on('init', function () {
-                // ✅ Load old content
-                let oldHtml = `{!! old('body') !!}`;
-                if (oldHtml) {
-                    editor.setContent(oldHtml);
-                }
-            });
-        }
-    });
+    setup: function (editor) {
+        email_editor = editor;
+
+        editor.on('init', function () {
+            let oldHtml = `{!! old('body') !!}`;
+            if (oldHtml) {
+                editor.setContent(oldHtml);
+            }
+        });
+    }
+});
 
 });
 

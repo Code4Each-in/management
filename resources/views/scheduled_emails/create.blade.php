@@ -202,27 +202,54 @@ const templateSelect = document.getElementById('template-select');
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // tinymce.init({
+    //     selector: '#email_body_editor',
+    //     height: 450,
+    //     menubar: false,
+    //     plugins: 'lists link image code',
+    //     toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
+    //     setup: function (editor) {
+    //         email_editor = editor;
+
+    //         editor.on('init', function () {
+    //             let oldHtml = `{!! old('body') !!}`;
+    //             if (oldHtml) {
+    //                 editor.setContent(oldHtml);
+    //             } else if (templateSelect.value) {
+    //                 loadTemplateIntoEditor(templateSelect);
+    //             }
+    //         });
+
+    //         editor.on('keyup change', toggleButton);
+    //     }
+    // });
     tinymce.init({
-        selector: '#email_body_editor',
-        height: 450,
-        menubar: false,
-        plugins: 'lists link image code',
-        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
-        setup: function (editor) {
-            email_editor = editor;
+    selector: '#email_body_editor',
+    height: 450,
+    menubar: false,
+    plugins: 'lists link image code',
+    toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | code | removeformat',
 
-            editor.on('init', function () {
-                let oldHtml = `{!! old('body') !!}`;
-                if (oldHtml) {
-                    editor.setContent(oldHtml);
-                } else if (templateSelect.value) {
-                    loadTemplateIntoEditor(templateSelect);
-                }
-            });
+    // 🔥 FIX IMAGE PATH ISSUE
+    relative_urls: false,
+    remove_script_host: false,
+    convert_urls: false,
 
-            editor.on('keyup change', toggleButton);
-        }
-    });
+    setup: function (editor) {
+        email_editor = editor;
+
+        editor.on('init', function () {
+            let oldHtml = `{!! old('body') !!}`;
+            if (oldHtml) {
+                editor.setContent(oldHtml);
+            } else if (templateSelect.value) {
+                loadTemplateIntoEditor(templateSelect);
+            }
+        });
+
+        editor.on('keyup change', toggleButton);
+    }
+});
 });
 
 function updateCounts() {
@@ -256,13 +283,28 @@ function mergeBanner(templateHtml, bannerSrc) {
 }
 
 // ✅ Loads the selected template's full body (banner merged in) straight into the editor
+// function loadTemplateIntoEditor(sel) {
+//     const opt = sel.options[sel.selectedIndex];
+
+//     if (!opt.value || !email_editor) return;
+
+//     const rawHtml = atob(opt.dataset.body || '');
+//     const banner = opt.dataset.banner || '';
+
+//     email_editor.setContent(mergeBanner(rawHtml, banner));
+//     toggleButton();
+// }
 function loadTemplateIntoEditor(sel) {
     const opt = sel.options[sel.selectedIndex];
 
     if (!opt.value || !email_editor) return;
 
-    const rawHtml = atob(opt.dataset.body || '');
+    let rawHtml = atob(opt.dataset.body || '');
     const banner = opt.dataset.banner || '';
+
+    // ✅ FIX: convert relative paths to absolute
+    const baseUrl = "{{ url('/') }}";
+    rawHtml = rawHtml.replace(/src="\.\.\//g, 'src="' + baseUrl + '/');
 
     email_editor.setContent(mergeBanner(rawHtml, banner));
     toggleButton();
