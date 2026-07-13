@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Client;
 use App\Models\EmailTemplate;
+use App\Models\ScheduledEmail;
+use App\Models\ScheduledEmailRecipient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\EmailTemplateNotification;
@@ -100,17 +102,35 @@ public function index()
         return redirect()->route('templates.index')->with('success', 'Template updated Successfully');
     }
 
+
+
     public function destroy($id)
     {
         $template = EmailTemplate::findOrFail($id);
 
-        // Delete banner image file if exists
-        if ($template->banner_image) {
-            Storage::disk('public')->delete($template->banner_image);
+        // ✅ Check if template is used in scheduled emails
+        $hasPendingOrScheduled = ScheduledEmail::where('template_id', $id)
+            ->whereIn('status', ['scheduled', 'pending'])
+            ->exists();
+
+        if ($hasPendingOrScheduled) {
+            return back()->with('error_msg', 'This template is currently used in scheduled emails and cannot be deleted.');
+        }
+
+        // ✅ (Optional Strong Check) Check recipients status also
+        $hasUnsentRecipients = ScheduledEmailRecipient::whereHas('scheduledEmail', function ($q) use ($id) {
+                                $q->where('template_id', $id);
+                            })
+                            ->whereNotIn('status', ['sent', 'cancelled']) // 👈 FIX HERE
+                            ->exists();
+
+        if ($hasUnsentRecipients) {
+            return back()->with('error_msg', 'Some emails are not sent yet. Cannot delete template.');
         }
 
         $template->delete();
-        return back()->with('success', 'Template deleted!');
+
+        return back()->with('success', 'Template deleted successfully');
     }
 
     public function mailtoclient()

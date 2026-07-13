@@ -35,6 +35,7 @@ class SendEmailToClientTemplate extends Command
                         ->get();
 
         foreach ($scheduled_mails as $mail) {
+            $subject = $mail->subject;
 
             $template = $mail->template;
 
@@ -65,7 +66,7 @@ class SendEmailToClientTemplate extends Command
 
                 $message = [
                     'client_name' => $client->name,
-                    'subject'     => $template->subject,
+                    'subject'     => $subject,
                     'content'     => $body,
                     'banner_img'  => $template->banner_image,
                 ];
