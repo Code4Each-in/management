@@ -40,36 +40,48 @@ class ScheduledEmailController extends Controller
 
     public function store(Request $request)
     {
-      $request->validate([
-        'template_id'  => 'required|exists:email_templates,id',
-        'client_ids'   => 'required|array|min:1',
-        'client_ids.*' => 'exists:clients,id',
-        'project_id'   => 'nullable|exists:projects,id',
-        'body'         => 'required|string', 
-        'send_date' => 'required|date|after_or_equal:today',
-        'send_time' => 'required',
-    ]);
+       if($request->send_type == "now"){
+            $request->validate([
+                'template_id'  => 'required|exists:email_templates,id',
+                'subject'      => 'required',
+                'client_ids'   => 'required|array|min:1',
+                'client_ids.*' => 'exists:clients,id',
+                'project_id'   => 'nullable|exists:projects,id',
+                'body'         => 'required|string', 
+            ]);
+            $sendAt = now();
 
-    // ✅ Step 2: Combine date + time safely
-    $sendAt = Carbon::parse($request->send_date . ' ' . $request->send_time);
+       }else{
+            $request->validate([
+                'template_id'  => 'required|exists:email_templates,id',
+                'subject'      => 'required',
+                'client_ids'   => 'required|array|min:1',
+                'client_ids.*' => 'exists:clients,id',
+                'project_id'   => 'nullable|exists:projects,id',
+                'body'         => 'required|string', 
+                'send_date'    => 'required|date|after_or_equal:today',
+                'send_time'    => 'required',
+            ]);
 
-    // ✅ Step 3: Validate future datetime
-    if ($sendAt->isPast()) {
-        return back()->withErrors([
-            'send_time' => 'The selected time must be in the future.'
-        ])->withInput();
-    }
+                // ✅ Combine date + time
+        $sendAt = Carbon::parse($request->send_date . ' ' . $request->send_time);
 
-    // ✅ Step 4: Save (example)
-    $request->merge([
-        'send_at' => $sendAt
-    ]);
+        // ✅ Future check
+        if ($sendAt->isPast()) {
+            return back()->withErrors([
+                'send_time' => 'The selected time must be in the future.'
+            ])->withInput();
+        }
+       }
+
+
        
         $email = ScheduledEmail::create([
             'template_id' => $request->template_id,
+            'subject'     => $request->subject,
             'body'        => $request->body,
             'project_id'  => $request->project_id,   // NEW
-            'send_at'     => $request->send_at,
+            'send_at'     => $sendAt,
             'status'      => 'scheduled',
         ]);
 
@@ -150,12 +162,32 @@ class ScheduledEmailController extends Controller
         return response($body);
     }
 
-    public function cancel_scheduler(Request $request, $id)
+  public function cancel_scheduler(Request $request, $id)
     {
-       
-       ScheduledEmailRecipient::where('id', $id)->update(["status" => 'cancelled']);
-       return redirect()->route('scheduled.index')->with('success', 'Schedular Cancelled Successfully');
-       
+        // ✅ Get recipient
+        $recipient = ScheduledEmailRecipient::findOrFail($id);
+
+        // ✅ Update recipient status
+        $recipient->update([
+            'status' => 'cancelled'
+        ]);
+
+        // ✅ Get parent scheduled_email_id
+        $scheduledEmailId = $recipient->scheduled_email_id;
+
+        // ✅ Check if ALL recipients are cancelled
+        $hasActiveRecipients = ScheduledEmailRecipient::where('scheduled_email_id', $scheduledEmailId)
+            ->whereNotIn('status', ['cancelled'])
+            ->exists();
+
+        // ✅ If NO active recipients → update parent
+        if (!$hasActiveRecipients) {
+            ScheduledEmail::where('id', $scheduledEmailId)
+                ->update(['status' => 'cancelled']);
+        }
+
+        return redirect()->route('scheduled.index')
+            ->with('success', 'Scheduler cancelled successfully');
     }
 
   

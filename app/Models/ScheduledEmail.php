@@ -7,6 +7,7 @@ class ScheduledEmail extends Model
 {
     protected $fillable = [
         'template_id',
+        'subject',
         'body',
         'project_id',   // NEW
         'send_at',

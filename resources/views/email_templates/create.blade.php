@@ -1,10 +1,9 @@
 @extends('layout')
-@section('title', 'Applicants')
-@section('subtitle', 'Applicants')
+@section('title', 'Create Email Template')
+@section('subtitle', 'Create Email Template')
 @section('content')
 
 <div class="pagetitle">
-    <h1>Create Email Template</h1>
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>

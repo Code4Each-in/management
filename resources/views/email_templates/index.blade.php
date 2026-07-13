@@ -1,10 +1,9 @@
 @extends('layout')
-@section('title', 'Applicants')
-@section('subtitle', 'Applicants')
+@section('title', 'Email Templates')
+@section('subtitle', 'Email Templates')
 @section('content')
 
 <div class="pagetitle">
-    <h1>Email Templates</h1>
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
@@ -44,6 +43,13 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
+                    
+                    @if(session('error_msg'))
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ session('error_msg') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
 
                     @forelse($templates as $template)
                     <?php
@@ -62,24 +68,14 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h5 class="card-title mb-1">{{ $template->name }}</h5>
+                                    <h5 class="card-title mb-1">{{ $template->name }} ({{ ucfirst($template->category) }}) </h5>
                                     <small class="text-muted">
                                         {{ ucfirst($template->category) }} &middot;
-                                        Updated {{ $template->updated_at->diffForHumans() }}
+                                        Updated {{ $template->updated_at->diffForHumans() }} 
                                     </small>
                                 </div>
                                 <div class="d-flex gap-2 align-items-center" style="padding-top:23px">
-                                    {{-- Category badge --}}
-                                    @php
-                                        $badgeColors = [
-                                            'festival' => 'warning',
-                                            'business' => 'success',
-                                            'followup' => 'primary',
-                                            'other'    => 'secondary',
-                                        ];
-                                        $color = $badgeColors[$template->category] ?? 'secondary';
-                                    @endphp
-                                    <span class="badge bg-{{ $color }}">{{ ucfirst($template->category) }}</span>
+                           
 
                                     <a href="{{ route('templates.edit', $template->id) }}"
                                        class="btn btn-sm btn-outline-secondary">

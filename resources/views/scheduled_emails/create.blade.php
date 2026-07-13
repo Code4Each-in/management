@@ -16,7 +16,7 @@
 
 <section class="section">
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12"> 
         <div class="card">
             <div class="card-body pt-4">
 
@@ -40,7 +40,7 @@
                                 data-subject="{{ $t->subject }}"
                                 data-body="{{ base64_encode($t->body) }}"
                                 data-banner="{{ $t->banner_image ? asset('storage/'.$t->banner_image) : '' }}"
-                                {{ old('template_id') == $t->id ? 'selected' : '' }}>
+                                 {{ old('template_id', request('template_id')) == $t->id ? 'selected' : '' }}>
                                 {{ $t->name }} ({{ ucfirst($t->category) }})
                             </option>
                             @endforeach
@@ -48,6 +48,21 @@
 
                         @error('template_id')
                         <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Email Subject <span class="text-danger">*</span>
+                        </label>
+
+                        <input type="text" 
+                            name="subject" 
+                            id="subject-input"
+                            class="form-control @error('subject') is-invalid @enderror"
+                            value="{{ old('subject') }}">
+
+                        @error('subject')
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -91,10 +106,11 @@
                                 <input class="form-check-input client-checkbox"
                                     type="checkbox"
                                     name="client_ids[]"
+                                     id="client-{{ $client->id }}"
                                     value="{{ $client->id }}"
                                     {{ in_array($client->id, $oldClients) ? 'checked' : '' }}>
 
-                                <label class="form-check-label">
+                                <label class="form-check-label" for="client-{{ $client->id }}">
                                     {{ $client->name }} <br>
                                     <small>{{ $client->email }}</small>
                                 </label>
@@ -107,7 +123,36 @@
                         <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Send Option</label>
 
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                type="radio" 
+                                name="send_type" 
+                                id="send_now" 
+                                value="now"
+                                {{ old('send_type', 'later') == 'now' ? 'checked' : '' }}>
+
+                            <label class="form-check-label" for="send_now">
+                                Send Instantly
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                type="radio" 
+                                name="send_type" 
+                                id="send_later" 
+                                value="later"
+                                {{ old('send_type', 'later') == 'later' ? 'checked' : '' }}>
+
+                            <label class="form-check-label" for="send_later">
+                                Later On
+                            </label>
+                        </div>
+                    </div>
+                   <div id="schedule-datetime" class="row mb-3">
                     {{-- DATE TIME --}}
                     <div class="row mb-3">
                         <div class="col-md-5">
@@ -122,7 +167,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">Time</label>
+                            <label class="form-label fw-semibold"> Time (IST)</label>
                             <input type="time" name="send_time"
                                 class="form-control"
                                 value="{{ old('send_time', '09:00') }}">
@@ -130,11 +175,7 @@
                             <div class="text-danger small">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Timezone</label>
-                            <input type="text" class="form-control" value="IST" disabled>
-                        </div>
+                    </div>
                     </div>
 
                     {{-- ACTION --}}
@@ -164,14 +205,10 @@
 @endsection
 
 @section('js_scripts')
-
 <script src="https://cdn.tiny.cloud/1/mfhlch1z0ky97217fc0jx6wktt3uh1uo7euvbtx415h9jyhb/tinymce/6/tinymce.min.js"></script>
-
 <script>
 let email_editor;
-
 const templateSelect = document.getElementById('template-select');
-
 tinymce.init({
     selector: '#email_body_editor',
     height: 450,
@@ -186,13 +223,23 @@ tinymce.init({
     setup: function (editor) {
         email_editor = editor;
 
-        editor.on('init', function () {
+            editor.on('init', function () {
 
             let oldHtml = @json(old('body'));
+            let oldSubject = @json(old('subject'));
+
+            if (oldSubject) {
+                document.getElementById('subject-input').value = oldSubject;
+            } 
+            else if (templateSelect.value) {
+                const opt = templateSelect.options[templateSelect.selectedIndex];
+                document.getElementById('subject-input').value = opt.dataset.subject || '';
+            }
 
             if (oldHtml) {
                 editor.setContent(oldHtml);
-            } else if (templateSelect.value) {
+            } 
+            else if (templateSelect.value) {
                 loadTemplateIntoEditor(templateSelect);
             }
         });
@@ -212,12 +259,88 @@ function loadTemplateIntoEditor(sel) {
     email_editor.setContent(rawHtml);
 }
 
-function onTemplateChange(sel) {
+function onTemplateChange(sel) { console.log(sel);
     loadTemplateIntoEditor(sel);
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt.value) return;
+
+        // ✅ Set subject
+        document.getElementById('subject-input').value = opt.dataset.subject || '';
 }
 
 document.getElementById('schedule-form').addEventListener('submit', function () {
     document.getElementById('body-input').value = email_editor.getContent();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.client-checkbox');
+    const selectedCount = document.getElementById('selected-count');
+    const footerCount = document.getElementById('footer-count');
+
+    // ✅ Update count function
+    function updateCount() {
+        let count = document.querySelectorAll('.client-checkbox:checked').length;
+        selectedCount.textContent = count;
+        footerCount.textContent = count;
+    }
+
+    // ✅ Select All click
+    selectAll.addEventListener('change', function () {
+        checkboxes.forEach(cb => {
+            cb.checked = selectAll.checked;
+        });
+        updateCount();
+    });
+
+    // ✅ Individual checkbox change
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+
+            // If any unchecked → uncheck select-all
+            if (!this.checked) {
+                selectAll.checked = false;
+            } 
+            // If all checked → check select-all
+            else if (document.querySelectorAll('.client-checkbox:checked').length === checkboxes.length) {
+                selectAll.checked = true;
+            }
+
+            updateCount();
+        });
+    });
+
+    // ✅ Initial state (important for old values)
+    function initState() {
+        let checkedCount = document.querySelectorAll('.client-checkbox:checked').length;
+
+        if (checkedCount === checkboxes.length && checkboxes.length > 0) {
+            selectAll.checked = true;
+        }
+
+        updateCount();
+    }
+
+    initState();
+
+        const sendNow = document.getElementById('send_now');
+        const sendLater = document.getElementById('send_later');
+        const scheduleBox = document.getElementById('schedule-datetime');
+
+    function toggleSchedule() {
+        if (sendNow.checked) { 
+            scheduleBox.style.display = 'none';
+        } else {
+            scheduleBox.style.display = 'flex';
+        }
+    }
+
+    sendNow.addEventListener('change', toggleSchedule);
+    sendLater.addEventListener('change', toggleSchedule);
+
+    // Initial state (important)
+    toggleSchedule();
 });
 </script>
 
