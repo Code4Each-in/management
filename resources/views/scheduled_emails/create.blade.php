@@ -327,12 +327,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const sendNow = document.getElementById('send_now');
         const sendLater = document.getElementById('send_later');
         const scheduleBox = document.getElementById('schedule-datetime');
+        const scheduleBtn = document.getElementById('schedule-btn');
 
     function toggleSchedule() {
         if (sendNow.checked) { 
             scheduleBox.style.display = 'none';
+            scheduleBtn.textContent = 'Send Now';
         } else {
             scheduleBox.style.display = 'flex';
+            scheduleBtn.textContent = 'Confirm & Schedule';
         }
     }
 
