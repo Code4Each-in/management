@@ -408,13 +408,37 @@ public function index(Request $request)
             }
         }
 
+        // if ($request->hasFile('attachments')) {
+        //     foreach ($request->file('attachments') as $i => $file) {
+        //         if (!$file) continue;
+        //         $path = $file->store('deployment_attachments', 'public');
+        //         $ticket->attachments()->create([
+        //             'type' => $request->attachment_types[$i] ?? 'Other',
+        //             'file_path' => $path,
+        //             'original_name' => $file->getClientOriginalName(),
+        //         ]);
+        //     }
+        // }
+
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $i => $file) {
-                if (!$file) continue;
-                $path = $file->store('deployment_attachments', 'public');
+                if (!$file) {
+                    continue;
+                }
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                // Ensure directory exists
+                if (!file_exists(public_path('storage/deployment_attachments'))) {
+                    mkdir(public_path('storage/deployment_attachments'), 0755, true);
+                }
+
+                // Move file (same as store)
+                $file->move(public_path('storage/deployment_attachments'), $filename);
+
                 $ticket->attachments()->create([
                     'type' => $request->attachment_types[$i] ?? 'Other',
-                    'file_path' => $path,
+                    'file_path' => 'deployment_attachments/' . $filename,
                     'original_name' => $file->getClientOriginalName(),
                 ]);
             }
