@@ -290,10 +290,6 @@ Route::middleware(['role_permission'])->group(function () {
 	// });
 
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
-
-
-
-
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
@@ -430,6 +426,29 @@ Route::middleware(['role_permission'])->group(function () {
 		Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 	});
 
+	Route::prefix('deployment')->name('deployment.')->group(function () {
+    Route::get('/', [DeploymentTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/create', [DeploymentTicketController::class, 'create'])->name('tickets.create');
+    Route::get('/reports', [DeploymentTicketController::class, 'reports'])->name('reports');
+    Route::post('/', [DeploymentTicketController::class, 'store'])->name('tickets.store');
+    Route::get('/{ticket}', [DeploymentTicketController::class, 'show'])->name('tickets.show');
+    Route::get('/{ticket}/edit', [DeploymentTicketController::class, 'edit'])->name('tickets.edit');
+    Route::put('/{ticket}', [DeploymentTicketController::class, 'update'])->name('tickets.update');
+    Route::post('/{ticket}/submit', [DeploymentTicketController::class, 'submitForQA'])->name('tickets.submit');
+    Route::post('/{ticket}/approve', [DeploymentTicketController::class, 'approve'])->name('tickets.approve');
+    Route::post('/{ticket}/needs-fix', [DeploymentTicketController::class, 'needsFix'])->name('tickets.needsFix');
+    Route::post('/{ticket}/deploy', [DeploymentTicketController::class, 'markDeployed'])->name('tickets.deploy');
+
+    Route::post('/{ticket}/bugs', [DeploymentTicketController::class, 'addBug'])->name('tickets.bugs.add');
+    Route::post('/bugs/{bug}/fixed', [DeploymentTicketController::class, 'markBugFixed'])->name('bugs.fixed');
+    Route::post('/bugs/{bug}/close', [DeploymentTicketController::class, 'closeBug'])->name('bugs.close');
+    Route::post('/{ticket}/rollback', [DeploymentTicketController::class, 'rollback'])->name('tickets.rollback');
+
+    Route::get('/attachments/{attachment}/delete', [DeploymentTicketController::class, 'deleteAttachment'])
+        ->name('attachments.destroy');
+
+});
+
 });
 
 Route::post('/ticket-update-store', [TicketsController::class, 'storeUpdate'])->name('ticket.update.store');
@@ -460,28 +479,7 @@ Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin']
     ->name('ticket-comments.pin');
 // deplyoment routes
 
-Route::prefix('deployment')->name('deployment.')->group(function () {
-    Route::get('/', [DeploymentTicketController::class, 'index'])->name('tickets.index');
-    Route::get('/create', [DeploymentTicketController::class, 'create'])->name('tickets.create');
-    Route::get('/reports', [DeploymentTicketController::class, 'reports'])->name('reports');
-    Route::post('/', [DeploymentTicketController::class, 'store'])->name('tickets.store');
-    Route::get('/{ticket}', [DeploymentTicketController::class, 'show'])->name('tickets.show');
-    Route::get('/{ticket}/edit', [DeploymentTicketController::class, 'edit'])->name('tickets.edit');
-    Route::put('/{ticket}', [DeploymentTicketController::class, 'update'])->name('tickets.update');
-    Route::post('/{ticket}/submit', [DeploymentTicketController::class, 'submitForQA'])->name('tickets.submit');
-    Route::post('/{ticket}/approve', [DeploymentTicketController::class, 'approve'])->name('tickets.approve');
-    Route::post('/{ticket}/needs-fix', [DeploymentTicketController::class, 'needsFix'])->name('tickets.needsFix');
-    Route::post('/{ticket}/deploy', [DeploymentTicketController::class, 'markDeployed'])->name('tickets.deploy');
 
-    Route::post('/{ticket}/bugs', [DeploymentTicketController::class, 'addBug'])->name('tickets.bugs.add');
-    Route::post('/bugs/{bug}/fixed', [DeploymentTicketController::class, 'markBugFixed'])->name('bugs.fixed');
-    Route::post('/bugs/{bug}/close', [DeploymentTicketController::class, 'closeBug'])->name('bugs.close');
-    Route::post('/{ticket}/rollback', [DeploymentTicketController::class, 'rollback'])->name('tickets.rollback');
-
-    Route::get('/attachments/{attachment}/delete', [DeploymentTicketController::class, 'deleteAttachment'])
-        ->name('attachments.destroy');
-
-});
 
 Route::get('/projects/{project}/tickets-json', [DeploymentTicketController::class, 'projectTickets'])
     ->name('projects.tickets.json');
