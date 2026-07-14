@@ -408,41 +408,66 @@ public function index(Request $request)
             }
         }
 
+   
+
         // if ($request->hasFile('attachments')) {
         //     foreach ($request->file('attachments') as $i => $file) {
-        //         if (!$file) continue;
-        //         $path = $file->store('deployment_attachments', 'public');
+        //         if (!$file) {
+        //             continue;
+        //         }
+
+        //         $filename = time() . '_' . $file->getClientOriginalName();
+
+        //         // Ensure directory exists
+        //         if (!file_exists(public_path('storage/deployment_attachments'))) {
+        //             mkdir(public_path('storage/deployment_attachments'), 0755, true);
+        //         }
+
+        //         // Move file (same as store)
+        //         $file->move(public_path('storage/deployment_attachments'), $filename);
+
         //         $ticket->attachments()->create([
         //             'type' => $request->attachment_types[$i] ?? 'Other',
-        //             'file_path' => $path,
+        //             'file_path' => 'deployment_attachments/' . $filename,
         //             'original_name' => $file->getClientOriginalName(),
         //         ]);
         //     }
         // }
-
         if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $i => $file) {
-                if (!$file) {
-                    continue;
-                }
+    foreach ($request->file('attachments') as $i => $file) {
+        if (!$file) continue;
 
-                $filename = time() . '_' . $file->getClientOriginalName();
+        $originalName = $file->getClientOriginalName();
+        $filename = pathinfo($originalName, PATHINFO_FILENAME);
+        
+        $zipName = time() . '_' . uniqid() . '_' . $filename . '.zip';
 
-                // Ensure directory exists
-                if (!file_exists(public_path('storage/deployment_attachments'))) {
-                    mkdir(public_path('storage/deployment_attachments'), 0755, true);
-                }
+        $folderPath = public_path('storage/deployment_attachments');
 
-                // Move file (same as store)
-                $file->move(public_path('storage/deployment_attachments'), $filename);
-
-                $ticket->attachments()->create([
-                    'type' => $request->attachment_types[$i] ?? 'Other',
-                    'file_path' => 'deployment_attachments/' . $filename,
-                    'original_name' => $file->getClientOriginalName(),
-                ]);
-            }
+        // Ensure folder exists
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0755, true);
         }
+
+        $zipPath = $folderPath . '/' . $zipName;
+
+        // Create ZIP
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            
+            // Add file into zip
+            $zip->addFile($file->getRealPath(), $originalName);
+            $zip->close();
+
+            // Save in DB
+            $ticket->attachments()->create([
+                'type' => $request->attachment_types[$i] ?? 'Other',
+                'file_path' => 'deployment_attachments/' . $zipName,
+                'original_name' => $originalName,
+            ]);
+        }
+    }
+}
 
         return redirect()->route('deployment.tickets.show', $ticket)
             ->with('success', 'Deployment ticket updated.');
