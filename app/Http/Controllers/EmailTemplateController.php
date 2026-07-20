@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Notifications\EmailTemplateNotification;
 use Illuminate\Support\Facades\Log;
 
-class EmailTemplateController extends Controller 
+class EmailTemplateController extends Controller
 {
 public function index()
 {
@@ -65,7 +65,7 @@ public function index()
     }
 
     public function edit($id)
-    { 
+    {
         $template = EmailTemplate::findOrFail($id);
       //  dd($template);
         return view('email_templates.edit', compact('template'));
@@ -75,7 +75,7 @@ public function index()
 
     public function update(Request $request, $id)
     {
-        
+
         $template = EmailTemplate::findOrFail($id);
 
         $request->validate([
@@ -147,7 +147,7 @@ public function index()
     {
         $request->validate([
             'client_ids'  => 'required|array|min:1',
-            'template_id' => 'required|exists:email_templates,id', 
+            'template_id' => 'required|exists:email_templates,id',
         ]);
 
         $template = EmailTemplate::findOrFail($request->template_id);
@@ -164,12 +164,12 @@ public function index()
                 ->implode(', ');
 
             // Prepare placeholders
-      
-            // $placeholders = [ 
+
+            // $placeholders = [
             //     '{{ client_name }}'   => $client->name,
             //     '{{ company_name }}'  => $client->company ?? '',
             //     '{{ project_name }}'  => $projectNames ?: 'N/A',
-               
+
             // ];
             $placeholders = [
                     config('app.placeholders.client_name')  => $client->name,
@@ -190,7 +190,7 @@ public function index()
                 'client_name' => $client->name,
                 'subject'     => $template->subject,
                 'content'     => $body,
-                'banner_img'  => $template->banner_image, 
+                'banner_img' => $template ? $template->banner_image : null,
             ];
 
             try {

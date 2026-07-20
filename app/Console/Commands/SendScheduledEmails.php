@@ -31,38 +31,61 @@ class SendScheduledEmails extends Command
         foreach ($due as $scheduled) {
             $allSent = true;
 
+            // foreach ($scheduled->recipients as $recipient) {
+            //     // Skip already sent recipients
+            //     if ($recipient->status === 'sent') continue;
+
+            //     try {
+            //         Mail::to($recipient->client->email)
+            //             ->send(new ScheduledEmailMailable(
+            //                 $scheduled->template,
+            //                 $recipient->client,
+            //                 $scheduled->project
+            //             ));
+
+            //         $recipient->update([
+            //             'status'  => 'sent',
+            //             'sent_at' => now(),
+            //             'error'   => null,
+            //         ]);
+
+            //         $this->info("  Sent to: {$recipient->client->email}");
+
+            //     } catch (\Exception $e) {
+            //         $allSent = false;
+
+            //         $recipient->update([
+            //             'status' => 'failed',
+            //             'error'  => $e->getMessage(),
+            //         ]);
+
+            //         $this->error("  Failed for: {$recipient->client->email} — {$e->getMessage()}");
+            //     }
+            // }
             foreach ($scheduled->recipients as $recipient) {
-                // Skip already sent recipients
                 if ($recipient->status === 'sent') continue;
 
+                $toEmail = $recipient->resolved_email;
+
+                if (!$toEmail) {
+                    $recipient->update(['status' => 'failed', 'error' => 'No valid email found.']);
+                    continue;
+                }
+
                 try {
-                    Mail::to($recipient->client->email)
-                        ->send(new ScheduledEmailMailable(
-                            $scheduled->template,
-                            $recipient->client,
-                            $scheduled->project
-                        ));
+                    Mail::to($toEmail)->send(new ScheduledEmailMailable(
+                        $scheduled->template,
+                        $recipient,          // pass the recipient itself now, not just ->client
+                        $scheduled->project
+                    ));
 
-                    $recipient->update([
-                        'status'  => 'sent',
-                        'sent_at' => now(),
-                        'error'   => null,
-                    ]);
-
-                    $this->info("  Sent to: {$recipient->client->email}");
-
+                    $recipient->update(['status' => 'sent', 'sent_at' => now(), 'error' => null]);
+                    $this->info("  Sent to: {$toEmail}");
                 } catch (\Exception $e) {
-                    $allSent = false;
-
-                    $recipient->update([
-                        'status' => 'failed',
-                        'error'  => $e->getMessage(),
-                    ]);
-
-                    $this->error("  Failed for: {$recipient->client->email} — {$e->getMessage()}");
+                    $recipient->update(['status' => 'failed', 'error' => $e->getMessage()]);
+                    $this->error("  Failed for: {$toEmail} — {$e->getMessage()}");
                 }
             }
-
             // Mark the whole scheduled email as sent or failed
             $scheduled->update([
                 'status' => $allSent ? 'sent' : 'failed'

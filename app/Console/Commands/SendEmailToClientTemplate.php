@@ -7,15 +7,16 @@ use App\Models\ScheduledEmail;
 use App\Models\Client;
 use App\Notifications\EmailTemplateNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 
 class SendEmailToClientTemplate extends Command
 {
- 
+
     protected $signature = 'SendMailToClient';
     protected $description = 'Command description';
 
 
-    public function __construct() 
+    public function __construct()
     {
         parent::__construct();
     }
@@ -25,7 +26,8 @@ class SendEmailToClientTemplate extends Command
 
         $scheduled_mails = ScheduledEmail::with([
                             'template',
-                            'recipients.client.allprojects'
+                            'recipients.client.allprojects',
+                            'recipients.user',
                         ])
                         ->where('status', 'scheduled')
                         ->where('send_at', '<=', now())
@@ -41,20 +43,56 @@ class SendEmailToClientTemplate extends Command
 
             foreach ($mail->recipients->where('status', 'pending') as $recipient) {
 
-                $client = $recipient->client;
+                $toEmail       = null;
+                $recipientName = '';
+                $companyName   = '';
+                $projectNames  = 'N/A';
 
-                if (!$client) continue;
+                switch ($recipient->recipient_type) {
+                    case 'client':
+                        $client = $recipient->client;
+                        if (!$client) {
+                            $recipient->update(['status' => 'failed', 'error' => 'Client not found.']);
+                            continue 2;
+                        }
+                        $toEmail       = $client->email;
+                        $recipientName = $client->name;
+                        $companyName   = $client->company ?? '';
+                        $projectNames  = $client->allprojects->pluck('project_name')->implode(', ') ?: 'N/A';
+                        break;
 
-                // Get project names
-                $projectNames = $client->allprojects
-                    ->pluck('project_name')
-                    ->implode(', ');
+                    case 'user':
+                        $user = $recipient->user;
+                        if (!$user) {
+                            $recipient->update(['status' => 'failed', 'error' => 'User not found.']);
+                            continue 2;
+                        }
+                        $toEmail       = $user->email;
+                        $recipientName = $user->first_name ?? '';
+                        break;
 
-                // Prepare placeholders dynamically per client
+                    case 'manual':
+                        if (!$recipient->email) {
+                            $recipient->update(['status' => 'failed', 'error' => 'Manual email missing.']);
+                            continue 2;
+                        }
+                        $toEmail       = $recipient->email;
+                        $recipientName = $recipient->name ?? $recipient->email;
+                        break;
+
+                    default:
+                        $recipient->update(['status' => 'failed', 'error' => 'Unknown recipient type.']);
+                        continue 2;
+                }
+
+                // ✅ Prepare placeholders using the resolved values from the switch above
                 $placeholders = [
-                    config('app.placeholders.client_name')  => $client->name,
-                    config('app.placeholders.company_name') => $client->company ?? '',
-                    config('app.placeholders.project_name') => $projectNames ?: 'N/A',
+                    '{{client_name}}'    => $recipientName,
+                    '{{ client_name }}'  => $recipientName,
+                    '{{company_name}}'   => $companyName,
+                    '{{ company_name }}' => $companyName,
+                    '{{project_name}}'   => $projectNames,
+                    '{{ project_name }}' => $projectNames,
                 ];
 
                 // ✅ Use the body saved on scheduled_emails, not the template's raw body
@@ -65,20 +103,25 @@ class SendEmailToClientTemplate extends Command
                 );
 
                 $message = [
-                    'client_name' => $client->name,
+                    'client_name' => $recipientName,
                     'subject'     => $subject,
                     'content'     => $body,
-                    'banner_img'  => $template->banner_image,
+                    'banner_img'  => $template ? $template->banner_image : null,
+                    'cc_email'    => $mail->cc_email,
+                    'bcc_email'   => $mail->bcc_email,
                 ];
 
-                 
-
                 try {
-                    $client->notify(new EmailTemplateNotification($message));
+                    Notification::route('mail', $toEmail)
+                        ->notify(new EmailTemplateNotification($message));
 
                     $recipient->update([
-                        'status' => 'sent',
+                        'status'  => 'sent',
+                        'sent_at' => now(),
+                        'error'   => null,
                     ]);
+
+                    $this->info("  Sent to: {$toEmail}");
 
                 } catch (\Exception $e) {
 
@@ -87,10 +130,18 @@ class SendEmailToClientTemplate extends Command
                         'error'  => $e->getMessage(),
                     ]);
 
+                    $this->error("  Failed for: {$toEmail} — {$e->getMessage()}");
+
+                    Log::error('Scheduled email send failed', [
+                        'recipient_id' => $recipient->id,
+                        'email'        => $toEmail,
+                        'error'        => $e->getMessage(),
+                    ]);
+
                 }
             }
 
-             
+
             // ✅ optional: mark main email as completed
             if ($mail->recipients()->where('status', 'pending')->count() === 0) {
                 $mail->update(['status' => 'sent']);
