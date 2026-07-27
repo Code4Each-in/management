@@ -12,6 +12,7 @@ class ScheduledEmail extends Model
         'project_id',   // NEW
         'send_at',
         'status',       // scheduled / sent / failed
+        'from_email', 'from_name', 'reply_to', 'cc_email', 'bcc_email',
     ];
 
     protected $casts = [
@@ -20,7 +21,7 @@ class ScheduledEmail extends Model
 
     public function template()
     {
-        return $this->belongsTo(EmailTemplate::class); 
+        return $this->belongsTo(EmailTemplate::class);
     }
 
     public function project()
