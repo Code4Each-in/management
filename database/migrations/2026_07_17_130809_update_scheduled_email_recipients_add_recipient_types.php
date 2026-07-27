@@ -3,50 +3,46 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Step 1: Drop existing FK on client_id so we can alter it
+        // Make client_id nullable
+        DB::statement("
+            ALTER TABLE scheduled_email_recipients
+            MODIFY client_id BIGINT UNSIGNED NULL
+        ");
+
         Schema::table('scheduled_email_recipients', function (Blueprint $table) {
-            $table->dropForeign(['client_id']);
-        });
+            $table->foreignId('user_id')
+                ->nullable()
+                ->after('client_id')
+                ->constrained('users')
+                ->nullOnDelete();
 
-        // Step 2: Make client_id nullable + add new columns
-        Schema::table('scheduled_email_recipients', function (Blueprint $table) {
-            $table->foreignId('client_id')->nullable()->change();
-
-            $table->foreignId('user_id')->nullable()->after('client_id')
-                ->constrained('users')->nullOnDelete();
-
-            $table->string('email')->nullable()->after('user_id');        // manual entries
-            $table->string('name')->nullable()->after('email');           // display name for user/manual
-            $table->string('recipient_type')->default('client')->after('name'); // client|user|manual
-        });
-
-        // Step 3: Re-add FK on client_id (still cascades, now nullable)
-        Schema::table('scheduled_email_recipients', function (Blueprint $table) {
-            $table->foreign('client_id')
-                ->references('id')->on('clients')
-                ->cascadeOnDelete();
+            $table->string('email')->nullable()->after('user_id');
+            $table->string('name')->nullable()->after('email');
+            $table->string('recipient_type')->default('client')->after('name');
         });
     }
 
     public function down(): void
     {
         Schema::table('scheduled_email_recipients', function (Blueprint $table) {
-            $table->dropForeign(['client_id']);
             $table->dropForeign(['user_id']);
-            $table->dropColumn(['user_id', 'email', 'name', 'recipient_type']);
+            $table->dropColumn([
+                'user_id',
+                'email',
+                'name',
+                'recipient_type',
+            ]);
         });
 
-        Schema::table('scheduled_email_recipients', function (Blueprint $table) {
-            $table->foreignId('client_id')->nullable(false)->change();
-
-            $table->foreign('client_id')
-                ->references('id')->on('clients')
-                ->cascadeOnDelete();
-        });
+        DB::statement("
+            ALTER TABLE scheduled_email_recipients
+            MODIFY client_id BIGINT UNSIGNED NOT NULL
+        ");
     }
 };
