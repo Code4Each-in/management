@@ -17,7 +17,7 @@
     <div class="row">
 
 
-    {{-- Stats --}} 
+    {{-- Stats --}}
     <div class="col-md-4">
         <div class="card" style="background:#EEEDFE;border:none">
             <div class="card-body py-3">
@@ -69,14 +69,14 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
- 
+
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle scheduled_table"> 
+                    <table class="table table-hover align-middle scheduled_table">
                         <thead class="table-light">
                             <tr>
                                 <th>Template</th>
-                                <th>Client</th>
+                                <th>Recipient</th>
                                 <th>Scheduled For</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -84,77 +84,106 @@
                             </tr>
                         </thead>
                         <tbody>
-    @foreach($recipients as $recipient)
-    <tr>
-        {{-- Template --}}
-        <td>
-            @php
-                $isDeleted = !$recipient->scheduledEmail->template;
-            @endphp
+                            @foreach($recipients as $recipient)
+                            <tr>
+                                {{-- Template --}}
+                                <td>
+                                    @php
+                                        $isDeleted = !$recipient->scheduledEmail->template;
+                                    @endphp
 
-            <strong class="{{ $isDeleted ? 'text-danger' : '' }}">
-                {{ $recipient->scheduledEmail->template->name ?? 'Deleted Template' }}
-            </strong><br>
+                                    <strong class="{{ $isDeleted ? 'text-danger' : '' }}">
+                                        {{ $recipient->scheduledEmail->template->name ?? 'Deleted Template' }}
+                                    </strong><br>
 
-            <small class="text-muted">
-                {{ $recipient->scheduledEmail->subject ?? '—' }}
-            </small>
-        </td>
+                                    <small class="text-muted">
+                                        {{ $recipient->scheduledEmail->subject ?? '—' }}
+                                    </small>
+                                </td>
 
-        {{-- Client --}}
-        <td>
-            <span class="badge bg-light text-dark border">
-                {{ $recipient->client->name ?? 'N/A' }}
-            </span>
-        </td>
+                                {{-- Client --}}
+                                <!-- <td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $recipient->client->name ?? 'N/A' }}
+                                    </span>
+                                </td> -->
+                                <td>
+                                    @php
+                                        $recipientLabel = 'N/A';
+                                        $recipientEmail = null;
 
-        {{-- Date --}}
-        <td>
-            {{ $recipient->scheduledEmail->send_at ? $recipient->scheduledEmail->send_at->format('d M Y') : '—' }}<br>
-            <small class="text-muted">
-                {{ $recipient->scheduledEmail->send_at ? $recipient->scheduledEmail->send_at->format('h:i A') : '' }}
-            </small>
-        </td>
+                                        switch ($recipient->recipient_type) {
+                                            case 'client':
+                                                $recipientLabel = $recipient->client->name ?? 'Deleted Client';
+                                                $recipientEmail = $recipient->client->email ?? null;
+                                                break;
 
-        {{-- Status --}}
-        <td>
-            @php
-                $statusColors = [
-                    'pending' => 'primary',
-                    'sent' => 'success',
-                    'failed' => 'danger',
-                ];
-            @endphp
+                                            case 'user':
+                                                $recipientLabel = $recipient->user->first_name ?? 'Deleted User';
+                                                $recipientEmail = $recipient->user->email ?? null;
+                                                break;
 
-            <span class="badge bg-{{ $statusColors[$recipient->status] ?? 'secondary' }}">
-                {{ ucfirst($recipient->status) }}
-            </span>
-        </td>
+                                            case 'manual':
+                                                $recipientLabel = $recipient->name ?? $recipient->email ?? 'Manual';
+                                                $recipientEmail = $recipient->email ?? null;
+                                                break;
+                                        }
+                                    @endphp
 
-        {{-- Action --}}
-        <td>
-            @if($recipient->status === 'pending')
-                <form action="{{ url('scheduled/cancel/' . $recipient->id) }}" method="POST">
-                    @csrf
-                    <button class="btn btn-sm btn-outline-danger">
-                        Cancel
-                    </button>
-                </form>
-            @else
-                <span class="text-muted small">—</span>
-            @endif
-        </td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $recipientLabel }}
+                                    </span>
+                                    @if($recipientEmail)
+                                        <br><small class="text-muted">{{ $recipientEmail }}</small>
+                                    @endif
+                                </td>
+                                {{-- Date --}}
+                                <td>
+                                    {{ $recipient->scheduledEmail->send_at ? $recipient->scheduledEmail->send_at->format('d M Y') : '—' }}<br>
+                                    <small class="text-muted">
+                                        {{ $recipient->scheduledEmail->send_at ? $recipient->scheduledEmail->send_at->format('h:i A') : '' }}
+                                    </small>
+                                </td>
 
-        {{-- Preview --}}
-        <td>
-            <button class="btn btn-sm btn-primary preview-btn"
-                    data-id="{{ $recipient->scheduled_email_id }}">
-                Preview
-            </button>
-        </td>
-    </tr>
-    @endforeach
-</tbody>
+                                {{-- Status --}}
+                                <td>
+                                    @php
+                                        $statusColors = [
+                                            'pending' => 'primary',
+                                            'sent' => 'success',
+                                            'failed' => 'danger',
+                                        ];
+                                    @endphp
+
+                                    <span class="badge bg-{{ $statusColors[$recipient->status] ?? 'secondary' }}">
+                                        {{ ucfirst($recipient->status) }}
+                                    </span>
+                                </td>
+
+                                {{-- Action --}}
+                                <td>
+                                    @if($recipient->status === 'pending')
+                                        <form action="{{ url('scheduled/cancel/' . $recipient->id) }}" method="POST">
+                                            @csrf
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </td>
+
+                                {{-- Preview --}}
+                                <td>
+                                    <button class="btn btn-sm btn-primary preview-btn"
+                                            data-id="{{ $recipient->scheduled_email_id }}">
+                                        Preview
+                                    </button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
 

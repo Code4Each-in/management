@@ -64,7 +64,7 @@ class ScheduledEmailController extends Controller
     //             'send_time'    => 'required',
     //         ]);
 
-    //             // ✅ Combine date + time
+    //             // ✅ Combine date  time
     //     $sendAt = Carbon::parse($request->send_date . ' ' . $request->send_time);
 
     //     // ✅ Future check
@@ -103,31 +103,21 @@ class ScheduledEmailController extends Controller
             'subject'        => 'required',
             'project_id'     => 'nullable|exists:projects,id',
             'body'           => 'required|string',
-            'recipient_type' => 'required|in:client,user,manual',
 
             'from_email'     => 'nullable|email',
             'from_name'      => 'nullable|string|max:255',
             'reply_to'       => 'nullable|email',
             'cc_email'       => 'nullable|string',
             'bcc_email'      => 'nullable|string',
+
+            'client_ids'      => 'nullable|array',
+            'client_ids.*'    => 'exists:clients,id',
+            'user_ids'        => 'nullable|array',
+            'user_ids.*'      => 'exists:users,id',
+            'manual_emails'   => 'nullable|array',
+            'manual_emails.*' => 'required|email',
         ];
 
-        switch ($request->recipient_type) {
-            case 'client':
-                $rules['client_ids']   = 'required|array|min:1';
-                $rules['client_ids.*'] = 'exists:clients,id';
-                break;
-
-            case 'user':
-                $rules['user_ids']   = 'required|array|min:1';
-                $rules['user_ids.*'] = 'exists:users,id';
-                break;
-
-            case 'manual':
-                $rules['manual_emails']   = 'required|array|min:1';
-                $rules['manual_emails.*'] = 'required|email';
-                break;
-        }
 
         if ($request->send_type == 'now') {
             $request->validate($rules);
@@ -147,6 +137,9 @@ class ScheduledEmailController extends Controller
             }
         }
 
+        if (empty($request->client_ids) && empty($request->user_ids) && empty($request->manual_emails)) {
+            return back()->withErrors(['recipients' => 'Please select at least one client, user, or manual email.'])->withInput();
+        }
         foreach (['cc_email', 'bcc_email'] as $field) {
             if ($request->filled($field)) {
                 $emails = array_map('trim', explode(',', $request->$field));
@@ -174,40 +167,38 @@ class ScheduledEmailController extends Controller
             'bcc_email'   => $request->bcc_email,
         ]);
 
-        switch ($request->recipient_type) {
-            case 'client':
-                foreach ($request->client_ids as $clientId) {
-                    ScheduledEmailRecipient::create([
-                        'scheduled_email_id' => $email->id,
-                        'recipient_type'     => 'client',
-                        'client_id'          => $clientId,
-                        'status'             => 'pending',
-                    ]);
-                }
-                break;
+    if ($request->filled('client_ids')) {
+        foreach ($request->client_ids as $clientId) {
+            ScheduledEmailRecipient::create([
+                'scheduled_email_id' => $email->id,
+                'recipient_type'     => 'client',
+                'client_id'          => $clientId,
+                'status'             => 'pending',
+            ]);
+     }
+    }
 
-            case 'user':
-                foreach ($request->user_ids as $userId) {
-                    ScheduledEmailRecipient::create([
-                        'scheduled_email_id' => $email->id,
-                        'recipient_type'     => 'user',
-                        'user_id'            => $userId,
-                        'status'             => 'pending',
-                    ]);
-                }
-                break;
-
-            case 'manual':
-                foreach (array_unique($request->manual_emails) as $manualEmail) {
-                    ScheduledEmailRecipient::create([
-                        'scheduled_email_id' => $email->id,
-                        'recipient_type'     => 'manual',
-                        'email'              => $manualEmail,
-                        'status'             => 'pending',
-                    ]);
-                }
-                break;
+    if ($request->filled('user_ids')) {
+        foreach ($request->user_ids as $userId) {
+            ScheduledEmailRecipient::create([
+                'scheduled_email_id' => $email->id,
+                'recipient_type'     => 'user',
+                'user_id'            => $userId,
+                'status'             => 'pending',
+            ]);
         }
+    }
+
+    if ($request->filled('manual_emails')) {
+        foreach (array_unique($request->manual_emails) as $manualEmail) {
+            ScheduledEmailRecipient::create([
+                'scheduled_email_id' => $email->id,
+                'recipient_type'     => 'manual',
+                'email'              => $manualEmail,
+                'status'             => 'pending',
+            ]);
+        }
+    }
 
         return redirect()->route('scheduled.index')->with('success', 'Email scheduled!');
     }
@@ -247,35 +238,6 @@ class ScheduledEmailController extends Controller
         return view('scheduled_emails.tracking', compact('recipients', 'stats'));
     }
 
-    // public function preview($id)
-    // {
-
-    //     $email = ScheduledEmail::with(['template', 'recipients.client.allprojects'])->findOrFail($id);
-    //   // dd($email);
-    //     $template = $email->template;
-
-    //     // pick first client for preview
-    //     $recipient = $email->recipients->first();
-    //     $client = $recipient->client ?? null;
-
-    //     if (!$client) {
-    //         return "No client found for preview";
-    //     }
-
-    //     $projectNames = $client->allprojects->pluck('project_name')->implode(', ');
-
-    //     $placeholders = [
-    //         '{{ client_name }}' => $client->name,
-    //         '{{ company_name }}' => $client->company ?? '',
-    //         '{{ project_name }}' => $projectNames ?: 'N/A',
-    //     ];
-    //    // dd($email->body);
-
-    //     $body = str_replace(array_keys($placeholders), array_values($placeholders), $email->body);
-    //     //dd($template->body);
-
-    //     return response($body);
-    // }
     public function preview($id)
     {
         $email = ScheduledEmail::with([
@@ -332,9 +294,9 @@ class ScheduledEmailController extends Controller
         }
 
         $placeholders = [
-         '{{ client_name }}' => $client->name,
-         '{{ company_name }}' => $client->company ?? '',
-         '{{ project_name }}' => $projectNames ?: 'N/A',
+            '{{ client_name }}' => $name,
+            '{{ company_name }}' => $company,
+            '{{ project_name }}' => $projectNames,
         ];
 
         $body = str_replace(array_keys($placeholders), array_values($placeholders), $email->body);
