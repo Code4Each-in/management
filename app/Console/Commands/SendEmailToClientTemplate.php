@@ -109,6 +109,8 @@ class SendEmailToClientTemplate extends Command
                     'banner_img'  => $template ? $template->banner_image : null,
                     'cc_email'    => $mail->cc_email,
                     'bcc_email'   => $mail->bcc_email,
+                    'from_email'  => $mail->from_email,
+                    'from_name'   => $mail->from_name,
                 ];
 
                 try {
