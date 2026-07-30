@@ -34,7 +34,7 @@ class ScheduledEmailController extends Controller
         $templates = EmailTemplate::all();
         // $clients   = Client::all();
         $clients = Client::where('status', 1)->orderBy('name', 'asc')->get();
-        $users     = Users::orderBy('first_name', 'asc')->get();
+        $users   = Users::where('status', 1)->orderBy('first_name', 'asc')->get();
         $projects  = Projects::all();  // NEW
         return view('scheduled_emails.create', compact('templates', 'clients', 'users','projects'));
     }
