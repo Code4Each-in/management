@@ -146,48 +146,7 @@
                     </div>
 
                     {{-- CLIENTS --}}
-                    <!-- <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            Target Clients <span class="text-danger">*</span>
-                        </label>
 
-                        <div class="mb-2 d-flex justify-content-between">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="select-all">
-                                <label class="form-check-label small">Select all</label>
-                            </div>
-                            <small class="text-muted">
-                                <span id="selected-count">0</span> selected
-                            </small>
-                        </div>
-                        @php
-                            $oldClients = old('client_ids') ? (array) old('client_ids') : [];
-                        @endphp
-
-                       <div class="border rounded p-2" style="max-height:200px;overflow-y:auto;">
-                            @foreach($clients as $client)
-                            <div class="form-check py-1">
-
-                                <input class="form-check-input client-checkbox"
-                                    type="checkbox"
-                                    name="client_ids[]"
-                                     id="client-{{ $client->id }}"
-                                    value="{{ $client->id }}"
-                                    {{ in_array($client->id, $oldClients) ? 'checked' : '' }}>
-
-                                <label class="form-check-label" for="client-{{ $client->id }}">
-                                    {{ $client->name }} <br>
-                                    <small>{{ $client->email }}</small>
-                                </label>
-
-                            </div>
-                            @endforeach
-                        </div>
-
-                        @error('client_ids')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div> -->
                     {{-- SEND TO --}}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
@@ -345,7 +304,7 @@
                     {{-- ACTION --}}
                     <div class="d-flex justify-content-between">
                         <div class="small text-muted">
-                            Scheduling for <span id="footer-count">0</span> client(s)
+                            Scheduling for <span id="footer-count">0</span> recipient(s)
                         </div>
 
                         <div>
@@ -428,7 +387,7 @@ function onTemplateChange(sel) { console.log(sel);
         const opt = sel.options[sel.selectedIndex];
         if (!opt.value) return;
 
-        // ✅ Set subject
+        //  Set subject
         document.getElementById('subject-input').value = opt.dataset.subject || '';
 }
 
@@ -460,6 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleSchedule();
 });
 document.addEventListener('DOMContentLoaded', function () {
+     let manualEmails = @json(old('manual_emails', []));
 
     // ---------- TAB SWITCHING ----------
     const tabButtons = document.querySelectorAll('.recipient-tab-btn');
@@ -528,9 +488,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setupSelectAll('select-all-client', 'client-checkbox', 'selected-count-client');
     setupSelectAll('select-all-user', 'user-checkbox', 'selected-count-user');
-
-    // ---------- MANUAL EMAIL TAG INPUT ----------
-    let manualEmails = @json(old('manual_emails', []));
 
     const manualInput  = document.getElementById('manual-email-input');
     const manualAddBtn = document.getElementById('manual-email-add');
@@ -602,18 +559,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- FOOTER COUNT ----------
     function updateFooterCount() {
-        // const activeType = recipientTypeInput.value;
-        // let count = 0;
-
-        // if (activeType === 'client') {
-        //     count = document.querySelectorAll('.client-checkbox:checked').length;
-        // } else if (activeType === 'user') {
-        //     count = document.querySelectorAll('.user-checkbox:checked').length;
-        // } else if (activeType === 'manual') {
-        //     count = manualEmails.length;
-        // }
-
-        // footerCount.textContent = count;
         const clientCount = document.querySelectorAll('.client-checkbox:checked').length;
         const userCount = document.querySelectorAll('.user-checkbox:checked').length;
         const manualCount = manualEmails.length;

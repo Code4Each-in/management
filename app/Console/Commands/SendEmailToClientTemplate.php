@@ -77,7 +77,7 @@ class SendEmailToClientTemplate extends Command
                             continue 2;
                         }
                         $toEmail       = $recipient->email;
-                        $recipientName = $recipient->name ?? $recipient->email;
+                        $recipientName = $recipient->name ?? '';
                         break;
 
                     default:
