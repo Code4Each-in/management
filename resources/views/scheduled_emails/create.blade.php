@@ -206,7 +206,7 @@
                             </li>
                         </ul>
 
-                        <input type="hidden" name="recipient_type" id="recipient_type" value="{{ old('recipient_type', 'client') }}">
+                        <!-- <input type="hidden" name="recipient_type" id="recipient_type" value="{{ old('recipient_type', 'client') }}"> -->
 
                         @error('recipient_type')
                             <div class="text-danger small mb-2">{{ $message }}</div>
@@ -438,56 +438,6 @@ document.getElementById('schedule-form').addEventListener('submit', function () 
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const selectAll = document.getElementById('select-all');
-    const checkboxes = document.querySelectorAll('.client-checkbox');
-    const selectedCount = document.getElementById('selected-count');
-    const footerCount = document.getElementById('footer-count');
-
-    // ✅ Update count function
-    function updateCount() {
-        let count = document.querySelectorAll('.client-checkbox:checked').length;
-        selectedCount.textContent = count;
-        footerCount.textContent = count;
-    }
-
-    // ✅ Select All click
-    selectAll.addEventListener('change', function () {
-        checkboxes.forEach(cb => {
-            cb.checked = selectAll.checked;
-        });
-        updateCount();
-    });
-
-    // ✅ Individual checkbox change
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-
-            // If any unchecked → uncheck select-all
-            if (!this.checked) {
-                selectAll.checked = false;
-            }
-            // If all checked → check select-all
-            else if (document.querySelectorAll('.client-checkbox:checked').length === checkboxes.length) {
-                selectAll.checked = true;
-            }
-
-            updateCount();
-        });
-    });
-
-    // ✅ Initial state (important for old values)
-    function initState() {
-        let checkedCount = document.querySelectorAll('.client-checkbox:checked').length;
-
-        if (checkedCount === checkboxes.length && checkboxes.length > 0) {
-            selectAll.checked = true;
-        }
-
-        updateCount();
-    }
-
-    initState();
-
         const sendNow = document.getElementById('send_now');
         const sendLater = document.getElementById('send_later');
         const scheduleBox = document.getElementById('schedule-datetime');
@@ -513,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- TAB SWITCHING ----------
     const tabButtons = document.querySelectorAll('.recipient-tab-btn');
-    const recipientTypeInput = document.getElementById('recipient_type');
+    // const recipientTypeInput = document.getElementById('recipient_type');
     const panels = {
         client: document.getElementById('panel-client'),
         user:   document.getElementById('panel-user'),
@@ -528,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.keys(panels).forEach(key => {
             panels[key].style.display = (key === type) ? 'block' : 'none';
         });
-        recipientTypeInput.value = type;
+        // recipientTypeInput.value = type;
         updateFooterCount();
     }
 
@@ -539,8 +489,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Respect old() on validation-failed reload
-    activateTab(recipientTypeInput.value || 'client');
-
+    // activateTab(recipientTypeInput.value || 'client');
+    activateTab('client');
     // ---------- SELECT-ALL HELPER (client + user) ----------
     function setupSelectAll(selectAllId, checkboxClass, countId) {
         const selectAll = document.getElementById(selectAllId);
@@ -652,18 +602,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- FOOTER COUNT ----------
     function updateFooterCount() {
-        const activeType = recipientTypeInput.value;
-        let count = 0;
+        // const activeType = recipientTypeInput.value;
+        // let count = 0;
 
-        if (activeType === 'client') {
-            count = document.querySelectorAll('.client-checkbox:checked').length;
-        } else if (activeType === 'user') {
-            count = document.querySelectorAll('.user-checkbox:checked').length;
-        } else if (activeType === 'manual') {
-            count = manualEmails.length;
-        }
+        // if (activeType === 'client') {
+        //     count = document.querySelectorAll('.client-checkbox:checked').length;
+        // } else if (activeType === 'user') {
+        //     count = document.querySelectorAll('.user-checkbox:checked').length;
+        // } else if (activeType === 'manual') {
+        //     count = manualEmails.length;
+        // }
 
-        footerCount.textContent = count;
+        // footerCount.textContent = count;
+        const clientCount = document.querySelectorAll('.client-checkbox:checked').length;
+        const userCount = document.querySelectorAll('.user-checkbox:checked').length;
+        const manualCount = manualEmails.length;
+
+        footerCount.textContent = clientCount + userCount + manualCount;
     }
 });
 </script>
