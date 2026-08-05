@@ -67,29 +67,24 @@ public function toMail($notifiable)
             'banner_img'  => $this->messages['banner_img'],
         ]);
 
-    if (!empty($this->messages['from_email'])) {
+    // Set Reply-To from the reply_to field
+    if (!empty($this->messages['reply_to'])) {
         $mail->replyTo(
-            $this->messages['from_email'],
+            $this->messages['reply_to'],
             $this->messages['from_name'] ?? null
         );
     }
 
     return $mail->withSwiftMessage(function ($message) {
 
-        \Log::info('CC/BCC/FROM Debug', [
-            'from' => $this->messages['from_email'] ?? null,
-            'cc'   => $this->messages['cc_email'] ?? null,
-            'bcc'  => $this->messages['bcc_email'] ?? null,
-        ]);
-
-
+        // Set From
         if (!empty($this->messages['from_email'])) {
             $message->setFrom([
-                $this->messages['from_email'] => $this->messages['from_name'] ?? ''
+                $this->messages['from_email'] => ($this->messages['from_name'] ?? 'Laravel')
             ]);
         }
 
-
+        // Embed logo
         $this->logo = $message->embed(
             Swift_Image::fromPath(public_path('assets/img/code4each_logo.png'))
         );
@@ -97,7 +92,6 @@ public function toMail($notifiable)
         // CC
         if (!empty($this->messages['cc_email'])) {
             $cc = array_filter(array_map('trim', explode(',', $this->messages['cc_email'])));
-
             if (!empty($cc)) {
                 $message->setCc($cc);
             }
@@ -106,11 +100,20 @@ public function toMail($notifiable)
         // BCC
         if (!empty($this->messages['bcc_email'])) {
             $bcc = array_filter(array_map('trim', explode(',', $this->messages['bcc_email'])));
-
             if (!empty($bcc)) {
                 $message->setBcc($bcc);
             }
         }
+
+        // Debug AFTER all headers have been set
+        \Log::info('Mail Headers', [
+            'From'      => $message->getFrom(),
+            'Reply-To'  => $message->getReplyTo(),
+            'To'        => $message->getTo(),
+            'CC'        => $message->getCc(),
+            'BCC'       => $message->getBcc(),
+            'Subject'   => $message->getSubject(),
+        ]);
     });
 }
     public function toArray($notifiable)
