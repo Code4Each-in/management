@@ -66,7 +66,7 @@
                         @enderror
                     </div>
                     {{-- FROM EMAIL / NAME --}}
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                             <label class="form-label fw-semibold">From Email</label>
                             <input type="email"
                                 name="from_email"
@@ -77,18 +77,8 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
 
-                        <!-- <div class="col-md-6">
-                            <label class="form-label fw-semibold">From Name</label>
-                            <input type="text"
-                                name="from_name"
-                                class="form-control @error('from_name') is-invalid @enderror"
-                                value="{{ old('from_name', config('mail.from.name')) }}"
-                                placeholder="e.g. Your Company">
-                            @error('from_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div> -->
-                    </div>
+
+                    </div> -->
 
                     {{-- REPLY TO --}}
                     <div class="mb-3">
