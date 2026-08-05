@@ -111,6 +111,7 @@ class SendEmailToClientTemplate extends Command
                     'bcc_email'   => $mail->bcc_email,
                     'from_email'  => $mail->from_email,
                     'from_name'   => $mail->from_name,
+                    'reply_to'   => $mail->reply_to,
                 ];
 
                 try {
