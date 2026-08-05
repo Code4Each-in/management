@@ -68,27 +68,48 @@ public function toMail($notifiable)
         ]);
 
     if (!empty($this->messages['from_email'])) {
-        $mail->replyTo($this->messages['from_email'], $this->messages['from_name'] ?? null);
+        $mail->replyTo(
+            $this->messages['from_email'],
+            $this->messages['from_name'] ?? null
+        );
     }
 
     return $mail->withSwiftMessage(function ($message) {
-        \Log::info('CC/BCC debug', [
-            'cc'  => $this->messages['cc_email'] ?? null,
-            'bcc' => $this->messages['bcc_email'] ?? null,
+
+        \Log::info('CC/BCC/FROM Debug', [
+            'from' => $this->messages['from_email'] ?? null,
+            'cc'   => $this->messages['cc_email'] ?? null,
+            'bcc'  => $this->messages['bcc_email'] ?? null,
         ]);
+
+
+        if (!empty($this->messages['from_email'])) {
+            $message->setFrom([
+                $this->messages['from_email'] => $this->messages['from_name'] ?? ''
+            ]);
+        }
+
 
         $this->logo = $message->embed(
             Swift_Image::fromPath(public_path('assets/img/code4each_logo.png'))
         );
 
+        // CC
         if (!empty($this->messages['cc_email'])) {
             $cc = array_filter(array_map('trim', explode(',', $this->messages['cc_email'])));
-            if (!empty($cc)) { $message->setCc($cc); }
+
+            if (!empty($cc)) {
+                $message->setCc($cc);
+            }
         }
 
+        // BCC
         if (!empty($this->messages['bcc_email'])) {
             $bcc = array_filter(array_map('trim', explode(',', $this->messages['bcc_email'])));
-            if (!empty($bcc)) { $message->setBcc($bcc); }
+
+            if (!empty($bcc)) {
+                $message->setBcc($bcc);
+            }
         }
     });
 }
