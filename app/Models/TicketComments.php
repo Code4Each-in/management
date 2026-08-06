@@ -15,7 +15,9 @@ class TicketComments extends Model
         'comment_by',
         'is_system',
         'pinned_by',
-        'reply_to'
+        'reply_to',
+        'reply_token',
+    'email_message_id'
 
     ];
   protected $dates = ['deleted_at'];

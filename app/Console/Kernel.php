@@ -53,6 +53,9 @@ class Kernel extends ConsoleKernel
             $schedule->command('reminders:send')
             ->everyMinute()
             ->withoutOverlapping();
+                $schedule->command('tickets:process-replies')
+             ->everyMinute();
+
 
     }
 
