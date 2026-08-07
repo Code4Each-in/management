@@ -44,6 +44,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DeploymentTicketController;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\SettingsController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes

@@ -37,7 +37,7 @@
             border-radius: 4px;
             text-align: center !important;
         }
-        
+
     </style>
 </head>
 <body>
@@ -48,9 +48,9 @@
         <p><strong>Please see the comment below:</strong></p>
         @php
             $cleanedBody = preg_replace([
-                '/<p>\s*<\/p>/i',       
-                '/(<p>\s*<\/p>)+/i',   
-                '/<br\s*\/?>/i'       
+                '/<p>\s*<\/p>/i',
+                '/(<p>\s*<\/p>)+/i',
+                '/<br\s*\/?>/i'
             ], [
                 '',
                 '',
@@ -77,6 +77,9 @@
                     {{ $messages['url-title'] ?? 'Action' }}
                 </a>
             </p>
+                    <p style="font-size: 13px; color: #777777;">
+            <strong>You can reply directly to this email to add your comment to this ticket.</strong>
+        </p>
         @endif
          <p>Regards,<br>PMS</p>
         @if(!empty($messages['url']))
@@ -85,6 +88,7 @@
                 If you're having trouble clicking the "{{ $messages['url-title'] ?? 'Action' }}" button, copy and paste the URL below into your web browser: <a href="{{ url($messages['url']) }}">{{ url($messages['url']) }}</a>
             </p>
         @endif
+
     </div>
 </body>
 </html>

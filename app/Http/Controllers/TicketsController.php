@@ -219,6 +219,7 @@ class TicketsController extends Controller
             }
 
             $tickets = Tickets::create([
+
                 'title' => $validate['title'],
                 'description' => $validate['description'],
                 'project_id' => $validate['project_id'],
@@ -706,15 +707,14 @@ class TicketsController extends Controller
                     ]);
                 }
             }
-
             $ticket = TicketComments::create([
                 'comments'   => $validate['comment'],
                 'ticket_id'  => $validate['id'],
                 'document'   => implode(',', $documentPaths),
                 'comment_by' => auth()->user()->id,
-                'reply_to' => $request->input('reply_to')
+                'reply_to' => $request->input('reply_to'),
             ]);
-
+            $messages['comment_id'] = $ticket->id;
             // client comment
             if (auth()->user()->role_id == 6) { // client
 
@@ -818,6 +818,8 @@ class TicketsController extends Controller
 
                     $messages["greeting-text"] = "Hello!";
                     $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
+                    $messages["comment_id"] = $ticket->id;
+                    // $messages["subject"] = "Re: [TKT-{$validate['id']}-{$ticketModel->reply_token}] {$ticketName}";
                     $messages["title"] = "A new comment has been added to Ticket # <strong>{$validate['id']}</strong>";
                     $messages["title-ticketName"] = "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
                     $messages["body-text"] = $rawComment;
@@ -852,6 +854,8 @@ class TicketsController extends Controller
 
                     $messages["greeting-text"] = "Hello!";
                     $messages["subject"] = "New Comment on \"{$ticketName}\" by - {$user->first_name}";
+                    $messages["comment_id"] = $ticket->id;
+                     // $messages["subject"] = "Re: [TKT-{$validate['id']}-{$ticketModel->reply_token}] {$ticketName}";
                     $messages["title"] = "A new comment has been added to Ticket # <strong>{$validate['id']}</strong>";
                     $messages["title-ticketName"] = "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
                     $messages["body-text"] = $rawComment;
@@ -862,26 +866,6 @@ class TicketsController extends Controller
                         $ticketModel = Tickets::find($validate['id']);
                         $projectId = $ticketModel->project_id;
                         $project = Projects::find($projectId);
-
-                        // if ($project) {
-                        //     $clientId = $project->client_id;
-                        // }
-                        // $client = Users::where('client_id', $clientId)->first();
-                        // $secondaryEmail = Client::where('id', $clientId)->value('secondary_email');
-                        // $additional_email = Client::where('id', $clientId)->value('additional_email');
-
-                        // if ($client) {
-                        //     $client->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
-
-                        //     if (!empty($secondaryEmail)) {
-                        //         NotificationFacade::route('mail', $secondaryEmail)
-                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
-                        //     }
-                        //     if (!empty($additional_email)) {
-                        //         NotificationFacade::route('mail', $additional_email)
-                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
-                        //     }
-                        // }
 
                         $clientIds = collect();
                         if ($project) {
@@ -896,7 +880,40 @@ class TicketsController extends Controller
                             }
                         }
 
+                        // foreach ($clientIds as $clientId) {
+                        //     $clientUser = Users::where('client_id', $clientId)->first();
+                        //     $client = Client::find($clientId);
+
+                        //     if (!$client) {
+                        //         continue;
+                        //     }
+
+                        //     $secondaryEmail   = $client->secondary_email;
+                        //     $additionalEmail  = $client->additional_email;
+
+                        //     if ($clientUser) {
+                        //         \Log::info('Sending ticket notification', [
+                        //         'email' => $clientUser->email,
+                        //         'ticket' => $validate['id']
+                        //     ]);
+
+                        //         $clientUser->notify(
+                        //             new TicketNotification($messages, $documentPaths, $bccEmail)
+                        //         );
+                        //     }
+
+                        //     if (!empty($secondaryEmail)) {
+                        //         NotificationFacade::route('mail', $secondaryEmail)
+                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                        //     }
+
+                        //     if (!empty($additionalEmail)) {
+                        //         NotificationFacade::route('mail', $additionalEmail)
+                        //             ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                        //     }
+                        // }
                         foreach ($clientIds as $clientId) {
+
                             $clientUser = Users::where('client_id', $clientId)->first();
                             $client = Client::find($clientId);
 
@@ -904,23 +921,69 @@ class TicketsController extends Controller
                                 continue;
                             }
 
-                            $secondaryEmail   = $client->secondary_email;
-                            $additionalEmail  = $client->additional_email;
+                            $secondaryEmail  = $client->secondary_email;
+                            $additionalEmail = $client->additional_email;
 
+
+                            // Main client email - store Message-ID
                             if ($clientUser) {
+
+                                \Log::info('Sending ticket notification', [
+                                    'email' => $clientUser->email,
+                                    'ticket' => $validate['id']
+                                ]);
+
+
+                                $clientMessages = $messages;
+
+                                $clientMessages['comment_id'] = $ticket->id;
+
+                                $clientMessages['store_message_id'] = true;
+
+
                                 $clientUser->notify(
-                                    new TicketNotification($messages, $documentPaths, $bccEmail)
+                                    new TicketNotification(
+                                        $clientMessages,
+                                        $documentPaths,
+                                        $bccEmail
+                                    )
                                 );
                             }
 
+
+                            // Secondary email - do not store Message-ID
                             if (!empty($secondaryEmail)) {
+
+                                $secondaryMessages = $messages;
+                                $secondaryMessages['store_message_id'] = false;
+
+
                                 NotificationFacade::route('mail', $secondaryEmail)
-                                    ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                                    ->notify(
+                                        new TicketNotification(
+                                            $secondaryMessages,
+                                            $documentPaths,
+                                            $bccEmail
+                                        )
+                                    );
                             }
 
+
+                            // Additional email - do not store Message-ID
                             if (!empty($additionalEmail)) {
+
+                                $additionalMessages = $messages;
+                                $additionalMessages['store_message_id'] = false;
+
+
                                 NotificationFacade::route('mail', $additionalEmail)
-                                    ->notify(new TicketNotification($messages, $documentPaths, $bccEmail));
+                                    ->notify(
+                                        new TicketNotification(
+                                            $additionalMessages,
+                                            $documentPaths,
+                                            $bccEmail
+                                        )
+                                    );
                             }
                         }
 
