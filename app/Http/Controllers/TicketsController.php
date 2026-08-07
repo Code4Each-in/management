@@ -707,14 +707,12 @@ class TicketsController extends Controller
                     ]);
                 }
             }
-          $replyToken = Str::random(12);
             $ticket = TicketComments::create([
                 'comments'   => $validate['comment'],
                 'ticket_id'  => $validate['id'],
                 'document'   => implode(',', $documentPaths),
                 'comment_by' => auth()->user()->id,
                 'reply_to' => $request->input('reply_to'),
-                'reply_token' => $replyToken
             ]);
             $messages['comment_id'] = $ticket->id;
             // client comment
