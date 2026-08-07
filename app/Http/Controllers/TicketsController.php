@@ -219,7 +219,7 @@ class TicketsController extends Controller
             }
 
             $tickets = Tickets::create([
-                'reply_token' => Str::upper(Str::random(12)),
+
                 'title' => $validate['title'],
                 'description' => $validate['description'],
                 'project_id' => $validate['project_id'],
