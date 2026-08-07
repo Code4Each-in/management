@@ -41,19 +41,16 @@ class ProcessTicketReplies extends Command
 
         ]);
 
-
         $client->connect();
 
 
         $folder = $client->getFolder('INBOX');
 
-
-
         $messages = $folder
             ->messages()
-            ->all()
+            ->unseen()
+            ->since(now()->startOfDay())
             ->setFetchOrder('desc')
-            ->limit(5)
             ->get();
 
 
@@ -275,9 +272,6 @@ class ProcessTicketReplies extends Command
                 }
 
             }
-
-
-
 
             /*
             |--------------------------------------------------------------------------
