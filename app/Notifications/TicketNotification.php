@@ -68,140 +68,140 @@ class TicketNotification extends Notification
     //     return $mail;
 
     // }
-public function toMail($notifiable)
-{
-    \Log::info('TicketNotification toMail called', [
-        'subject' => $this->messages['subject'] ?? null,
-        'comment_id' => $this->messages['comment_id'] ?? null,
-    ]);
+    public function toMail($notifiable)
+    {
+        \Log::info('TicketNotification toMail called', [
+            'subject' => $this->messages['subject'] ?? null,
+            'comment_id' => $this->messages['comment_id'] ?? null,
+        ]);
 
 
-    $mail = (new MailMessage)
-        ->subject(
-            $this->messages['subject'] ?? 'Notification Email'
-        )
-        ->replyTo(
-            env('IMAP_USERNAME'),
-            'Ticket Support'
-        )
-        ->view(
-            'Email.custom_ticket_template',
-            [
-                'messages'=>$this->messages
-            ]
-        );
-
-
-
-    $mail->withSwiftMessage(function($message){
-
-
-        try {
-
-
-            $header = $message
-                ->getHeaders()
-                ->get('Message-ID');
-
-
-            if(!$header){
-
-                return;
-
-            }
-
-
-            $messageId = $header->getFieldBody();
-
-
-            $messageId = trim(
-                $messageId,
-                '<>'
+        $mail = (new MailMessage)
+            ->subject(
+                $this->messages['subject'] ?? 'Notification Email'
+            )
+            ->replyTo(
+                env('IMAP_USERNAME'),
+                'Ticket Support'
+            )
+            ->view(
+                'Email.custom_ticket_template',
+                [
+                    'messages'=>$this->messages
+                ]
             );
 
 
-            \Log::info('Generated Message ID',[
-                'message_id'=>$messageId,
-                'comment_id'=>$this->messages['comment_id'] ?? null
-            ]);
+
+        $mail->withSwiftMessage(function($message){
 
 
+            try {
 
-            /*
-             |--------------------------------------------------------------------------
-             | Save only first sent email id
-             |--------------------------------------------------------------------------
-             */
 
-            if (
-                !empty($this->messages['comment_id']) &&
-                !empty($messageId)
-            ) {
+                $header = $message
+                    ->getHeaders()
+                    ->get('Message-ID');
 
-                $comment = TicketComments::find(
-                    $this->messages['comment_id']
-                );
 
-                if($comment && empty($comment->email_message_id)) {
+                if(!$header){
 
-                    $comment->email_message_id = $messageId;
-                    $comment->save();
-
-                    \Log::info('Message ID saved',[
-                        'comment'=>$comment->id,
-                        'message_id'=>$messageId
-                    ]);
+                    return;
 
                 }
 
+
+                $messageId = $header->getFieldBody();
+
+
+                $messageId = trim(
+                    $messageId,
+                    '<>'
+                );
+
+
+                \Log::info('Generated Message ID',[
+                    'message_id'=>$messageId,
+                    'comment_id'=>$this->messages['comment_id'] ?? null
+                ]);
+
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Save only first sent email id
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    !empty($this->messages['comment_id']) &&
+                    !empty($messageId)
+                ) {
+
+                    $comment = TicketComments::find(
+                        $this->messages['comment_id']
+                    );
+
+                    if($comment && empty($comment->email_message_id)) {
+
+                        $comment->email_message_id = $messageId;
+                        $comment->save();
+
+                        \Log::info('Message ID saved',[
+                            'comment'=>$comment->id,
+                            'message_id'=>$messageId
+                        ]);
+
+                    }
+
+                }
+
+
+
+            }
+            catch(\Throwable $e){
+
+                \Log::error(
+                    'Message ID Error '.$e->getMessage()
+                );
+
             }
 
 
 
-        }
-        catch(\Throwable $e){
+        });
 
-            \Log::error(
-                'Message ID Error '.$e->getMessage()
+
+
+        foreach($this->attachments as $relativePath){
+
+
+            $fullPath = public_path(
+                'assets/img/'.$relativePath
             );
 
+
+            if(file_exists($fullPath)){
+
+                $mail->attach($fullPath);
+
+            }
+
+        }
+
+
+
+        if(!empty($this->bcc)){
+
+            $mail->bcc($this->bcc);
+
         }
 
 
 
-    });
-
-
-
-    foreach($this->attachments as $relativePath){
-
-
-        $fullPath = public_path(
-            'assets/img/'.$relativePath
-        );
-
-
-        if(file_exists($fullPath)){
-
-            $mail->attach($fullPath);
-
-        }
+        return $mail;
 
     }
-
-
-
-    if(!empty($this->bcc)){
-
-        $mail->bcc($this->bcc);
-
-    }
-
-
-
-    return $mail;
-
-}
     /**
      * Get the array representation of the notification.
      */
