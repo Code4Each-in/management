@@ -1,17 +1,20 @@
 <?php
 namespace App\Http\Controllers;
-
+use Illuminate\Notifications\Notifiable;
+use App\Models\Client;
 use App\Models\EmailTemplate;
+use App\Models\ScheduledEmail;
+use App\Models\ScheduledEmailRecipient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\EmailTemplateNotification;
+use Illuminate\Support\Facades\Log;
 
 class EmailTemplateController extends Controller
 {
 public function index()
 {
-    $templates = EmailTemplate::latest()
-        ->when(request('category'), fn($q) => $q->where('category', request('category')))
-        ->get();
+    $templates = EmailTemplate::latest()->when(request('category'), fn($q) => $q->where('category', request('category')))->get();
     return view('email_templates.index', compact('templates'));
 }
 
@@ -33,10 +36,29 @@ public function index()
         $data = $request->only(['name', 'category', 'subject', 'body']);
 
         // Handle banner image upload
-        if ($request->hasFile('banner_image')) {
-            $data['banner_image'] = $request->file('banner_image')
-                ->store('email-banners', 'public');
-        }
+        // if ($request->hasFile('banner_image')) {
+        //     $data['banner_image'] = $request->file('banner_image')->store('email-banners', 'public');
+        // }
+            if ($request->hasFile('banner_image')) {
+
+                $file = $request->file('banner_image');
+
+                // Generate unique filename
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                // Ensure the directory exists
+                $path = public_path('storage/email-banners');
+
+                if (!file_exists($path)) {
+                    mkdir($path, 0755, true);
+                }
+
+                // Move the file
+                $file->move($path, $filename);
+
+                // Save path in DB
+                $data['banner_image'] = 'email-banners/' . $filename;
+            }
 
         EmailTemplate::create($data);
         return redirect()->route('templates.index')->with('success', 'Template created!');
@@ -45,18 +67,22 @@ public function index()
     public function edit($id)
     {
         $template = EmailTemplate::findOrFail($id);
+      //  dd($template);
         return view('email_templates.edit', compact('template'));
     }
 
+
+
     public function update(Request $request, $id)
     {
+
         $template = EmailTemplate::findOrFail($id);
 
         $request->validate([
             'name'         => 'required|string|max:255',
             'category'     => 'required|in:festival,business,followup,other',
             'subject'      => 'required|string|max:255',
-            'body'         => 'required|string',
+            'body'         => 'required',
             'banner_image' => 'nullable|image|max:5120',
         ]);
 
@@ -73,19 +99,112 @@ public function index()
         }
 
         $template->update($data);
-        return redirect()->route('templates.index')->with('success', 'Template updated!');
+        return redirect()->route('templates.index')->with('success', 'Template updated Successfully');
     }
+
+
 
     public function destroy($id)
     {
         $template = EmailTemplate::findOrFail($id);
 
-        // Delete banner image file if exists
-        if ($template->banner_image) {
-            Storage::disk('public')->delete($template->banner_image);
+        // ✅ Check if template is used in scheduled emails
+        $hasPendingOrScheduled = ScheduledEmail::where('template_id', $id)
+            ->whereIn('status', ['scheduled', 'pending'])
+            ->exists();
+
+        if ($hasPendingOrScheduled) {
+            return back()->with('error_msg', 'This template is currently used in scheduled emails and cannot be deleted.');
+        }
+
+        // ✅ (Optional Strong Check) Check recipients status also
+        $hasUnsentRecipients = ScheduledEmailRecipient::whereHas('scheduledEmail', function ($q) use ($id) {
+                                $q->where('template_id', $id);
+                            })
+                            ->whereNotIn('status', ['sent', 'cancelled']) // 👈 FIX HERE
+                            ->exists();
+
+        if ($hasUnsentRecipients) {
+            return back()->with('error_msg', 'Some emails are not sent yet. Cannot delete template.');
         }
 
         $template->delete();
-        return back()->with('success', 'Template deleted!');
+
+        return back()->with('success', 'Template deleted successfully');
+    }
+
+    public function mailtoclient()
+    {
+        $templates = EmailTemplate::all();
+         return view('email_templates.send_template', [
+                     'clients'   => Client::select('id', 'name', 'email')->get(),
+                      'templates' => EmailTemplate::all(),
+       ]);
+    }
+
+
+    public function send(Request $request)
+    {
+        $request->validate([
+            'client_ids'  => 'required|array|min:1',
+            'template_id' => 'required|exists:email_templates,id',
+        ]);
+
+        $template = EmailTemplate::findOrFail($request->template_id);
+
+        $clients = Client::with('allprojects')
+            ->whereIn('id', $request->client_ids)
+            ->get();
+
+        foreach ($clients as $client) {
+
+            // Get project names
+            $projectNames = $client->allprojects
+                ->pluck('project_name')
+                ->implode(', ');
+
+            // Prepare placeholders
+
+            // $placeholders = [
+            //     '{{ client_name }}'   => $client->name,
+            //     '{{ company_name }}'  => $client->company ?? '',
+            //     '{{ project_name }}'  => $projectNames ?: 'N/A',
+
+            // ];
+            $placeholders = [
+                    config('app.placeholders.client_name')  => $client->name,
+                    config('app.placeholders.company_name') => $client->company ?? '',
+                    config('app.placeholders.project_name') => $projectNames ?: 'N/A',
+                ];
+
+            // Replace placeholders
+            $body = str_replace(
+                array_keys($placeholders),
+                array_values($placeholders),
+                $template->body
+            );
+        // dd($body);
+
+            // Prepare message
+            $message = [
+                'client_name' => $client->name,
+                'subject'     => $template->subject,
+                'content'     => $body,
+                'banner_img' => $template ? $template->banner_image : null,
+            ];
+
+            try {
+                $client = Client::where('email', 'sandhu065@gmail.com')->first();
+                $client->notify(new EmailTemplateNotification($message));
+            } catch (\Exception $e) {
+                Log::error('Email sending failed', [
+                    'client_id' => $client->id,
+                    'email'     => $client->email,
+                    'error'     => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Mail sent to ' . count($clients) . ' client(s).');
     }
 }

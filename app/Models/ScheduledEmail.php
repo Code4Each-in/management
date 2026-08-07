@@ -7,9 +7,12 @@ class ScheduledEmail extends Model
 {
     protected $fillable = [
         'template_id',
+        'subject',
+        'body',
         'project_id',   // NEW
         'send_at',
         'status',       // scheduled / sent / failed
+        'from_email', 'from_name', 'reply_to', 'cc_email', 'bcc_email',
     ];
 
     protected $casts = [

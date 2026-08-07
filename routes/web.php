@@ -41,6 +41,7 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ScheduledEmailController;
 use App\Http\Controllers\TicketLogController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\DeploymentTicketController;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\SettingsController;
 use Webklex\PHPIMAP\ClientManager;
@@ -291,10 +292,6 @@ Route::middleware(['role_permission'])->group(function () {
 	// });
 
 	Route::delete('/delete/device/document', [DevicesController::class, 'deleteDocument']);
-
-
-
-
     //For logout
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
@@ -431,6 +428,29 @@ Route::middleware(['role_permission'])->group(function () {
 		Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 	});
 
+	Route::prefix('deployment')->name('deployment.')->group(function () {
+    Route::get('/', [DeploymentTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/create', [DeploymentTicketController::class, 'create'])->name('tickets.create');
+    Route::get('/reports', [DeploymentTicketController::class, 'reports'])->name('reports');
+    Route::post('/', [DeploymentTicketController::class, 'store'])->name('tickets.store');
+    Route::get('/{ticket}', [DeploymentTicketController::class, 'show'])->name('tickets.show');
+    Route::get('/{ticket}/edit', [DeploymentTicketController::class, 'edit'])->name('tickets.edit');
+    Route::put('/{ticket}', [DeploymentTicketController::class, 'update'])->name('tickets.update');
+    Route::post('/{ticket}/submit', [DeploymentTicketController::class, 'submitForQA'])->name('tickets.submit');
+    Route::post('/{ticket}/approve', [DeploymentTicketController::class, 'approve'])->name('tickets.approve');
+    Route::post('/{ticket}/needs-fix', [DeploymentTicketController::class, 'needsFix'])->name('tickets.needsFix');
+    Route::post('/{ticket}/deploy', [DeploymentTicketController::class, 'markDeployed'])->name('tickets.deploy');
+
+    Route::post('/{ticket}/bugs', [DeploymentTicketController::class, 'addBug'])->name('tickets.bugs.add');
+    Route::post('/bugs/{bug}/fixed', [DeploymentTicketController::class, 'markBugFixed'])->name('bugs.fixed');
+    Route::post('/bugs/{bug}/close', [DeploymentTicketController::class, 'closeBug'])->name('bugs.close');
+    Route::post('/{ticket}/rollback', [DeploymentTicketController::class, 'rollback'])->name('tickets.rollback');
+
+    Route::get('/attachments/{attachment}/delete', [DeploymentTicketController::class, 'deleteAttachment'])
+        ->name('attachments.destroy');
+
+});
+
 });
 
 Route::post('/ticket-update-store', [TicketsController::class, 'storeUpdate'])->name('ticket.update.store');
@@ -449,8 +469,9 @@ Route::resource('templates', EmailTemplateController::class);
 
 // Scheduled Emails
 Route::resource('scheduled', ScheduledEmailController::class);
-Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])
-    ->name('scheduled.tracking');
+Route::get('email-tracking', [ScheduledEmailController::class, 'tracking'])->name('scheduled.tracking');
+Route::get('/scheduled/{id}/preview', [ScheduledEmailController::class, 'preview'])->name('scheduled.preview');
+Route::post('/scheduled/cancel/{id}', [ScheduledEmailController::class, 'cancel_scheduler'])->name('scheduled.cancel');
 // Feedback form (from email link)
 Route::get('/ticketfeedback/{encodedId}', [FeedbackController::class, 'showForm'])->name('ticketfeedback.form');
 Route::post('/ticketfeedback/submit', [FeedbackController::class, 'submit'])->name('ticketfeedback.submit');
@@ -458,3 +479,9 @@ Route::get('/ticketfeedbacks', [FeedbackController::class, 'index'])->name('tick
 
 Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin'])
     ->name('ticket-comments.pin');
+// deplyoment routes
+
+
+
+Route::get('/projects/{project}/tickets-json', [DeploymentTicketController::class, 'projectTickets'])
+    ->name('projects.tickets.json');
