@@ -172,11 +172,6 @@ class ProcessTicketReplies extends Command
             }
 
 
-            $documentPaths = $this->saveIncomingAttachments($message);
-
-
-
-
             /*
             |--------------------------------------------------------------------------
             | Avoid duplicate replies
@@ -209,6 +204,9 @@ class ProcessTicketReplies extends Command
                 }
 
             }
+
+
+            $documentPaths = $this->saveIncomingAttachments($message);
 
             /*
             |--------------------------------------------------------------------------
