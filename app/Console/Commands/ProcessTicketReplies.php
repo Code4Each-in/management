@@ -7,42 +7,36 @@ use Webklex\PHPIMAP\ClientManager;
 use App\Models\TicketComments;
 use App\Models\Users;
 use App\Models\TicketFiles;
+use App\Models\EmailMessageMap;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-
+use App\Notifications\TicketNotification;
+use App\Models\TicketAssigns;
+use Illuminate\Support\Facades\Notification as NotificationFacade;
 
 class ProcessTicketReplies extends Command
 {
-
     protected $signature = 'tickets:process-replies';
 
     protected $description = 'Process ticket email replies';
 
-
-
     public function handle()
     {
-
         echo "command started\n";
-
 
         $cm = new ClientManager();
 
-
         $client = $cm->make([
-
-            'host'=>env('IMAP_HOST'),
-            'port'=>env('IMAP_PORT'),
-            'encryption'=>env('IMAP_ENCRYPTION'),
-            'validate_cert'=>env('IMAP_VALIDATE_CERT'),
-            'username'=>env('IMAP_USERNAME'),
-            'password'=>env('IMAP_PASSWORD'),
-            'protocol'=>env('IMAP_PROTOCOL'),
-
+            'host' => env('IMAP_HOST'),
+            'port' => env('IMAP_PORT'),
+            'encryption' => env('IMAP_ENCRYPTION'),
+            'validate_cert' => env('IMAP_VALIDATE_CERT'),
+            'username' => env('IMAP_USERNAME'),
+            'password' => env('IMAP_PASSWORD'),
+            'protocol' => env('IMAP_PROTOCOL'),
         ]);
 
         $client->connect();
-
 
         $folder = $client->getFolder('INBOX');
 
@@ -53,248 +47,740 @@ class ProcessTicketReplies extends Command
             ->setFetchOrder('desc')
             ->get();
 
-
-
-        foreach($messages as $message)
-        {
-
+        foreach ($messages as $message) {
 
             echo "\n----------------\n";
 
+            /*
+            |--------------------------------------------------------------------------
+            | Sender
+            |--------------------------------------------------------------------------
+            */
 
             $from = $message->getFrom()[0]->mail ?? null;
 
+            echo "FROM : " . $from . "\n";
 
-            echo "FROM : ".$from."\n";
-
-
-            if(!$from)
-            {
+            if (!$from) {
                 continue;
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Incoming Message-ID
+            |--------------------------------------------------------------------------
+            */
 
-            $inReplyTo = $this->extractHeaderValue($message->getInReplyTo());
+            $incomingMessageId =
+                $this->extractHeaderValue(
+                    $message->getMessageId()
+                );
 
-            $inReplyTo = $inReplyTo ? trim($inReplyTo, '<> ') : null;
+            $incomingMessageId = $incomingMessageId
+                ? trim($incomingMessageId, '<> ')
+                : null;
 
+            echo "INCOMING MESSAGE-ID : "
+                . ($incomingMessageId ?? 'null')
+                . "\n";
 
-            $referencesRaw = $this->extractHeaderValue($message->getReferences());
+            /*
+            |--------------------------------------------------------------------------
+            | Duplicate incoming email check
+            |--------------------------------------------------------------------------
+            */
 
-            $references = null;
+            if ($incomingMessageId) {
 
-            if($referencesRaw)
-            {
-                // References is a space separated chain, oldest -> newest.
-                // The direct parent is the LAST id in that chain.
-                $refIds = preg_split('/\s+/', trim($referencesRaw));
+                $alreadyImported =
+                    EmailMessageMap::where(
+                        'email_message_id',
+                        $incomingMessageId
+                    )->exists();
 
-                $lastRef = end($refIds);
+                if ($alreadyImported) {
 
-                if($lastRef)
-                {
-                    $references = trim($lastRef, '<> ');
+                    echo "Already imported\n";
+
+                    continue;
                 }
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | In-Reply-To
+            |--------------------------------------------------------------------------
+            */
 
-            echo "IN REPLY TO : ".($inReplyTo ?? 'null')."\n";
+            $inReplyTo =
+                $this->extractHeaderValue(
+                    $message->getInReplyTo()
+                );
 
-            echo "REFERENCES : ".($references ?? 'null')."\n";
+            $inReplyTo = $inReplyTo
+                ? trim($inReplyTo, '<> ')
+                : null;
 
+            /*
+            |--------------------------------------------------------------------------
+            | References
+            |--------------------------------------------------------------------------
+            */
+
+            $referencesRaw =
+                $this->extractHeaderValue(
+                    $message->getReferences()
+                );
+
+            $references = null;
+
+            if ($referencesRaw) {
+
+                $refIds = preg_split(
+                    '/\s+/',
+                    trim($referencesRaw)
+                );
+
+                $lastRef = end($refIds);
+
+                if ($lastRef) {
+
+                    $references = trim(
+                        $lastRef,
+                        '<> '
+                    );
+                }
+            }
+
+            echo "IN REPLY TO : "
+                . ($inReplyTo ?? 'null')
+                . "\n";
+
+            echo "REFERENCES : "
+                . ($references ?? 'null')
+                . "\n";
+
+            /*
+            |--------------------------------------------------------------------------
+            | Determine parent email
+            |--------------------------------------------------------------------------
+            */
 
             $parentId = $inReplyTo ?: $references;
 
-
-
-            if(!$parentId)
-            {
+            if (!$parentId) {
 
                 echo "Not ticket reply\n";
 
                 continue;
-
             }
 
-            $parent = TicketComments::where(
-                'email_message_id',
-                $parentId
-            )->first();
+            /*
+            |--------------------------------------------------------------------------
+            | Find parent using email_message_map
+            |--------------------------------------------------------------------------
+            */
 
+            $emailMap = EmailMessageMap::with('comment')
+                ->where(
+                    'email_message_id',
+                    $parentId
+                )
+                ->first();
 
+            if (!$emailMap) {
 
-            if(!$parent)
-            {
-
-                echo "Parent comment not found for: ".$parentId."\n";
+                echo "Email mapping not found for: "
+                    . $parentId
+                    . "\n";
 
                 continue;
-
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Parent ticket comment
+            |--------------------------------------------------------------------------
+            */
+
+            $parent = $emailMap->comment;
+
+            if (!$parent) {
+
+                echo "Parent comment not found for email map: "
+                    . $emailMap->id
+                    . "\n";
+
+                continue;
+            }
+
+            echo "PARENT COMMENT ID : "
+                . $parent->id
+                . "\n";
+
+            echo "TICKET ID : "
+                . $parent->ticket_id
+                . "\n";
+
+            /*
+            |--------------------------------------------------------------------------
+            | Find sender
+            |--------------------------------------------------------------------------
+            */
 
             $user = Users::where(
                 'email',
                 $from
             )->first();
 
+            if (!$user) {
 
+                echo "User not found: "
+                    . $from
+                    . "\n";
 
-            if(!$user)
-            {
-
-                echo "User not found\n";
-
-                continue;
-
-            }
-
-
-            $body = $message->getTextBody();
-
-
-
-            if(!$body)
-            {
-                $body = $message->getHTMLBody();
-            }
-
-
-
-            $replyText = trim($body);
-
-            $replyText = $this->stripQuotedReply($replyText);
-
-
-
-            if(empty($replyText))
-            {
                 continue;
             }
 
-
             /*
             |--------------------------------------------------------------------------
-            | Avoid duplicate replies
+            | Read email body
             |--------------------------------------------------------------------------
             */
 
+/*
+|--------------------------------------------------------------------------
+| Read email body
+|--------------------------------------------------------------------------
+|
+| Prefer plain text.
+| If plain text is unavailable, convert HTML email to readable text.
+|
+*/
 
-            $incomingMessageId = $this->extractHeaderValue($message->getMessageId());
+$plainBody = $message->getTextBody();
 
-            $incomingMessageId = $incomingMessageId ? trim($incomingMessageId, '<> ') : null;
+if ($plainBody) {
+
+    $replyText = $plainBody;
+
+} else {
+
+    $htmlBody = $message->getHTMLBody();
+
+    if ($htmlBody) {
+
+        // Convert common HTML line-breaks to new lines first.
+        $htmlBody = preg_replace(
+            '/<(br|\/p|\/div|\/li|\/tr|\/h[1-6])\s*\/?>/i',
+            "\n",
+            $htmlBody
+        );
+
+        $replyText = strip_tags($htmlBody);
+
+    } else {
+
+        $replyText = '';
+    }
+}
+
+$replyText = html_entity_decode(
+    $replyText,
+    ENT_QUOTES | ENT_HTML5,
+    'UTF-8'
+);
+
+$replyText = preg_replace(
+    "/\r\n|\r/",
+    "\n",
+    $replyText
+);
+
+$replyText = trim($replyText);
 
 
-            if($incomingMessageId)
-            {
+/*
+|--------------------------------------------------------------------------
+| Remove quoted email content
+|--------------------------------------------------------------------------
+*/
 
-                $exists = TicketComments::where(
-                    'email_message_id',
-                    $incomingMessageId
-                )->first();
-
-
-
-                if($exists)
-                {
-
-                    echo "Already imported\n";
-
-                    continue;
-
-                }
-
-            }
+$replyText = $this->stripQuotedReply($replyText);
 
 
-            $documentPaths = $this->saveIncomingAttachments($message);
+/*
+|--------------------------------------------------------------------------
+| Save attachments BEFORE deciding whether body is empty
+|--------------------------------------------------------------------------
+|
+| Important:
+| Even if the email contains only an attachment, we must still save it.
+|
+*/
+
+$documentPaths = $this->saveIncomingAttachments($message);
+
+
+/*
+|--------------------------------------------------------------------------
+| Empty body + no attachment
+|--------------------------------------------------------------------------
+*/
+
+if (
+    trim($replyText) === '' &&
+    empty($documentPaths)
+) {
+
+    echo "Empty reply and no attachments, skipping\n";
+
+    continue;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Attachment-only email
+|--------------------------------------------------------------------------
+|
+| Give the comment a meaningful value instead of refusing to create it.
+|
+*/
+
+if (trim($replyText) === '' && !empty($documentPaths)) {
+
+    $replyText = '[Attachment received]';
+
+    echo "Email contains attachment(s) but no text\n";
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Debug
+|--------------------------------------------------------------------------
+*/
+
+echo "FINAL REPLY TEXT:\n";
+echo $replyText . "\n";
+
+echo "ATTACHMENTS FOUND: " . count($documentPaths) . "\n";
 
             /*
             |--------------------------------------------------------------------------
-            | Save as ticket comment
+            | Create ticket comment
             |--------------------------------------------------------------------------
             */
-
 
             $newComment = TicketComments::create([
+                'ticket_id' =>
+                    $parent->ticket_id,
 
-                'ticket_id'=>$parent->ticket_id,
+                'comments' =>
+                    $replyText,
 
-                'comments'=>$replyText,
+                'comment_by' =>
+                    $user->id,
 
-                'comment_by'=>$user->id,
+                'reply_to' =>
+                    $parent->id,
 
-                'reply_to'=>$parent->id,
+                'document' =>
+                    implode(',', $documentPaths),
 
-                'email_message_id'=>$incomingMessageId,
-
-                'document'=>implode(',', $documentPaths),
-
-                'is_system'=>0,
-
+                'is_system' =>
+                    0,
             ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Save incoming email Message-ID
+            |--------------------------------------------------------------------------
+            */
+            $this->sendEmailReplyNotifications(
+                $newComment,
+                $parent,
+                $user,
+                $replyText,
+                $documentPaths
+            );
+            if ($incomingMessageId) {
 
+                EmailMessageMap::create([
+                    'ticket_comment_id' =>
+                        $newComment->id,
 
-            foreach($documentPaths as $docPath)
-            {
+                    'recipient_email' =>
+                        $from,
+
+                    'email_message_id' =>
+                        $incomingMessageId,
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Save attachments in TicketFiles
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($documentPaths as $docPath) {
 
                 TicketFiles::create([
+                    'document' =>
+                        $docPath,
 
-                    'document'=>$docPath,
-
-                    'ticket_id'=>$parent->ticket_id,
-
+                    'ticket_id' =>
+                        $parent->ticket_id,
                 ]);
-
             }
 
+            echo "CLIENT/STAFF EMAIL REPLY SAVED\n";
 
+            echo "NEW COMMENT ID : "
+                . $newComment->id
+                . "\n";
 
-            echo "CLIENT REPLY SAVED\n";
+            if (!empty($documentPaths)) {
 
-            if(!empty($documentPaths))
-            {
-                echo "ATTACHMENTS SAVED: ".count($documentPaths)."\n";
+                echo "ATTACHMENTS SAVED: "
+                    . count($documentPaths)
+                    . "\n";
             }
 
-
-            if($user->role_id == 6)
-            {
-
-                DB::table('comment_status')->insert([
-
-                    'comment_id'=>$newComment->id,
-
-                    'ticket_id'=>$parent->ticket_id,
-
-                    'status'=>'pending',
-
-                    'created_at'=>now(),
-
-                    'updated_at'=>now(),
-
-                ]);
+            /*
+            |--------------------------------------------------------------------------
+            | Client reply status
+            |--------------------------------------------------------------------------
+            */
 
 
-                echo "comment_status row inserted (pending)\n";
+/*
+|--------------------------------------------------------------------------
+| Client reply status
+|--------------------------------------------------------------------------
+|
+| Client email reply:
+|
+|   "Thanks"
+|   "Thank you"
+|   "OK"
+|   "Noted"
+|   "Perfect"
+|   etc.
+|
+| should be acknowledged immediately.
+|
+| Any other client reply should remain pending.
+|
+*/
 
+if ((int) $user->role_id === 6) {
+
+    // Normalize client reply text
+    $plainReplyText = trim(strip_tags($replyText));
+
+    $normalizedReplyText = strtolower(
+        trim(
+            preg_replace(
+                '/[^a-z0-9\s]/i',
+                '',
+                $plainReplyText
+            )
+        )
+    );
+
+    // Count words
+    $replyWordCount = $plainReplyText === ''
+        ? 0
+        : count(preg_split('/\s+/', $plainReplyText));
+
+    // Short acknowledgement phrases
+    $noResponsePhrases = [
+        'thanks',
+        'thank you',
+        'thanks a lot',
+        'thank you so much',
+        'ok',
+        'okay',
+        'noted',
+        'fine',
+        'alright',
+        'sure',
+        'cool',
+        'perfect',
+        'great',
+        'nice',
+        'no problem',
+    ];
+
+    $isShortClientReply = false;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check whether this is a short acknowledgement
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($noResponsePhrases as $phrase) {
+
+        if (
+            preg_match(
+                '/\b' . preg_quote($phrase, '/') . '\b/',
+                $normalizedReplyText
+            )
+        ) {
+            if (
+                $replyWordCount > 0 &&
+                $replyWordCount <= 5
+            ) {
+                $isShortClientReply = true;
+                break;
             }
-
-
         }
-
-
-
-        return Command::SUCCESS;
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Save status
+    |--------------------------------------------------------------------------
+    |
+    | Short acknowledgement:
+    |     acknowledged
+    |
+    | Normal client reply:
+    |     pending
+    |
+    */
+
+    $status = $isShortClientReply
+        ? 'acknowledged'
+        : 'pending';
+
+    $statusData = [
+        'comment_id' => $newComment->id,
+        'ticket_id' => $parent->ticket_id,
+        'status' => $status,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | If short acknowledgement, also record who acknowledged it
+    |--------------------------------------------------------------------------
+    */
+
+    if ($isShortClientReply) {
+        $statusData['acknowledged_by'] = $user->id;
+        $statusData['acknowledged_at'] = now();
+    }
+
+    DB::table('comment_status')->insert($statusData);
+
+    if ($isShortClientReply) {
+
+        echo "Client short reply -> acknowledged\n";
+
+        \Log::info(
+            'Client short acknowledgement saved',
+            [
+                'ticket_id' => $parent->ticket_id,
+                'comment_id' => $newComment->id,
+                'client_id' => $user->id,
+                'reply' => $replyText,
+                'status' => 'acknowledged',
+            ]
+        );
+
+    } else {
+
+        echo "Client normal reply -> pending\n";
+
+        \Log::info(
+            'Client normal email reply saved as pending',
+            [
+                'ticket_id' => $parent->ticket_id,
+                'comment_id' => $newComment->id,
+                'client_id' => $user->id,
+                'reply' => $replyText,
+                'status' => 'pending',
+            ]
+        );
+    }
+}
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Staff/Admin reply
+            |--------------------------------------------------------------------------
+            */
+
+/*
+|--------------------------------------------------------------------------
+| Email staff reply
+|--------------------------------------------------------------------------
+|
+| Client email reply:
+|     -> pending
+|
+| Developer replies by email:
+|     -> acknowledge the EXACT client comment
+|
+| Admin replies by email:
+|     -> do NOT acknowledge
+|     -> keep existing replied behavior
+|
+*/
+
+if ((int) $user->role_id === 3) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEVELOPER EMAIL REPLY
+    |--------------------------------------------------------------------------
+    |
+    | The developer replied directly to the client's email.
+    | Therefore the client comment that this email belongs to
+    | should immediately become acknowledged.
+    |
+    */
+
+    $now = now();
+
+    $status = DB::table('comment_status')
+        ->where('comment_id', $parent->id)
+        ->where('ticket_id', $parent->ticket_id)
+        ->where('status', 'pending')
+        ->first();
+
+    if ($status) {
+
+        DB::table('comment_status')
+            ->where('id', $status->id)
+            ->where('status', 'pending')
+            ->update([
+                'status'          => 'acknowledged',
+                'replied_by'      => $user->id,
+                'replied_at'      => $now,
+                'acknowledged_by' => $user->id,
+                'acknowledged_at' => $now,
+                'updated_at'      => $now,
+            ]);
+
+        echo "Developer email reply -> client comment acknowledged\n";
+
+        \Log::info(
+            'Client comment acknowledged by developer email reply',
+            [
+                'ticket_id'        => $parent->ticket_id,
+                'client_comment_id' => $parent->id,
+                'developer_id'     => $user->id,
+                'developer_email'  => $user->email,
+            ]
+        );
+
+    } else {
+
+        echo "No pending client comment found for developer email reply\n";
+
+        \Log::info(
+            'No pending comment found for developer email reply',
+            [
+                'ticket_id'         => $parent->ticket_id,
+                'parent_comment_id' => $parent->id,
+                'developer_id'      => $user->id,
+            ]
+        );
+    }
+
+} elseif ((int) $user->role_id !== 6) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN / OTHER STAFF EMAIL REPLY
+    |--------------------------------------------------------------------------
+    |
+    | Admin should NOT acknowledge the client comment.
+    |
+    | Keep the existing "replied" behavior for admin.
+    |
+    */
+
+    $now = now();
+
+    $status = DB::table('comment_status')
+        ->where('comment_id', $parent->id)
+        ->where('ticket_id', $parent->ticket_id)
+        ->where('status', 'pending')
+        ->first();
+
+    if ($status) {
+
+        $workingSeconds = null;
+
+        if ($status->created_at) {
+
+            $workingSeconds =
+                $this->calculateWorkingSeconds(
+                    $status->created_at,
+                    $now
+                );
+        }
+
+        DB::table('comment_status')
+            ->where('id', $status->id)
+            ->where('status', 'pending')
+            ->update([
+                'status' =>
+                    'replied',
+
+                'replied_by' =>
+                    $user->id,
+
+                'replied_at' =>
+                    $now,
+
+                'first_response_time_seconds' =>
+                    $workingSeconds,
+
+                'updated_at' =>
+                    $now,
+            ]);
+
+        echo "Admin/staff email reply -> client comment marked replied\n";
+
+        \Log::info(
+            'Client comment replied by admin/staff email',
+            [
+                'ticket_id'         => $parent->ticket_id,
+                'client_comment_id' => $parent->id,
+                'staff_id'          => $user->id,
+                'staff_email'       => $user->email,
+            ]
+        );
+    }
+}
+
+
+            echo "Reply processing completed\n";
+        }
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Remove quoted email content.
+     */
     private function stripQuotedReply(string $text): string
     {
-
-        // Normalize line endings first so the patterns below behave consistently.
-        $text = preg_replace('/\r\n|\r/', "\n", $text);
-
+        $text = preg_replace(
+            '/\r\n|\r/',
+            "\n",
+            $text
+        );
 
         $text = preg_replace(
             '/On\s.{0,300}?wrote\s*:.*/isU',
@@ -308,184 +794,754 @@ class ProcessTicketReplies extends Command
             $text
         )[0];
 
-        $lines = explode("\n", $text);
+        $lines = explode(
+            "\n",
+            $text
+        );
 
         $cleanLines = [];
 
+        foreach ($lines as $line) {
 
-        foreach($lines as $line)
-        {
-
-            if(preg_match('/^\s*>/', $line))
-            {
+            if (preg_match(
+                '/^\s*>/',
+                $line
+            )) {
                 break;
             }
 
             $cleanLines[] = $line;
-
         }
 
-
-        $text = implode("\n", $cleanLines);
-
-
+        $text = implode(
+            "\n",
+            $cleanLines
+        );
 
         return trim($text);
-
     }
 
+    /**
+     * Save incoming attachments.
+     */
     private function saveIncomingAttachments($message): array
     {
-
         $documentPaths = [];
 
+        try {
 
-        try
-        {
-
-            if(!$message->hasAttachments())
-            {
+            if (!$message->hasAttachments()) {
                 return $documentPaths;
             }
 
+            $destDir = public_path(
+                'assets/img/ticketAssets'
+            );
 
-            $destDir = public_path('assets/img/ticketAssets');
+            if (!is_dir($destDir)) {
 
-
-            if(!is_dir($destDir))
-            {
-                mkdir($destDir, 0755, true);
+                mkdir(
+                    $destDir,
+                    0755,
+                    true
+                );
             }
 
+            foreach (
+                $message->getAttachments()
+                as $attachment
+            ) {
 
-            foreach($message->getAttachments() as $attachment)
-            {
+                try {
 
-                try
-                {
+                    $originalName =
+                        $attachment->getName();
 
-                    $originalName = $attachment->getName();
+                    if (!$originalName) {
 
-                    if(!$originalName)
-                    {
-                        $originalName = 'attachment_'.Str::random(6);
+                        $originalName =
+                            'attachment_'
+                            . Str::random(6);
                     }
 
+                    $extension =
+                        pathinfo(
+                            $originalName,
+                            PATHINFO_EXTENSION
+                        );
 
-                    $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+                    $baseName =
+                        pathinfo(
+                            $originalName,
+                            PATHINFO_FILENAME
+                        );
 
-                    $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+                    $safeName =
+                        date('YmdHis')
+                        . '_'
+                        . Str::slug($baseName)
+                        . (
+                            $extension
+                                ? '.' . $extension
+                                : ''
+                        );
 
+                    $destPath =
+                        $destDir
+                        . DIRECTORY_SEPARATOR
+                        . $safeName;
 
-                    $safeName = date('YmdHis').'_'.Str::slug($baseName).($extension ? '.'.$extension : '');
+                    $content =
+                        $attachment->getContent();
 
+                    if (
+                        $content === null
+                        || $content === ''
+                    ) {
 
-                    $destPath = $destDir.DIRECTORY_SEPARATOR.$safeName;
+                        echo "Attachment '"
+                            . $originalName
+                            . "' had no content, skipping\n";
 
-
-                    // getContent() returns the raw decoded attachment bytes
-                    $content = $attachment->getContent();
-
-
-                    if($content === null || $content === '')
-                    {
-                        echo "Attachment '".$originalName."' had no content, skipping\n";
                         continue;
                     }
 
+                    file_put_contents(
+                        $destPath,
+                        $content
+                    );
 
-                    file_put_contents($destPath, $content);
+                    $documentPaths[] =
+                        'ticketAssets/'
+                        . $safeName;
 
+                    echo "Saved attachment: "
+                        . $originalName
+                        . " -> "
+                        . $safeName
+                        . "\n";
 
-                    $documentPaths[] = 'ticketAssets/'.$safeName;
+                } catch (\Throwable $e) {
 
-
-                    echo "Saved attachment: ".$originalName." -> ".$safeName."\n";
-
-                }
-                catch(\Throwable $e)
-                {
-
-                    \Log::error('Failed to save inbound attachment: '.$e->getMessage());
+                    \Log::error(
+                        'Failed to save inbound attachment: '
+                        . $e->getMessage()
+                    );
 
                     echo "Failed to save an attachment, see log\n";
-
                 }
-
             }
 
+        } catch (\Throwable $e) {
+
+            \Log::error(
+                'Failed to read attachments from inbound message: '
+                . $e->getMessage()
+            );
         }
-        catch(\Throwable $e)
-        {
-
-            \Log::error('Failed to read attachments from inbound message: '.$e->getMessage());
-
-        }
-
 
         return $documentPaths;
-
     }
 
-
-
     /**
-     * Safely pull a plain string value out of whatever
-     * Webklex\PHPIMAP returns (Attribute object, array, or string).
+     * Safely extract header value.
      */
-    private function extractHeaderValue($value): ?string
-    {
+    private function extractHeaderValue(
+        $value
+    ): ?string {
 
-        if($value === null)
-        {
+        if ($value === null) {
             return null;
         }
 
+        if (is_string($value)) {
 
-        if(is_string($value))
-        {
             $value = trim($value);
 
-            return $value !== '' ? $value : null;
+            return $value !== ''
+                ? $value
+                : null;
         }
 
+        if (is_array($value)) {
 
-        if(is_array($value))
-        {
             $first = reset($value);
 
-            return $first !== false ? $this->extractHeaderValue($first) : null;
+            return $first !== false
+                ? $this->extractHeaderValue($first)
+                : null;
         }
 
+        if (is_object($value)) {
 
-        if(is_object($value))
-        {
+            if (method_exists($value, 'first')) {
 
-            // Webklex\PHPIMAP\Attribute exposes first()
-            if(method_exists($value, 'first'))
-            {
                 $first = $value->first();
 
-                if($first !== null && $first !== '')
-                {
-                    return $this->extractHeaderValue($first);
+                if (
+                    $first !== null
+                    && $first !== ''
+                ) {
+
+                    return $this->extractHeaderValue(
+                        $first
+                    );
                 }
             }
 
+            if (
+                method_exists(
+                    $value,
+                    '__toString'
+                )
+            ) {
 
-            // Fallback: cast if the object supports __toString
-            if(method_exists($value, '__toString'))
-            {
-                $str = trim((string) $value);
+                $str = trim(
+                    (string) $value
+                );
 
-                return $str !== '' ? $str : null;
+                return $str !== ''
+                    ? $str
+                    : null;
             }
-
         }
 
-
         return null;
-
     }
+
+/**
+ * Send notification emails after an email reply
+ *
+ * Client reply:
+ *      Client -> Assigned Developers + Admin
+ *
+ * Staff/Admin reply:
+ *      Developer/Admin -> Client
+ */
+private function sendEmailReplyNotifications(
+    TicketComments $newComment,
+    TicketComments $parent,
+    Users $sender,
+    string $replyText,
+    array $documentPaths = []
+): void {
+    try {
+
+        $ticketId = $parent->ticket_id;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get ticket
+        |--------------------------------------------------------------------------
+        */
+
+        $ticket = \App\Models\Tickets::find($ticketId);
+
+        if (!$ticket) {
+            \Log::warning('Email reply notification: ticket not found', [
+                'ticket_id' => $ticketId,
+                'comment_id' => $newComment->id,
+            ]);
+
+            return;
+        }
+
+        $ticketName = $ticket->title ?? "Ticket #{$ticketId}";
+
+        /*
+        |--------------------------------------------------------------------------
+        | Common email message data
+        |--------------------------------------------------------------------------
+        */
+
+        $messages = [];
+
+        $messages['greeting-text'] = 'Hello!';
+
+        $messages['comment_id'] = $newComment->id;
+
+        $messages['ticket_id'] = $ticketId;
+
+        $messages['title'] =
+            "New email reply on Ticket # <strong>{$ticketId}</strong>";
+
+        $messages['title-ticketName'] =
+            "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
+
+        $messages['body-text'] = $replyText;
+
+        $messages['url-title'] = 'View Ticket';
+
+        $messages['url'] = "/view/ticket/{$ticketId}";
+
+        /*
+        |--------------------------------------------------------------------------
+        | Attachment information
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($documentPaths)) {
+
+            $documentText =
+                '<p><strong>Attached Document(s):</strong></p><ul>';
+
+            foreach ($documentPaths as $docPath) {
+
+                $fileName = basename($docPath);
+
+                $documentText .=
+                    '<li>' . e($fileName) . '</li>';
+            }
+
+            $documentText .= '</ul>';
+
+            $messages['document-text'] = $documentText;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLIENT REPLIED FROM EMAIL
+        |--------------------------------------------------------------------------
+        |
+        | Client email -> Ticket
+        |
+        | Notify:
+        |   1. Assigned developers
+        |   2. Admin
+        |
+        */
+
+        if ((int) $sender->role_id === 6) {
+
+            $messages['subject'] =
+                "Client Reply on \"{$ticketName}\"";
+
+            \Log::info(
+                'Processing client email reply notification',
+                [
+                    'ticket_id' => $ticketId,
+                    'comment_id' => $newComment->id,
+                    'client_id' => $sender->id,
+                    'client_email' => $sender->email,
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get assigned developers
+            |--------------------------------------------------------------------------
+            */
+
+            $assignedUsers = TicketAssigns::join(
+                'users',
+                'ticket_assigns.user_id',
+                '=',
+                'users.id'
+            )
+                ->where(
+                    'ticket_assigns.ticket_id',
+                    $ticketId
+                )
+                ->whereNotNull('users.email')
+                ->get([
+                    'users.id',
+                    'users.first_name',
+                    'users.email',
+                ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Admin
+            |--------------------------------------------------------------------------
+            */
+
+            $admin = Users::find(1);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Build unique recipient list
+            |--------------------------------------------------------------------------
+            */
+
+            $recipients = collect();
+
+            foreach ($assignedUsers as $assignedUser) {
+
+                if (!empty($assignedUser->email)) {
+
+                    $recipients->push([
+                        'id' => $assignedUser->id,
+                        'email' => trim($assignedUser->email),
+                        'name' => $assignedUser->first_name,
+                        'type' => 'developer',
+                    ]);
+                }
+            }
+
+            if (
+                $admin &&
+                !empty($admin->email)
+            ) {
+
+                $recipients->push([
+                    'id' => $admin->id,
+                    'email' => trim($admin->email),
+                    'name' => $admin->first_name,
+                    'type' => 'admin',
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove duplicate email addresses
+            |--------------------------------------------------------------------------
+            */
+
+            $recipients = $recipients
+                ->unique(function ($recipient) {
+                    return strtolower($recipient['email']);
+                })
+                ->values();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Send email to developers + admin
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($recipients as $recipient) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Do not send to empty address
+                |--------------------------------------------------------------------------
+                */
+
+                if (empty($recipient['email'])) {
+                    continue;
+                }
+
+                $recipientMessages = $messages;
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT:
+                |
+                | This is the NEW comment ID.
+                |
+                | TicketNotification will create an EmailMessageMap
+                | for this outgoing email.
+                |--------------------------------------------------------------------------
+                */
+
+                $recipientMessages['comment_id'] =
+                    $newComment->id;
+
+                $recipientMessages['recipient_email'] =
+                    $recipient['email'];
+
+                $recipientMessages['sender_type'] =
+                    'client';
+
+                \Log::info(
+                    'Sending client reply notification',
+                    [
+                        'ticket_id' => $ticketId,
+                        'comment_id' => $newComment->id,
+                        'recipient' => $recipient['email'],
+                        'recipient_type' => $recipient['type'],
+                    ]
+                );
+
+                try {
+
+                    NotificationFacade::route(
+                        'mail',
+                        $recipient['email']
+                    )->notify(
+                        new TicketNotification(
+                            $recipientMessages,
+                            $documentPaths
+                        )
+                    );
+
+                    \Log::info(
+                        'Client reply notification sent',
+                        [
+                            'ticket_id' => $ticketId,
+                            'comment_id' => $newComment->id,
+                            'recipient' => $recipient['email'],
+                        ]
+                    );
+
+                } catch (\Throwable $e) {
+
+                    \Log::error(
+                        'Failed to send client reply notification',
+                        [
+                            'ticket_id' => $ticketId,
+                            'comment_id' => $newComment->id,
+                            'recipient' => $recipient['email'],
+                            'error' => $e->getMessage(),
+                        ]
+                    );
+                }
+            }
+
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STAFF / ADMIN REPLIED FROM EMAIL
+        |--------------------------------------------------------------------------
+        |
+        | Developer/Admin email -> Ticket
+        |
+        | Notify client.
+        |
+        */
+
+        $messages['subject'] =
+            "Reply on \"{$ticketName}\"";
+
+        \Log::info(
+            'Processing staff email reply notification',
+            [
+                'ticket_id' => $ticketId,
+                'comment_id' => $newComment->id,
+                'staff_id' => $sender->id,
+                'staff_email' => $sender->email,
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Find client(s) attached to the project
+        |--------------------------------------------------------------------------
+        */
+
+        $project = null;
+
+        if (!empty($ticket->project_id)) {
+
+            $project = \App\Models\Projects::find(
+                $ticket->project_id
+            );
+        }
+
+        $clientIds = collect();
+
+        if ($project) {
+
+            /*
+            | New many-to-many client relation
+            */
+
+            if (
+                $project->clients &&
+                $project->clients->isNotEmpty()
+            ) {
+
+                $clientIds = $project->clients->pluck('id');
+            }
+
+            /*
+            | Old single client relation
+            */
+
+            elseif (!empty($project->client_id)) {
+
+                $clientIds = collect([
+                    $project->client_id
+                ]);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Send to clients
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($clientIds as $clientId) {
+
+            $clientUser = Users::where(
+                'client_id',
+                $clientId
+            )->first();
+
+            $client = \App\Models\Client::find($clientId);
+
+            if (!$client) {
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Main client email
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $clientUser &&
+                !empty($clientUser->email)
+            ) {
+
+                $recipientMessages = $messages;
+
+                $recipientMessages['comment_id'] =
+                    $newComment->id;
+
+                $recipientMessages['recipient_email'] =
+                    $clientUser->email;
+
+                $recipientMessages['sender_type'] =
+                    'staff';
+
+                \Log::info(
+                    'Sending staff email reply to client',
+                    [
+                        'ticket_id' => $ticketId,
+                        'comment_id' => $newComment->id,
+                        'recipient' => $clientUser->email,
+                    ]
+                );
+
+                try {
+
+                    $clientUser->notify(
+                        new TicketNotification(
+                            $recipientMessages,
+                            $documentPaths
+                        )
+                    );
+
+                } catch (\Throwable $e) {
+
+                    \Log::error(
+                        'Failed to send staff reply to client',
+                        [
+                            'ticket_id' => $ticketId,
+                            'comment_id' => $newComment->id,
+                            'recipient' => $clientUser->email,
+                            'error' => $e->getMessage(),
+                        ]
+                    );
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Secondary client email
+            |--------------------------------------------------------------------------
+            */
+
+            if (!empty($client->secondary_email)) {
+
+                $recipientMessages = $messages;
+
+                $recipientMessages['comment_id'] =
+                    $newComment->id;
+
+                $recipientMessages['recipient_email'] =
+                    $client->secondary_email;
+
+                $recipientMessages['sender_type'] =
+                    'staff';
+
+                try {
+
+                    NotificationFacade::route(
+                        'mail',
+                        $client->secondary_email
+                    )->notify(
+                        new TicketNotification(
+                            $recipientMessages,
+                            $documentPaths
+                        )
+                    );
+
+                } catch (\Throwable $e) {
+
+                    \Log::error(
+                        'Failed to send staff reply to secondary client email',
+                        [
+                            'ticket_id' => $ticketId,
+                            'comment_id' => $newComment->id,
+                            'recipient' => $client->secondary_email,
+                            'error' => $e->getMessage(),
+                        ]
+                    );
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Additional client email
+            |--------------------------------------------------------------------------
+            */
+
+            if (!empty($client->additional_email)) {
+
+                $recipientMessages = $messages;
+
+                $recipientMessages['comment_id'] =
+                    $newComment->id;
+
+                $recipientMessages['recipient_email'] =
+                    $client->additional_email;
+
+                $recipientMessages['sender_type'] =
+                    'staff';
+
+                try {
+
+                    NotificationFacade::route(
+                        'mail',
+                        $client->additional_email
+                    )->notify(
+                        new TicketNotification(
+                            $recipientMessages,
+                            $documentPaths
+                        )
+                    );
+
+                } catch (\Throwable $e) {
+
+                    \Log::error(
+                        'Failed to send staff reply to additional client email',
+                        [
+                            'ticket_id' => $ticketId,
+                            'comment_id' => $newComment->id,
+                            'recipient' => $client->additional_email,
+                            'error' => $e->getMessage(),
+                        ]
+                    );
+                }
+            }
+        }
+
+    } catch (\Throwable $e) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Never prevent ticket comment creation because email failed
+        |--------------------------------------------------------------------------
+        */
+
+        \Log::error(
+            'Email reply notification processing failed',
+            [
+                'ticket_id' => $parent->ticket_id ?? null,
+                'comment_id' => $newComment->id ?? null,
+                'sender_id' => $sender->id ?? null,
+                'sender_email' => $sender->email ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]
+        );
+    }
+}
 
 }

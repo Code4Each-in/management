@@ -938,8 +938,6 @@ class TicketsController extends Controller
 
                                 $clientMessages['comment_id'] = $ticket->id;
 
-                                $clientMessages['store_message_id'] = true;
-
 
                                 $clientUser->notify(
                                     new TicketNotification(
@@ -955,8 +953,6 @@ class TicketsController extends Controller
                             if (!empty($secondaryEmail)) {
 
                                 $secondaryMessages = $messages;
-                                $secondaryMessages['store_message_id'] = false;
-
 
                                 NotificationFacade::route('mail', $secondaryEmail)
                                     ->notify(
@@ -973,8 +969,6 @@ class TicketsController extends Controller
                             if (!empty($additionalEmail)) {
 
                                 $additionalMessages = $messages;
-                                $additionalMessages['store_message_id'] = false;
-
 
                                 NotificationFacade::route('mail', $additionalEmail)
                                     ->notify(
