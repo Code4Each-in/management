@@ -48,7 +48,7 @@ class ProcessTicketReplies extends Command
 
         $messages = $folder
             ->messages()
-            ->unseen()
+            ->all()
             ->since(now()->startOfDay())
             ->setFetchOrder('desc')
             ->get();
@@ -72,14 +72,6 @@ class ProcessTicketReplies extends Command
             {
                 continue;
             }
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get In-Reply-To / References (robust to Attribute objects, arrays, strings)
-            |--------------------------------------------------------------------------
-            */
 
 
             $inReplyTo = $this->extractHeaderValue($message->getInReplyTo());
@@ -111,16 +103,6 @@ class ProcessTicketReplies extends Command
             echo "REFERENCES : ".($references ?? 'null')."\n";
 
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Gmail sometimes removes In-Reply-To
-            | use References also
-            |--------------------------------------------------------------------------
-            */
-
-
             $parentId = $inReplyTo ?: $references;
 
 
@@ -133,15 +115,6 @@ class ProcessTicketReplies extends Command
                 continue;
 
             }
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Find original comment
-            |--------------------------------------------------------------------------
-            */
-
 
             $parent = TicketComments::where(
                 'email_message_id',
@@ -158,15 +131,6 @@ class ProcessTicketReplies extends Command
                 continue;
 
             }
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Find user
-            |--------------------------------------------------------------------------
-            */
-
 
             $user = Users::where(
                 'email',
@@ -185,15 +149,6 @@ class ProcessTicketReplies extends Command
             }
 
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get reply body
-            |--------------------------------------------------------------------------
-            */
-
-
             $body = $message->getTextBody();
 
 
@@ -207,15 +162,6 @@ class ProcessTicketReplies extends Command
 
             $replyText = trim($body);
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove old quoted mail
-            |--------------------------------------------------------------------------
-            */
-
-
             $replyText = $this->stripQuotedReply($replyText);
 
 
@@ -224,20 +170,6 @@ class ProcessTicketReplies extends Command
             {
                 continue;
             }
-
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save any attachments on the reply email
-            |--------------------------------------------------------------------------
-            */
-
-
-            $documentPaths = $this->saveIncomingAttachments($message);
-
-
 
 
             /*
@@ -272,6 +204,9 @@ class ProcessTicketReplies extends Command
                 }
 
             }
+
+
+            $documentPaths = $this->saveIncomingAttachments($message);
 
             /*
             |--------------------------------------------------------------------------
@@ -323,18 +258,6 @@ class ProcessTicketReplies extends Command
             }
 
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Mirror addComments(): a client comment needs a 'pending' row in
-            | comment_status so it shows up as needing acknowledgement / reply.
-            | Without this, acknowledgeComment() finds no row and refuses to work,
-            | and the acknowledge button has nothing to key off of.
-            |--------------------------------------------------------------------------
-            */
-
-
             if($user->role_id == 6)
             {
 
@@ -366,32 +289,11 @@ class ProcessTicketReplies extends Command
 
     }
 
-
-
-    /**
-     * Strip quoted "history" from a reply body so only the
-     * new client text is saved as the comment.
-     *
-     * Handles:
-     *  - Gmail/Apple Mail style: "On <date>, <name> <email> wrote:"
-     *  - Outlook style: "-----Original Message-----" / "________________________________"
-     *  - Any line starting with "> " (quoted lines), as a fallback
-     */
     private function stripQuotedReply(string $text): string
     {
 
         // Normalize line endings first so the patterns below behave consistently.
         $text = preg_replace('/\r\n|\r/', "\n", $text);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 1) Cut everything from a Gmail/Apple-Mail "On ... wrote:" line onward.
-        |    's' modifier = "." also matches newlines, so this works even when
-        |    the sender name/email wraps onto its own line before "wrote:".
-        |    'U' modifier makes quantifiers lazy so we stop at the FIRST match.
-        |--------------------------------------------------------------------------
-        */
 
 
         $text = preg_replace(
@@ -401,29 +303,10 @@ class ProcessTicketReplies extends Command
             1
         );
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 2) Cut everything from common Outlook-style separators onward.
-        |--------------------------------------------------------------------------
-        */
-
-
         $text = preg_split(
             '/-{2,}\s*Original Message\s*-{2,}|_{10,}/i',
             $text
         )[0];
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 3) Fallback: stop at the first line that is a quoted line (starts with ">").
-        |    Some clients don't use "On ... wrote:" at all.
-        |--------------------------------------------------------------------------
-        */
-
 
         $lines = explode("\n", $text);
 
@@ -451,13 +334,6 @@ class ProcessTicketReplies extends Command
 
     }
 
-
-
-    /**
-     * Save any attachments on an inbound reply to the same location
-     * used by the admin-side comment form (public/assets/img/ticketAssets),
-     * and return an array of relative paths ('ticketAssets/xxx.ext').
-     */
     private function saveIncomingAttachments($message): array
     {
 

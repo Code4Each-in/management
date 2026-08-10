@@ -78,7 +78,7 @@
                 </a>
             </p>
                     <p style="font-size: 13px; color: #777777;">
-            <strong>You can reply directly to this email to add your comment to this ticket.</strong>
+            <strong>Simply reply to this email to add your comment to the ticket.</strong>
         </p>
         @endif
          <p>Regards,<br>PMS</p>
