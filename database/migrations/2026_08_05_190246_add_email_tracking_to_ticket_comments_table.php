@@ -15,13 +15,9 @@ class AddEmailTrackingToTicketCommentsTable extends Migration
         {
             Schema::table('ticket_comments', function (Blueprint $table) {
 
-                $table->string('reply_token',100)
-                    ->nullable()
-                    ->after('reply_to');
-
                 $table->string('email_message_id',255)
                     ->nullable()
-                    ->after('reply_token');
+                    ->after('reply_to');
 
             });
         }
@@ -32,7 +28,6 @@ class AddEmailTrackingToTicketCommentsTable extends Migration
             Schema::table('ticket_comments', function (Blueprint $table) {
 
                 $table->dropColumn([
-                    'reply_token',
                     'email_message_id'
                 ]);
 
