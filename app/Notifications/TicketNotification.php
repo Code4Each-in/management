@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\EmailMessageMap;
 use App\Models\TicketComments;
 use Illuminate\Support\HtmlString;
 
@@ -25,6 +26,7 @@ class TicketNotification extends Notification
         $this->attachments = $attachments;
         $this->bcc = $bcc;
     }
+
 
     /**
      * Get the notification's delivery channels.
@@ -68,17 +70,67 @@ class TicketNotification extends Notification
     //     return $mail;
 
     // }
+
     public function toMail($notifiable)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Determine recipient
+        |--------------------------------------------------------------------------
+        */
+
+        $recipientEmail = null;
+
+        if (is_object($notifiable)) {
+            $recipientEmail = $notifiable->email ?? null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | On-demand notification
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$recipientEmail && is_object($notifiable)) {
+
+            if (
+                method_exists(
+                    $notifiable,
+                    'routeNotificationFor'
+                )
+            ) {
+                $recipientEmail =
+                    $notifiable->routeNotificationFor('mail');
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logging
+        |--------------------------------------------------------------------------
+        */
+
         \Log::info('TicketNotification toMail called', [
-            'subject' => $this->messages['subject'] ?? null,
-            'comment_id' => $this->messages['comment_id'] ?? null,
+            'subject' =>
+                $this->messages['subject'] ?? null,
+
+            'comment_id' =>
+                $this->messages['comment_id'] ?? null,
+
+            'recipient' =>
+                $recipientEmail,
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Build MailMessage
+        |--------------------------------------------------------------------------
+        */
 
         $mail = (new MailMessage)
             ->subject(
-                $this->messages['subject'] ?? 'Notification Email'
+                $this->messages['subject']
+                    ?? 'Notification Email'
             )
             ->replyTo(
                 env('IMAP_USERNAME'),
@@ -87,120 +139,135 @@ class TicketNotification extends Notification
             ->view(
                 'Email.custom_ticket_template',
                 [
-                    'messages'=>$this->messages
+                    'messages' => $this->messages
                 ]
             );
 
-
-
-        $mail->withSwiftMessage(function($message){
-
+        $mail->withSwiftMessage(function ($message) {
 
             try {
-
 
                 $header = $message
                     ->getHeaders()
                     ->get('Message-ID');
 
+                if (!$header) {
 
-                if(!$header){
+                    \Log::warning(
+                        'Outgoing email has no Message-ID',
+                        [
+                            'comment_id' =>
+                                $this->messages['comment_id'] ?? null,
+
+                            'recipient' =>
+                                $this->messages['recipient_email'] ?? null,
+                        ]
+                    );
 
                     return;
-
                 }
-
 
                 $messageId = $header->getFieldBody();
 
-
                 $messageId = trim(
                     $messageId,
-                    '<>'
+                    '<> '
                 );
 
+                $commentId =
+                    $this->messages['comment_id'] ?? null;
 
-                \Log::info('Generated Message ID',[
-                    'message_id'=>$messageId,
-                    'comment_id'=>$this->messages['comment_id'] ?? null
-                ]);
+                $recipientEmail =
+                    $this->messages['recipient_email'] ?? null;
 
-
+                \Log::info(
+                    'Generated outgoing Message-ID',
+                    [
+                        'message_id' => $messageId,
+                        'comment_id' => $commentId,
+                        'recipient' => $recipientEmail,
+                    ]
+                );
 
                 /*
                 |--------------------------------------------------------------------------
-                | Save only first sent email id
+                | Save Message-ID in email_message_map
                 |--------------------------------------------------------------------------
                 */
 
                 if (
-                    !empty($this->messages['comment_id']) &&
+                    !empty($commentId) &&
                     !empty($messageId)
                 ) {
 
-                    $comment = TicketComments::find(
-                        $this->messages['comment_id']
+                    EmailMessageMap::updateOrCreate(
+                        [
+                            'email_message_id' => $messageId,
+                        ],
+                        [
+                            'ticket_comment_id' => $commentId,
+                            'recipient_email' => $recipientEmail,
+                        ]
                     );
 
-                    if($comment && empty($comment->email_message_id)) {
-
-                        $comment->email_message_id = $messageId;
-                        $comment->save();
-
-                        \Log::info('Message ID saved',[
-                            'comment'=>$comment->id,
-                            'message_id'=>$messageId
-                        ]);
-
-                    }
-
+                    \Log::info(
+                        'Email message mapping saved',
+                        [
+                            'message_id' => $messageId,
+                            'comment_id' => $commentId,
+                            'recipient' => $recipientEmail,
+                        ]
+                    );
                 }
 
-
-
-            }
-            catch(\Throwable $e){
+            } catch (\Throwable $e) {
 
                 \Log::error(
-                    'Message ID Error '.$e->getMessage()
+                    'Message ID processing error',
+                    [
+                        'comment_id' =>
+                            $this->messages['comment_id'] ?? null,
+
+                        'recipient' =>
+                            $this->messages['recipient_email'] ?? null,
+
+                        'error' => $e->getMessage(),
+                    ]
                 );
-
             }
-
-
-
         });
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Attachments
+        |--------------------------------------------------------------------------
+        */
 
-        foreach($this->attachments as $relativePath){
-
+        foreach ($this->attachments as $relativePath) {
 
             $fullPath = public_path(
-                'assets/img/'.$relativePath
+                'assets/img/' . $relativePath
             );
 
-
-            if(file_exists($fullPath)){
+            if (file_exists($fullPath)) {
 
                 $mail->attach($fullPath);
-
             }
-
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | BCC
+        |--------------------------------------------------------------------------
+        */
 
-
-        if(!empty($this->bcc)){
+        if (!empty($this->bcc)) {
 
             $mail->bcc($this->bcc);
-
         }
 
-
-
         return $mail;
-
     }
     /**
      * Get the array representation of the notification.
