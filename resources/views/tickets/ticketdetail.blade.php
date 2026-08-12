@@ -27,8 +27,20 @@
 
 .reply-avatar img {
     object-fit: cover;
-}
 
+  width: 40px !important;
+  height: 40px !important;
+  background-color: #ccc;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 .avatar-fallback {
     width: 28px;
     height: 28px;
@@ -1481,8 +1493,8 @@
                                                                     @if(!empty($parent->user->profile_picture))
                                                                         <img src="{{ asset('assets/img/' . $parent->user->profile_picture) }}"
                                                                             class="rounded-circle"
-                                                                            width="34"
-                                                                            height="34">
+                                                                            width="35"
+                                                                            height="35">
                                                                     @else
                                                                         <div class="avatar-fallback">
                                                                             {{ strtoupper(substr($parent->user->first_name, 0, 2)) }}

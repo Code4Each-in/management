@@ -677,56 +677,134 @@ class ProcessTicketReplies extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * Remove quoted email content.
-     */
+
+/**
+ * Remove quoted/replied email content and keep only the new reply.
+ */
     private function stripQuotedReply(string $text): string
     {
-        $text = preg_replace(
-            '/\r\n|\r/',
-            "\n",
+        // Normalize line endings.
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
+
+        // Decode HTML entities such as &nbsp;, &lt;, &gt;, etc.
+        $text = html_entity_decode(
+            $text,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+
+        // Convert non-breaking spaces to normal spaces.
+        $text = str_replace(
+            ["\xc2\xa0", "\u{00A0}"],
+            ' ',
             $text
         );
 
+        // Normalize excessive spaces/tabs.
+        $text = preg_replace('/[ \t]+/', ' ', $text);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Gmail / Google Workspace
+        |--------------------------------------------------------------------------
+        |
+        */
+
         $text = preg_replace(
-            '/On\s.{0,300}?wrote\s*:.*/isU',
-            '',
+            '/(?:^|\n)\s*On\s+.+?\bwrote\s*:\s*[\r\n]*/is',
+            "\n",
             $text,
             1
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Outlook / Microsoft style quoted reply
+        |--------------------------------------------------------------------------
+        */
+
         $text = preg_split(
-            '/-{2,}\s*Original Message\s*-{2,}|_{10,}/i',
-            $text
+            '/(?:^|\n)\s*-{2,}\s*Original Message\s*-{2,}\s*(?:\n|$)/i',
+            $text,
+            2
         )[0];
 
-        $lines = explode(
-            "\n",
-            $text
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Other common email separators
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_split(
+            '/(?:^|\n)\s*_{5,}\s*(?:\n|$)/',
+            $text,
+            2
+        )[0];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Lines beginning with ">"
+        |--------------------------------------------------------------------------
+
+        */
+
+        $lines = explode("\n", $text);
 
         $cleanLines = [];
 
         foreach ($lines as $line) {
 
-            if (preg_match(
-                '/^\s*>/',
-                $line
-            )) {
+            $trimmedLine = trim($line);
+
+            /*
+            * Stop when quoted content starts.
+            */
+            if ($trimmedLine !== '' && str_starts_with($trimmedLine, '>')) {
+                break;
+            }
+
+            /*
+            * Some clients use multiple ">" characters.
+            */
+            if (
+                $trimmedLine !== '' &&
+                preg_match('/^>{1,}/', $trimmedLine)
+            ) {
                 break;
             }
 
             $cleanLines[] = $line;
         }
 
-        $text = implode(
-            "\n",
-            $cleanLines
+        $text = implode("\n", $cleanLines);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Remove common quote headers that may remain
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_replace(
+            '/(?:^|\n)\s*From:\s*.+\n\s*Sent:\s*.+\n\s*To:\s*.+/is',
+            '',
+            $text,
+            1
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Remove trailing blank lines
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_replace(
+            "/\n{3,}/",
+            "\n\n",
+            $text
         );
 
         return trim($text);
     }
-
     /**
      * Save incoming attachments.
      */
