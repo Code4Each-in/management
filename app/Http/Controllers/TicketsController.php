@@ -713,6 +713,7 @@ class TicketsController extends Controller
                 'document'   => implode(',', $documentPaths),
                 'comment_by' => auth()->user()->id,
                 'reply_to' => $request->input('reply_to'),
+                'comment_source' => 'manual',
             ]);
             $messages['comment_id'] = $ticket->id;
             // client comment
@@ -926,18 +927,48 @@ class TicketsController extends Controller
 
 
                             // Main client email - store Message-ID
-                            if ($clientUser) {
+                            // if ($clientUser) {
 
-                                \Log::info('Sending ticket notification', [
-                                    'email' => $clientUser->email,
-                                    'ticket' => $validate['id']
+                            //     \Log::info('Sending ticket notification', [
+                            //         'email' => $clientUser->email,
+                            //         'ticket' => $validate['id']
+                            //     ]);
+
+
+                            //     $clientMessages = $messages;
+
+                            //     $clientMessages['comment_id'] = $ticket->id;
+
+
+                            //     $clientUser->notify(
+                            //         new TicketNotification(
+                            //             $clientMessages,
+                            //             $documentPaths,
+                            //             $bccEmail
+                            //         )
+                            //     );
+                            // }
+
+                            // Main client email
+                            if (
+                                $clientUser &&
+                                !empty($clientUser->email) &&
+                                (int) $clientUser->id !== (int) $currentUser->id
+                            ) {
+
+                                \Log::info('Sending staff comment notification to client', [
+                                    'ticket' => $validate['id'],
+                                    'comment_id' => $ticket->id,
+                                    'sender_id' => $currentUser->id,
+                                    'sender_email' => $currentUser->email,
+                                    'recipient_id' => $clientUser->id,
+                                    'recipient_email' => $clientUser->email,
                                 ]);
-
 
                                 $clientMessages = $messages;
 
                                 $clientMessages['comment_id'] = $ticket->id;
-
+                                $clientMessages['recipient_email'] = $clientUser->email;
 
                                 $clientUser->notify(
                                     new TicketNotification(
@@ -947,10 +978,11 @@ class TicketsController extends Controller
                                     )
                                 );
                             }
-
-
                             // Secondary email - do not store Message-ID
-                            if (!empty($secondaryEmail)) {
+                           if (
+                                !empty($secondaryEmail) &&
+                                strtolower(trim($secondaryEmail)) !== strtolower(trim($currentUser->email))
+                            ) {
 
                                 $secondaryMessages = $messages;
 
@@ -966,7 +998,10 @@ class TicketsController extends Controller
 
 
                             // Additional email - do not store Message-ID
-                            if (!empty($additionalEmail)) {
+                            if (
+                                    !empty($additionalEmail) &&
+                                    strtolower(trim($additionalEmail)) !== strtolower(trim($currentUser->email))
+                                ) {
 
                                 $additionalMessages = $messages;
 
@@ -1068,22 +1103,6 @@ class TicketsController extends Controller
             ->where('status', '!=', 0)
             ->orderBy('first_name')
             ->get();
-
-        // $CommentsData = TicketComments::with([
-        //                 'user',
-        //                 'pinnedByUser'
-        //                 ])
-        //                 ->leftJoin('comment_status as cs', 'ticket_comments.id', '=', 'cs.comment_id')
-        //                 ->leftJoin('users as u', 'cs.acknowledged_by', '=', 'u.id')
-        //                 ->select(
-        //                     'ticket_comments.*',
-        //                     'cs.status',
-        //                     'cs.acknowledged_by',
-        //                     'u.first_name as ack_user_name'
-        //                 )
-        //                 ->where('ticket_comments.ticket_id', $ticketId)
-        //                 ->orderBy('ticket_comments.created_at', 'asc')
-        //                 ->get();
 
 
         $CommentsData = TicketComments::with([
