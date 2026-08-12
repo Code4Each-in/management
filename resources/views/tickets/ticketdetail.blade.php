@@ -1230,10 +1230,15 @@
                                                                 {{ $projectName ?? 'Project Not Assigned' }}
                                                             @else
                                                                 Code4Each
+
                                                             @endif
 
                                                         </span>
-
+                                                        <span class="comment-status">
+                                                            @if ($data->user->role_id != 6 && $data->comment_source === 'email')
+                                                                <span class="ms-1" style="font-size: 11px; color: #888;">Replied from Mail</span>
+                                                            @endif
+                                                        </span>
                                                         {{-- EDITED --}}
                                                         @if($data->updated_at && $data->updated_at != $data->created_at)
 
