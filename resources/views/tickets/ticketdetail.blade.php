@@ -503,7 +503,29 @@
     overflow-x: auto;
     white-space: nowrap;
   }
+#ticketTodoModal{
+    margin-top: 25%;
+}
+   .modal-footer.d-flex {
+        flex-direction: column-reverse;
+    }
 
+    .modal-footer .btn {
+        width: 100%;
+        min-width: 0;
+    }
+    .modal-header .btn-close {
+        position: absolute !important;
+        right: 10px !important;
+        top: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding: 8px !important;
+        width: 20px !important;
+        height: 20px;
+        z-index: 10;
+    }
   .tickettasks {
     display: block;
     width: 100%;
@@ -647,7 +669,14 @@
   .chat-container {
     height: 360px !important;
   }
+   .modal-footer.d-flex {
+        flex-direction: column-reverse;
+    }
 
+    .modal-footer .btn {
+        width: 100%;
+        min-width: 0;
+    }
   .message .avatar,
   .reply-avatar img,
   .avatar-fallback {
