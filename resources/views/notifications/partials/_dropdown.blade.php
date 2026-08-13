@@ -4,7 +4,7 @@
         <span class="badge bg-primary badge-number view-all-notifications"
               @if($unreadCount == 0) style="display: none;" @endif>
             &#8226;
-        </span>  
+        </span>
     @endif
 </a>
 
@@ -28,12 +28,12 @@
                     default => 'bi-info-circle text-secondary'
                 };
             @endphp
-        
+
             <i class="bi {{ $icon }}"></i>
             <a href="{{ url('/view/ticket/'.$notif->ticket_id) }}"
                 class="text-decoration-none text-dark mark-notification-read"
                 data-id="{{ $notif->id }}"
-                data-ticket-url="{{ url('/view/ticket/'.$notif->ticket_id) }}">                 
+                data-ticket-url="{{ url('/view/ticket/'.$notif->ticket_id) }}">
                 <div>
                     <h4>{{ ucfirst(str_replace('_', ' ', $notif->type)) }}</h4>
                     <p>{{ $notif->message }}</p>
@@ -41,7 +41,7 @@
                 </div>
             </a>
         </li>
-                    
+
 
             <li><hr class="dropdown-divider"></li>
         @empty
@@ -53,25 +53,24 @@
         <li class="dropdown-footer">
             <a href="{{ route('notifications.all') }}" target="_blank">Show all notifications</a>
         </li>
-    </ul><!-- End Notification Dropdown Items -->
-</li>
+    </ul>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const notificationsWrapper = document.querySelector('.notifications');
 
     if (notificationsWrapper) {
         notificationsWrapper.addEventListener('click', function (e) {
-          
+
             const target = e.target.closest('.mark-notification-read');
             if (!target) return;
 
-           
+
             if (target.closest('.notification-item').classList.contains('read')) return;
 
-            e.preventDefault(); 
+            e.preventDefault();
 
             const notifId = target.dataset.id;
-            const redirectUrl = target.dataset.ticketUrl; 
+            const redirectUrl = target.dataset.ticketUrl;
 
             fetch(`/notifications/mark-as-read/${notifId}`, {
                 method: 'POST',
@@ -90,10 +89,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         notificationItem.classList.remove('unread');
                         notificationItem.classList.add('read');
                     }
-                    location.reload(true); 
+                    location.reload(true);
                     setTimeout(() => {
                         window.location.href = redirectUrl;
-                    }, 500); 
+                    }, 500);
                 }
             })
             .catch(error => {
@@ -108,26 +107,26 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('DOMContentLoaded', function () {
         const viewAllBtn = document.getElementById('view-all-notifications');
         const counterEl = document.getElementById('notification-counter');
-    
+
         if (viewAllBtn && counterEl) {
             viewAllBtn.addEventListener('click', function () {
-                
+
                 counterEl.textContent = '0';
-                
+
             });
         }
     });
     </script>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const viewAllBtns = document.querySelectorAll('.view-all-notifications');
             const counterEl = document.getElementById('notification-counter');
-        
+
             viewAllBtns.forEach(btn => {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
-        
+
                     fetch("{{ route('notifications.markAllRead') }}", {
                         method: 'POST',
                         headers: {
@@ -141,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     .then(data => {
                         if (data.success) {
                             if (counterEl) {
-                                counterEl.textContent = '0'; 
+                                counterEl.textContent = '0';
                             }
                             window.open("{{ route('notifications.all') }}", '_blank');
                         }
@@ -153,5 +152,4 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         });
-        </script>        
-        
+        </script>

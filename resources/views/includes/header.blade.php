@@ -73,18 +73,18 @@
                     }}
                 </span>
             </div>
-            @if (auth()->user()->role_id != 6)
-                <div id="notificationDropdown">
+            <!-- @if (auth()->user()->role_id != 6)
+               <div id="notificationDropdown">
                     @include('notifications.partials._dropdown')
                 </div>
-                @endif
+                @endif -->
             <ul class="d-flex align-items-center">
 
-                <li class="nav-item d-block d-none">
+                <!-- <li class="nav-item d-block d-none">
                     <a class="nav-link nav-icon search-bar-toggle " href="#">
                         <i class="bi bi-search"></i>
                     </a>
-                </li><!-- End Search Icon-->
+                </li> -->
                 @php
                     $gender = strtolower(auth()->user()->gender ?? '');
                 @endphp

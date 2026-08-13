@@ -218,147 +218,8 @@
     background: #fbbc04 !important;
     color: #111827 !important;
 }
-
-.message .user {
-  display: flex !important;
-  align-items: flex-start !important;
-  flex-wrap: nowrap !important;
-  gap: 10px !important;
-}
-
-.message .user .avatar {
-  flex: 0 0 auto !important;
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  border-radius: 50% !important;
-  overflow: hidden !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.message .user .avatar img {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-  object-fit: cover !important;
-  border-radius: 50% !important;
-}
-
-.message .user .d-flex.align-items-center.w-100 {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  flex-wrap: wrap !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-}
-
-.message .user .d-flex.align-items-center.w-100 > div:first-child {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-
-.message .name {
-  display: inline-block !important;
-  font-weight: 700 !important;
-}
-
-.message .role {
-  display: inline-block !important;
-  width: fit-content !important;
-  background: #eef1f6 !important;
-  padding: 2px 10px !important;
-  border-radius: 10px !important;
-  margin: 0 !important;
-  font-size: 11.5px !important;
-}
-
-.message .ms-auto {
-  flex: 0 0 auto !important;
-  align-self: flex-start !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-
-/* ---- Reply card base layout ---- */
-.reply-wrapper {
-  display: flex !important;
-  align-items: stretch !important;
-  gap: 8px !important;
-  flex-wrap: nowrap !important;
-  margin-top: 10px !important;
-}
-
-.reply-arrow {
-  flex: 0 0 20px !important;
-  width: 20px !important;
-  max-width: 20px !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: center !important;
-  padding-top: 12px !important;
-  margin: 0 !important;
-}
-
-.reply-card {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  max-width: calc(100% - 28px) !important;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-
-.reply-top {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 8px !important;
-}
-
-.reply-avatar {
-  flex: 0 0 auto !important;
-}
-
-.reply-avatar img,
-.reply-avatar .avatar-fallback {
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px !important;
-  border-radius: 50% !important;
-}
-
-.reply-content {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-}
-
-.reply-header {
-  display: flex !important;
-  align-items: baseline !important;
-  flex-wrap: wrap !important;
-  gap: 6px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-}
-
-.reply-time {
-  font-size: 11px !important;
-  font-weight: 400 !important;
-  color: #94a3b8 !important;
-}
-
-.reply-text {
-  overflow-wrap: break-word !important;
-}
+</style>
+<style>
 @media screen and (max-width: 1199px) {
   .modal-lg {
     max-width: 90%;
@@ -371,13 +232,13 @@
 @media screen and (max-width: 991px) {
 
   /* Action buttons row */
-  .action_btn {
+  /* .action_btn {
     gap: 8px !important;
   }
   .action_btn .btn {
     font-size: 14px;
     padding: 8px 14px;
-  }
+  } */
 
   /* Task card */
   .task-card .task-header {
@@ -423,15 +284,41 @@
 @media screen and (max-width: 768px) {
 
   /* ---- Action buttons ---- */
-  .action_btn {
+  /* .action_btn {
     flex-direction: column;
     align-items: stretch !important;
+  } */
+  .reply-btn-inside{
+    padding: 20px !important;
+        position: absolute !important;
+    right: 10px !important;
+    bottom: 4px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    display: inline-block;
+    color: #6b7280;
+    width: 0 !important;
   }
-  .action_btn .btn,
+     .action_btn-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .action_btn-grid .btn {
+        width: 100%;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+  /* .action_btn .btn,
   .action_btn a {
     width: 100%;
     text-align: center;
-  }
+  } */
 
   /* ---- Task card ---- */
   .task-header {
@@ -503,9 +390,9 @@
     overflow-x: auto;
     white-space: nowrap;
   }
-#ticketTodoModal{
-    margin-top: 25%;
-}
+    #ticketTodoModal{
+        margin-top: 25%;
+    }
    .modal-footer.d-flex {
         flex-direction: column-reverse;
     }
@@ -571,7 +458,11 @@
 
   .message {
     padding: 8px !important;
+    margin: 5px !important;
   }
+      .d-flex.flex-wrap.gap-3 {
+        gap: 10px !important;
+    }
   .message .name {
     font-size: 13px;
   }
@@ -608,11 +499,11 @@
   .reply-text {
     font-size: 12.5px;
   }
-.reply-text {
-  overflow-wrap: break-word !important;
-  word-break: break-word !important;
-  line-height: 1.5 !important;
-}
+    .reply-text {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    line-height: 1.5 !important;
+    }
   #toolbar-container {
     display: flex;
     flex-wrap: wrap;
@@ -639,6 +530,11 @@
   .upload_chat input[type="file"] {
     width: 100%;
   }
+}
+@media screen and (max-width: 380px) {
+    .action_btn-grid {
+        grid-template-columns: 1fr;
+    }
 }
 @media screen and (max-width: 576px) {
 
@@ -741,7 +637,7 @@
   }
 }
 </style>
-<div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
+<div class="action_btn action_btn-grid mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
     @if(!empty($tickets->sprint_id))
         <a href="{{ route('sprint.view', $tickets->sprint_id) }}" class="btn btn-primary">
