@@ -664,8 +664,25 @@
         font-size: 24px;
         margin-left: 8px;
     }
+
+    /* CHANGED: keep the dot, hide only the text */
     .company-status {
+        display: flex !important;
+        align-items: center;
+        gap: 0;
+        max-width: none;
+    }
+
+    .company-status .status-text {
         display: none;
+    }
+
+    .company-status .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+        margin: 0 6px;
     }
 
     #header .header-nav {

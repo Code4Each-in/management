@@ -110,9 +110,9 @@ use Carbon\Carbon;
         gap: 0.6rem;
       }
       .reminder-content {
-        display:block;
-        gap: 0.3rem;
-    }
+            display:block;
+            gap: 0.3rem;
+        }
       .reminder-icon {
         font-size: 1.2rem;
         margin-top: 0;
@@ -120,6 +120,9 @@ use Carbon\Carbon;
 
       .reminder-text {
         font-size: 0.95rem;
+      }
+      #ShowLeaves{
+        margin-top: 25%;
       }
     }
     .main-deiv {
@@ -250,7 +253,7 @@ use Carbon\Carbon;
 
 
 @media screen and (max-width: 768px) {
-
+/*
     .container {
         max-width: 100%;
     }
@@ -279,21 +282,26 @@ use Carbon\Carbon;
         min-width: 140px;
         text-align: center;
     }
-
+*/
 
     .info-card .card-title {
         font-size: 18px !important;
     }
-
+/*
     .hover-clr-white {
         min-height: 42px;
     }
 
-
-    .container.mb-4 .row > .col-md-6,
-    .container.mb-4 .row > .col-md-3 {
+*/
+    .container.mb-4 .row > .col-md-6 {
         width: 100%;
         max-width: 100%;
+        flex: 0 0 100%;
+        margin-bottom: 15px;
+    }
+    .container.mb-4 .row > .col-md-3 {
+        width: 50%;
+        max-width: 50%;
         flex: 0 0 100%;
         margin-bottom: 15px;
     }
@@ -301,7 +309,7 @@ use Carbon\Carbon;
     .kpi-card {
         width: 100%;
     }
-
+/*
     .card[style*="max-width: 280px"] {
         max-width: 100% !important;
     }
@@ -317,18 +325,35 @@ use Carbon\Carbon;
         margin-left: 0;
         margin-right: 0;
     }
-
+*/
     .dashboard .col-xxl-4,
     .dashboard .col-md-6,
     .dashboard .col-md-8,
     .dashboard .col-md-4,
     .dashboard .col-md-12 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
+        width: 50%;
+        max-width: 50%;
+        flex: 0 0 50%;
         margin-bottom: 15px;
     }
-
+        .upcoming-holiday-alert {
+        position: relative;
+        padding-right: 45px !important;
+        line-height: 1.5;
+    }
+        .upcoming-holiday-alert .btn-close {
+        position: absolute !important;
+        right: 10px !important;
+        top: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding: 8px !important;
+        width: 20px;
+        height: 20px;
+        z-index: 10;
+    }
+/*
     .dashboard .card-body .col-md-3 {
         width: 25%;
         flex: 0 0 25%;
@@ -518,16 +543,23 @@ use Carbon\Carbon;
 
     .btn {
         white-space: normal;
+        font-size: 11px;
     }
 
+} */
 }
-@media (max-width: 575px) {
+    @media (max-width: 575px) {
     .upcoming-holiday-alert {
         position: relative;
         padding-right: 45px !important;
         line-height: 1.5;
     }
-
+    .dashboard .col-xxl-4, .dashboard .col-md-6, .dashboard .col-md-8, .dashboard .col-md-4, .dashboard .col-md-12 {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+        margin-bottom: 15px;
+    }
     .upcoming-holiday-alert .btn-close {
         position: absolute !important;
         right: 10px !important;
@@ -540,6 +572,479 @@ use Carbon\Carbon;
         height: 20px;
         z-index: 10;
     }
+}
+@media screen and (max-width: 1400px) {
+  .msg-design {
+    max-height: 340px;
+    overflow-y: auto;
+  }
+}
+
+/* ---------------- SMALL DESKTOP / LARGE TABLET (max-width: 1199px) ---------------- */
+@media screen and (max-width: 1199px) {
+
+  .kpi-card {
+    padding: 14px;
+  }
+
+  .kpi-value {
+    font-size: 18px !important;
+  }
+
+  .comment-section .col-lg-6 {
+    margin-bottom: 1.25rem;
+  }
+
+  .accordion-body {
+    max-height: 260px !important;
+  }
+}
+
+/* ---------------- TABLET (max-width: 991px) ---------------- */
+@media screen and (max-width: 991px) {
+
+  /* Welcome / Quick actions */
+  .info-card .card-body {
+    padding: 1.25rem !important;
+  }
+
+  .info-card h4.fw-bold {
+    font-size: 18px !important;
+  }
+
+  /* Ticket summary + welcome stack full width already via col-lg,
+     just tighten spacing */
+  .col-lg-4 .card-body .d-flex.justify-content-between {
+    font-size: 14px;
+  }
+
+  /* Announcements + KPI row */
+  .announcement-wrapper,
+  .kpi-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Attendance timer card */
+  .col-md-3 .card[style*="max-width"] {
+    max-width: 100% !important;
+    /* margin-top: 30px; */
+  }
+
+  /* Employees / Clients columns stack side by side until 768px */
+  .msg-design {
+    max-height: 280px;
+    overflow-y: auto;
+  }
+/*
+  .msg-avatar-img,
+  .msg-avatar-initial {
+    width: 42px !important;
+    height: 42px !important;
+  } */
+
+  /* Acknowledgement accordions */
+  .accordion-button {
+    font-size: 14px !important;
+  }
+
+  /* Tables */
+  .table-responsive,
+  table.datatable,
+  .tickettasks,
+  .teamstasks {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sticky notes grid */
+  .notes-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  }
+}
+
+/* ---------------- TABLET PORTRAIT / LARGE PHONE (max-width: 768px) ---------------- */
+@media screen and (max-width: 768px) {
+
+  /* ===== Welcome card + Quick Actions ===== */
+  .info-card .card-body {
+    padding: 1rem !important;
+  }
+
+  .info-card h4.fw-bold {
+    font-size: 17px !important;
+  }
+
+  .info-card p.text-muted {
+    font-size: 13.5px !important;
+  }
+
+  /* .d-flex.flex-wrap.gap-3 {
+    flex-direction: column;
+  }
+
+  .d-flex.flex-wrap.gap-3 .btn {
+    width: 100%;
+    text-align: center;
+  } */
+    .d-flex.flex-wrap.gap-3 {
+        gap: 10px !important;
+    }
+
+    .d-flex.flex-wrap.gap-3 .btn {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 140px;
+        text-align: center;
+    }
+  /* ===== Ticket Summary badges ===== */
+  .col-lg-4 .card-body .d-flex.justify-content-between {
+    flex-wrap: wrap;
+  }
+
+  /* ===== Reminder box ===== */
+  .reminder-box .main-deiv {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 8px;
+  }
+
+  .reminder-box .main-reminder-desc {
+    flex-direction: column;
+  }
+
+  /* ===== Announcements + KPI card row ===== */
+  .announcement-wrapper,
+  .kpi-card {
+    margin-bottom: 1rem;
+  }
+
+    .kpi-card {
+        width: 100%;
+    }
+  .kpi-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 26px;
+  }
+
+  .kpi-icon {
+    margin-bottom: 6px;
+  }
+
+  /* ===== Attendance timer card ===== */
+  #timerBox .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start !important;
+  }
+
+  /* ===== Sales / Revenue / Leaves summary cards ===== */
+  .info-card.sales-card .card-body,
+  .info-card.revenue-card .card-body {
+    padding: 1rem !important;
+  }
+
+  .leavesMemberCont {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ===== Employees / Clients message cards ===== */
+  .main-chat-container .row.g-4 > [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  .msg-design {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .msg-card {
+    padding: 10px !important;
+  }
+
+  /* .msg-avatar-img,
+  .msg-avatar-initial {
+    width: 38px !important;
+    height: 38px !important;
+  } */
+
+  .msg-name {
+    font-size: 13.5px;
+  }
+
+  /* ===== Birthday/Anniversary block ===== */
+  .col-md-3.mb-2,
+  .col-md-9.mt-2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left;
+  }
+
+  /* ===== Comment / acknowledgement accordions ===== */
+  .comment-section .col-lg-6,
+  .comment-section .col-md-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  .accordion-button {
+    font-size: 13px !important;
+    padding: 0.6rem 0.8rem !important;
+  }
+
+  .accordion-body {
+    font-size: 13px !important;
+    max-height: 240px !important;
+  }
+
+  .comment-section h4.projectComment {
+    font-size: 17px;
+  }
+
+  /* ===== Tables (leaves, devices, todos, attendance, projects) ===== */
+  .table-responsive,
+  table.table,
+  table.datatable,
+  .tickettasks,
+  .teamstasks {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table thead th,
+  .table tbody td {
+    white-space: nowrap;
+    font-size: 12.5px;
+  }
+
+  /* ===== Task head (Todo list header) ===== */
+  .task-head {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 10px;
+  }
+
+  .task-head a.btn,
+  .task-head .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ===== Upcoming holidays / events / birthdays ===== */
+  .upcoming-holidays .post-item h4,
+  .upcoming-events .post-item h4 {
+    font-size: 14px !important;
+  }
+
+  .upcoming-holidays .post-item p,
+  .upcoming-events .post-item p {
+    font-size: 13px;
+  }
+
+  /* ===== Modals (leaves list, vote confirm) ===== */
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .leaveUserContainer {
+    align-items: center;
+  }
+
+  .leaveUserContainer img {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  /* ===== Sticky Notes ===== */
+  .sticky-heading {
+    font-size: 18px !important;
+  }
+
+  .notes-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  /* ===== Projects list table actions ===== */
+  td a i.fa {
+    font-size: 15px;
+  }
+
+  /* ===== Missing attendance table ===== */
+  #leavesss {
+    font-size: 13px;
+  }
+}
+
+/* ---------------- MOBILE (max-width: 576px) ---------------- */
+@media screen and (max-width: 576px) {
+
+  .info-card h4.fw-bold {
+    font-size: 16px !important;
+  }
+
+  .action_btn .btn,
+  .d-flex.flex-wrap.gap-3 .btn {
+    font-size: 13.5px;
+    padding: 8px 12px;
+  }
+
+  /* Ticket summary badges */
+  .col-lg-4 .card-body h5.card-title {
+    font-size: 15px;
+  }
+
+  .col-lg-4 .card-body .badge {
+    font-size: 12px;
+    padding: 6px 10px !important;
+  }
+
+  /* Reminder */
+  .reminder-box h5 {
+    font-size: 14px;
+  }
+
+  .reminder-text {
+    font-size: 13px;
+  }
+
+  /* KPI */
+  .kpi-label {
+    font-size: 13px;
+  }
+
+  .kpi-value {
+    font-size: 16px !important;
+  }
+
+  .kpi-sub {
+    font-size: 11.5px;
+  }
+
+  /* Announcements */
+  .announcement-header {
+    font-size: 14px;
+  }
+
+  .announcement-title {
+    font-size: 13.5px;
+  }
+
+  .announcement-desc {
+    font-size: 12.5px;
+  }
+
+  /* Sales/revenue mini cards */
+  .info-card .card-title {
+    font-size: 14px;
+  }
+
+  .info-card .card-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+
+  .info-card h6 {
+    font-size: 16px;
+  }
+
+  /* Employees/Clients */
+  .msg-section-title {
+    font-size: 14px;
+  }
+/*
+  .msg-avatar-img,
+  .msg-avatar-initial {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+  } */
+
+  .msg-name {
+    font-size: 13px;
+  }
+
+  /* Accordions */
+  .accordion-button {
+    font-size: 12.5px !important;
+    padding: 0.5rem 0.7rem !important;
+  }
+
+  .accordion-body {
+    max-height: 200px !important;
+    padding: 0.75rem !important;
+  }
+
+  .notification-entry small {
+    font-size: 12px;
+  }
+
+  /* Vote / birthday cards */
+  .upcoming-events .post-item h4,
+  .upcoming-holidays .post-item h4 {
+    font-size: 13px !important;
+  }
+
+  /* Sticky notes */
+  .notes-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .sticky-heading {
+    font-size: 16px !important;
+  }
+
+  /* Modal */
+  .modal-title {
+    font-size: 15px;
+  }
+
+  .leaveUserContainer img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+/* ---------------- VERY SMALL PHONES (max-width: 400px) ---------------- */
+@media screen and (max-width: 400px) {
+
+  .info-card h4.fw-bold {
+    font-size: 15px !important;
+  }
+
+  .d-flex.flex-wrap.gap-3 .btn {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .accordion-button {
+    font-size: 12px !important;
+  }
+
+  /* .msg-avatar-img,
+  .msg-avatar-initial {
+    width: 30px !important;
+    height: 30px !important;
+  } */
+
+  .notes-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    font-size: 11.5px !important;
+  }
 }
 </style>
 
@@ -897,11 +1402,11 @@ use Carbon\Carbon;
     </div>
     <div class="col-lg-4 dashboard" style="margin-top: 20px ">
         <!-- Recent Activity -->
+    @if(count($userBirthdate)!=0)
 
         <div class="card">
             <div class="filter">
             </div>
-            @if(count($userBirthdate)!=0)
             <div class="card-body">
                 <h5 class="card-title"> Birthday/Anniversary</h5>
                 <div class="row mb-2">
@@ -939,9 +1444,10 @@ use Carbon\Carbon;
                     @endif
                 </div>
             </div>
-            @endif
+
 
         </div>
+    @endif
     </div>
 </div>
 <!-- acknowledgement -->
@@ -1398,57 +1904,58 @@ use Carbon\Carbon;
 
     <div class="row">
         <div class="col-md-8 dashboard">
-            <div class="card recent-sales overflow-auto">
-                <div class="filter">
-                </div>
             @if($userLeaves->isNotEmpty())
-                <div class="card-body">
-                    <h5 class="card-title">Teams Leave</h5>
-                    <table class="table table-borderless datatable" id="leavesss">
-                        <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">From</th>
-                                <th scope="col">To</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Status</th>
 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($userLeaves as $data)
-                            @if($data->status == 1)
-                            <tr>
-                                <td>{{ $data->first_name}}</td>
-                                <td>{{date("d-M-Y", strtotime($data->from));}}</td>
-                                <td>{{date("d-M-Y", strtotime($data->to));}}</td>
-                                <td>{{$data->type }}</td>
-                                <td>
-                                    @php
-                                    $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
-                                    @endphp
-                                    @if($data->leave_status == 'approved')
-                                    <span class="badge rounded-pill approved">Approved</span>
-                                    @elseif($data->leave_status == 'declined')
-                                    <span class="badge rounded-pill denied">Declined</span>
-                                    @else
-                                    <span class="badge rounded-pill requested">Requested</span>
-                                    @endif
-                                    @if (!empty($leaveStatusData))
-                                    <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
-                                        {{ $leaveStatusData->first_name ?? '' }}
-                                    </p>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endif
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="card recent-sales overflow-auto">
+                    <div class="filter">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Teams Leave</h5>
+                        <table class="table table-borderless datatable" id="leavesss">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">From</th>
+                                    <th scope="col">To</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Status</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($userLeaves as $data)
+                                @if($data->status == 1)
+                                <tr>
+                                    <td>{{ $data->first_name}}</td>
+                                    <td>{{date("d-M-Y", strtotime($data->from));}}</td>
+                                    <td>{{date("d-M-Y", strtotime($data->to));}}</td>
+                                    <td>{{$data->type }}</td>
+                                    <td>
+                                        @php
+                                        $leaveStatusData = $leaveStatus->where('leave_id', $data->id)->first();
+                                        @endphp
+                                        @if($data->leave_status == 'approved')
+                                        <span class="badge rounded-pill approved">Approved</span>
+                                        @elseif($data->leave_status == 'declined')
+                                        <span class="badge rounded-pill denied">Declined</span>
+                                        @else
+                                        <span class="badge rounded-pill requested">Requested</span>
+                                        @endif
+                                        @if (!empty($leaveStatusData))
+                                        <p class="small mt-1" style="font-size: 11px;font-weight:600; margin-left:6px;"> By:
+                                            {{ $leaveStatusData->first_name ?? '' }}
+                                        </p>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
+                                @empty
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                @endif
-            </div>
+            @endif
             <div class="row">
                 @if (count($assignedDevices )> 0 && auth()->user()->role->name != 'Super Admin')
                 <div class="col-md-12 dashboard">
