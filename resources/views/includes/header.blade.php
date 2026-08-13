@@ -371,7 +371,7 @@
 </li>
 @endif
 
-@if(auth()->user()->role->name == 'Super Admin')    
+@if(auth()->user()->role->name == 'Super Admin')
 <li class="nav-item">
     <a class="nav-link {{ request()->is('templates*','sendTemplate*') ? '' : 'collapsed' }}"
        data-bs-target="#templates-nav" data-bs-toggle="collapse" href="#">
@@ -379,7 +379,7 @@
         <i class="bi bi-chevron-down ms-auto"></i>
     </a>
 
-    <ul id="templates-nav" 
+    <ul id="templates-nav"
         class="nav-content collapse {{ request()->is('templates*','mailtoclient*') ? 'show' : '' }}"
         data-bs-parent="#sidebar-nav">
         <li>
@@ -433,6 +433,279 @@
 
 </ul>
 </aside>
+<style>
+
+@media screen and (max-width: 768px) {
+
+
+    #header {
+        height: 60px;
+        padding: 0 12px;
+        z-index: 9999;
+    }
+
+    /* Logo area */
+    #header > .d-flex.align-items-center.justify-content-between {
+        min-width: auto;
+        gap: 8px;
+    }
+
+    #header .logo img {
+        max-width: 270px;
+        height: auto;
+    }
+
+    /* Sidebar toggle button */
+    .toggle-sidebar-btn {
+        font-size: 25px;
+        cursor: pointer;
+        margin-left: 3px;
+    }
+    .header-nav {
+        margin-left: auto !important;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Company status */
+    .company-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 135px;
+        overflow: hidden;
+    }
+
+    .company-status .status-text {
+        font-size: 15px;
+        line-height: 14px;
+        white-space: normal;
+    }
+
+    .company-status .status-indicator {
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+    }
+
+    /* Notification */
+    #notificationDropdown {
+        margin-right: 3px;
+    }
+
+    #notificationDropdown .nav-icon {
+        font-size: 20px;
+    }
+
+    /* Profile picture */
+    #header .picture {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Hide profile name on mobile */
+    .nav-profile .dropdown-toggle,
+    .nav-profile span {
+        display: none !important;
+    }
+
+    .nav-profile {
+        padding-left: 3px !important;
+    }
+    .header-alert {
+        position: fixed;
+        top: 65px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        z-index: 10000;
+        font-size: 13px;
+    }
+
+    #sidebar {
+        position: fixed;
+        top: 60px;
+        left: -280px;
+
+        width: 280px;
+        height: calc(100vh - 60px);
+
+        z-index: 9998;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        transition: left 0.3s ease;
+
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Sidebar OPEN */
+    body.toggle-sidebar #sidebar {
+        left: 0;
+    }
+
+    #sidebar .sidebar-nav {
+        padding-bottom: 30px;
+    }
+
+    #sidebar .nav-item {
+        width: 100%;
+    }
+
+    #sidebar .nav-link {
+        min-height: 45px;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    #sidebar .nav-link i {
+        font-size: 17px;
+    }
+
+    #sidebar .nav-content {
+        padding-left: 15px;
+    }
+
+    #sidebar .nav-content a {
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+
+    #main,
+    main,
+    .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    body.toggle-sidebar::before {
+        content: "";
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        background: rgba(0, 0, 0, 0.35);
+
+        z-index: 9997;
+    }
+
+    #header .dropdown-menu {
+        max-width: calc(100vw - 20px);
+    }
+
+    #header .dropdown-menu.profile {
+        min-width: 220px;
+    }
+}
+@media (max-width: 991px) {
+
+    #header.header {
+        height: 65px;
+        padding: 0 15px;
+    }
+
+    #header .logo {
+        height: 65px;
+        min-width: 150px;
+    }
+
+    #header .logo img {
+        width: 145px;
+        max-height: 48px;
+    }
+
+    #header .toggle-sidebar-btn {
+        margin-left: 8px;
+        font-size: 23px;
+    }
+
+    .company-status {
+        margin-right: 10px;
+    }
+
+    .status-text {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 575px) {
+
+    #header.header {
+        height: 62px;
+        padding: 0 10px;
+        width: 100%;
+    }
+
+    #header .logo {
+        min-width: 0;
+        width: auto;
+        height: 62px;
+        flex-shrink: 0;
+    }
+
+    #header .logo img {
+        width: 135px !important;
+        height: auto !important;
+        max-width: 135px;
+        max-height: 48px;
+        object-fit: contain;
+    }
+
+    #header .toggle-sidebar-btn {
+        font-size: 24px;
+        margin-left: 8px;
+    }
+    .company-status {
+        display: none;
+    }
+
+    #header .header-nav {
+        margin-left: auto;
+    }
+
+    #header #notificationDropdown {
+        margin-right: 8px;
+    }
+
+    #header .profile-name,
+    #header .nav-profile span {
+        display: none !important;
+    }
+
+    #header .js-profile-picture {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px;
+    }
+}
+@media (max-width: 375px) {
+
+    #header .logo img {
+        width: 115px !important;
+        max-width: 115px;
+    }
+
+    #header .toggle-sidebar-btn {
+        font-size: 22px;
+        margin-left: 5px;
+    }
+
+    #header .js-profile-picture {
+        width: 35px !important;
+        height: 35px !important;
+        min-width: 35px;
+    }
+}
+</style>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <script>

@@ -218,6 +218,499 @@
     background: #fbbc04 !important;
     color: #111827 !important;
 }
+
+.message .user {
+  display: flex !important;
+  align-items: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+}
+
+.message .user .avatar {
+  flex: 0 0 auto !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.message .user .avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+.message .user .d-flex.align-items-center.w-100 {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+.message .user .d-flex.align-items-center.w-100 > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.message .name {
+  display: inline-block !important;
+  font-weight: 700 !important;
+}
+
+.message .role {
+  display: inline-block !important;
+  width: fit-content !important;
+  background: #eef1f6 !important;
+  padding: 2px 10px !important;
+  border-radius: 10px !important;
+  margin: 0 !important;
+  font-size: 11.5px !important;
+}
+
+.message .ms-auto {
+  flex: 0 0 auto !important;
+  align-self: flex-start !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* ---- Reply card base layout ---- */
+.reply-wrapper {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  margin-top: 10px !important;
+}
+
+.reply-arrow {
+  flex: 0 0 20px !important;
+  width: 20px !important;
+  max-width: 20px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding-top: 12px !important;
+  margin: 0 !important;
+}
+
+.reply-card {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 28px) !important;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.reply-top {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+
+.reply-avatar {
+  flex: 0 0 auto !important;
+}
+
+.reply-avatar img,
+.reply-avatar .avatar-fallback {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  border-radius: 50% !important;
+}
+
+.reply-content {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.reply-header {
+  display: flex !important;
+  align-items: baseline !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.reply-time {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: #94a3b8 !important;
+}
+
+.reply-text {
+  overflow-wrap: break-word !important;
+}
+@media screen and (max-width: 1199px) {
+  .modal-lg {
+    max-width: 90%;
+  }
+
+  .chat-container {
+    padding: 8px !important;
+  }
+}
+@media screen and (max-width: 991px) {
+
+  /* Action buttons row */
+  .action_btn {
+    gap: 8px !important;
+  }
+  .action_btn .btn {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  /* Task card */
+  .task-card .task-header {
+    padding: 12px 14px;
+  }
+  .task-title h4 {
+    font-size: 16px;
+  }
+  .detail-item {
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+  .priority {
+    padding: 5px 20px !important;
+  }
+
+  /* Comment tabs */
+  .comment-tabs .nav-link {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  /* Chat / comments */
+  .chat-container,
+  #comments-pane .chat-container,
+  #pinned-pane .chat-container,
+  #updates-pane .chat-container {
+    height: 500px !important;
+  }
+
+  .message .avatar,
+  .reply-avatar img,
+  .avatar-fallback {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* Modals */
+  .modal-dialog {
+    max-width: 92%;
+  }
+}
+@media screen and (max-width: 768px) {
+
+  /* ---- Action buttons ---- */
+  .action_btn {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  .action_btn .btn,
+  .action_btn a {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ---- Task card ---- */
+  .task-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .task-icon {
+    font-size: 18px;
+  }
+  .task-title h4 {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .task-details {
+    padding: 10px !important;
+  }
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 4px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .detail-item i {
+    margin-bottom: 2px;
+  }
+  .detail-item .badge,
+  .detail-item .btn-sm {
+    margin: 4px 4px 0 0 !important;
+  }
+  .status-button {
+    width: 100%;
+    text-align: left;
+  }
+  .dropdown-menu.status-options {
+    width: 100%;
+  }
+
+  /* ---- Feedback / stars ---- */
+  .detail-item span[style*="align-items:center"] {
+    flex-wrap: wrap;
+  }
+
+  /* ---- Modals (all) ---- */
+  .modal-dialog,
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-dialog-centered {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+  .modal-header {
+    flex-wrap: wrap;
+    padding: 12px 14px !important;
+  }
+  .modal-body {
+    padding: 14px !important;
+  }
+  .modal-body .d-flex.gap-2 {
+    flex-direction: column;
+  }
+  .modal-body select,
+  .modal-body input,
+  .modal-body textarea {
+    width: 100% !important;
+  }
+  #showWorkLogs table,
+  .ticketTodoModal table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .tickettasks {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tickettasks th,
+  .tickettasks td {
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .tickettasks td .d-flex.gap-2 {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .comment-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 6px;
+  }
+
+  #commentTabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  #commentTabs .nav-item {
+    flex: 0 0 auto;
+  }
+  .comment-tabs .nav-link span {
+    font-size: 12.5px;
+  }
+  .comment-tabs .nav-link .badge {
+    font-size: 10px;
+  }
+
+  .chat-container {
+    height: 420px !important;
+    padding: 8px !important;
+  }
+
+  .message {
+    padding: 8px !important;
+  }
+  .message .name {
+    font-size: 13px;
+  }
+  .message .role {
+    font-size: 11px !important;
+  }
+  .message .info {
+    font-size: 11px;
+  }
+  .message .avatar {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px;
+  }
+  .comment-actions {
+    margin-left: 0 !important;
+    margin-top: 6px;
+  }
+  .message-box {
+    font-size: 13.5px;
+  }
+  .message-box .d-flex.justify-content-between {
+    flex-direction: column;
+  }
+  .message .ms-auto {
+    gap: 6px !important;
+    margin-top: 6px;
+  }
+  .no-response-toggle {
+    font-size: 10px !important;
+    padding: 2px 8px !important;
+  }
+
+  .reply-text {
+    font-size: 12.5px;
+  }
+.reply-text {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  line-height: 1.5 !important;
+}
+  #toolbar-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 6px !important;
+  }
+  #toolbar-container .ql-formats {
+    margin-right: 6px !important;
+  }
+  #editor,
+  #dailyUpdateEditor {
+    height: 200px !important;
+  }
+
+  .button-design {
+    display: flex;
+    justify-content: center !important;
+  }
+  .button-design .btncomment {
+    width: 100%;
+  }
+
+  .upload_chat input[type="file"] {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 576px) {
+
+  .task-title h4 {
+    font-size: 14px;
+  }
+
+  .detail-item {
+    font-size: 13px;
+  }
+
+  .priority {
+    font-size: 12px;
+    padding: 4px 14px !important;
+  }
+
+  .status-button {
+    font-size: 12px;
+  }
+
+  .modal-body .fa-star {
+    font-size: 22px !important;
+  }
+  .comment-tabs .nav-link {
+    padding: 6px 8px;
+  }
+
+  .chat-container {
+    height: 360px !important;
+  }
+
+  .message .avatar,
+  .reply-avatar img,
+  .avatar-fallback {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    font-size: 11px;
+  }
+
+  .message-box {
+    font-size: 13px;
+  }
+
+  .reply-arrow {
+    width: 16px !important;
+    flex: 0 0 16px !important;
+    padding-top: 10px !important;
+    font-size: 12px;
+  }
+ .reply-card {
+    max-width: calc(100% - 24px) !important;
+    padding: 8px 10px;
+  }
+.reply-card,
+.reply-content,
+.reply-text {
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: unset !important;
+  -webkit-line-clamp: unset !important;
+  display: block !important;
+  height: auto !important;
+  max-height: none !important;
+}
+  #editor,
+  #dailyUpdateEditor {
+    height: 160px !important;
+  }
+
+  #toolbar-container button,
+  #toolbar-container select {
+    transform: scale(0.9);
+  }
+
+  .btncomment {
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+  }
+}
+@media screen and (max-width: 400px) {
+  .task-icon {
+    display: none;
+  }
+  .detail-item strong {
+    font-size: 12.5px;
+  }
+  .comment-tabs .nav-link span {
+    display: none;
+  }
+  .comment-tabs .nav-link .badge {
+    margin-left: 2px !important;
+  }
+}
 </style>
 <div class="action_btn mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
