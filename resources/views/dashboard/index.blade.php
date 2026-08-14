@@ -301,7 +301,7 @@ use Carbon\Carbon;
     }
     .container.mb-4 .row > .col-md-3 {
         width: 50%;
-        max-width: 50%;
+        /* max-width: 50%; */
         flex: 0 0 100%;
         margin-bottom: 15px;
     }
@@ -353,6 +353,7 @@ use Carbon\Carbon;
         height: 20px;
         z-index: 10;
     }
+    
 /*
     .dashboard .card-body .col-md-3 {
         width: 25%;
@@ -553,7 +554,7 @@ use Carbon\Carbon;
         position: relative;
         padding-right: 45px !important;
         line-height: 1.5;
-        width: 88%;
+        width: 95%;
     }
     .dashboard .col-xxl-4, .dashboard .col-md-6, .dashboard .col-md-8, .dashboard .col-md-4, .dashboard .col-md-12 {
         width: 100%;
