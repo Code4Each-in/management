@@ -553,6 +553,7 @@ use Carbon\Carbon;
         position: relative;
         padding-right: 45px !important;
         line-height: 1.5;
+        width: 88%;
     }
     .dashboard .col-xxl-4, .dashboard .col-md-6, .dashboard .col-md-8, .dashboard .col-md-4, .dashboard .col-md-12 {
         width: 100%;
@@ -890,7 +891,13 @@ use Carbon\Carbon;
   .info-card h4.fw-bold {
     font-size: 16px !important;
   }
-
+.kpi-icon {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 16px;
+    opacity: 0.2;
+}
   .action_btn .btn,
   .d-flex.flex-wrap.gap-3 .btn {
     font-size: 13.5px;
@@ -993,7 +1000,18 @@ use Carbon\Carbon;
   .upcoming-holidays .post-item h4 {
     font-size: 13px !important;
   }
-
+    .modal-header .btn-close {
+        position: absolute !important;
+        right: 10px !important;
+        top: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding: 8px !important;
+        width: 20px !important;
+        height: 20px;
+        z-index: 10;
+    }
   /* Sticky notes */
   .notes-wrapper {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
