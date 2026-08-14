@@ -938,7 +938,7 @@ use Carbon\Carbon;
   }
 }
 
-}
+
 /* ---------------- MOBILE (max-width: 576px) ---------------- */
 @media screen and (max-width: 576px) {
 
