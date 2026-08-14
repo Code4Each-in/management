@@ -722,6 +722,12 @@
         min-width: 35px;
     }
 }
+@media screen and (max-width: 1024px) {
+  #header .logo img {
+    max-height: 48px !important;
+    width: 145px !important;
+    margin-right: 6px;
+} }
 </style>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

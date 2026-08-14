@@ -867,7 +867,13 @@ private function convertPlainTextToHtml(string $text): string
     if ($text === '') {
         return '';
     }
-
+    $text = preg_replace_callback(
+            '/(https?:\/\/[^\s]*?)\n(?=\S)/i',
+            function ($m) {
+                return $m[1];
+            },
+            $text
+        );
     /*
      * Dewrap lines that were auto-wrapped by the email client
      * (single newlines that are NOT part of a blank-line run).
@@ -912,18 +918,92 @@ private function convertPlainTextToHtml(string $text): string
             continue;
         }
 
-        $paragraph = htmlspecialchars(
-            $paragraph,
-            ENT_NOQUOTES | ENT_SUBSTITUTE,
-            'UTF-8'
-        );
-
+        // $paragraph = htmlspecialchars(
+        //     $paragraph,
+        //     ENT_NOQUOTES | ENT_SUBSTITUTE,
+        //     'UTF-8'
+        // );
+        $paragraph = $this->linkifyParagraph($paragraph);
         $paragraph = str_replace("\n", '<br>', $paragraph);
 
         $html .= '<p>' . $paragraph . '</p>';
     }
 
     return $html;
+}
+/**
+ * Escape a paragraph's text and turn bare URLs into clickable
+ * <a> links, without emitting unescaped user content.
+ */
+private function linkifyParagraph(string $paragraph): string
+{
+    $urls = [];
+
+    $withPlaceholders = preg_replace_callback(
+        '/\b((?:https?:\/\/|www\.)[^\s<>"\']+)/i',
+        function ($m) use (&$urls) {
+
+            $raw = $m[1];
+
+            // Strip trailing punctuation that's part of the sentence, not the URL
+            $trailing = '';
+
+            while (
+                $raw !== '' &&
+                preg_match('/[.,;:!?)\]}>]$/', $raw)
+            ) {
+                $trailing = substr($raw, -1) . $trailing;
+                $raw = substr($raw, 0, -1);
+            }
+
+            if ($raw === '') {
+                return $m[1];
+            }
+
+            $href = preg_match('/^https?:\/\//i', $raw)
+                ? $raw
+                : 'https://' . $raw;
+
+            $index = count($urls);
+
+            $urls[$index] = [
+                'href' => $href,
+                'label' => $raw,
+            ];
+
+            return "\x00LINK{$index}\x00" . $trailing;
+        },
+        $paragraph
+    );
+
+    $escaped = htmlspecialchars(
+        $withPlaceholders,
+        ENT_NOQUOTES | ENT_SUBSTITUTE,
+        'UTF-8'
+    );
+
+    foreach ($urls as $index => $url) {
+
+        $hrefEscaped = htmlspecialchars(
+            $url['href'],
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'UTF-8'
+        );
+
+        $labelEscaped = htmlspecialchars(
+            $url['label'],
+            ENT_NOQUOTES | ENT_SUBSTITUTE,
+            'UTF-8'
+        );
+
+        $anchor = '<a href="' . $hrefEscaped . '" target="_blank" rel="noopener noreferrer">'
+            . $labelEscaped
+            . '</a>';
+
+        $escaped = str_replace("\x00LINK{$index}\x00", $anchor, $escaped);
+    }
+
+    return $escaped;
 }
     /**
      * Save incoming attachments.
