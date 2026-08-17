@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Notifications\TicketNotification;
 use App\Models\TicketAssigns;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
+use App\Models\Client;
 
 class ProcessTicketReplies extends Command
 {
@@ -201,19 +202,92 @@ class ProcessTicketReplies extends Command
             |--------------------------------------------------------------------------
             */
 
-            $user = Users::where(
-                'email',
-                $from
-            )->first();
+$fromEmail = strtolower(trim($from));
 
-            if (!$user) {
+/*
+|--------------------------------------------------------------------------
+| First check primary user email
+|--------------------------------------------------------------------------
+*/
 
-                echo "User not found: "
-                    . $from
-                    . "\n";
+$user = Users::whereRaw(
+    'LOWER(TRIM(email)) = ?',
+    [$fromEmail]
+)->first();
 
-                continue;
-            }
+/*
+|--------------------------------------------------------------------------
+| If not found, check client secondary/additional email
+|--------------------------------------------------------------------------
+*/
+
+if (!$user) {
+
+    $client = Client::where(function ($query) use ($fromEmail) {
+
+        $query->whereRaw(
+            'LOWER(TRIM(secondary_email)) = ?',
+            [$fromEmail]
+        )
+        ->orWhereRaw(
+            'LOWER(TRIM(additional_email)) = ?',
+            [$fromEmail]
+        );
+
+    })->first();
+
+    if ($client) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get the actual portal user belonging to this client
+        |--------------------------------------------------------------------------
+        */
+
+        $user = Users::where(
+            'client_id',
+            $client->id
+        )->first();
+
+        if ($user) {
+
+            echo "Client matched using alternate email: "
+                . $from
+                . "\n";
+
+            \Log::info(
+                'Client matched using secondary/additional email',
+                [
+                    'email' => $from,
+                    'client_id' => $client->id,
+                    'user_id' => $user->id,
+                ]
+            );
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Still not found
+|--------------------------------------------------------------------------
+*/
+
+if (!$user) {
+
+    echo "User not found for email: "
+        . $from
+        . "\n";
+
+    \Log::warning(
+        'Incoming email sender not found',
+        [
+            'email' => $from,
+        ]
+    );
+
+    continue;
+}
 
             /*
             |--------------------------------------------------------------------------
@@ -940,12 +1014,17 @@ private function linkifyParagraph(string $paragraph): string
     $urls = [];
 
     $withPlaceholders = preg_replace_callback(
-        '/\b((?:https?:\/\/|www\.)[^\s<>"\']+)/i',
+        '/(?<![@\w])((?:(?:https?:\/\/|www\.)[a-z0-9.-]+\.[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)/i',
         function ($m) use (&$urls) {
 
             $raw = $m[1];
 
-            // Strip trailing punctuation that's part of the sentence, not the URL
+            /*
+            |--------------------------------------------------------------------------
+            | Remove punctuation accidentally captured after the URL
+            |--------------------------------------------------------------------------
+            */
+
             $trailing = '';
 
             while (
@@ -960,7 +1039,16 @@ private function linkifyParagraph(string $paragraph): string
                 return $m[1];
             }
 
-            $href = preg_match('/^https?:\/\//i', $raw)
+            /*
+            |--------------------------------------------------------------------------
+            | Add https:// when the user entered a bare domain
+            |--------------------------------------------------------------------------
+            */
+
+            $href = preg_match(
+                '/^https?:\/\//i',
+                $raw
+            )
                 ? $raw
                 : 'https://' . $raw;
 
@@ -976,11 +1064,23 @@ private function linkifyParagraph(string $paragraph): string
         $paragraph
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Escape normal text
+    |--------------------------------------------------------------------------
+    */
+
     $escaped = htmlspecialchars(
         $withPlaceholders,
         ENT_NOQUOTES | ENT_SUBSTITUTE,
         'UTF-8'
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Replace URL placeholders with anchors
+    |--------------------------------------------------------------------------
+    */
 
     foreach ($urls as $index => $url) {
 
@@ -996,11 +1096,18 @@ private function linkifyParagraph(string $paragraph): string
             'UTF-8'
         );
 
-        $anchor = '<a href="' . $hrefEscaped . '" target="_blank" rel="noopener noreferrer">'
+        $anchor =
+            '<a href="' . $hrefEscaped . '" '
+            . 'target="_blank" '
+            . 'rel="noopener noreferrer">'
             . $labelEscaped
             . '</a>';
 
-        $escaped = str_replace("\x00LINK{$index}\x00", $anchor, $escaped);
+        $escaped = str_replace(
+            "\x00LINK{$index}\x00",
+            $anchor,
+            $escaped
+        );
     }
 
     return $escaped;

@@ -985,7 +985,8 @@ class TicketsController extends Controller
                             ) {
 
                                 $secondaryMessages = $messages;
-
+                                $secondaryMessages['comment_id'] = $ticket->id;
+                                $secondaryMessages['recipient_email'] = $secondaryEmail;
                                 NotificationFacade::route('mail', $secondaryEmail)
                                     ->notify(
                                         new TicketNotification(
@@ -1004,6 +1005,9 @@ class TicketsController extends Controller
                                 ) {
 
                                 $additionalMessages = $messages;
+
+                                $additionalMessages['comment_id'] = $ticket->id;
+                                $additionalMessages['recipient_email'] = $additionalEmail;
 
                                 NotificationFacade::route('mail', $additionalEmail)
                                     ->notify(
