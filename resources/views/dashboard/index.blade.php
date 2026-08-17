@@ -301,7 +301,8 @@ use Carbon\Carbon;
     }
     .container.mb-4 .row > .col-md-3 {
         width: 50%;
-        max-width: 50%;
+        /* max-width: 50%; */
+        /* max-width: 50%; */
         flex: 0 0 100%;
         margin-bottom: 15px;
     }
@@ -353,6 +354,7 @@ use Carbon\Carbon;
         height: 20px;
         z-index: 10;
     }
+
 /*
     .dashboard .card-body .col-md-3 {
         width: 25%;
@@ -547,13 +549,63 @@ use Carbon\Carbon;
     }
 
 } */
+    .pagetitle h1 {
+    font-size: 24px;
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #012970;
+    /* align-items: center; */
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 20px !important;
+}
+}
+@media (max-width: 1199px) {
+    /* #main {
+     padding: 0 !important;
+    }
+    .row {
+     --bs-gutter-x: 0 !important;
+         padding-right: 0.5rem;
+    padding-left: 0.5rem;
+        }
+    .mb-4 {
+    margin-bottom: 1.5rem !important;
+
+    } */
 }
     @media (max-width: 575px) {
     .upcoming-holiday-alert {
         position: relative;
         padding-right: 45px !important;
         line-height: 1.5;
-        width: 88%;
+        width: 94%;
+    }
+    .main-chat-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .card-body {
+        padding: 0 !important;
+    }
+    .add-note {
+        width: 180px !important;
+        height: 180px !important;
+    }
+    .note {
+        width: 200px !important;
+    }
+        #main {
+     padding: 0 !important;
+    }
+    .row {
+     --bs-gutter-x: 0 !important;
+         padding-right: 0.5rem;
+    padding-left: 0.5rem;
+        }
+    .mb-4 {
+    margin-bottom: 1.5rem !important;
+
     }
     .dashboard .col-xxl-4, .dashboard .col-md-6, .dashboard .col-md-8, .dashboard .col-md-4, .dashboard .col-md-12 {
         width: 100%;
@@ -636,6 +688,7 @@ use Carbon\Carbon;
     max-height: 280px;
     overflow-y: auto;
   }
+
 /*
   .msg-avatar-img,
   .msg-avatar-initial {
@@ -884,6 +937,7 @@ use Carbon\Carbon;
     font-size: 13px;
   }
 }
+
 
 /* ---------------- MOBILE (max-width: 576px) ---------------- */
 @media screen and (max-width: 576px) {
