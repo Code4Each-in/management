@@ -694,6 +694,52 @@
         scrollbar-width: none;
     }
 }
+/* Tablet / mobile: 401px - 576px */
+@media screen and (min-width: 401px) and (max-width: 576px) {
+
+    .action_btn.action_btn-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .action_btn.action_btn-grid .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 8px 6px !important;
+        font-size: 12px !important;
+    }
+}
+
+
+/* Small mobile: 400px and below */
+@media screen and (max-width: 400px) {
+
+    .action_btn.action_btn-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .action_btn.action_btn-grid .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 7px 4px !important;
+        font-size: 11px !important;
+        white-space: nowrap;
+        text-align: center !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}
 </style>
 <div class="action_btn action_btn-grid mt-3 d-flex flex-wrap gap-2 align-items-center mb-3">
     {{-- Back To Sprint Button --}}
