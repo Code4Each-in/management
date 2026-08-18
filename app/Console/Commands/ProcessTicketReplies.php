@@ -302,7 +302,7 @@ if (!$user) {
 
 $htmlBody = $message->getHTMLBody();
 $plainBody = $message->getTextBody();
-
+\Log::info('RAW HTML BODY DEBUG', ['html' => $htmlBody]);
 if (!empty($htmlBody)) {
 
     /*
@@ -952,7 +952,7 @@ private function convertPlainTextToHtml(string $text): string
      * Dewrap lines that were auto-wrapped by the email client
      * (single newlines that are NOT part of a blank-line run).
      */
-    $text = preg_replace('/(?<!\n)\n(?!\n)/', ' ', $text);
+    // $text = preg_replace('/(?<!\n)\n(?!\n)/', ' ', $text);
 
     /*
     |--------------------------------------------------------------------------
@@ -1313,7 +1313,7 @@ private function linkifyParagraph(string $paragraph): string
             "\n",
             $html
         );
-
+        $html = preg_replace('/<blockquote\b[^>]*>.*?<\/blockquote>/is', '', $html);
         /*
         |--------------------------------------------------------------------------
         | Convert <br> into line breaks
@@ -1325,6 +1325,10 @@ private function linkifyParagraph(string $paragraph): string
             "\n",
             $html
         );
+        // $html = preg_replace('/<\/a>\s*<a\b/i', "</a>\n<a", $html);
+        $html = preg_replace('/<a\b/i', "\n<a", $html);
+        $html = preg_replace('/<\/a>/i', "</a>\n", $html);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1349,9 +1353,20 @@ private function linkifyParagraph(string $paragraph): string
         | Remove remaining HTML tags
         |--------------------------------------------------------------------------
         */
-
+        $html = preg_replace('/<img\b[^>]*>/i', '', $html);
         $text = strip_tags($html);
+        $text = html_entity_decode(
+            $text,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+        $text = str_replace('">', '', $text);
 
+        $text = preg_replace(
+            '/(?<!\n)(https?:\/\/.*?\.php)(?=https?:\/\/)/i',
+            "$1\n",
+            $text
+        );
         /*
         |--------------------------------------------------------------------------
         | Decode HTML entities
@@ -1366,18 +1381,18 @@ private function linkifyParagraph(string $paragraph): string
         |--------------------------------------------------------------------------
         */
 
-        $text = html_entity_decode(
-            $text,
-            ENT_QUOTES | ENT_HTML5,
-            'UTF-8'
-        );
+        // $text = html_entity_decode(
+        //     $text,
+        //     ENT_QUOTES | ENT_HTML5,
+        //     'UTF-8'
+        // );
 
         /*
         |--------------------------------------------------------------------------
         | Convert non-breaking spaces
         |--------------------------------------------------------------------------
         */
-
+        $text = preg_replace('/\x{FFFC}/u', '', $text);
         $text = str_replace(
             ["\xc2\xa0", "\u{00A0}"],
             ' ',
@@ -1419,7 +1434,7 @@ private function linkifyParagraph(string $paragraph): string
             "\n\n",
             $text
         );
-
+        $text = preg_replace('/^(.*)\n(?:\n)?\1$/m', '$1', $text);
         return trim($text);
     }
     /**
