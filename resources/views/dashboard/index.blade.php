@@ -253,46 +253,11 @@ use Carbon\Carbon;
 
 
 @media screen and (max-width: 768px) {
-/*
-    .container {
-        max-width: 100%;
-    }
-
-    .card-body {
-        padding: 18px !important;
-    }
-    .row.mb-4 > .col-lg-8,
-    .row.mb-4 > .col-lg-4 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
-
-    .row.mb-4 > .col-lg-4 {
-        margin-top: 15px;
-    }
-
-
-    .d-flex.flex-wrap.gap-3 {
-        gap: 10px !important;
-    }
-
-    .d-flex.flex-wrap.gap-3 .btn {
-        flex: 1 1 calc(50% - 10px);
-        min-width: 140px;
-        text-align: center;
-    }
-*/
 
     .info-card .card-title {
         font-size: 18px !important;
     }
-/*
-    .hover-clr-white {
-        min-height: 42px;
-    }
 
-*/
     .container.mb-4 .row > .col-md-6 {
         width: 100%;
         max-width: 100%;
@@ -310,23 +275,7 @@ use Carbon\Carbon;
     .kpi-card {
         width: 100%;
     }
-/*
-    .card[style*="max-width: 280px"] {
-        max-width: 100% !important;
-    }
 
-    .dashboard {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-        margin-top: 15px !important;
-    }
-
-    .dashboard .row {
-        margin-left: 0;
-        margin-right: 0;
-    }
-*/
     .dashboard .col-xxl-4,
     .dashboard .col-md-6,
     .dashboard .col-md-8,
@@ -355,200 +304,7 @@ use Carbon\Carbon;
         z-index: 10;
     }
 
-/*
-    .dashboard .card-body .col-md-3 {
-        width: 25%;
-        flex: 0 0 25%;
-    }
 
-    .dashboard .card-body .col-md-9 {
-        width: 75%;
-        flex: 0 0 75%;
-    }
-    .acknowledgement-section {
-        margin-left: 10px;
-        margin-right: 10px;
-        padding: 12px !important;
-    }
-
-    .acknowledgement-section .col-lg-6 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
-
-    .acknowledgement-section .accordion-body {
-        max-height: 350px !important;
-        overflow-y: auto;
-    }
-
-    .main-chat-container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    .main-chat-container .col-md-6 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-        margin-bottom: 15px;
-    }
-
-    .msg-group-card {
-        width: 100%;
-    }
-
-    .msg-design {
-        max-height: 350px;
-        overflow-y: auto;
-    }
-
-    .msg-card {
-        padding: 10px;
-    }
-
-    .comment-section {
-        margin-left: 10px;
-        margin-right: 10px;
-        overflow: hidden;
-    }
-
-    .comment-section .col-lg-6 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
-
-    .projectComment {
-        font-size: 19px;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .table {
-        min-width: 600px;
-        white-space: nowrap;
-    }
-
-    .tickettasks,
-    .teamstasks {
-        min-width: 600px;
-    }
-
-
-    #ticket-todos,
-    #ticket-todos .col-lg-12 {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    #ticket-todos .card-body {
-        overflow-x: auto;
-    }
-
-
-    .recent-sales {
-        width: 100%;
-    }
-
-    #leavesss,
-    #devices {
-        min-width: 600px;
-        white-space: nowrap;
-    }
-
-    .upcoming-events,
-    .upcoming-holidays {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-
-    .upcoming-events .card-body,
-    .upcoming-holidays .card-body {
-        padding: 15px !important;
-    }
-
-    .post-item h4 {
-        font-size: 15px;
-    }
-
-    .post-item p {
-        font-size: 13px;
-    }
-
-    .col-md-12.dashboard {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .col-lg-8,
-    .col-lg-4 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
-    .table-responsive table {
-        min-width: 600px;
-    }
-
-    .task-head {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .task-head h5 {
-        margin-bottom: 0;
-    }
-
-    .task-head a {
-        width: 100%;
-        text-align: center;
-    }
-
-    .stickyNotes {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .sticky-heading {
-        font-size: 20px;
-    }
-
-    .notes-wrapper {
-        width: 100%;
-    }
-    .modal-dialog {
-        width: calc(100% - 20px);
-        max-width: none;
-        margin: 10px auto;
-    }
-
-    .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-    .reminder-box {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .main-reminder-desc {
-        flex-direction: column;
-    }
-
-    .reminder-icon {
-        margin-bottom: 8px;
-    }
-
-    .btn {
-        white-space: normal;
-        font-size: 11px;
-    }
-
-} */
     .pagetitle h1 {
     font-size: 24px;
     margin-bottom: 0;
@@ -560,20 +316,7 @@ use Carbon\Carbon;
     margin-top: 20px !important;
 }
 }
-@media (max-width: 1199px) {
-    /* #main {
-     padding: 0 !important;
-    }
-    .row {
-     --bs-gutter-x: 0 !important;
-         padding-right: 0.5rem;
-    padding-left: 0.5rem;
-        }
-    .mb-4 {
-    margin-bottom: 1.5rem !important;
 
-    } */
-}
     @media (max-width: 575px) {
     .upcoming-holiday-alert {
         position: relative;
@@ -689,12 +432,6 @@ use Carbon\Carbon;
     overflow-y: auto;
   }
 
-/*
-  .msg-avatar-img,
-  .msg-avatar-initial {
-    width: 42px !important;
-    height: 42px !important;
-  } */
 
   /* Acknowledgement accordions */
   .accordion-button {
@@ -945,13 +682,13 @@ use Carbon\Carbon;
   .info-card h4.fw-bold {
     font-size: 16px !important;
   }
-.kpi-icon {
-    position: absolute;
-    top: 5px;
-    right: 8px;
-    font-size: 16px;
-    opacity: 0.2;
-}
+    .kpi-icon {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        font-size: 16px;
+        opacity: 0.2;
+    }
   .action_btn .btn,
   .d-flex.flex-wrap.gap-3 .btn {
     font-size: 13.5px;
@@ -1022,13 +759,6 @@ use Carbon\Carbon;
   .msg-section-title {
     font-size: 14px;
   }
-/*
-  .msg-avatar-img,
-  .msg-avatar-initial {
-    width: 34px !important;
-    height: 34px !important;
-    font-size: 12px !important;
-  } */
 
   .msg-name {
     font-size: 13px;
@@ -1102,13 +832,6 @@ use Carbon\Carbon;
   .accordion-button {
     font-size: 12px !important;
   }
-
-  /* .msg-avatar-img,
-  .msg-avatar-initial {
-    width: 30px !important;
-    height: 30px !important;
-  } */
-
   .notes-wrapper {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
   }
