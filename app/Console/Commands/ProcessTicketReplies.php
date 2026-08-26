@@ -202,161 +202,177 @@ class ProcessTicketReplies extends Command
             |--------------------------------------------------------------------------
             */
 
-$fromEmail = strtolower(trim($from));
+            $fromEmail = strtolower(trim($from));
 
-/*
-|--------------------------------------------------------------------------
-| First check primary user email
-|--------------------------------------------------------------------------
-*/
+            /*
+            |--------------------------------------------------------------------------
+            | First check primary user email
+            |--------------------------------------------------------------------------
+            */
 
-$user = Users::whereRaw(
-    'LOWER(TRIM(email)) = ?',
-    [$fromEmail]
-)->first();
+            $user = Users::whereRaw(
+                'LOWER(TRIM(email)) = ?',
+                [$fromEmail]
+            )->first();
 
-/*
-|--------------------------------------------------------------------------
-| If not found, check client secondary/additional email
-|--------------------------------------------------------------------------
-*/
+            /*
+            |--------------------------------------------------------------------------
+            | If not found, check client secondary/additional email
+            |--------------------------------------------------------------------------
+            */
 
-if (!$user) {
+            if (!$user) {
 
-    $client = Client::where(function ($query) use ($fromEmail) {
+                $client = Client::where(function ($query) use ($fromEmail) {
 
-        $query->whereRaw(
-            'LOWER(TRIM(secondary_email)) = ?',
-            [$fromEmail]
-        )
-        ->orWhereRaw(
-            'LOWER(TRIM(additional_email)) = ?',
-            [$fromEmail]
-        );
+                    $query->whereRaw(
+                        'LOWER(TRIM(secondary_email)) = ?',
+                        [$fromEmail]
+                    )
+                    ->orWhereRaw(
+                        'LOWER(TRIM(additional_email)) = ?',
+                        [$fromEmail]
+                    );
 
-    })->first();
+                })->first();
 
-    if ($client) {
+                if ($client) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get the actual portal user belonging to this client
-        |--------------------------------------------------------------------------
-        */
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Get the actual portal user belonging to this client
+                    |--------------------------------------------------------------------------
+                    */
 
-        $user = Users::where(
-            'client_id',
-            $client->id
-        )->first();
+                    $user = Users::where(
+                        'client_id',
+                        $client->id
+                    )->first();
 
-        if ($user) {
+                    if ($user) {
 
-            echo "Client matched using alternate email: "
-                . $from
-                . "\n";
+                        echo "Client matched using alternate email: "
+                            . $from
+                            . "\n";
 
-            \Log::info(
-                'Client matched using secondary/additional email',
-                [
-                    'email' => $from,
-                    'client_id' => $client->id,
-                    'user_id' => $user->id,
-                ]
-            );
-        }
-    }
-}
+                        \Log::info(
+                            'Client matched using secondary/additional email',
+                            [
+                                'email' => $from,
+                                'client_id' => $client->id,
+                                'user_id' => $user->id,
+                            ]
+                        );
+                    }
+                }
+            }
 
-/*
-|--------------------------------------------------------------------------
-| Still not found
-|--------------------------------------------------------------------------
-*/
+            /*
+            |--------------------------------------------------------------------------
+            | Still not found
+            |--------------------------------------------------------------------------
+            */
 
-if (!$user) {
+            if (!$user) {
 
-    echo "User not found for email: "
-        . $from
-        . "\n";
+                echo "User not found for email: "
+                    . $from
+                    . "\n";
 
-    \Log::warning(
-        'Incoming email sender not found',
-        [
-            'email' => $from,
-        ]
-    );
+                \Log::warning(
+                    'Incoming email sender not found',
+                    [
+                        'email' => $from,
+                    ]
+                );
 
-    continue;
-}
+                continue;
+            }
 
             /*
             |--------------------------------------------------------------------------
             | Read email body
             |--------------------------------------------------------------------------
             */
-/*
-|--------------------------------------------------------------------------
-| Read email body
-|--------------------------------------------------------------------------
-*/
+            $htmlBody = $message->getHTMLBody();
+            $plainBody = $message->getTextBody();
 
-$htmlBody = $message->getHTMLBody();
-$plainBody = $message->getTextBody();
-\Log::info('RAW HTML BODY DEBUG', ['html' => $htmlBody]);
-if (!empty($htmlBody)) {
+            \Log::info('RAW HTML BODY DEBUG', [
+                'html' => $htmlBody
+            ]);
 
-    /*
-     * Convert HTML email to clean plain text.
-     */
-    $replyText = $this->htmlEmailToPlainText($htmlBody);
+            /*
+            |--------------------------------------------------------------------------
+            | Keep HTML version for displaying the email
+            |--------------------------------------------------------------------------
+            */
 
-} elseif (!empty($plainBody)) {
+            if (!empty($htmlBody)) {
 
-    /*
-     * Plain-text email.
-     */
-    $replyText = $plainBody;
+                $replyHtml = $this->cleanEmailHtml($htmlBody);
 
-} else {
+                /*
+                |--------------------------------------------------------------------------
+                | Keep plain-text version for quote removal/status logic
+                |--------------------------------------------------------------------------
+                */
 
-    $replyText = '';
-}
+                $replyText = $this->htmlEmailToPlainText($htmlBody);
 
-/*
-|--------------------------------------------------------------------------
-| Normalize email body
-|--------------------------------------------------------------------------
-*/
+            } elseif (!empty($plainBody)) {
 
-$replyText = html_entity_decode(
-    $replyText,
-    ENT_QUOTES | ENT_HTML5,
-    'UTF-8'
-);
+                $replyText = $plainBody;
 
-$replyText = str_replace(
-    ["\r\n", "\r"],
-    "\n",
-    $replyText
-);
+                /*
+                |--------------------------------------------------------------------------
+                | Plain-text email needs to be converted to HTML
+                |--------------------------------------------------------------------------
+                */
 
-$replyText = str_replace(
-    ["\xc2\xa0", "\u{00A0}"],
-    ' ',
-    $replyText
-);
+                $replyHtml = $this->convertPlainTextToHtml($plainBody);
 
-$replyText = trim($replyText);
+            } else {
 
-/*
-|--------------------------------------------------------------------------
-| Remove quoted/replied email content
-|--------------------------------------------------------------------------
-*/
+                $replyText = '';
+                $replyHtml = '';
+            }
 
-$replyText = $this->stripQuotedReply($replyText);
 
-$replyText = trim($replyText);
+            /*
+            |--------------------------------------------------------------------------
+            | Normalize email body
+            |--------------------------------------------------------------------------
+            */
+
+            $replyText = html_entity_decode(
+                $replyText,
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+
+            $replyText = str_replace(
+                ["\r\n", "\r"],
+                "\n",
+                $replyText
+            );
+
+            $replyText = str_replace(
+                ["\xc2\xa0", "\u{00A0}"],
+                ' ',
+                $replyText
+            );
+
+            $replyText = trim($replyText);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove quoted/replied email content
+            |--------------------------------------------------------------------------
+            */
+
+            $replyText = $this->stripQuotedReply($replyText);
+
+            $replyText = trim($replyText);
 
 
             /*
@@ -424,10 +440,9 @@ $replyText = trim($replyText);
                         */
 
                         echo "STEP 1: Before TicketComments::create()\n";
-$commentHtml = $this->convertPlainTextToHtml($replyText);
                         $newComment = TicketComments::create([
                             'ticket_id' => $parent->ticket_id,
-                            'comments' => $commentHtml,
+                            'comments' => $replyHtml,
                             'comment_by' => $user->id,
                             'reply_to' => $parent->id,
                             'document' => implode(',', $documentPaths),
@@ -444,7 +459,8 @@ $commentHtml = $this->convertPlainTextToHtml($replyText);
                             $parent,
                             $user,
                             $replyText,
-                            $documentPaths
+                            $documentPaths,
+                            $replyHtml
                         );
 
                         echo "STEP 4: sendEmailReplyNotifications() completed\n";
@@ -634,13 +650,6 @@ $commentHtml = $this->convertPlainTextToHtml($replyText);
             }
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Staff/Admin reply
-                        |--------------------------------------------------------------------------
-                        */
-
-
             if ((int) $user->role_id === 3) {
 
                 /*
@@ -763,355 +772,441 @@ $commentHtml = $this->convertPlainTextToHtml($replyText);
 
         return Command::SUCCESS;
     }
-private function stripQuotedReply(string $text): string
-{
-    // Normalize line endings.
-    $text = str_replace(["\r\n", "\r"], "\n", $text);
 
-    // Decode HTML entities such as &nbsp;, &lt;, &gt;, etc.
-    $text = html_entity_decode(
-        $text,
-        ENT_QUOTES | ENT_HTML5,
-        'UTF-8'
-    );
+    private function cleanEmailHtml(string $html): string
+    {
+        $html = str_replace(
+            ["\r\n", "\r"],
+            "\n",
+            $html
+        );
 
-    // Convert non-breaking spaces to normal spaces.
-    $text = str_replace(
-        ["\xc2\xa0", "\u{00A0}"],
-        ' ',
-        $text
-    );
+        $html = preg_replace(
+            '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
+            '',
+            $html
+        );
 
-    // Normalize excessive spaces/tabs.
-    $text = preg_replace('/[ \t]+/', ' ', $text);
+        $html = preg_replace(
+            '/<script\b[^>]*>.*?<\/script>/is',
+            '',
+            $html
+        );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 1. Gmail / Google Workspace style quote header
-    |--------------------------------------------------------------------------
-    |
-    | A genuine "On <date>, <name> wrote:" header always sits on ONE line.
-    | We match line-by-line (no DOTALL) so a real reply paragraph that
-    | happens to start with "On ..." is never eaten just because the word
-    | "wrote:" appears somewhere further down the email.
-    |
-    */
-$lines = explode("\n", $text);
-$lineCount = count($lines);
+        $html = preg_replace(
+            '/<style\b[^>]*>.*?<\/style>/is',
+            '',
+            $html
+        );
 
-for ($i = 0; $i < $lineCount; $i++) {
+        $html = preg_replace(
+            '/<(iframe|object|embed|form|input|button|textarea|select)\b[^>]*>.*?<\/\1>/is',
+            '',
+            $html
+        );
 
-    $window = '';
+        $html = preg_replace(
+            '/\s+on[a-z]+\s*=\s*(["\']).*?\1/is',
+            '',
+            $html
+        );
 
-    for ($w = 0; $w < 3 && ($i + $w) < $lineCount; $w++) {
+        $html = preg_replace(
+            '/\s+(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is',
+            '',
+            $html
+        );
 
-        $window = trim($window . ' ' . $lines[$i + $w]);
-
-        if (preg_match('/^On\s.{0,250}\swrote\s*:\s*$/i', $window)) {
-
-            $text = implode(
-                "\n",
-                array_slice($lines, 0, $i)
-            );
-
-            break 2;
-        }
+        return trim($html);
     }
-}
-
-$text = trim($text);
-
-    /*
-    |--------------------------------------------------------------------------
-    | 2. Outlook / Microsoft style quoted reply
-    |--------------------------------------------------------------------------
-    */
-
-    $text = preg_split(
-        '/(?:^|\n)\s*-{2,}\s*Original Message\s*-{2,}\s*(?:\n|$)/i',
-        $text,
-        2
-    )[0];
-
-    /*
-    |--------------------------------------------------------------------------
-    | 3. Other common email separators
-    |--------------------------------------------------------------------------
-    */
-
-    $text = preg_split(
-        '/(?:^|\n)\s*_{5,}\s*(?:\n|$)/',
-        $text,
-        2
-    )[0];
-
-    /*
-    |--------------------------------------------------------------------------
-    | 4. Lines beginning with ">"
-    |--------------------------------------------------------------------------
-    */
-
-    $lines = explode("\n", $text);
-
-    $cleanLines = [];
-
-    foreach ($lines as $line) {
-
-        $trimmedLine = trim($line);
-
+    private function stripQuotedReply(string $text): string
+    {
         /*
-        * Stop when quoted content starts.
+        |--------------------------------------------------------------------------
+        | Normalize line endings
+        |--------------------------------------------------------------------------
         */
-        if ($trimmedLine !== '' && str_starts_with($trimmedLine, '>')) {
-            break;
-        }
 
-        /*
-        * Some clients use multiple ">" characters.
-        */
-        if (
-            $trimmedLine !== '' &&
-            preg_match('/^>{1,}/', $trimmedLine)
-        ) {
-            break;
-        }
-
-        $cleanLines[] = $line;
-    }
-
-    $text = implode("\n", $cleanLines);
-
-    /*
-    |--------------------------------------------------------------------------
-    | 5. Remove Outlook "From: / Sent: / To:" header block
-    |--------------------------------------------------------------------------
-    |
-    | Bounded to 3 consecutive lines only (no DOTALL) so it can't span
-    | across real paragraphs the way the old Gmail regex did.
-    |
-    */
-
-    $lines = explode("\n", $text);
-
-    for ($i = 0, $count = count($lines); $i < $count - 2; $i++) {
-
-        if (
-            preg_match('/^\s*From:\s*.+$/i', $lines[$i]) &&
-            preg_match('/^\s*Sent:\s*.+$/i', $lines[$i + 1]) &&
-            preg_match('/^\s*To:\s*.+$/i', $lines[$i + 2])
-        ) {
-
-            $text = implode(
-                "\n",
-                array_slice($lines, 0, $i)
-            );
-
-            break;
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | 6. Remove trailing blank lines
-    |--------------------------------------------------------------------------
-    */
-
-    $text = preg_replace(
-        "/\n{3,}/",
-        "\n\n",
-        $text
-    );
-
-    return trim($text);
-}
-
-
-private function convertPlainTextToHtml(string $text): string
-{
-    $text = str_replace(["\r\n", "\r"], "\n", $text);
-
-    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-    $text = str_replace(["\xc2\xa0", "\u{00A0}"], ' ', $text);
-
-    $text = preg_replace('/[ \t]+$/m', '', $text);
-
-    $text = trim($text);
-
-    if ($text === '') {
-        return '';
-    }
-    $text = preg_replace_callback(
-            '/(https?:\/\/[^\s]*?)\n(?=\S)/i',
-            function ($m) {
-                return $m[1];
-            },
+        $text = str_replace(
+            ["\r\n", "\r"],
+            "\n",
             $text
         );
-    /*
-     * Dewrap lines that were auto-wrapped by the email client
-     * (single newlines that are NOT part of a blank-line run).
-     */
-    // $text = preg_replace('/(?<!\n)\n(?!\n)/', ' ', $text);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Split into content chunks + blank-line-run delimiters, keeping the
-    | delimiters so we know exactly how many blank lines separated them.
-    |--------------------------------------------------------------------------
-    */
-    $parts = preg_split(
-        '/(\n{2,})/',
-        $text,
-        -1,
-        PREG_SPLIT_DELIM_CAPTURE
-    );
+        /*
+        |--------------------------------------------------------------------------
+        | Decode HTML entities
+        |--------------------------------------------------------------------------
+        */
 
-    $html = '';
-
-    foreach ($parts as $part) {
-
-        // This part is a run of 2+ newlines (a paragraph break)
-        if (preg_match('/^\n{2,}$/', $part)) {
-
-            $newlineCount = substr_count($part, "\n");
-
-            // e.g. "\n\n" = 1 blank line, "\n\n\n" = 2 blank lines
-            $blankLines = $newlineCount - 1;
-
-            for ($i = 0; $i < $blankLines; $i++) {
-                $html .= '<p><br></p>';
-            }
-
-            continue;
-        }
-
-        $paragraph = trim($part);
-
-        if ($paragraph === '') {
-            continue;
-        }
-
-        // $paragraph = htmlspecialchars(
-        //     $paragraph,
-        //     ENT_NOQUOTES | ENT_SUBSTITUTE,
-        //     'UTF-8'
-        // );
-        $paragraph = $this->linkifyParagraph($paragraph);
-        $paragraph = str_replace("\n", '<br>', $paragraph);
-
-        $html .= '<p>' . $paragraph . '</p>';
-    }
-
-    return $html;
-}
-/**
- * Escape a paragraph's text and turn bare URLs into clickable
- * <a> links, without emitting unescaped user content.
- */
-private function linkifyParagraph(string $paragraph): string
-{
-    $urls = [];
-
-    $withPlaceholders = preg_replace_callback(
-        '/(?<![@\w])((?:(?:https?:\/\/|www\.)[a-z0-9.-]+\.[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)/i',
-        function ($m) use (&$urls) {
-
-            $raw = $m[1];
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove punctuation accidentally captured after the URL
-            |--------------------------------------------------------------------------
-            */
-
-            $trailing = '';
-
-            while (
-                $raw !== '' &&
-                preg_match('/[.,;:!?)\]}>]$/', $raw)
-            ) {
-                $trailing = substr($raw, -1) . $trailing;
-                $raw = substr($raw, 0, -1);
-            }
-
-            if ($raw === '') {
-                return $m[1];
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Add https:// when the user entered a bare domain
-            |--------------------------------------------------------------------------
-            */
-
-            $href = preg_match(
-                '/^https?:\/\//i',
-                $raw
-            )
-                ? $raw
-                : 'https://' . $raw;
-
-            $index = count($urls);
-
-            $urls[$index] = [
-                'href' => $href,
-                'label' => $raw,
-            ];
-
-            return "\x00LINK{$index}\x00" . $trailing;
-        },
-        $paragraph
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Escape normal text
-    |--------------------------------------------------------------------------
-    */
-
-    $escaped = htmlspecialchars(
-        $withPlaceholders,
-        ENT_NOQUOTES | ENT_SUBSTITUTE,
-        'UTF-8'
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Replace URL placeholders with anchors
-    |--------------------------------------------------------------------------
-    */
-
-    foreach ($urls as $index => $url) {
-
-        $hrefEscaped = htmlspecialchars(
-            $url['href'],
-            ENT_QUOTES | ENT_SUBSTITUTE,
+        $text = html_entity_decode(
+            $text,
+            ENT_QUOTES | ENT_HTML5,
             'UTF-8'
         );
 
-        $labelEscaped = htmlspecialchars(
-            $url['label'],
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANT:
+        | Convert ALL common email whitespace characters to normal spaces.
+        |
+        | Gmail commonly uses:
+        |   U+00A0  non-breaking space
+        |   U+2007  figure space
+        |   U+202F  narrow no-break space
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_replace(
+            '/[\x{00A0}\x{2007}\x{202F}]/u',
+            ' ',
+            $text
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Normalize spaces/tabs
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_replace(
+            '/[ \t]+/',
+            ' ',
+            $text
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Gmail / Google Workspace quoted reply
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        |
+        | On Wed, Aug 26, 2026 at 11:13 AM HR Management Code4each
+        | <noreply@code4each.com> wrote:
+        |
+        | Everything from this line onward is old email content.
+        |--------------------------------------------------------------------------
+        */
+
+        $lines = explode("\n", $text);
+
+        foreach ($lines as $index => $line) {
+
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            /*
+            | Gmail "On ... wrote:" header
+            |
+            | Unicode-aware and allows a long sender/date line.
+            */
+
+            if (
+                preg_match(
+                    '/^On\b.{0,500}\bwrote\s*:\s*$/iu',
+                    $line
+                )
+            ) {
+
+                $text = implode(
+                    "\n",
+                    array_slice($lines, 0, $index)
+                );
+
+                break;
+            }
+        }
+
+        $text = trim($text);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Outlook / Microsoft "Original Message"
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_split(
+            '/(?:^|\n)\s*-{2,}\s*Original Message\s*-{2,}\s*(?:\n|$)/i',
+            $text,
+            2
+        )[0];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Common underscore separator
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_split(
+            '/(?:^|\n)\s*_{5,}\s*(?:\n|$)/',
+            $text,
+            2
+        )[0];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Quoted lines beginning with >
+        |--------------------------------------------------------------------------
+        */
+
+        $lines = explode("\n", $text);
+
+        $cleanLines = [];
+
+        foreach ($lines as $line) {
+
+            $trimmedLine = trim($line);
+
+            /*
+            | Stop as soon as quoted content starts.
+            */
+
+            if (
+                $trimmedLine !== '' &&
+                preg_match('/^>+/', $trimmedLine)
+            ) {
+                break;
+            }
+
+            $cleanLines[] = $line;
+        }
+
+        $text = implode(
+            "\n",
+            $cleanLines
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Outlook From / Sent / To block
+        |--------------------------------------------------------------------------
+        */
+
+        $lines = explode("\n", $text);
+        $count = count($lines);
+
+        for ($i = 0; $i < $count - 2; $i++) {
+
+            if (
+                preg_match('/^\s*From:\s*.+$/i', $lines[$i]) &&
+                preg_match('/^\s*Sent:\s*.+$/i', $lines[$i + 1]) &&
+                preg_match('/^\s*To:\s*.+$/i', $lines[$i + 2])
+            ) {
+
+                $text = implode(
+                    "\n",
+                    array_slice($lines, 0, $i)
+                );
+
+                break;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Remove excessive blank lines
+        |--------------------------------------------------------------------------
+        */
+
+        $text = preg_replace(
+            "/\n{3,}/",
+            "\n\n",
+            $text
+        );
+
+        return trim($text);
+    }
+
+    private function convertPlainTextToHtml(string $text): string
+    {
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
+
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $text = str_replace(["\xc2\xa0", "\u{00A0}"], ' ', $text);
+
+        $text = preg_replace('/[ \t]+$/m', '', $text);
+
+        $text = trim($text);
+
+        if ($text === '') {
+            return '';
+        }
+        $text = preg_replace_callback(
+                '/(https?:\/\/[^\s]*?)\n(?=\S)/i',
+                function ($m) {
+                    return $m[1];
+                },
+                $text
+            );
+        /*
+        * Dewrap lines that were auto-wrapped by the email client
+        * (single newlines that are NOT part of a blank-line run).
+        */
+        // $text = preg_replace('/(?<!\n)\n(?!\n)/', ' ', $text);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Split into content chunks + blank-line-run delimiters, keeping the
+        | delimiters so we know exactly how many blank lines separated them.
+        |--------------------------------------------------------------------------
+        */
+        $parts = preg_split(
+            '/(\n{2,})/',
+            $text,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE
+        );
+
+        $html = '';
+
+        foreach ($parts as $part) {
+
+            // This part is a run of 2+ newlines (a paragraph break)
+            if (preg_match('/^\n{2,}$/', $part)) {
+
+                $newlineCount = substr_count($part, "\n");
+
+                // e.g. "\n\n" = 1 blank line, "\n\n\n" = 2 blank lines
+                $blankLines = $newlineCount - 1;
+
+                for ($i = 0; $i < $blankLines; $i++) {
+                    $html .= '<p><br></p>';
+                }
+
+                continue;
+            }
+
+            $paragraph = trim($part);
+
+            if ($paragraph === '') {
+                continue;
+            }
+
+            // $paragraph = htmlspecialchars(
+            //     $paragraph,
+            //     ENT_NOQUOTES | ENT_SUBSTITUTE,
+            //     'UTF-8'
+            // );
+            $paragraph = $this->linkifyParagraph($paragraph);
+            $paragraph = str_replace("\n", '<br>', $paragraph);
+
+            $html .= '<p>' . $paragraph . '</p>';
+        }
+
+        return $html;
+    }
+    /**
+     * Escape a paragraph's text and turn bare URLs into clickable
+     * <a> links, without emitting unescaped user content.
+     */
+    private function linkifyParagraph(string $paragraph): string
+    {
+        $urls = [];
+
+        $withPlaceholders = preg_replace_callback(
+            '/(?<![@\w])((?:(?:https?:\/\/|www\.)[a-z0-9.-]+\.[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d+)?(?:\/[^\s<>"\']*)?)/i',
+            function ($m) use (&$urls) {
+
+                $raw = $m[1];
+
+                /*
+                |--------------------------------------------------------------------------
+                | Remove punctuation accidentally captured after the URL
+                |--------------------------------------------------------------------------
+                */
+
+                $trailing = '';
+
+                while (
+                    $raw !== '' &&
+                    preg_match('/[.,;:!?)\]}>]$/', $raw)
+                ) {
+                    $trailing = substr($raw, -1) . $trailing;
+                    $raw = substr($raw, 0, -1);
+                }
+
+                if ($raw === '') {
+                    return $m[1];
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Add https:// when the user entered a bare domain
+                |--------------------------------------------------------------------------
+                */
+
+                $href = preg_match(
+                    '/^https?:\/\//i',
+                    $raw
+                )
+                    ? $raw
+                    : 'https://' . $raw;
+
+                $index = count($urls);
+
+                $urls[$index] = [
+                    'href' => $href,
+                    'label' => $raw,
+                ];
+
+                return "\x00LINK{$index}\x00" . $trailing;
+            },
+            $paragraph
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Escape normal text
+        |--------------------------------------------------------------------------
+        */
+
+        $escaped = htmlspecialchars(
+            $withPlaceholders,
             ENT_NOQUOTES | ENT_SUBSTITUTE,
             'UTF-8'
         );
 
-        $anchor =
-            '<a href="' . $hrefEscaped . '" '
-            . 'target="_blank" '
-            . 'rel="noopener noreferrer">'
-            . $labelEscaped
-            . '</a>';
+        /*
+        |--------------------------------------------------------------------------
+        | Replace URL placeholders with anchors
+        |--------------------------------------------------------------------------
+        */
 
-        $escaped = str_replace(
-            "\x00LINK{$index}\x00",
-            $anchor,
-            $escaped
-        );
+        foreach ($urls as $index => $url) {
+
+            $hrefEscaped = htmlspecialchars(
+                $url['href'],
+                ENT_QUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
+            );
+
+            $labelEscaped = htmlspecialchars(
+                $url['label'],
+                ENT_NOQUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
+            );
+
+            $anchor =
+                '<a href="' . $hrefEscaped . '" '
+                . 'target="_blank" '
+                . 'rel="noopener noreferrer">'
+                . $labelEscaped
+                . '</a>';
+
+            $escaped = str_replace(
+                "\x00LINK{$index}\x00",
+                $anchor,
+                $escaped
+            );
+        }
+
+        return $escaped;
     }
-
-    return $escaped;
-}
     /**
      * Save incoming attachments.
      */
@@ -1451,7 +1546,8 @@ private function linkifyParagraph(string $paragraph): string
         TicketComments $parent,
         Users $sender,
         string $replyText,
-        array $documentPaths = []
+        array $documentPaths = [] ,
+        string $replyHtml = ''
     ): void {
         try {
 
@@ -1496,7 +1592,8 @@ private function linkifyParagraph(string $paragraph): string
             $messages['title-ticketName'] =
                 "<p><strong>Ticket Name:</strong> {$ticketName}</p>";
 
-            $messages['body-text'] = $this->convertPlainTextToHtml($replyText);
+            // $messages['body-text'] = $this->convertPlainTextToHtml($replyText);
+            $messages['body-text'] = $replyHtml ?: $this->convertPlainTextToHtml($replyText);
 
             $messages['url-title'] = 'View Ticket';
 

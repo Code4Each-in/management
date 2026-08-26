@@ -5,13 +5,926 @@ use App\Models\Projects;?>
 @section('title', 'Projects')
 @section('subtitle', 'Projects')
 @section('content')
+<style>
+    /* =========================================================
+   PROJECT PAGE - RESPONSIVE ONLY
+   No HTML / Blade changes required
+   ========================================================= */
+
+
+/* =========================================================
+   TABLET / SMALL LAPTOP
+   768px - 991px
+   ========================================================= */
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+
+    /* Add Project button */
+    .project {
+        max-width: 180px;
+        font-size: 14px;
+    }
+
+    /* Project section */
+    .sprint-section {
+        width: 100%;
+    }
+
+    /* Table */
+    #filter-box {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #filter-box .box-body {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #filter-box .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #projects {
+        min-width: 850px;
+        width: 100%;
+    }
+
+    #projects th,
+    #projects td {
+        font-size: 13px;
+        padding: 8px 10px;
+        vertical-align: middle;
+    }
+
+    /* Status boxes */
+    .status-group {
+        gap: 3px;
+        flex-wrap: nowrap;
+    }
+
+    .status-box {
+        min-width: 25px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    /* Add Project modal */
+    #addProjects .modal-dialog {
+        max-width: 90%;
+        width: auto;
+        margin: 1.75rem auto;
+    }
+
+    #addProjects .modal-content {
+        width: 100% !important;
+    }
+
+    /* Form */
+    #addProjects .modal-body {
+        padding: 20px;
+    }
+
+    #addProjects .form-control,
+    #addProjects .form-select {
+        width: 100%;
+    }
+
+    /* Quill */
+    #toolbar-container {
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    #editor {
+        width: 100%;
+        height: 250px !important;
+    }
+}
+
+
+/* =========================================================
+   LARGE MOBILE
+   576px - 767px
+   ========================================================= */
+
+@media screen and (min-width: 576px) and (max-width: 767px) {
+
+    /* Add Project button */
+    .project {
+        width: auto;
+        min-width: 130px;
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
+    /* Project section */
+    .sprint-section {
+        width: 100%;
+    }
+
+    /* Header */
+    .sprint-header {
+        width: 100%;
+    }
+
+    .section-left {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .section-icon {
+        flex: 0 0 auto;
+    }
+
+    .section-title {
+        font-size: 14px;
+    }
+
+    /* Table scrolling */
+    #filter-box {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #filter-box .box-body {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #filter-box .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #projects {
+        min-width: 850px;
+        width: 100%;
+    }
+
+    #projects th,
+    #projects td {
+        font-size: 12px;
+        padding: 7px 8px;
+        vertical-align: middle;
+    }
+
+    /* Project name */
+    #projects td:first-child {
+        max-width: 180px;
+    }
+
+    /* Assign images */
+    #projects .actions-cell img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* Status */
+    .status-group {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 3px;
+        flex-wrap: nowrap;
+    }
+
+    .status-box {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        line-height: 24px;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    /* Action icons */
+    #projects .actions-cell i {
+        font-size: 13px;
+        margin: 0 2px;
+    }
+
+    /* =====================================================
+       ADD PROJECT MODAL
+       ===================================================== */
+
+    #addProjects .modal-dialog {
+        width: calc(100% - 30px);
+        max-width: none;
+        margin: 15px auto;
+    }
+
+    #addProjects .modal-content {
+        width: 100% !important;
+    }
+
+    #addProjects .modal-header {
+        padding: 12px 15px;
+    }
+
+    #addProjects .modal-title {
+        font-size: 17px;
+    }
+
+    #addProjects .modal-body {
+        padding: 15px;
+    }
+
+    /* Stack labels and inputs */
+    #addProjects .modal-body .row.mb-3 {
+        margin-bottom: 15px !important;
+    }
+
+    #addProjects .modal-body .col-sm-3,
+    #addProjects .modal-body .col-sm-9 {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    #addProjects .modal-body .col-sm-3 {
+        margin-bottom: 5px;
+    }
+
+    #addProjects .modal-body .col-form-label {
+        font-size: 13px;
+        padding-bottom: 3px;
+    }
+
+    #addProjects .form-control,
+    #addProjects .form-select {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    /* Quill */
+    #toolbar-container {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #editor {
+        width: 100%;
+        height: 220px !important;
+    }
+
+    /* Modal footer */
+    #addProjects .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 15px;
+    }
+
+    /* Assignment modal */
+    #ShowAssign .modal-dialog {
+        width: calc(100% - 30px);
+        max-width: none;
+        margin: 15px auto;
+    }
+
+    #ShowAssign .modal-content {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   401px - 575px
+   ========================================================= */
+
+@media screen and (min-width: 401px) and (max-width: 575px) {
+
+    /* =====================================================
+       ADD PROJECT BUTTON
+       ===================================================== */
+
+    .project {
+        width: auto !important;
+        min-width: 120px;
+        max-width: 160px;
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+
+    /* =====================================================
+       SECTION HEADER
+       ===================================================== */
+
+    .sprint-section {
+        width: 100%;
+    }
+
+    .sprint-header {
+        width: 100%;
+        padding: 8px 10px;
+    }
+
+    .section-left {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .section-icon {
+        width: 26px;
+        height: 26px;
+        line-height: 26px;
+        min-width: 26px;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    .section-title {
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       PROJECT TABLE
+       ===================================================== */
+
+    #filter-box {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #filter-box .box-body {
+        width: 100%;
+        padding: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #filter-box .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #projects {
+        min-width: 820px !important;
+        width: 100% !important;
+        margin-bottom: 0;
+    }
+
+    #projects th,
+    #projects td {
+        font-size: 11px !important;
+        padding: 7px 8px !important;
+        vertical-align: middle;
+        white-space: normal;
+    }
+
+    #projects th {
+        font-size: 10.5px !important;
+        white-space: nowrap;
+    }
+
+    /* Project name */
+    #projects td:first-child {
+        max-width: 160px;
+        word-break: break-word;
+    }
+
+    /* Client name */
+    #projects td:nth-child(3) {
+        max-width: 150px;
+        word-break: break-word;
+    }
+
+    /* Profile pictures */
+    #projects .actions-cell img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+
+    /* =====================================================
+       STATUS BOXES
+       ===================================================== */
+
+    .status-group {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 3px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .status-box {
+        width: 23px !important;
+        min-width: 23px !important;
+        height: 23px !important;
+        line-height: 23px !important;
+        font-size: 10px !important;
+        text-align: center;
+    }
+
+
+    /* =====================================================
+       ACTION ICONS
+       ===================================================== */
+
+    #projects .actions-cell {
+        white-space: nowrap;
+    }
+
+    #projects .actions-cell i {
+        font-size: 13px !important;
+        margin: 0 2px;
+    }
+
+
+    /* =====================================================
+       ADD PROJECT MODAL
+       ===================================================== */
+
+    #addProjects .modal-dialog {
+        width: calc(100% - 20px) !important;
+        max-width: none !important;
+        margin: 10px auto !important;
+    }
+
+    #addProjects .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    #addProjects .modal-header {
+        padding: 10px 12px;
+    }
+
+    #addProjects .modal-title {
+        font-size: 16px;
+    }
+
+    #addProjects .modal-body {
+        padding: 12px;
+    }
+
+    /* Make Bootstrap form rows vertical */
+    #addProjects .modal-body .row.mb-3 {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 12px !important;
+    }
+
+    #addProjects .modal-body .col-sm-3,
+    #addProjects .modal-body .col-sm-9 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #addProjects .modal-body .col-sm-3 {
+        margin-bottom: 5px;
+    }
+
+    #addProjects .modal-body .col-form-label {
+        display: block;
+        width: 100%;
+        font-size: 12px;
+        padding-top: 0;
+        padding-bottom: 3px;
+    }
+
+    #addProjects .form-control,
+    #addProjects .form-select {
+        width: 100% !important;
+        max-width: 100%;
+        font-size: 12px;
+    }
+
+    #addProjects textarea {
+        min-height: 80px;
+    }
+
+
+    /* =====================================================
+       QUILL EDITOR
+       ===================================================== */
+
+    #toolbar-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto !important;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #toolbar-container .ql-formats {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    #editor {
+        width: 100% !important;
+        height: 200px !important;
+        max-width: 100%;
+    }
+
+
+    /* =====================================================
+       MODAL FOOTER
+       ===================================================== */
+
+    #addProjects .modal-footer {
+        padding: 10px 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+    #addProjects .modal-footer .btn {
+        font-size: 12px;
+        padding: 7px 12px;
+    }
+
+
+    /* =====================================================
+       ASSIGN MODAL
+       ===================================================== */
+
+    #ShowAssign .modal-dialog {
+        width: calc(100% - 20px) !important;
+        max-width: none !important;
+        margin: 10px auto !important;
+    }
+
+    #ShowAssign .modal-content {
+        width: 100% !important;
+    }
+
+    #ShowAssign .modal-title {
+        font-size: 16px;
+    }
+
+    #ShowAssign .modal-body {
+        padding: 12px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   400px AND BELOW
+   ========================================================= */
+
+@media screen and (max-width: 400px) {
+
+    /* =====================================================
+       ADD PROJECT BUTTON
+       ===================================================== */
+
+    .project {
+        width: auto !important;
+        min-width: 110px;
+        max-width: 140px;
+        font-size: 11px !important;
+        padding: 7px 10px !important;
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+
+    /* =====================================================
+       SECTION HEADER
+       ===================================================== */
+
+    .sprint-section {
+        width: 100%;
+    }
+
+    .sprint-header {
+        width: 100%;
+        padding: 7px 8px;
+    }
+
+    .section-left {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .section-icon {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        line-height: 24px;
+        font-size: 12px;
+    }
+
+    .section-title {
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+       TABLE
+       ===================================================== */
+
+    #filter-box {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #filter-box .box-body {
+        width: 100%;
+        padding: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #filter-box .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #projects {
+        min-width: 780px !important;
+        width: 100% !important;
+    }
+
+    #projects th,
+    #projects td {
+        font-size: 10px !important;
+        padding: 6px 7px !important;
+        vertical-align: middle;
+    }
+
+    #projects th {
+        font-size: 9.5px !important;
+        white-space: nowrap;
+    }
+
+    #projects td:first-child {
+        max-width: 140px;
+        word-break: break-word;
+    }
+
+    #projects td:nth-child(3) {
+        max-width: 130px;
+        word-break: break-word;
+    }
+
+
+    /* =====================================================
+       PROFILE PICTURES
+       ===================================================== */
+
+    #projects .actions-cell img {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+
+    /* =====================================================
+       STATUS BOXES
+       ===================================================== */
+
+    .status-group {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 2px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .status-box {
+        width: 21px !important;
+        min-width: 21px !important;
+        height: 21px !important;
+        line-height: 21px !important;
+        font-size: 9px !important;
+    }
+
+
+    /* =====================================================
+       ACTION ICONS
+       ===================================================== */
+
+    #projects .actions-cell {
+        white-space: nowrap;
+    }
+
+    #projects .actions-cell i {
+        font-size: 12px !important;
+        margin: 0 1px;
+    }
+
+
+    /* =====================================================
+       ADD PROJECT MODAL
+       ===================================================== */
+
+    #addProjects .modal-dialog {
+        width: calc(100% - 12px) !important;
+        max-width: none !important;
+        margin: 6px auto !important;
+    }
+
+    #addProjects .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 6px;
+    }
+
+    #addProjects .modal-header {
+        padding: 9px 10px;
+    }
+
+    #addProjects .modal-title {
+        font-size: 15px;
+    }
+
+    #addProjects .modal-body {
+        padding: 10px;
+    }
+
+
+    /* =====================================================
+       FORM
+       ===================================================== */
+
+    #addProjects .modal-body .row.mb-3 {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 10px !important;
+    }
+
+    #addProjects .modal-body .col-sm-3,
+    #addProjects .modal-body .col-sm-9 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #addProjects .modal-body .col-sm-3 {
+        margin-bottom: 4px;
+    }
+
+    #addProjects .modal-body .col-form-label {
+        font-size: 11px;
+        padding: 0;
+    }
+
+    #addProjects .form-control,
+    #addProjects .form-select {
+        width: 100% !important;
+        max-width: 100%;
+        font-size: 11px;
+        min-height: 34px;
+    }
+
+
+    /* =====================================================
+       QUILL
+       ===================================================== */
+
+    #toolbar-container {
+        width: 100%;
+        overflow-x: auto !important;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #toolbar-container .ql-formats {
+        margin-right: 3px;
+    }
+
+    #editor {
+        width: 100% !important;
+        height: 180px !important;
+    }
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    #addProjects .modal-footer {
+        padding: 8px 10px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    #addProjects .modal-footer .btn {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+
+    /* =====================================================
+       ASSIGN MODAL
+       ===================================================== */
+
+    #ShowAssign .modal-dialog {
+        width: calc(100% - 12px) !important;
+        max-width: none !important;
+        margin: 6px auto !important;
+    }
+
+    #ShowAssign .modal-content {
+        width: 100% !important;
+    }
+
+    #ShowAssign .modal-title {
+        font-size: 15px;
+    }
+
+    #ShowAssign .modal-body {
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   360px AND BELOW
+   ========================================================= */
+
+@media screen and (max-width: 360px) {
+
+    .project {
+        min-width: 105px;
+        font-size: 10px !important;
+        padding: 6px 9px !important;
+    }
+
+    .section-title {
+        font-size: 11px;
+    }
+
+    #projects {
+        min-width: 750px !important;
+    }
+
+    #projects th,
+    #projects td {
+        font-size: 9.5px !important;
+        padding: 5px 6px !important;
+    }
+
+    .status-box {
+        width: 20px !important;
+        min-width: 20px !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        font-size: 8px !important;
+    }
+
+    #addProjects .modal-dialog {
+        width: calc(100% - 8px) !important;
+        margin: 4px auto !important;
+    }
+
+    #addProjects .modal-body {
+        padding: 8px;
+    }
+
+    #addProjects .form-control,
+    #addProjects .form-select {
+        font-size: 10px;
+    }
+
+    #editor {
+        height: 160px !important;
+    }
+}
+</style>
 <div class="row">
     <button class="btn btn-primary mt-3 project mb-3" onClick="openprojectModal()" href="javascript:void(0)" style="background-color: #4154f1;">Add
         Project</button>
 </div>
 <div class="row">
         <div class="sprint-section">
-            
+
                 <!-- filter -->
                 <div class="sprint-header production">
                     <div class="section-left">
@@ -95,7 +1008,7 @@ use App\Models\Projects;?>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="actions-cell"> 
+                                    <td class="actions-cell">
                                          <a href="{{ url('/project/'.$data->id)}}">
                                             <i class="fa fa-eye fa-fw pointer"></i>
                                         </a>
@@ -153,14 +1066,14 @@ use App\Models\Projects;?>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
-                                    </select>  
+                                    </select>
                                 </div>
                             </div>
                             @endif
 
                             @if(auth()->user()->role_id != 6)
                             <div class="row mb-3">
-                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>     
+                                <label for="" class="col-sm-3 col-form-label required">Assign To</label>
                                 <div class="col-sm-9">
                                 <select class="form-select form-control" id="user" name="assign_to[]" data-placeholder="Select User" multiple>
                                 <option value="" disabled>Select User</option>
@@ -173,7 +1086,7 @@ use App\Models\Projects;?>
                                 </div>
                             </div>
                             @endif
-                            
+
                             <div class="row mb-3">
                                 <label for="title" class="col-sm-3 col-form-label ">Live Url</label>
                                 <div class="col-sm-9">
@@ -247,15 +1160,15 @@ use App\Models\Projects;?>
                                             <button class="ql-clean"></button>
                                         </span>
                                     </div>
-                            
+
                                     <div id="editor" style="height: 300px;">{!! old('description') !!}</div>
                                     <input type="hidden" name="description" id="description_input">
-                            
+
                                     @if ($errors->has('description'))
                                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('description') }}</span>
                                     @endif
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="row mb-3">
                                 <label for="start_date" class="col-sm-3 col-form-label required">Start Date</label>
                                 <div class="col-sm-9">
@@ -332,7 +1245,7 @@ use App\Models\Projects;?>
                 setTimeout(function() {
                     $('.message').fadeOut("slow");
                 }, 2000);
-                
+
                 $("#addProjectsForm").submit(function(event) {
                     event.preventDefault();
                     $('#description_input').val(quill.root.innerHTML);
@@ -475,7 +1388,7 @@ use App\Models\Projects;?>
             url: "{{ url('/delete/projects') }}",
             data: {
                 id: id,
-                _token: "{{ csrf_token() }}" 
+                _token: "{{ csrf_token() }}"
             },
             dataType: 'json',
             success: function(res) {
