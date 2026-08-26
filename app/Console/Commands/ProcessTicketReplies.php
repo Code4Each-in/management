@@ -782,8 +782,32 @@ class ProcessTicketReplies extends Command
         );
 
         $html = preg_replace(
+            '/<div[^>]*class\s*=\s*(["\']).*?gmail_quote.*?\1[^>]*>.*$/is',
+            '',
+            $html
+        );
+
+        $html = preg_replace(
             '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
             '',
+            $html
+        );
+
+        $html = preg_replace_callback(
+            '/<(div|p|span)\b[^>]*>((?:(?!<\/?\1\b).)*?)<\/\1>/is',
+            function ($m) {
+
+                $innerText = trim(strip_tags($m[2]));
+
+                if (
+                    $innerText !== '' &&
+                    preg_match('/^On\b.{0,500}\bwrote\s*:?\s*$/isu', $innerText)
+                ) {
+                    return '';
+                }
+
+                return $m[0];
+            },
             $html
         );
 
