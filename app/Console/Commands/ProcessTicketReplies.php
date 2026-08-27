@@ -297,45 +297,42 @@ class ProcessTicketReplies extends Command
             $htmlBody = $message->getHTMLBody();
             $plainBody = $message->getTextBody();
 
-            \Log::info('RAW HTML BODY DEBUG', [
-                'html' => $htmlBody
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Keep HTML version for displaying the email
-            |--------------------------------------------------------------------------
-            */
-
             if (!empty($htmlBody)) {
-
-                $replyHtml = $this->cleanEmailHtml($htmlBody);
 
                 /*
                 |--------------------------------------------------------------------------
-                | Keep plain-text version for quote removal/status logic
+                | Keep HTML structure.
                 |--------------------------------------------------------------------------
                 */
 
-                $replyText = $this->htmlEmailToPlainText($htmlBody);
+                $replyHtml = $this->cleanIncomingEmailHtml($htmlBody);
+
+                /*
+                |--------------------------------------------------------------------------
+                | Convert CLEAN HTML to text only for:
+                |
+                | - empty reply detection
+                | - acknowledgement detection
+                | - word count
+                |
+                | The HTML itself is NOT rebuilt from this text.
+                |--------------------------------------------------------------------------
+                */
+
+                $replyText = $this->htmlEmailToPlainText($replyHtml);
 
             } elseif (!empty($plainBody)) {
 
-                $replyText = $plainBody;
+                $replyText = $this->stripQuotedReply($plainBody);
 
-                /*
-                |--------------------------------------------------------------------------
-                | Plain-text email needs to be converted to HTML
-                |--------------------------------------------------------------------------
-                */
-
-                $replyHtml = $this->convertPlainTextToHtml($plainBody);
+                $replyHtml = $this->convertPlainTextToHtml($replyText);
 
             } else {
 
                 $replyText = '';
                 $replyHtml = '';
             }
+
 
 
             /*
@@ -773,46 +770,28 @@ class ProcessTicketReplies extends Command
         return Command::SUCCESS;
     }
 
-    private function cleanEmailHtml(string $html): string
+    private function cleanIncomingEmailHtml(string $html): string
     {
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Normalize line endings
+        |--------------------------------------------------------------------------
+        */
+
         $html = str_replace(
             ["\r\n", "\r"],
             "\n",
             $html
         );
 
-        $html = preg_replace(
-            '/<div[^>]*class\s*=\s*(["\']).*?gmail_quote.*?\1[^>]*>.*$/is',
-            '',
-            $html
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Remove <head>, <style>, <script>
+        |--------------------------------------------------------------------------
+        */
 
         $html = preg_replace(
-            '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
-            '',
-            $html
-        );
-
-        $html = preg_replace_callback(
-            '/<(div|p|span)\b[^>]*>((?:(?!<\/?\1\b).)*?)<\/\1>/is',
-            function ($m) {
-
-                $innerText = trim(strip_tags($m[2]));
-
-                if (
-                    $innerText !== '' &&
-                    preg_match('/^On\b.{0,500}\bwrote\s*:?\s*$/isu', $innerText)
-                ) {
-                    return '';
-                }
-
-                return $m[0];
-            },
-            $html
-        );
-
-        $html = preg_replace(
-            '/<script\b[^>]*>.*?<\/script>/is',
+            '/<head\b[^>]*>.*?<\/head>/is',
             '',
             $html
         );
@@ -824,10 +803,99 @@ class ProcessTicketReplies extends Command
         );
 
         $html = preg_replace(
-            '/<(iframe|object|embed|form|input|button|textarea|select)\b[^>]*>.*?<\/\1>/is',
+            '/<script\b[^>]*>.*?<\/script>/is',
             '',
             $html
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Remove dangerous / unnecessary elements
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<(iframe|object|embed|form|input|button|textarea|select|video|audio|canvas)\b[^>]*>.*?<\/\1>/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Remove Gmail quoted reply
+        |--------------------------------------------------------------------------
+        |
+        | This removes everything starting from:
+        |
+        | <div class="gmail_quote ...">
+        |
+        */
+
+        $html = preg_replace(
+            '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_quote\b[^"\']*\1[^>]*>.*$/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Remove Gmail signature
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_signature\b[^"\']*\1[^>]*>.*?<\/div>/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Remove Outlook reply/forward container
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<div\b[^>]*id\s*=\s*(["\'])divRplyFwdMsg\1[^>]*>.*$/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 7. Remove blockquotes
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 8. Remove "On ... wrote:" blocks
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<(div|p|span)\b[^>]*>\s*(?:<[^>]+>\s*)*On\b.{0,1000}\bwrote\s*:?\s*(?:<\/[^>]+>\s*)*<\/\1>/isu',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 9. Remove inline event handlers
+        |--------------------------------------------------------------------------
+        |
+        | onclick=""
+        | onload=""
+        | onmouseover=""
+        | etc.
+        |--------------------------------------------------------------------------
+        */
 
         $html = preg_replace(
             '/\s+on[a-z]+\s*=\s*(["\']).*?\1/is',
@@ -835,14 +903,299 @@ class ProcessTicketReplies extends Command
             $html
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | 10. Remove javascript: URLs
+        |--------------------------------------------------------------------------
+        */
+
         $html = preg_replace(
             '/\s+(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is',
             '',
             $html
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | 11. Remove ALL style attributes
+        |--------------------------------------------------------------------------
+        |
+        | This is what removes:
+        |
+        | style="line-height:1.5;margin:1rem..."
+        |
+        | BUT it does NOT remove the actual HTML element.
+        |
+        | <ol style="..."> becomes <ol>
+        | <li style="..."> becomes <li>
+        | <a style="..."> becomes <a>
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/\s+style\s*=\s*(["\']).*?\1/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 12. Remove email-client classes
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/\s+class\s*=\s*(["\']).*?\1/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 13. Remove IDs
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/\s+id\s*=\s*(["\']).*?\1/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 14. Remove data-* and aria-* attributes
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/\s+(?:data|aria)-[a-z0-9_-]+\s*=\s*(["\']).*?\1/is',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 15. Remove Microsoft Office tags
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/<\/?(?:o|w|m):[^>]*>/i',
+            '',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 16. Keep only useful HTML attributes
+        |--------------------------------------------------------------------------
+        |
+        | We intentionally preserve:
+        |
+        | href
+        | target
+        | rel
+        |
+        | Everything else can be removed.
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace_callback(
+            '/<([a-z][a-z0-9]*)\b([^>]*)>/i',
+            function ($match) {
+
+                $tag = strtolower($match[1]);
+                $attributes = $match[2];
+
+                /*
+                | Tags that should have no attributes.
+                */
+
+                $noAttributeTags = [
+                    'p',
+                    'div',
+                    'span',
+                    'br',
+                    'b',
+                    'strong',
+                    'i',
+                    'em',
+                    'u',
+                    'ul',
+                    'ol',
+                    'li',
+                    'h1',
+                    'h2',
+                    'h3',
+                    'h4',
+                    'h5',
+                    'h6',
+                ];
+
+                if (in_array($tag, $noAttributeTags, true)) {
+                    return '<' . $tag . '>';
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Anchor
+                |--------------------------------------------------------------------------
+                |
+                | Preserve only href / target / rel.
+                |--------------------------------------------------------------------------
+                */
+
+                if ($tag === 'a') {
+
+                    $allowed = [];
+
+                    if (preg_match(
+                        '/\bhref\s*=\s*(["\'])(.*?)\1/is',
+                        $attributes,
+                        $href
+                    )) {
+
+                        $hrefValue = trim($href[2]);
+
+                        /*
+                        | Don't allow javascript: URLs.
+                        */
+
+                        if (
+                            !preg_match(
+                                '/^\s*javascript:/i',
+                                $hrefValue
+                            )
+                        ) {
+
+                            $allowed[] =
+                                'href="' .
+                                htmlspecialchars(
+                                    $hrefValue,
+                                    ENT_QUOTES | ENT_SUBSTITUTE,
+                                    'UTF-8'
+                                ) .
+                                '"';
+                        }
+                    }
+
+                    if (preg_match(
+                        '/\btarget\s*=\s*(["\'])(.*?)\1/is',
+                        $attributes,
+                        $target
+                    )) {
+
+                        $targetValue = trim($target[2]);
+
+                        if (
+                            in_array(
+                                $targetValue,
+                                ['_blank', '_self', '_parent', '_top'],
+                                true
+                            )
+                        ) {
+
+                            $allowed[] =
+                                'target="' .
+                                htmlspecialchars(
+                                    $targetValue,
+                                    ENT_QUOTES | ENT_SUBSTITUTE,
+                                    'UTF-8'
+                                ) .
+                                '"';
+                        }
+                    }
+
+                    if (preg_match(
+                        '/\brel\s*=\s*(["\'])(.*?)\1/is',
+                        $attributes,
+                        $rel
+                    )) {
+
+                        $relValue = trim($rel[2]);
+
+                        $allowed[] =
+                            'rel="' .
+                            htmlspecialchars(
+                                $relValue,
+                                ENT_QUOTES | ENT_SUBSTITUTE,
+                                'UTF-8'
+                            ) .
+                            '"';
+                    }
+
+                    if (!empty($allowed)) {
+
+                        return '<a ' .
+                            implode(' ', $allowed) .
+                            '>';
+                    }
+
+                    return '<a>';
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Unknown tags
+                |--------------------------------------------------------------------------
+                |
+                | Leave the tag itself but without attributes.
+                |--------------------------------------------------------------------------
+                */
+
+                return '<' . $tag . '>';
+            },
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 17. Remove empty structural elements
+        |--------------------------------------------------------------------------
+        */
+
+        $previous = null;
+
+        while ($previous !== $html) {
+
+            $previous = $html;
+
+            $html = preg_replace(
+                '/<(span|div)\b[^>]*>\s*<\/\1>/i',
+                '',
+                $html
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 18. Remove excessive whitespace between tags
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            '/>\s+</',
+            '><',
+            $html
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 19. Remove excessive blank lines
+        |--------------------------------------------------------------------------
+        */
+
+        $html = preg_replace(
+            "/\n{3,}/",
+            "\n\n",
+            $html
+        );
+
         return trim($html);
     }
+
+
     private function stripQuotedReply(string $text): string
     {
         /*
@@ -869,49 +1222,18 @@ class ProcessTicketReplies extends Command
             'UTF-8'
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT:
-        | Convert ALL common email whitespace characters to normal spaces.
-        |
-        | Gmail commonly uses:
-        |   U+00A0  non-breaking space
-        |   U+2007  figure space
-        |   U+202F  narrow no-break space
-        |--------------------------------------------------------------------------
-        */
-
         $text = preg_replace(
             '/[\x{00A0}\x{2007}\x{202F}]/u',
             ' ',
             $text
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Normalize spaces/tabs
-        |--------------------------------------------------------------------------
-        */
 
         $text = preg_replace(
             '/[ \t]+/',
             ' ',
             $text
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | 1. Gmail / Google Workspace quoted reply
-        |--------------------------------------------------------------------------
-        |
-        | Example:
-        |
-        | On Wed, Aug 26, 2026 at 11:13 AM HR Management Code4each
-        | <noreply@code4each.com> wrote:
-        |
-        | Everything from this line onward is old email content.
-        |--------------------------------------------------------------------------
-        */
 
         $lines = explode("\n", $text);
 
@@ -923,11 +1245,6 @@ class ProcessTicketReplies extends Command
                 continue;
             }
 
-            /*
-            | Gmail "On ... wrote:" header
-            |
-            | Unicode-aware and allows a long sender/date line.
-            */
 
             if (
                 preg_match(
