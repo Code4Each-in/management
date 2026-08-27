@@ -14,7 +14,7 @@ class CheckClientTicketAccess
     {
         $user = auth()->user();
 
-        // non-clients bypass
+        // Non-clients bypass
         if ($user->role_id != 6) {
             return $next($request);
         }
@@ -31,17 +31,42 @@ class CheckClientTicketAccess
             return redirect('/dashboard')->with('error', 'Project not found.');
         }
 
-        //  FIND CLIENT FROM users
+        // Find client from users
         $client = Client::where('email', $user->email)->first();
 
         if (!$client) {
             return redirect('/dashboard')->with('error', 'Client profile not found.');
         }
 
-        // FINAL CHECK
-        if ((int)$project->client_id !== (int)$client->id) {
-            return redirect('/dashboard')
-                ->with('error', 'You are not authorized to view this ticket.');
+        /*
+         * OLD / SINGLE CLIENT PROJECT
+         *
+         * If projects.client_id has a value,
+         * use the existing access check.
+         */
+        if (!is_null($project->client_id)) {
+
+            if ((int) $project->client_id !== (int) $client->id) {
+                return redirect('/dashboard')
+                    ->with('error', 'You are not authorized to view this ticket.');
+            }
+
+        /*
+         * NEW / MULTIPLE CLIENT PROJECT
+         *
+         * If projects.client_id is NULL,
+         * check the project_clients pivot table.
+         */
+        } else {
+
+            $hasAccess = $project->clients()
+                ->where('clients.id', $client->id)
+                ->exists();
+
+            if (!$hasAccess) {
+                return redirect('/dashboard')
+                    ->with('error', 'You are not authorized to view this ticket.');
+            }
         }
 
         return $next($request);
