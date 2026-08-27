@@ -770,430 +770,489 @@ class ProcessTicketReplies extends Command
         return Command::SUCCESS;
     }
 
-    private function cleanIncomingEmailHtml(string $html): string
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | 1. Normalize line endings
-        |--------------------------------------------------------------------------
-        */
+private function cleanIncomingEmailHtml(string $html): string
+{
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Normalize line endings
+    |--------------------------------------------------------------------------
+    */
 
-        $html = str_replace(
-            ["\r\n", "\r"],
-            "\n",
-            $html
-        );
+    $html = str_replace(
+        ["\r\n", "\r"],
+        "\n",
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 2. Remove <head>, <style>, <script>
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 2. Remove <head>
+    |--------------------------------------------------------------------------
+    |
+    | We don't need the email document head.
+    |
+    */
 
-        $html = preg_replace(
-            '/<head\b[^>]*>.*?<\/head>/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<head\b[^>]*>.*?<\/head>/is',
+        '',
+        $html
+    );
 
-        $html = preg_replace(
-            '/<style\b[^>]*>.*?<\/style>/is',
-            '',
-            $html
-        );
+    /*
+    |--------------------------------------------------------------------------
+    | 3. Remove scripts
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<script\b[^>]*>.*?<\/script>/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<script\b[^>]*>.*?<\/script>/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 3. Remove dangerous / unnecessary elements
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 4. Remove dangerous elements
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<(iframe|object|embed|form|input|button|textarea|select|video|audio|canvas)\b[^>]*>.*?<\/\1>/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<(iframe|object|embed|form|input|button|textarea|select|video|audio|canvas)\b[^>]*>.*?<\/\1>/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 4. Remove Gmail quoted reply
-        |--------------------------------------------------------------------------
-        |
-        | This removes everything starting from:
-        |
-        | <div class="gmail_quote ...">
-        |
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 5. Remove self-closing dangerous elements
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_quote\b[^"\']*\1[^>]*>.*$/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<(iframe|object|embed|form|input|button|textarea|select|video|audio|canvas)\b[^>]*\/?>/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 5. Remove Gmail signature
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 6. Remove Gmail quoted reply
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_signature\b[^"\']*\1[^>]*>.*?<\/div>/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_quote\b[^"\']*\1[^>]*>.*$/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 6. Remove Outlook reply/forward container
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 7. Remove Gmail signature
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<div\b[^>]*id\s*=\s*(["\'])divRplyFwdMsg\1[^>]*>.*$/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<div\b[^>]*class\s*=\s*(["\'])[^"\']*\bgmail_signature\b[^"\']*\1[^>]*>.*?<\/div>/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 7. Remove blockquotes
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 8. Remove Outlook reply/forward content
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<div\b[^>]*id\s*=\s*(["\'])divRplyFwdMsg\1[^>]*>.*$/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 8. Remove "On ... wrote:" blocks
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 9. Remove blockquotes
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/<(div|p|span)\b[^>]*>\s*(?:<[^>]+>\s*)*On\b.{0,1000}\bwrote\s*:?\s*(?:<\/[^>]+>\s*)*<\/\1>/isu',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<blockquote\b[^>]*>.*?<\/blockquote>/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 9. Remove inline event handlers
-        |--------------------------------------------------------------------------
-        |
-        | onclick=""
-        | onload=""
-        | onmouseover=""
-        | etc.
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 10. Remove "On ... wrote:" blocks
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/\s+on[a-z]+\s*=\s*(["\']).*?\1/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/<(div|p|span)\b[^>]*>\s*(?:<[^>]+>\s*)*On\b.{0,1000}\bwrote\s*:?\s*(?:<\/[^>]+>\s*)*<\/\1>/isu',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 10. Remove javascript: URLs
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 11. Remove inline JavaScript event handlers
+    |--------------------------------------------------------------------------
+    |
+    | onclick=""
+    | onload=""
+    | onmouseover=""
+    | onerror=""
+    | etc.
+    |
+    */
 
-        $html = preg_replace(
-            '/\s+(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/\s+on[a-z]+\s*=\s*(["\']).*?\1/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 11. Remove ALL style attributes
-        |--------------------------------------------------------------------------
-        |
-        | This is what removes:
-        |
-        | style="line-height:1.5;margin:1rem..."
-        |
-        | BUT it does NOT remove the actual HTML element.
-        |
-        | <ol style="..."> becomes <ol>
-        | <li style="..."> becomes <li>
-        | <a style="..."> becomes <a>
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 12. Remove javascript: URLs
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/\s+style\s*=\s*(["\']).*?\1/is',
-            '',
-            $html
-        );
+    $html = preg_replace(
+        '/\s+(href|src)\s*=\s*(["\'])\s*javascript\s*:.*?\2/is',
+        '',
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 12. Remove email-client classes
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | 13. Remove dangerous CSS expressions
+    |--------------------------------------------------------------------------
+    */
 
-        $html = preg_replace(
-            '/\s+class\s*=\s*(["\']).*?\1/is',
-            '',
-            $html
-        );
+    $html = preg_replace_callback(
+        '/\s+style\s*=\s*(["\'])(.*?)\1/is',
+        function ($match) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | 13. Remove IDs
-        |--------------------------------------------------------------------------
-        */
+            $quote = $match[1];
+            $style = $match[2];
 
-        $html = preg_replace(
-            '/\s+id\s*=\s*(["\']).*?\1/is',
-            '',
-            $html
-        );
+            /*
+             * Remove javascript: from CSS.
+             */
+            $style = preg_replace(
+                '/javascript\s*:/i',
+                '',
+                $style
+            );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 14. Remove data-* and aria-* attributes
-        |--------------------------------------------------------------------------
-        */
+            /*
+             * Remove expression().
+             */
+            $style = preg_replace(
+                '/expression\s*\([^)]*\)/i',
+                '',
+                $style
+            );
 
-        $html = preg_replace(
-            '/\s+(?:data|aria)-[a-z0-9_-]+\s*=\s*(["\']).*?\1/is',
-            '',
-            $html
-        );
+            return ' style=' . $quote . $style . $quote;
+        },
+        $html
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | 15. Remove Microsoft Office tags
-        |--------------------------------------------------------------------------
-        */
+    $html = preg_replace_callback(
+        '/<style\b([^>]*)>(.*?)<\/style>/is',
+        function ($match) {
 
-        $html = preg_replace(
-            '/<\/?(?:o|w|m):[^>]*>/i',
-            '',
-            $html
-        );
+            $css = $match[2];
 
-        /*
-        |--------------------------------------------------------------------------
-        | 16. Keep only useful HTML attributes
-        |--------------------------------------------------------------------------
-        |
-        | We intentionally preserve:
-        |
-        | href
-        | target
-        | rel
-        |
-        | Everything else can be removed.
-        |--------------------------------------------------------------------------
-        */
+            /*
+             * Remove javascript URLs from CSS.
+             */
+            $css = preg_replace(
+                '/javascript\s*:/i',
+                '',
+                $css
+            );
 
-        $html = preg_replace_callback(
-            '/<([a-z][a-z0-9]*)\b([^>]*)>/i',
-            function ($match) {
+            /*
+             * Remove expression().
+             */
+            $css = preg_replace(
+                '/expression\s*\([^)]*\)/i',
+                '',
+                $css
+            );
 
-                $tag = strtolower($match[1]);
-                $attributes = $match[2];
+            /*
+             * Remove @import.
+             */
+            $css = preg_replace(
+                '/@import\b[^;]+;?/i',
+                '',
+                $css
+            );
+
+            return '<style>' . $css . '</style>';
+        },
+        $html
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 15. Remove Microsoft Office XML tags
+    |--------------------------------------------------------------------------
+    */
+
+    $html = preg_replace(
+        '/<\/?(?:o|w|m):[^>]*>/i',
+        '',
+        $html
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 16. Clean HTML attributes
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | We KEEP:
+    |
+    | class
+    | style
+    | href
+    | src
+    | alt
+    | width
+    | height
+    | target
+    | rel
+    | title
+    |
+    | because email designs depend on them.
+    |
+    */
+
+    $html = preg_replace_callback(
+        '/<([a-z][a-z0-9]*)\b([^>]*)>/i',
+        function ($match) {
+
+            $tag = strtolower($match[1]);
+            $attributes = $match[2];
+
+            /*
+            |--------------------------------------------------------------------------
+            | Extract attributes
+            |--------------------------------------------------------------------------
+            */
+
+            preg_match_all(
+                '/([a-zA-Z_:][a-zA-Z0-9:_.-]*)\s*=\s*(["\'])(.*?)\2/is',
+                $attributes,
+                $matches,
+                PREG_SET_ORDER
+            );
+
+            $allowed = [];
+
+            foreach ($matches as $attribute) {
+
+                $name = strtolower($attribute[1]);
+                $value = $attribute[3];
 
                 /*
-                | Tags that should have no attributes.
+                | Never allow event handlers.
                 */
 
-                $noAttributeTags = [
-                    'p',
-                    'div',
-                    'span',
-                    'br',
-                    'b',
-                    'strong',
-                    'i',
-                    'em',
-                    'u',
-                    'ul',
-                    'ol',
-                    'li',
-                    'h1',
-                    'h2',
-                    'h3',
-                    'h4',
-                    'h5',
-                    'h6',
+                if (str_starts_with($name, 'on')) {
+                    continue;
+                }
+
+                /*
+                | Never allow dangerous javascript URLs.
+                */
+
+                if (
+                    in_array($name, ['href', 'src'], true) &&
+                    preg_match('/^\s*javascript\s*:/i', $value)
+                ) {
+                    continue;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Global safe attributes
+                |--------------------------------------------------------------------------
+                */
+
+                $globalAttributes = [
+                    'class',
+                    'style',
+                    'title',
+                    'lang',
+                    'dir',
                 ];
 
-                if (in_array($tag, $noAttributeTags, true)) {
-                    return '<' . $tag . '>';
+                /*
+                |--------------------------------------------------------------------------
+                | Link attributes
+                |--------------------------------------------------------------------------
+                */
+
+                $linkAttributes = [
+                    'href',
+                    'target',
+                    'rel',
+                ];
+
+                /*
+                |--------------------------------------------------------------------------
+                | Image attributes
+                |--------------------------------------------------------------------------
+                */
+
+                $imageAttributes = [
+                    'src',
+                    'alt',
+                    'width',
+                    'height',
+                    'title',
+                ];
+
+                /*
+                |--------------------------------------------------------------------------
+                | Table/email attributes
+                |--------------------------------------------------------------------------
+                */
+
+                $tableAttributes = [
+                    'width',
+                    'height',
+                    'align',
+                    'valign',
+                    'border',
+                    'cellpadding',
+                    'cellspacing',
+                    'bgcolor',
+                ];
+
+                $isAllowed = false;
+
+                if (in_array($name, $globalAttributes, true)) {
+                    $isAllowed = true;
+                }
+
+                if (
+                    $tag === 'a' &&
+                    in_array($name, $linkAttributes, true)
+                ) {
+                    $isAllowed = true;
+                }
+
+                if (
+                    $tag === 'img' &&
+                    in_array($name, $imageAttributes, true)
+                ) {
+                    $isAllowed = true;
+                }
+
+                if (
+                    in_array(
+                        $tag,
+                        ['table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td'],
+                        true
+                    ) &&
+                    in_array($name, $tableAttributes, true)
+                ) {
+                    $isAllowed = true;
+                }
+
+                if (!$isAllowed) {
+                    continue;
                 }
 
                 /*
                 |--------------------------------------------------------------------------
-                | Anchor
-                |--------------------------------------------------------------------------
-                |
-                | Preserve only href / target / rel.
+                | Escape attribute value
                 |--------------------------------------------------------------------------
                 */
 
-                if ($tag === 'a') {
+                $safeValue = htmlspecialchars(
+                    $value,
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                    'UTF-8'
+                );
 
-                    $allowed = [];
+                $allowed[] =
+                    $name . '="' . $safeValue . '"';
+            }
 
-                    if (preg_match(
-                        '/\bhref\s*=\s*(["\'])(.*?)\1/is',
-                        $attributes,
-                        $href
-                    )) {
+            /*
+            |--------------------------------------------------------------------------
+            | Rebuild tag
+            |--------------------------------------------------------------------------
+            */
 
-                        $hrefValue = trim($href[2]);
+            if (!empty($allowed)) {
+                return '<' . $tag . ' ' .
+                    implode(' ', $allowed) .
+                    '>';
+            }
 
-                        /*
-                        | Don't allow javascript: URLs.
-                        */
+            return '<' . $tag . '>';
+        },
+        $html
+    );
 
-                        if (
-                            !preg_match(
-                                '/^\s*javascript:/i',
-                                $hrefValue
-                            )
-                        ) {
+    /*
+    |--------------------------------------------------------------------------
+    | 17. Remove empty structural elements
+    |--------------------------------------------------------------------------
+    */
 
-                            $allowed[] =
-                                'href="' .
-                                htmlspecialchars(
-                                    $hrefValue,
-                                    ENT_QUOTES | ENT_SUBSTITUTE,
-                                    'UTF-8'
-                                ) .
-                                '"';
-                        }
-                    }
+    $previous = null;
 
-                    if (preg_match(
-                        '/\btarget\s*=\s*(["\'])(.*?)\1/is',
-                        $attributes,
-                        $target
-                    )) {
+    while ($previous !== $html) {
 
-                        $targetValue = trim($target[2]);
-
-                        if (
-                            in_array(
-                                $targetValue,
-                                ['_blank', '_self', '_parent', '_top'],
-                                true
-                            )
-                        ) {
-
-                            $allowed[] =
-                                'target="' .
-                                htmlspecialchars(
-                                    $targetValue,
-                                    ENT_QUOTES | ENT_SUBSTITUTE,
-                                    'UTF-8'
-                                ) .
-                                '"';
-                        }
-                    }
-
-                    if (preg_match(
-                        '/\brel\s*=\s*(["\'])(.*?)\1/is',
-                        $attributes,
-                        $rel
-                    )) {
-
-                        $relValue = trim($rel[2]);
-
-                        $allowed[] =
-                            'rel="' .
-                            htmlspecialchars(
-                                $relValue,
-                                ENT_QUOTES | ENT_SUBSTITUTE,
-                                'UTF-8'
-                            ) .
-                            '"';
-                    }
-
-                    if (!empty($allowed)) {
-
-                        return '<a ' .
-                            implode(' ', $allowed) .
-                            '>';
-                    }
-
-                    return '<a>';
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | Unknown tags
-                |--------------------------------------------------------------------------
-                |
-                | Leave the tag itself but without attributes.
-                |--------------------------------------------------------------------------
-                */
-
-                return '<' . $tag . '>';
-            },
-            $html
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | 17. Remove empty structural elements
-        |--------------------------------------------------------------------------
-        */
-
-        $previous = null;
-
-        while ($previous !== $html) {
-
-            $previous = $html;
-
-            $html = preg_replace(
-                '/<(span|div)\b[^>]*>\s*<\/\1>/i',
-                '',
-                $html
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | 18. Remove excessive whitespace between tags
-        |--------------------------------------------------------------------------
-        */
+        $previous = $html;
 
         $html = preg_replace(
-            '/>\s+</',
-            '><',
+            '/<(span|div)\b[^>]*>\s*<\/\1>/i',
+            '',
             $html
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | 19. Remove excessive blank lines
-        |--------------------------------------------------------------------------
-        */
-
-        $html = preg_replace(
-            "/\n{3,}/",
-            "\n\n",
-            $html
-        );
-
-        return trim($html);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 18. Remove excessive whitespace between tags
+    |--------------------------------------------------------------------------
+    */
+
+    $html = preg_replace(
+        '/>\s+</',
+        '><',
+        $html
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 19. Remove excessive blank lines
+    |--------------------------------------------------------------------------
+    */
+
+    $html = preg_replace(
+        "/\n{3,}/",
+        "\n\n",
+        $html
+    );
+
+    return trim($html);
+}
+
 
 
     private function stripQuotedReply(string $text): string
