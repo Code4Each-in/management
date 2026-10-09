@@ -1,0 +1,222 @@
+# Upwork read-only MVP: production deployment runbook
+
+Target: `https://pms.code4each.com` (Laravel 8, Hostinger, MariaDB 11.8). The server deploys from the Git repository over SSH. This runbook installs the module **with everything off**: no scheduled polling, no AI, no Upwork writes.
+
+Every command is marked:
+
+- **[READ]**: inspection only, changes nothing.
+- **[CHANGE]**: changes production. Run only with explicit approval for that step.
+
+Placeholders: `<PMS_PATH>` is the application directory on the server, `<PHP>` is the PHP CLI the site uses, `<DB_*>` are the database settings from `.env`. Discover them in section 1. Never print `.env`; use the `grep` forms below, which show variable names only.
+
+## 0. Release contents and gates
+
+- Release branch `release/upwork-readonly-mvp`, based on `ed4a4e4` (the current `main`). It holds two commits: the squashed module and release hardening. No new Composer packages. 18 additive migrations, all on new `upwork_*` tables.
+- Gates before step 3:
+  1. The release PR is reviewed and merged into the branch the server deploys from.
+  2. A backup window is agreed.
+  3. An alert mailbox is chosen. It is needed later for preflight, not for installing.
+- Gates before any scheduled polling, which is **not part of this deployment**: the Upwork API & MCP Terms questions on scheduled searches and job-data retention are resolved in writing.
+
+## 1. Inspect the server [READ]
+
+```bash
+ssh <user>@<host>
+cd <PMS_PATH>
+
+# Code and deployment
+git status --short                     # must be clean (no local edits on the server)
+git branch --show-current
+git remote -v
+git log --oneline -1                   # record as PREVIOUS_RELEASE for rollback
+
+# PHP the site and cron use
+which php; php -v                      # needs PHP >= 7.4
+php -m | grep -iE '^(curl|json|mbstring|openssl|pdo_mysql|tokenizer|xml|ctype|fileinfo)$'
+crontab -l                             # look for the schedule:run line and the PHP binary it uses
+
+# Laravel state
+<PHP> artisan --version                # Laravel 8.x
+<PHP> artisan migrate:status | grep -c '| No'      # pending migrations BEFORE deploying (expect 0)
+ls bootstrap/cache/                    # config.php present = config is cached; routes-*.php should be absent
+
+# Environment: names and non-secret values only
+grep -E '^(APP_ENV|APP_DEBUG|APP_URL|CACHE_DRIVER|QUEUE_CONNECTION|MAIL_MAILER|SESSION_DRIVER)=' .env
+grep -cE '^(UPWORK_|OPENAI_)' .env     # expect 0 before this release
+
+# Writable paths for the file cache and logs
+ls -ld storage/framework/cache storage/logs
+```
+
+Stop and report if any of these hold:
+- `git status` is not clean
+- PHP is older than 7.4
+- `APP_ENV` is not exactly `production`
+- `APP_URL` is not `https://pms.code4each.com`
+- `CACHE_DRIVER` is `array` or `null`
+- non-Upwork migrations are pending
+
+## 2. Back up [CHANGE: writes backup files only]
+
+```bash
+mkdir -p ~/backups && chmod 700 ~/backups
+cd <PMS_PATH>
+git rev-parse HEAD > ~/backups/pms-previous-release-$(date +%F).txt
+cp .env ~/backups/pms-env-$(date +%F).bak && chmod 600 ~/backups/pms-env-$(date +%F).bak
+mysqldump --single-transaction --routines --triggers -h <DB_HOST> -u <DB_USERNAME> -p <DB_DATABASE> \
+  | gzip > ~/backups/pms-db-pre-upwork-$(date +%F-%H%M).sql.gz   # prompts for the password; do not pass it on the command line
+ls -lh ~/backups/                      # [READ] the dump must be non-trivial in size
+```
+
+A Hostinger hPanel database backup taken at the same time is a good second copy.
+
+## 3. Deploy the code [CHANGE]
+
+Use the server's normal deployment method. For a `git pull` setup:
+
+```bash
+cd <PMS_PATH>
+git fetch origin
+git checkout <deploy-branch>           # the branch the server already uses, normally main
+git pull --ff-only origin <deploy-branch>
+git log --oneline -3                   # [READ] the release commits are present
+```
+
+- **Effect:** new module code, routes and views. The **Upwork** menu appears only for users with Upwork access. Existing PMS features are unchanged.
+- **Composer:** the release adds no packages. Run `composer install --no-dev` only if your deployments always do. The repository has no `composer.lock`, so a fresh install may resolve newer patch versions. Check first that `webklex/laravel-imap` (used by existing ticket code) is present: `ls vendor/webklex`.
+
+## 4. Configure the environment [CHANGE]
+
+Add to `.env`, keeping the existing values. Never commit `.env`.
+
+```dotenv
+UPWORK_SCHEDULER_ENABLED=false     # no Upwork scheduler entries are registered
+# Leave unset or empty. The official Upwork API path is dormant:
+# UPWORK_CLIENT_ID=
+# UPWORK_CLIENT_SECRET=
+# UPWORK_TENANT_ID=
+# Leave unset or empty. AI stays off:
+# OPENAI_API_KEY=
+```
+
+Must already be true (verified in step 1): `APP_ENV=production`, `APP_URL=https://pms.code4each.com`, `CACHE_DRIVER=file` (or database/redis), and a working `MAIL_MAILER` (needed later for alerts). `QUEUE_CONNECTION` is **not** changed; the module uses its own `upwork` queue connection.
+
+```bash
+<PHP> artisan config:clear
+<PHP> artisan config:cache             # only if config was cached before (bootstrap/cache/config.php existed)
+<PHP> artisan view:clear
+# Do NOT run route:cache: the PMS has closure routes.
+```
+
+## 5. Migrate the module tables [CHANGE]
+
+Run the 18 Upwork migrations **by path, in this order**. Other pending migrations, if any, are never run by accident.
+
+```bash
+<PHP> artisan migrate --pretend --path=database/migrations/2026_10_07_100000_create_upwork_opportunities_table.php   # [READ] preview one
+for m in \
+ 2026_10_07_100000_create_upwork_opportunities_table \
+ 2026_10_07_100100_create_upwork_opportunity_logs_table \
+ 2026_10_08_100000_create_upwork_technology_catalog_tables \
+ 2026_10_08_100100_create_upwork_search_profiles_table \
+ 2026_10_08_100200_create_upwork_scoring_tables \
+ 2026_10_08_100300_add_scoring_columns_to_upwork_opportunities_table \
+ 2026_10_08_100400_create_upwork_discovery_tables \
+ 2026_10_08_100500_create_upwork_clients_tables \
+ 2026_10_08_100600_create_upwork_classifications_table \
+ 2026_10_08_100700_add_outlook_columns_to_upwork_opportunities_table \
+ 2026_10_08_100800_create_upwork_config_logs_table \
+ 2026_10_08_100900_add_notification_columns_to_upwork_opportunities_table \
+ 2026_10_09_100000_create_upwork_ai_usage_table \
+ 2026_10_09_100100_add_tiers_to_upwork_search_profiles_table \
+ 2026_10_09_100200_create_upwork_ai_analyses_table \
+ 2026_10_09_100300_create_upwork_queue_jobs_table \
+ 2026_10_09_100400_create_upwork_api_credentials_table \
+ 2026_10_09_100500_add_fingerprint_to_upwork_clients_table; do
+  <PHP> artisan migrate --force --path=database/migrations/$m.php || { echo "STOPPED at $m"; break; }
+done
+<PHP> artisan migrate:status | grep _upwork_      # [READ] all 18 show "Yes"
+```
+
+If the loop stops, do not continue. Note the migration name and go to the rollback section.
+
+- **Effect:** creates 21 new `upwork_*` tables. `ALTER`s touch only those new tables. Foreign keys point to the module's own tables and to `users.id`, which is `BIGINT UNSIGNED` on production, as `foreignId()` expects. There is no data change outside the module (the fingerprint backfill only reads the new, empty `upwork_clients`). Nothing uses `migrate:fresh` or `migrate:refresh`, and never use them.
+
+## 6. Seed the defaults [CHANGE]
+
+```bash
+<PHP> artisan db:seed --force --class=UpworkIntelligenceSeeder
+```
+
+- **Effect:** inserts the default technology catalog, search profiles, ruleset v1 and classifications, and settings with `agent.enabled=false` and `ai.enabled=false`. It is idempotent and never overwrites admin edits.
+
+## 7. Grant access [CHANGE: PMS data]
+
+In the PMS, as Super Admin: **Pages/Modules**, register the module route `upwork.config.manage` and grant it only to whoever may change the Upwork configuration. Reading needs Super Admin, the BDE designation or `upwork.opportunities.index`.
+
+## 8. Validate [READ]
+
+```bash
+<PHP> artisan upwork:preflight
+```
+
+Expected **at this stage**: everything passes **except** two items that are configured later:
+- "Discovery source … is connected", because no Upwork connection exists yet
+- "Email alerts reach a person", because no recipients are set yet
+
+Any other ✗ is a deployment problem: stop and investigate. Preflight makes no external calls and prints no secrets.
+
+## 9. Post-deployment smoke test (in the browser) [READ]
+
+- [ ] Log in as Super Admin; the **Upwork** menu shows Radar, Opportunities, Client Intelligence and Configuration.
+- [ ] Radar loads (empty), including the Discovery health and AI & efficiency cards.
+- [ ] Opportunities list loads (empty); Client Intelligence loads.
+- [ ] Configuration: Search profiles (11 seeded), Technologies, Scoring (ruleset v1 published), Classifications, AI (shows **AI disabled**), and Agent & discovery (**Agent enabled = off**, both Upwork cards "Not connected", no open alerts).
+- [ ] A user without Upwork access does not see the menu, and `/upwork` returns 403.
+- [ ] Existing PMS pages (dashboard, tickets, reminders) behave as before.
+- [ ] `tail -n 50 storage/logs/laravel.log` shows no new errors. **[READ]**
+- [ ] `crontab -l` is unchanged, and the next `schedule:run` adds no Upwork work. **[READ]** Scheduler entries are off.
+
+## 10. Later steps (each needs its own approval) [CHANGE]
+
+Not part of this deployment:
+
+1. **Alert mailbox:** under Agent & discovery, enable the **mail** channel and set recipients. Then send one approved test notification to confirm delivery.
+2. **Connect the Upwork MCP:** Agent & discovery → **Connect Upwork MCP**. Before approving on Upwork, check that the login link's `redirect_uri` is `https://pms.code4each.com/upwork/config/mcp/callback`. If it starts with `http://`, stop: the PMS does not trust the hosting proxy, and this must be fixed first.
+   - **Effect:** registers the PMS as an OAuth client at Upwork and stores encrypted tokens.
+3. Set **Upwork source = Upwork MCP, direct**. Run `upwork:preflight` again; it should pass.
+4. **One manual, read-only discovery run:** `<PHP> artisan upwork:discover --manual`.
+   - **Effect:** read-only Upwork calls; stores jobs in `upwork_*` tables.
+5. **Token refresh check:** `<PHP> artisan upwork:token-refresh` (rotates the Upwork MCP tokens).
+6. **Only after the terms decision:** set `UPWORK_SCHEDULER_ENABLED=true`, then `config:cache`, and switch on **Agent enabled** at the frequency the terms allow.
+7. **AI only later, and only by decision:** an OpenAI project with prepaid credit and auto-recharge off.
+
+## Rollback
+
+Choose the smallest step that fixes the problem.
+
+1. **Switch off** (no deploy): keep `UPWORK_SCHEDULER_ENABLED=false`, `agent.enabled` and `ai.enabled` off. The module is then passive.
+2. **Disconnect Upwork:** Agent & discovery → Disconnect (deletes tokens), and revoke the PMS in the Upwork account's connected apps.
+3. **Code rollback:** revert the release merge on the deploy branch (`git revert -m 1 <merge-commit>` locally, reviewed and pushed as usual), then on the server:
+   ```bash
+   git pull --ff-only origin <deploy-branch>
+   <PHP> artisan config:clear && <PHP> artisan config:cache && <PHP> artisan view:clear
+   git log --oneline -1                   # [READ] matches the reverted state
+   ```
+   In an emergency, `git checkout <PREVIOUS_RELEASE>` (detached) restores the previous code exactly. Return to the branch afterwards. The new tables can stay; old code ignores them.
+4. **Schema rollback:** this deletes all module data, so export first if needed. Roll back newest first, one path at a time:
+   ```bash
+   for m in 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
+    2026_10_09_100300_create_upwork_queue_jobs_table 2026_10_09_100200_create_upwork_ai_analyses_table \
+    2026_10_09_100100_add_tiers_to_upwork_search_profiles_table 2026_10_09_100000_create_upwork_ai_usage_table \
+    2026_10_08_100900_add_notification_columns_to_upwork_opportunities_table 2026_10_08_100800_create_upwork_config_logs_table \
+    2026_10_08_100700_add_outlook_columns_to_upwork_opportunities_table 2026_10_08_100600_create_upwork_classifications_table \
+    2026_10_08_100500_create_upwork_clients_tables 2026_10_08_100400_create_upwork_discovery_tables \
+    2026_10_08_100300_add_scoring_columns_to_upwork_opportunities_table 2026_10_08_100200_create_upwork_scoring_tables \
+    2026_10_08_100100_create_upwork_search_profiles_table 2026_10_08_100000_create_upwork_technology_catalog_tables \
+    2026_10_07_100100_create_upwork_opportunity_logs_table 2026_10_07_100000_create_upwork_opportunities_table; do
+     <PHP> artisan migrate:rollback --force --path=database/migrations/$m.php
+   done
+   ```
+   After a migration that stopped partway (step 5), first check which `upwork_*` tables exist (`SHOW TABLES LIKE 'upwork\_%'`), then roll back only the migrations recorded as run.
+5. **Full restore:** restore the step 2 database dump and `.env` copy. This is the last resort, because it also reverts any non-Upwork data written since the backup.
