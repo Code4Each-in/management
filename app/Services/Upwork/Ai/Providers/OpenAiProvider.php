@@ -4,6 +4,7 @@ namespace App\Services\Upwork\Ai\Providers;
 
 use App\Services\Upwork\Ai\AiRequest;
 use App\Services\Upwork\Ai\AiResponse;
+use App\Services\Upwork\Notifications\AlertService;
 use App\Services\Upwork\Ai\Contracts\AiProviderInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -80,7 +81,7 @@ class OpenAiProvider implements AiProviderInterface
                 ->timeout((int) ($options['timeout'] ?? 60))
                 ->post($this->baseUrl . '/responses', $this->payload($request, $model, $options));
         } catch (ConnectionException $e) {
-            return AiResponse::failure('timeout', 'Could not reach OpenAI: ' . $e->getMessage(), true, [], $this->ms($started));
+            return AiResponse::failure('timeout', 'Could not reach OpenAI: ' . AlertService::scrub($e->getMessage()), true, [], $this->ms($started));
         }
         $ms = $this->ms($started);
         $json = $response->json() ?? [];
@@ -118,10 +119,11 @@ class OpenAiProvider implements AiProviderInterface
     private function httpError(int $status, array $json, array $usage, int $ms): AiResponse
     {
         $code = $json['error']['code'] ?? $json['error']['type'] ?? null;
-        $message = mb_substr((string) ($json['error']['message'] ?? "HTTP {$status}"), 0, 500);
+        // OpenAI's messages can echo (masked) keys or request details: scrub before storing or showing.
+        $message = mb_substr(AlertService::scrub((string) ($json['error']['message'] ?? "HTTP {$status}")), 0, 500);
 
         if ($status === 401 || $status === 403) {
-            return AiResponse::failure('auth', $message, false, $usage, $ms);
+            return AiResponse::failure('auth', "OpenAI rejected the API key or project (HTTP {$status}). Check OPENAI_API_KEY on the server.", false, $usage, $ms);
         }
         if ($status === 429 && $code === 'insufficient_quota') {
             // Out of credits: never retry, and never fall back to another model.

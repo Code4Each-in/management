@@ -59,7 +59,7 @@ class UpworkOAuth
         try {
             $token = $this->tokenRequest(['grant_type' => 'refresh_token', 'refresh_token' => $credential->refresh_token]);
         } catch (\RuntimeException $e) {
-            $credential->forceFill(['last_error' => mb_substr($e->getMessage(), 0, 500)])->save();
+            $credential->forceFill(['last_error' => mb_substr(\App\Services\Upwork\Notifications\AlertService::scrub($e->getMessage()), 0, 500)])->save();
             throw $e;
         }
 
@@ -78,7 +78,8 @@ class UpworkOAuth
 
         if (!$response->successful() || !$response->json('access_token')) {
             // Never include the response body: it may echo credentials.
-            throw new \RuntimeException('Upwork token request failed (HTTP ' . $response->status() . ', ' . ($response->json('error') ?: 'no access token') . ').');
+            $error = is_string($response->json('error')) ? preg_replace('/[^a-z_]/i', '', $response->json('error')) : '';
+            throw new \RuntimeException('Upwork token request failed (HTTP ' . $response->status() . ', ' . ($error ?: 'no access token') . ').');
         }
 
         return $response->json();

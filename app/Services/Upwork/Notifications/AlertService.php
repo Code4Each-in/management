@@ -140,6 +140,8 @@ class AlertService
     public static function scrub(string $text): string
     {
         $text = preg_replace('/Bearer\s+\S+/i', 'Bearer [redacted]', $text);
+        // API keys, including provider-masked ones such as "sk-proj-****abcd".
+        $text = preg_replace('/\b(?:sk|rk|pk)-[A-Za-z0-9_*\-]{4,}/', '[redacted]', $text);
         $text = preg_replace('/\b((?:access|refresh|id)_token|client_secret|code_verifier|authorization|password)(["\']?\s*[:=]\s*["\']?)[^\s"\',&]+/i', '$1$2[redacted]', $text);
         $text = preg_replace('/\b[A-Za-z0-9._~+\/=-]{32,}\b/', '[redacted]', $text);
 

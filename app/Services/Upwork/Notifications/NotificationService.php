@@ -49,7 +49,7 @@ class NotificationService
             try {
                 app($class)->send($message);
             } catch (\Throwable $e) {
-                Log::warning("[upwork] notification channel '{$channel}' failed: " . $e->getMessage(), ['opportunity_id' => $opportunity->id]);
+                Log::warning("[upwork] notification channel '{$channel}' failed: " . AlertService::scrub($e->getMessage()), ['opportunity_id' => $opportunity->id]);
             }
         }
 

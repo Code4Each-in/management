@@ -98,8 +98,17 @@ class UpworkPreflight extends Command
         $this->info('  · Scheduler entries: ' . (config('upwork.scheduler.enabled') ? 'ON' : 'off (UPWORK_SCHEDULER_ENABLED)'));
         $this->info('  · Scheduled discovery: ' . ($s['agent.enabled'] ? 'ON' : 'off') . ", every {$s['agent.interval_minutes']} min, source {$s['discovery.client']}, ≤{$s['discovery.max_searches_per_day']} searches/day");
         $this->check(!app()->environment('production') || in_array($s['discovery.client'], ['graphql', 'mcp'], true), 'Discovery source is a real Upwork source in production', 'fixture client selected');
+        // The selected source must be usable, whichever it is.
         if ($s['discovery.client'] === 'mcp') {
             $this->check($mcp && $mcp->isConnected() && $mcp->tenant_id, 'Discovery source Upwork MCP is connected with an account', 'connect it under Agent & discovery');
+        } elseif ($s['discovery.client'] === 'graphql') {
+            $api = UpworkApiCredential::current();
+            $apiReady = (new \App\Services\Upwork\Api\UpworkOAuth())->isConfigured() && $api && $api->isConnected();
+            if (app()->environment('production')) {
+                $this->check($apiReady, 'Discovery source Upwork API is connected', 'select "Upwork MCP, direct" as the source, or connect the Upwork API, under Agent & discovery');
+            } elseif (!$apiReady) {
+                $this->info('  · Discovery source Upwork API is not connected (fine outside production)');
+            }
         }
 
         $this->line($this->failures ? "{$this->failures} problem(s) found." : 'Preflight passed.');
