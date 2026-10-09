@@ -42,6 +42,17 @@ return [
             'after_commit' => false,
         ],
 
+        // Upwork module only (AI qualification). Processed by the scheduled
+        // `queue:work upwork --queue=upwork --stop-when-empty`; the global
+        // QUEUE_CONNECTION is not changed.
+        'upwork' => [
+            'driver' => 'database',
+            'table' => 'upwork_queue_jobs', // not 'jobs': that table holds recruitment postings
+            'queue' => 'upwork',
+            'retry_after' => 300,
+            'after_commit' => true,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => 'localhost',

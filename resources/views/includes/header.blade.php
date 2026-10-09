@@ -411,6 +411,21 @@
     </a>
 </li>
 @endif
+@can('viewAny', \App\Models\UpworkOpportunity::class)
+<li class="nav-item">
+    <a class="nav-link {{ request()->is('upwork*') ? '' : 'collapsed' }}" data-bs-target="#upwork-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-briefcase"></i><span>Upwork</span><i class="bi bi-chevron-down ms-auto"></i>
+    </a>
+    <ul id="upwork-nav" class="nav-content collapse {{ request()->is('upwork*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+        <li><a class="{{ request()->is('upwork') ? 'active' : '' }}" href="{{ route('upwork.radar') }}"><i class="bi bi-circle"></i>Radar</a></li>
+        <li><a class="{{ request()->is('upwork/opportunities*') ? 'active' : '' }}" href="{{ route('upwork.opportunities.index') }}"><i class="bi bi-circle"></i>Upwork Opportunities</a></li>
+        <li><a class="{{ request()->is('upwork/clients*') ? 'active' : '' }}" href="{{ route('upwork.clients.index') }}"><i class="bi bi-circle"></i>Client Intelligence</a></li>
+        @can('viewConfig', \App\Models\UpworkOpportunity::class)
+        <li><a class="{{ request()->is('upwork/config*') ? 'active' : '' }}" href="{{ route('upwork.config.index') }}"><i class="bi bi-circle"></i>Configuration</a></li>
+        @endcan
+    </ul>
+</li>
+@endcan
  @if(auth()->user()->role_id != 6)
 <li class="nav-item">
     <a class="nav-link {{ request()->is('deployment*') ? '' : 'collapsed' }}"

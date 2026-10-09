@@ -44,6 +44,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DeploymentTicketController;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\UpworkOpportunityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -484,3 +485,65 @@ Route::post('/ticket-comments/pin/{id}', [TicketsController::class, 'togglePin']
 
 Route::get('/projects/{project}/tickets-json', [DeploymentTicketController::class, 'projectTickets'])
     ->name('projects.tickets.json');
+
+// Upwork Opportunities (review only — nothing here calls Upwork). Authorization: UpworkOpportunityPolicy.
+Route::middleware(['auth'])->prefix('upwork/opportunities')->name('upwork.opportunities.')->group(function () {
+    Route::get('/', [UpworkOpportunityController::class, 'index'])->name('index');
+    Route::get('/{opportunity}', [UpworkOpportunityController::class, 'show'])->name('show');
+    Route::post('/{opportunity}/approve', [UpworkOpportunityController::class, 'approve'])->name('approve');
+    Route::post('/{opportunity}/reject', [UpworkOpportunityController::class, 'reject'])->name('reject');
+    Route::post('/{opportunity}/proposal/generate', [UpworkOpportunityController::class, 'generateProposal'])->name('proposal.generate');
+    Route::put('/{opportunity}/proposal', [UpworkOpportunityController::class, 'updateProposal'])->name('proposal.update');
+    Route::post('/{opportunity}/proposal/approve', [UpworkOpportunityController::class, 'approveProposal'])->name('proposal.approve');
+    Route::post('/{opportunity}/proposal/submitted', [UpworkOpportunityController::class, 'markSubmitted'])->name('proposal.submitted');
+    Route::post('/{opportunity}/outcome', [UpworkOpportunityController::class, 'recordOutcome'])->name('outcome');
+    Route::post('/{opportunity}/ai', [UpworkOpportunityController::class, 'analyze'])->name('ai.analyze');
+});
+
+// Upwork Opportunity Radar (dashboard; same access as opportunities).
+Route::middleware(['auth'])->get('/upwork', [\App\Http\Controllers\Upwork\RadarController::class, 'index'])->name('upwork.radar');
+
+// Upwork configuration (read: Upwork access; write: Super Admin or the upwork.config.manage module).
+Route::middleware(['auth'])->prefix('upwork/config')->name('upwork.config.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Upwork\ConfigController::class, 'index'])->name('index');
+    Route::get('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'editSettings'])->name('settings.edit');
+    Route::put('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/ai', [\App\Http\Controllers\Upwork\AiSettingsController::class, 'edit'])->name('ai.edit');
+    Route::put('/ai', [\App\Http\Controllers\Upwork\AiSettingsController::class, 'update'])->name('ai.update');
+    Route::get('/api/connect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'connect'])->name('api.connect');
+    Route::get('/api/callback', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'callback'])->name('api.callback');
+    Route::post('/api/disconnect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'disconnect'])->name('api.disconnect');
+    Route::get('/mcp/connect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpConnect'])->name('mcp.connect');
+    Route::get('/mcp/callback', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpCallback'])->name('mcp.callback');
+    Route::post('/mcp/account', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpAccount'])->name('mcp.account');
+    Route::post('/mcp/disconnect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpDisconnect'])->name('mcp.disconnect');
+
+    Route::resource('profiles', \App\Http\Controllers\Upwork\SearchProfileController::class)->except(['show', 'destroy']);
+    Route::post('/profiles/{profile}/toggle', [\App\Http\Controllers\Upwork\SearchProfileController::class, 'toggle'])->name('profiles.toggle');
+
+    Route::resource('technologies', \App\Http\Controllers\Upwork\TechnologyController::class)->except(['show', 'destroy']);
+    Route::post('/technologies/{technology}/toggle', [\App\Http\Controllers\Upwork\TechnologyController::class, 'toggle'])->name('technologies.toggle');
+
+    Route::resource('classifications', \App\Http\Controllers\Upwork\ClassificationController::class)->except(['show', 'destroy']);
+
+    $rulesets = \App\Http\Controllers\Upwork\RulesetController::class;
+    Route::get('/scoring', [$rulesets, 'index'])->name('rulesets.index');
+    Route::post('/scoring/draft', [$rulesets, 'createDraft'])->name('rulesets.draft.create');
+    Route::get('/scoring/draft', [$rulesets, 'editDraft'])->name('rulesets.draft.edit');
+    Route::put('/scoring/draft', [$rulesets, 'updateDraft'])->name('rulesets.draft.update');
+    Route::delete('/scoring/draft', [$rulesets, 'discardDraft'])->name('rulesets.draft.discard');
+    Route::post('/scoring/draft/publish', [$rulesets, 'publish'])->name('rulesets.draft.publish');
+    Route::get('/scoring/draft/rules/create', [$rulesets, 'createRule'])->name('rulesets.rules.create');
+    Route::post('/scoring/draft/rules', [$rulesets, 'storeRule'])->name('rulesets.rules.store');
+    Route::get('/scoring/draft/rules/{rule}/edit', [$rulesets, 'editRule'])->name('rulesets.rules.edit');
+    Route::put('/scoring/draft/rules/{rule}', [$rulesets, 'updateRule'])->name('rulesets.rules.update');
+    Route::delete('/scoring/draft/rules/{rule}', [$rulesets, 'destroyRule'])->name('rulesets.rules.destroy');
+    Route::post('/scoring/draft/rules/{rule}/toggle', [$rulesets, 'toggleRule'])->name('rulesets.rules.toggle');
+    Route::get('/scoring/v{version}', [$rulesets, 'show'])->where('version', '[0-9]+')->name('rulesets.show');
+});
+
+// Upwork client intelligence (read-only, same access as opportunities).
+Route::middleware(['auth'])->prefix('upwork/clients')->name('upwork.clients.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\UpworkClientController::class, 'index'])->name('index');
+    Route::get('/{client}', [\App\Http\Controllers\UpworkClientController::class, 'show'])->name('show');
+});
