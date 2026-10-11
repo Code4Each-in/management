@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\HireUsController;
 use App\Http\Controllers\Api\InternalTimesheetExtension;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\Api\UpworkOpportunityController;
+use App\Http\Controllers\Api\UpworkAgentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,3 +48,17 @@ Route::post('/job-description', [JobsController::class, 'jobDescription']);
 Route::post('/add-client', [HireUsController::class, 'store']);
 
 // Ends Routes Without Auth
+
+// Upwork agent endpoints (Sanctum token with the upwork:ingest ability). The PMS never calls Upwork.
+Route::middleware(['auth:sanctum', 'throttle:120,1'])->prefix('upwork')->group(function () {
+    Route::get('/opportunities', [UpworkOpportunityController::class, 'index'])->name('api.upwork.opportunities.index');
+    Route::post('/opportunities', [UpworkOpportunityController::class, 'store'])->name('api.upwork.opportunities.store');
+    Route::put('/opportunities/{upworkJobId}/proposal-draft', [UpworkOpportunityController::class, 'storeProposalDraft'])->name('api.upwork.opportunities.proposal-draft');
+
+    // Discovery worker (Mac mini agent): config, run lease, per-query search rows, completion.
+    Route::get('/agent/config', [UpworkAgentController::class, 'config'])->name('api.upwork.agent.config');
+    Route::post('/agent/runs', [UpworkAgentController::class, 'startRun'])->name('api.upwork.agent.runs.start');
+    Route::post('/agent/runs/{run}/heartbeat', [UpworkAgentController::class, 'heartbeat'])->name('api.upwork.agent.runs.heartbeat');
+    Route::post('/agent/runs/{run}/queries', [UpworkAgentController::class, 'recordQuery'])->name('api.upwork.agent.runs.queries');
+    Route::post('/agent/runs/{run}/complete', [UpworkAgentController::class, 'completeRun'])->name('api.upwork.agent.runs.complete');
+});

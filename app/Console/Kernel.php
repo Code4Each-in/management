@@ -23,6 +23,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Upwork module (off unless UPWORK_SCHEDULER_ENABLED=true).
+        UpworkSchedule::register($schedule);
 
         $schedule->call(function () {
             try {

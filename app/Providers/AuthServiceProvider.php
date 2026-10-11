@@ -14,6 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        \App\Models\UpworkOpportunity::class => \App\Policies\UpworkOpportunityPolicy::class,
     ];
 
     /**
@@ -25,6 +26,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // Upwork configuration pages: whether the viewer may change configuration (forms render read-only otherwise).
+        \Illuminate\Support\Facades\View::composer('upwork.config.*', function ($view) {
+            $view->with('canManage', (bool) optional(auth()->user())->can('manageConfig', \App\Models\UpworkOpportunity::class));
+        });
     }
 }

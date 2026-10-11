@@ -32,6 +32,14 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
+    /**
+     * Agent API routes always get JSON errors, even without an Accept header.
+     */
+    protected function shouldReturnJson($request, Throwable $e)
+    {
+        return $request->is('api/upwork/*') || parent::shouldReturnJson($request, $e);
+    }
+
     public function register()
     {
         $this->reportable(function (Throwable $e) {

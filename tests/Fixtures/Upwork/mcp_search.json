@@ -1,0 +1,163 @@
+{
+ "client_rating_basis": "client.rating is the average score FREELANCERS gave this client after working with them (total_reviews is how many rated them), not the client's rating of freelancers and not a measure of the client's own success. A low rating is other freelancers reporting a bad experience with this client \u2014 surface it when the user is deciding whether to apply.",
+ "hasMore": true,
+ "jobs": [
+  {
+   "client": {
+    "country": "United Arab Emirates",
+    "rating": 5,
+    "total_posted_jobs": 47,
+    "total_reviews": 39,
+    "total_spent": "$84,216.98",
+    "verification_status": "VERIFIED"
+   },
+   "created_date": "2026-10-09T08:16:35.518Z",
+   "description": "<untrusted_participant_content>\nWe are a B2B software company building a multi-tenant Laravel platform for industrial sites. We are hiring a hands-on Head of Engineering and need an experienced engineer to run the technical interviews and give us a written, independent assessment of each candidate. You interview; we make the hiring decision.\n\nScope\n\nFour to five candidate interviews over two to three weeks, scheduled by us. Each interview is 90 minutes in two parts:\n- Part 1 (45 min): technical depth. Laravel and PHP in production, PostgreSQL, Inertia.js with Vue 3, multi-tenant design, security practice. Questions probe real decisions they made, not textbook answers.\n- Part 2 (45 min): live problem. You bring one realistic scenario (taking over an unfamiliar Laravel codebase, a data model issue, a tenant isolation flaw) and the candidate works through it with you, with their AI coding tools if they use them.\n\nWithin 24 hours of each interview, a written assessment of one page scored 1 to 5 on five criteria, with evidence for each score:\n1. Laravel and PHP depth in production\n2. Data modelling, PostgreSQL and multi-tenant design\n3. Codebase takeover and stabilisation judgement\n4. Security practice\n5. Use of AI coding tools and the judgement to review what they produce\nPlus a clear recommendation: hire, hire as senior engineer not lead, or no.\n\nOne 30-minute call with us after the batch to compare candidates.\n\nYou\n\n- 8+ years in software engineering, with Laravel in production in the last three years\nHave hired or interviewed senior engineers before and can tell a strong r\u00e9sum\u00e9 from a strong engineer\n- Comfortable interviewing in English over video; candidates are mainly in Egypt and Jordan, interviews fall Sunday to Thursday\n- Not affiliated with any candidate\n\nTerms\n\n- Fixed price per interview including the written assessment (State your price per interview in your proposal).\n- Start within one week. Signed NDA.\n\nTo be considered, send: your Laravel experience in two lines, one example of a senior hire you assessed and what you looked for, and your price per interview.\n</untrusted_participant_content>",
+   "description_snippet": "<untrusted_participant_content>\nWe are a B2B software company building a multi-tenant Laravel platform for industrial sites. We are hiring a hands-on Head of Engineering and need an experienced engineer to run the technical interviews and give us a written, independent as...\n</untrusted_participant_content>",
+   "duration": "Less than 1 month",
+   "engagement": "PART_TIME",
+   "experience_level": "expert",
+   "freelancers_to_hire": 1,
+   "id": "2108471673182427072",
+   "job_type": "hourly",
+   "proposals_tier": "20 to 50",
+   "published_date": "2026-10-09T08:16:47.935Z",
+   "skills": [
+    "Laravel",
+    "PHP",
+    "Git",
+    "Linux System Administration"
+   ],
+   "title": "Senior Laravel Engineer for Technical Interviews",
+   "url": "https://www.upwork.com/jobs/~022108471673182427072?utm_source=other"
+  },
+  {
+   "budget": "500.00",
+   "client": {
+    "country": "India",
+    "rating": 4.9,
+    "total_posted_jobs": 12,
+    "total_reviews": 3,
+    "total_spent": "$147.00",
+    "verification_status": "VERIFIED"
+   },
+   "created_date": "2026-10-09T07:02:41.743Z",
+   "description": "<untrusted_participant_content>\nWe have a hotel booking application developed in CI 1.2/ PHP 7.3. We would like an experienced AI proficient developer to migrate the applocation to CI4 and PHP 8.4. In this phase only the front-end is to be migrated. Unit testing of each functionality after the migation has to be done. There are various modules and third party APIs which should be tested for compatibility. Some knowledge of Apache SOLR server is preferrable. It would also be beneficial if that can also be upgraded.\n</untrusted_participant_content>",
+   "description_snippet": "<untrusted_participant_content>\nWe have a hotel booking application developed in CI 1.2/ PHP 7.3. We would like an experienced AI proficient developer to migrate the applocation to CI4 and PHP 8.4. In this phase only the front-end is to be migrated. Unit testing of each f...\n</untrusted_participant_content>",
+   "duration": "3 to 6 months",
+   "experience_level": "expert",
+   "freelancers_to_hire": 1,
+   "id": "2108453076569181830",
+   "job_type": "fixed",
+   "proposals_tier": "20 to 50",
+   "published_date": "2026-10-09T07:02:44.241Z",
+   "skills": [
+    "JavaScript",
+    "EJS",
+    "PHP",
+    "CodeIgniter",
+    "MySQL"
+   ],
+   "title": "Upgrade PHP project from CI 1.2/ PHP 7.3 to new PHP version 8.4/ CI 4",
+   "url": "https://www.upwork.com/jobs/~022108453076569181830?utm_source=other"
+  },
+  {
+   "budget": "650.00",
+   "client": {
+    "country": "USA",
+    "total_posted_jobs": 3,
+    "total_spent": "$1,897.00",
+    "verification_status": "VERIFIED"
+   },
+   "created_date": "2026-10-08T22:33:42.410Z",
+   "description": "<untrusted_participant_content>\nSachamama is a climate action nonprofit working with the Latino community in the United States. We are building a conversational agent (web and WhatsApp) as a module of our internal platform, built on Laravel 13 + Filament 5. This contract covers the first deliverable: the agent engine.\nThe project is developed 100% with AI assistance in Cursor. Our IT team defines the architecture, validates the code and integrates the deliverable. We are looking for someone who works within that architecture, gives the AI precise instructions, reads and understands every change, and delivers with tests and evidence. The quality of what you deliver matters more than speed.\nWhat you will build\n\u2022 A new Agente module inside our platform, following the structure of the existing modules.\n\u2022 A knowledge base editable from the admin panel (Filament), with permissions per program.\n\u2022 An interchangeable AI provider layer, with Gemini as the first provider.\n\u2022 The conversational engine: detects language (Spanish/English), classifies the user's intent among 9 types, recommends Sachamama content and actions, and follows strict scope rules.\n\u2022 An API endpoint for the web channel and a log of every message.\n\u2022 An admin screen where our team can test the agent.\nHow we work\n\u2022 You receive the functional specification, the architecture, the Cursor rules and the task list for the deliverable.\n\u2022 Before starting, you propose your task plan and we approve it.\n\u2022 The deliverable is submitted as a GitHub pull request with passing automated tests, an agent evaluation report run against a set of 30 test messages, and a checklist signed off by you.\n\u2022 Our team handles quality testing and integration.\n</untrusted_participant_content>",
+   "description_snippet": "<untrusted_participant_content>\nSachamama is a climate action nonprofit working with the Latino community in the United States. We are building a conversational agent (web and WhatsApp) as a module of our internal platform, built on Laravel 13 + Filament 5. This contract ...\n</untrusted_participant_content>",
+   "duration": "1 to 3 months",
+   "experience_level": "expert",
+   "freelancers_to_hire": 1,
+   "id": "2108324985570531264",
+   "job_type": "fixed",
+   "proposals_tier": "50+",
+   "published_date": "2026-10-08T22:33:51.088Z",
+   "skills": [
+    "API",
+    "Web Development",
+    "PHP",
+    "API Integration",
+    "JavaScript",
+    "WordPress"
+   ],
+   "title": "Laravel developer with AI (Cursor) to build the engine of a conversational agent \u2014 climate nonprofit",
+   "url": "https://www.upwork.com/jobs/~022108324985570531264?utm_source=other"
+  },
+  {
+   "budget": "100.00",
+   "client": {
+    "country": "United States",
+    "rating": 5,
+    "total_posted_jobs": 44,
+    "total_reviews": 35,
+    "total_spent": "$9,288.75",
+    "verification_status": "VERIFIED"
+   },
+   "created_date": "2026-10-08T19:54:53.763Z",
+   "description": "<untrusted_participant_content>\nNeed a PHP developer to connect an existing booking system and cart to a new theme and add a few features.\n</untrusted_participant_content>",
+   "description_snippet": "<untrusted_participant_content>\nNeed a PHP developer to connect an existing booking system and cart to a new theme and add a few features.\n</untrusted_participant_content>",
+   "duration": "1 to 3 months",
+   "experience_level": "expert",
+   "freelancers_to_hire": 1,
+   "id": "2108285019559762197",
+   "job_type": "fixed",
+   "proposals_tier": "20 to 50",
+   "published_date": "2026-10-08T19:54:57.896Z",
+   "skills": [
+    "PHP",
+    "Web Development",
+    "HTML",
+    "CSS"
+   ],
+   "title": "PHP Dev to Integrate Theme with Booking and Cart.",
+   "url": "https://www.upwork.com/jobs/~022108285019559762197?utm_source=other"
+  },
+  {
+   "budget": "900.00",
+   "client": {
+    "country": "PAK",
+    "rating": 5,
+    "total_posted_jobs": 4,
+    "total_reviews": 3,
+    "total_spent": "$626.12",
+    "verification_status": "VERIFIED"
+   },
+   "created_date": "2026-10-08T16:44:52.896Z",
+   "description": "<untrusted_participant_content>\nI have a Laravel application in which I need to add Voice AI via Livekit and Jev like decision classification using LayaPhp.\n\nRest of the details I will tell you on chat after selection if you dont have experience of Livekit and Laya Php dont apply. Experts only please\n</untrusted_participant_content>",
+   "description_snippet": "<untrusted_participant_content>\nI have a Laravel application in which I need to add Voice AI via Livekit and Jev like decision classification using LayaPhp.\n\nRest of the details I will tell you on chat after selection if you dont have experience of Livekit and Laya Php do...\n</untrusted_participant_content>",
+   "duration": "1 to 3 months",
+   "experience_level": "expert",
+   "freelancers_to_hire": 1,
+   "id": "2108237200691423897",
+   "job_type": "fixed",
+   "proposals_tier": "10 to 15",
+   "published_date": "2026-10-08T16:45:01.675Z",
+   "skills": [
+    "AI Agent Development",
+    "Full-Stack Development",
+    "PHP",
+    "Laravel",
+    "API Integration",
+    "Database Architecture",
+    "API",
+    "React",
+    "MySQL"
+   ],
+   "title": "Senior Laravel PHP Developer to add AI/LLM features in SAAS apps",
+   "url": "https://www.upwork.com/jobs/~022108237200691423897?utm_source=other"
+  }
+ ],
+ "next_cursor": "5",
+ "pageInfo": {
+  "endCursor": "5",
+  "hasNextPage": true
+ },
+ "status": "ok"
+}

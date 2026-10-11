@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "required": ["jobs"],
+  "properties": {
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["upwork_job_id", "ok"],
+        "properties": {
+          "upwork_job_id": {"type": "string"},
+          "ok": {"type": "boolean"},
+          "error": {"type": ["string", "null"]},
+          "payload": {"type": ["object", "null"]}
+        }
+      }
+    }
+  }
+}

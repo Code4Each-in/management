@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  TEMPLATE - not installed. See agent/README.md before enabling.
+  launchd starts the worker every 5 minutes; the worker itself exits immediately
+  unless the agent is enabled in the PMS and the PMS interval (default 20 min)
+  has passed. The PMS lease and the local lock prevent overlapping runs.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.code4each.upwork-agent</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/php</string>
+    <string>/Volumes/Code4each/projects/management/agent/upwork-agent.php</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>UPWORK_AGENT_ENV</key><string>/Volumes/Code4each/projects/management/agent/agent.env</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartInterval</key><integer>300</integer>
+  <key>RunAtLoad</key><false/>
+  <key>ProcessType</key><string>Background</string>
+  <key>LowPriorityIO</key><true/>
+  <key>StandardOutPath</key><string>/Users/YOUR_USER/Library/Logs/code4each-upwork-agent/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>/Users/YOUR_USER/Library/Logs/code4each-upwork-agent/launchd.err.log</string>
+</dict>
+</plist>

@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "required": ["queries"],
+  "properties": {
+    "queries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index", "page", "status", "jobs"],
+        "properties": {
+          "index": {"type": "integer"},
+          "page": {"type": "integer"},
+          "status": {"type": "string", "enum": ["ok", "error", "rate_limited"]},
+          "error": {"type": ["string", "null"]},
+          "jobs": {"type": "array", "items": {"type": "object"}}
+        }
+      }
+    }
+  }
+}

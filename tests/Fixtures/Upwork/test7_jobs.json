@@ -1,0 +1,173 @@
+{
+  "_note": "The 14 real jobs fetched read-only in Test 7 (2026-10-06), reduced to job and client facts. 'test7' is the hand-scored result from that test; 'expect' is what the default ruleset must reproduce (recommendation band, plus the hard filter for rejects). Search-only rows have truncated descriptions, as Upwork returned them.",
+  "jobs": [
+    {
+      "upwork_job_id": "2107433988671876948",
+      "title": "Full-Stack PHP/Laravel Developer for B2B Web Platform Modernization",
+      "description": "We are looking for an experienced Full-Stack PHP/Laravel Developer to help us with a focused update to an existing B2B web platform.\n\nThe platform is already live and working. For this stage, we need help with a small set of improvements in one existing module rather than a full rebuild.\n\nThe tasks are:\n- update several backend workflows in PHP/Laravel;\n- fix an issue with data validation and status changes in the admin panel;\n- improve one existing API Integration used to sync data with an external service;\n- optimize several MySQL queries that are currently slowing down one dashboard;\n- make a few minor JavaScript and HTML5 adjustments on the frontend;\n- test the updated functionality and make sure existing features continue working correctly.\n\nThe main application uses PHP, Laravel, MySQL, JavaScript and standard Web Development practices. The wider product ecosystem also includes PostgreSQL and a small WordPress-based content section, so experience with those technologies would be useful for understanding the overall setup.\n\nWe are looking for someone comfortable working with an existing codebase, understanding business logic quickly, and making clean changes without unnecessary refactoring.",
+      "job_type": "hourly", "hourly_min": 25, "hourly_max": 47, "experience_level": "expert", "duration": "Less than 1 month", "workload": "part_time",
+      "contractor_type": "All freelancers",
+      "client_country": "Italy", "client_rating": 5.0, "client_reviews_count": 27, "client_total_spent": 9485.51, "client_hire_rate": 100, "client_jobs_posted": 24, "client_jobs_hired": 29, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 18,
+      "job_activity": {"invitesSent": 0, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["Laravel", "MySQL", "Web Development", "API Integration", "HTML5", "PostgreSQL", "WordPress", "Full-Stack Development", "PHP", "JavaScript"]},
+      "test7": {"score": 65, "recommendation": "skip"},
+      "expect": {"recommendation": "skip"}
+    },
+    {
+      "upwork_job_id": "2107393100064249043",
+      "title": "Excellent Laravel/ReactJS developer required",
+      "description": "We are a fast-growing web agency!\n\nWe are looking for a talented and independent senior Laravel/ReactJS developer who knows how to build projects from scratch, can easily maintain the existing codebase and offer architecture improvements when/if needed.\n\nThis is a remote position with a flexible schedule. We do have lots of work with fun for you, so be prepared! We hire fast as we know exactly whom we're looking for.\n\nOur requirements:\n- Multiple years (4+) working in a professional software development environment (Laravel, ReactJS)\n- Strong skills in object-oriented development\n- Understanding patterns and techniques for building scalable back-end infrastructure (caching, client rate limiting, authentication and authorization schemes).\n- Experience designing and building RESTful JSON APIs\n- Functional knowledge of GIT\n- SQL/NoSQL experience",
+      "job_type": "hourly", "experience_level": "expert", "duration": "More than 6 months", "workload": "full_time",
+      "contractor_type": "Individuals only",
+      "client_country": "Estonia", "client_rating": 4.98, "client_reviews_count": 41, "client_total_spent": 527959.72, "client_hire_rate": 29, "client_jobs_posted": 150, "client_jobs_hired": 44, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 27,
+      "job_activity": {"invitesSent": 0, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["MongoDB", "Web Application", "PHP", "Laravel", "MySQL", "API", "Vue.js", "CSS", "JavaScript", "HTML5"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "individual-only"},
+      "expect": {"recommendation": "skip", "hard_filter": "individual_only"}
+    },
+    {
+      "upwork_job_id": "2107343380864324819",
+      "title": "Full-Stack developer  , Laravel - Claude Code - AWS",
+      "description": "Brand new Project\n\nMust have\n- Laravel (PHP): 3+ years, ideally with live production systems.\n- PostgreSQL and Redis: queues, background jobs, and data that must be exact, such as ledgers and payments.\n- AWS: setting up RDS, S3, SES and Secrets Manager; deployments, backups and monitoring.\n- Security: logins with two-factor, roles and permissions, secure file downloads, and personal data under PDPA.\n- Payment gateways: Billplz or Airwallex, webhooks, refunds and reconciliation.\n- Comfortable with AI coding tools: able to review and correct code written by Claude Code rather than rejecting it.\n\nGood to have\n- Python, Gemini and validator workers\n- Experience with multi-customer SaaS, subscriptions or credit systems.\n- Nearby timezone to Malaysia",
+      "job_type": "hourly", "hourly_min": 15, "hourly_max": 30, "experience_level": "intermediate", "duration": "3 to 6 months", "workload": "part_time",
+      "contractor_type": "Individuals only",
+      "client_country": "Malaysia", "client_rating": 4.72, "client_reviews_count": 242, "client_total_spent": 774645.61, "client_hire_rate": 68, "client_jobs_posted": 279, "client_jobs_hired": 189, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 26,
+      "job_activity": {"invitesSent": 1, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 1},
+      "raw_data": {"skills": ["AI Development", "Full-Stack Development", "PostgreSQL", "Laravel", "Amazon Web Services"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "already hired"},
+      "expect": {"recommendation": "skip", "hard_filter": "already_hired"}
+    },
+    {
+      "upwork_job_id": "2107309105077475077",
+      "title": "Flutter and Laravel Developer to Complete a Ferry Booking App",
+      "description": "We are building a ferry booking platform for routes between Haiti and the Dominican Republic. It works like a ride booking app: passengers search and book trips, and ferry operators manage their vessels, schedules, and bookings. The UI/UX design is complete in Figma, and backend development has started. We need an experienced developer or small team to take over and bring the product to launch.\n\nWhat exists today:\n- Complete Figma designs for the passenger flow and the operator flow\n- A defined architecture: Flutter mobile app, Laravel backend, REST APIs\n- Partial backend work, including operator registration, login, and ferry management APIs\n\nWhat we need built or completed:\n- Passenger app: trip search, booking of one or more seats, payment, booking history, cancellation before operator confirmation, ratings after completed trips\n- Operator app: ferry and trip management, booking confirmation, dashboard\n- Admin dashboard: users, trips, payments, refunds, support messages, settings, monitoring\n- Stripe integration with a platform commission on each booking\n- Four languages: English, French, Haitian Creole, and Spanish\n- Push notifications and email receipts\n- Publishing to the App Store and Google Play under our accounts\n\nRequirements:\n- Proven experience shipping Flutter apps with a Laravel backend\n- At least one live booking or marketplace app you can show us\n- Experience with Stripe Connect or similar split payments\n- All code delivered to our GitHub repository, with all accounts owned by us\n- Weekly demo builds and clear written updates\n- All communication and payment stay on Upwork",
+      "job_type": "fixed", "fixed_budget": 12000, "experience_level": "expert", "duration": "3 to 6 months",
+      "contractor_type": "All freelancers",
+      "client_country": "United States", "client_rating": 4.96, "client_reviews_count": 10, "client_total_spent": 17063.49, "client_hire_rate": 100, "client_jobs_posted": 13, "client_jobs_hired": 13, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 27,
+      "job_activity": {"invitesSent": 9, "totalInvitedToInterview": 8, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["Dart", "Firebase", "Flutter", "Laravel", "PHP", "Mobile App Development", "Stripe", "API Integration"]},
+      "test7": {"score": 59, "recommendation": "skip"},
+      "expect": {"recommendation": "skip"}
+    },
+    {
+      "upwork_job_id": "2107565059911928097",
+      "title": "AI Automation Developer for Drywall Estimating & GoHighLevel Proposal System",
+      "description": "AI Automation Developer Needed: Email-to-Estimate Proposal System for Drywall Contractor\n\nWe are looking for an experienced AI automation developer to build an email-to-estimate workflow for a drywall company.\n\nThe goal is to automatically receive construction bid-request emails with plan/specification PDFs, analyze the documents using Claude AI, apply the company's estimating rules and pricing, create a draft estimate/proposal, and send it to the estimator for approval before it goes to the customer.\n\nWorkflow Needed\n1. A customer/GC emails plan sets, drawings, and specifications as PDF attachments.\n2. The automation detects the email and creates or updates a contact/opportunity in GoHighLevel.\n3. PDF attachments are pulled into the automation.\n4. Claude AI analyzes the plans/specs and extracts relevant drywall-estimating information.\n5. The automation applies the drywall company's provided pricing rules, labor rates, material costs, waste percentage, markup, and minimum pricing.\n6. It creates a structured draft estimate and branded proposal PDF.\n7. It sends the estimator an internal approval request.\n8. Once approved, GoHighLevel automatically sends the proposal to the customer/GC and tracks follow-up.\n\nRequired Tech Stack\n- GoHighLevel / LeadConnector\n- Make.com or n8n\n- Claude API / Anthropic API\n- PDF/OCR/document processing experience\n- Webhooks and API integrations\n- Proposal/PDF document generation\n- CRM custom fields, opportunities, pipelines, and workflows\n\nImportant Requirements\n- The system must use the drywall company's specific pricing rules and estimating guidelines.\n- AI should return structured data/JSON, not only a written summary.\n- The proposal must never automatically send without estimator approval.\n- If plans are incomplete, unclear, or low-confidence, the system should flag the job for manual review.\n- Build the workflow so it can be repeated for additional drywall/construction clients in the future.\n- Keep client data secure and provide clear documentation/training after setup.",
+      "job_type": "hourly", "hourly_min": 12, "hourly_max": 25, "experience_level": "expert", "duration": "1 to 3 months", "workload": "part_time",
+      "contractor_type": "All freelancers",
+      "client_country": null, "client_rating": 5.0, "client_reviews_count": 1, "client_total_spent": 293.50, "client_hire_rate": 50, "client_jobs_posted": 2, "client_jobs_hired": 1, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 18,
+      "job_activity": {"invitesSent": 0, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["JSON", "Automation", "API", "Claude", "Make.com", "n8n", "OCR Software", "PDF Conversion"]},
+      "test7": {"score": 68, "recommendation": "skip"},
+      "expect": {"recommendation": "skip"}
+    },
+    {
+      "upwork_job_id": "2107561771980939922",
+      "title": "Senior AI Automation Engineer — Rebuild Operations for an Established Business",
+      "description": "We run an established, document-intensive service business and are looking for an exceptional engineer to help us operate with significantly less manual work.\n\nWe already use AI in production. However, employees still move documents between systems, prepare templates, check outputs, coordinate approvals, and handle customer communication. We believe much of this work can be automated, with a smaller team managing exceptions and quality.\n\nWe want someone who can understand the operation, challenge how it currently works, and build the systems to improve it.\n\nThe work\n\nYou'll design and implement automation across workflows involving:\n\nCustomer support through email, live chat, and occasional calls.\n\nDocument intake, OCR, classification, and structured data extraction.\n\nAI processing, rule-based calculations, and template-based document generation.\n\nExternal reviewer coordination, approvals, signatures, and delivery.\n\nOrder tracking, paid physical fulfillment, and related administrative tasks.\n\nSales support and contract coordination.\n\nSpecific services and internal workflows will be shared with shortlisted candidates.\n\nWho we're looking for\n\nYou have shipped AI systems that handle real business work, and you understand what happens when inputs are incomplete, outputs are wrong, or integrations fail.\n\nYou should be able to:\n\nChoose the right model for each task based on accuracy, latency, cost, and privacy.\n\nDecide where to use LLMs, deterministic code, workflow automation, or human review.\n\nBuild reliable integrations with APIs, databases, document tools, and communication platforms.\n\nCreate quality checks, evaluation datasets, exception queues, retries, and monitoring.\n\nHandle sensitive customer documents with appropriate access controls and audit trails.\n\nOwn the work from discovery through deployment.\n\nStrong full-stack skills are essential. Experience with TypeScript/React, Python, Supabase/Postgres, OCR, and document generation is useful.\n\nWhat success looks like\n\nWe want fewer manual touches per order, faster turnaround, consistent quality, and a measurable reduction in staff hours required to run the business.\n\nThe first engagement will be a paid assessment and implementation of one high-impact workflow. If successful, we'll expand across the operation. There is potential for an ongoing technical leadership role.",
+      "job_type": "hourly", "hourly_min": 22, "hourly_max": 29, "experience_level": "intermediate", "duration": "3 to 6 months", "workload": "full_time",
+      "contractor_type": "All freelancers",
+      "client_country": "United States", "client_rating": 4.86, "client_reviews_count": 218, "client_total_spent": 272191.32, "client_hire_rate": 53, "client_jobs_posted": 554, "client_jobs_hired": 294, "payment_verified": true,
+      "proposals_tier": "50+", "connects_required": 21,
+      "job_activity": {"invitesSent": 0, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["AI Automation", "AI Integration Deliverables", "AI Implementation", "AI Agent Development", "AI Consulting", "AI Builder"]},
+      "test7": {"score": 72, "recommendation": "review"},
+      "expect": {"recommendation": "review"}
+    },
+    {
+      "upwork_job_id": "2107536031478571666",
+      "title": "AI Developer & Automation Expert – AI Agents, RAG, Voice AI, n8n, APIs & Business Automation",
+      "description": "We're looking for an experienced AI Developer / AI Automation Engineer who can design, build, integrate, and maintain practical AI-powered systems for real business use cases.\n\nThis is not limited to basic ChatGPT integrations. We're interested in someone who understands how to connect AI models, agents, business data, APIs, databases, CRMs, communication platforms, and automation tools into reliable end-to-end workflows.\n\nWhat You May Work On: AI chatbots and conversational assistants, custom AI assistants, AI agents and multi-agent systems, AI voice agents, RAG (Retrieval-Augmented Generation) systems, document-based AI, semantic/vector search, OCR/document processing workflows, OpenAI / ChatGPT API integrations, Anthropic Claude integrations, Gemini and other LLM integrations, prompt engineering, structured outputs and function/tool calling.\n\nAutomation & Integrations: n8n automation, Zapier automation, Make.com automation, custom Node.js / Python automation, API integrations, REST APIs and GraphQL, webhooks, CRM automation, email, Slack, WhatsApp and SMS automation, Google Sheets automation, lead qualification workflows, invoice/document automation, data synchronization between multiple platforms.\n\nAI Platforms & Technologies: OpenAI, Anthropic Claude, Google Gemini, LangChain, LangGraph, LlamaIndex, MCP, vector databases, embeddings, Supabase, pgvector, Pinecone, Redis, PostgreSQL, MySQL, Firebase, Node.js, Python, TypeScript, Next.js, React, FastAPI, AWS, Docker, n8n, Zapier and Make.com.\n\nNice to Have: SaaS products, MCP servers/tools, CRM systems such as HubSpot, Salesforce or GoHighLevel, e-commerce automation with Shopify/WooCommerce, Stripe/payment automation.\n\nEngagement: We are open to starting with one project and expanding into an ongoing collaboration if the work goes well.",
+      "job_type": "hourly", "hourly_min": 22, "hourly_max": 25, "experience_level": "intermediate", "duration": "1 to 3 months", "workload": "full_time",
+      "contractor_type": "All freelancers",
+      "client_country": "India", "client_rating": 5.0, "client_reviews_count": 19, "client_total_spent": 2123.11, "client_hire_rate": 40, "client_jobs_posted": 55, "client_jobs_hired": 22, "payment_verified": true,
+      "proposals_tier": "20 to 50", "connects_required": 26,
+      "job_activity": {"invitesSent": 0, "totalInvitedToInterview": 0, "totalOffered": 0, "totalHired": 0},
+      "raw_data": {"skills": ["Agentic Workflows", "AI Agent Development", "LLM Agent Development", "AI Automation", "AI Implementation"]},
+      "test7": {"score": 58, "recommendation": "skip"},
+      "expect": {"recommendation": "skip"}
+    },
+    {
+      "upwork_job_id": "2107566167737446228",
+      "title": "Laravel Developer for Bug Fixes",
+      "description": "We need a developer to fix small bugs in an existing Laravel application. The work includes reviewing current issues, identifying the root cause, and implementing clean, reliable fixes. You should be comfortable working with an existing cod...",
+      "job_type": "fixed", "fixed_budget": 100, "experience_level": "intermediate", "duration": "Less than 1 month",
+      "client_country": "Canada", "client_rating": 5.0, "client_reviews_count": 3, "client_total_spent": 4891.05, "client_jobs_posted": 12, "payment_verified": true,
+      "proposals_tier": "20 to 50",
+      "raw_data": {"skills": ["Laravel", "PHP", "MySQL", "MySQL Programming"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "commodity / low value"},
+      "expect": {"recommendation": "skip", "hard_filter": "impossible_fixed"}
+    },
+    {
+      "upwork_job_id": "2107537373552924905",
+      "title": "Drag and Drop menu Builder in Laravel",
+      "description": "I'm currently look for Full Stack Developer to modify drag and drop menu and page builder in existing website built on Laravel php framework.",
+      "job_type": "fixed", "fixed_budget": 20, "experience_level": "intermediate", "duration": "Less than 1 month",
+      "client_country": "Ireland", "client_rating": 4.93, "client_reviews_count": 124, "client_total_spent": 10152.59, "client_jobs_posted": 236, "payment_verified": true,
+      "proposals_tier": "20 to 50",
+      "raw_data": {"skills": ["MySQL", "JavaScript", "CSS", "jQuery", "Web Development", "Laravel", "Bootstrap", "PHP"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "extremely low budget"},
+      "expect": {"recommendation": "skip", "hard_filter": "impossible_fixed"}
+    },
+    {
+      "upwork_job_id": "2107471557907663137",
+      "title": "iOS and Laravel Developer Needed",
+      "description": "We need a developer to build and maintain an iOS app and its backend. The work includes developing app features, improving performance, fixing bugs, and supporting ongoing updates. You should be comfortable working on both the mobile and ba...",
+      "job_type": "hourly", "hourly_min": 8, "hourly_max": 10, "experience_level": "expert", "duration": "1 to 3 months", "workload": "part_time",
+      "client_country": "United States", "payment_verified": true,
+      "proposals_tier": "20 to 50",
+      "raw_data": {"skills": ["Laravel", "PHP", "Objective-C", "iOS Development", "iOS"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "extremely low budget; iOS outside capabilities"},
+      "expect": {"recommendation": "skip", "hard_filter": "impossible_hourly"}
+    },
+    {
+      "upwork_job_id": "2107431227298513241",
+      "title": "WordOps - Laravel/Nginx Server Performance Review",
+      "description": "Looking for Laravel/Nginx/Linux developer to review a live production server and identify ways to reduce server response time.\n\nStack: Laravel 13, PHP 8.5, Nginx, WordOps, Ubuntu 22.04.\n\nI want you to audit the current setup, identify the m...",
+      "job_type": "fixed", "fixed_budget": 50, "experience_level": "intermediate", "duration": "Less than 1 month",
+      "client_country": "United Kingdom", "client_rating": 4.96, "client_reviews_count": 110, "client_total_spent": 29969.87, "client_jobs_posted": 90, "payment_verified": true,
+      "proposals_tier": "10 to 15",
+      "raw_data": {"skills": ["Ubuntu", "Linux", "NGINX", "PHP", "Laravel", "Linux System Administration"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "extremely low budget"},
+      "expect": {"recommendation": "skip", "hard_filter": "impossible_fixed"}
+    },
+    {
+      "upwork_job_id": "2107549592040196385",
+      "title": "(faceless) YouTube (automation) Video Editor & AI Video Creator for History Channel",
+      "description": "AI Filmmaker & YouTube Editor for Immersive History Videos\n\nI'm building an English-language history channel and looking for an AI filmmaker/editor for ongoing collaboration.\n\nThe goal is to bring historical worlds to life through believa...",
+      "job_type": "hourly", "hourly_min": 5, "hourly_max": 50, "experience_level": "expert", "duration": "More than 6 months", "workload": "full_time",
+      "client_country": "Netherlands", "client_rating": 4.65, "client_reviews_count": 8, "client_total_spent": 2453.23, "client_jobs_posted": 46, "payment_verified": true,
+      "proposals_tier": "5 to 10",
+      "raw_data": {"skills": ["YouTube Video", "Video Production", "Documentary", "AI-Generated Video", "Adobe Premiere Pro", "Video Editing", "Video Post-Editing", "YouTube Automation", "YouTube Monetization", "History"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "outside capabilities"},
+      "expect": {"recommendation": "skip", "hard_filter": "unsupported_capability"}
+    },
+    {
+      "upwork_job_id": "2107539403164047593",
+      "title": "AI E-Commerce Head of Growth  –  Google Ads, CRO, Retention, SEO/AIO & Automation (Claude Coder)",
+      "description": "*USA EAST COAST HOURS, NEW YORK TIME ZONE, MUST WORK A PORTION OR FULL DAY IN OUR TIME ZONE*\n\nMESSAGES OUTSIDE OF UPWORK WILL LEAD TO AUTOMATIC DISQUALIFCATION\n\n----\n\nWe run a US online auto parts store with a catalog of over 1 million part...",
+      "job_type": "hourly", "hourly_min": 5, "hourly_max": 35, "experience_level": "intermediate", "duration": "More than 6 months", "workload": "full_time",
+      "client_country": "United States", "client_rating": 4.74, "client_reviews_count": 105, "client_total_spent": 1152657.33, "client_jobs_posted": 462, "payment_verified": true,
+      "proposals_tier": "15 to 20",
+      "raw_data": {"skills": ["A/B Testing", "Google Shopping", "Google Ads", "Marketing Strategy", "Google Analytics", "Internet Marketing", "Search Engine Optimization", "Campaign Optimization", "Social Media Marketing", "SEO Keyword Research"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "outside capabilities"},
+      "expect": {"recommendation": "skip"}
+    },
+    {
+      "upwork_job_id": "2107488546927626529",
+      "title": "Sales Closer + Client Manager — AI Automation | HVAC",
+      "description": "Sales Closer + Client Manager — AI Automation Agency | HVAC\n\nInflow Automation is an AI automation agency helping U.S. HVAC businesses capture more leads and appointments with an AI Receptionist.\n\nWe're looking for a strong sales closer w...",
+      "job_type": "fixed", "fixed_budget": 200, "experience_level": "intermediate", "duration": "1 to 3 months",
+      "client_country": "India", "client_jobs_posted": 1, "payment_verified": true,
+      "proposals_tier": "Fewer than 5",
+      "raw_data": {"skills": ["Sales", "Lead Generation", "Cold Calling", "Outbound Sales", "Communications", "Cold Call", "Sales Consulting", "Appointment Scheduling", "Appointment Setting", "B2B Marketing"]},
+      "test7": {"score": null, "recommendation": "skip", "hard_reject": "outside capabilities"},
+      "expect": {"recommendation": "skip", "hard_filter": "unsupported_capability"}
+    }
+  ]
+}
