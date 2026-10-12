@@ -182,8 +182,9 @@ Any other ✗ is a deployment problem: stop and investigate. Preflight makes no 
 Not part of this deployment:
 
 1. **Alert mailbox:** under Agent & discovery, enable the **mail** channel and set recipients. Then send one approved test notification to confirm delivery.
-2. **Connect the Upwork MCP:** Agent & discovery → **Connect Upwork MCP**. Before approving on Upwork, check that the login link's `redirect_uri` is `https://pms.code4each.com/upwork/config/mcp/callback`. If it starts with `http://`, stop: the PMS does not trust the hosting proxy, and this must be fixed first.
+2. **Connect the Upwork MCP:** Agent & discovery → **Connect Upwork MCP**. Before approving on Upwork, check that the login link's `redirect_uri` is `http://127.0.0.1:45127/upwork/mcp/callback`: Upwork accepts loopback callbacks only and refuses `https://pms.code4each.com/...` (`invalid_redirect_uri`). Approve; the browser then shows "This site can't be reached" at that address, which is expected. Copy the full address from the address bar, go back to Agent & discovery and paste it into **Finish connecting**. The card must show "Connected, searching as Code4Each".
    - **Effect:** registers the PMS as an OAuth client at Upwork and stores encrypted tokens.
+   - **If registration fails,** the message now includes Upwork's error code and description, and `laravel.log` has a `[upwork] MCP client registration failed` entry.
 3. Set **Upwork source = Upwork MCP, direct**. Run `upwork:preflight` again; it should pass.
 4. **One manual, read-only discovery run:** `<PHP> artisan upwork:discover --manual`.
    - **Effect:** read-only Upwork calls; stores jobs in `upwork_*` tables.
