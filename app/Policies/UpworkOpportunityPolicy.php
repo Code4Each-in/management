@@ -63,6 +63,12 @@ class UpworkOpportunityPolicy
         return $this->hasAccess($user);
     }
 
+    /** Starting a discovery run from the PMS (read-only Upwork calls): Super Admin only. */
+    public function runDiscovery(Users $user): bool
+    {
+        return $user->isAdmin();
+    }
+
     /** Changing configuration: Super Admin, or a role granted the configuration module. */
     public function manageConfig(Users $user): bool
     {

@@ -33,6 +33,14 @@
         <div class="uw-help">Last run: {{ $summary['last_run']->status }} · {{ optional($summary['last_run']->started_at)->diffForHumans() }}</div>
       @endif
       <a href="{{ route('upwork.config.settings.edit') }}" class="small">Agent & discovery settings</a>
+      @can('runDiscovery', \App\Models\UpworkOpportunity::class)
+        <form method="POST" action="{{ route('upwork.config.discovery.run') }}" class="mt-2" onsubmit="return confirm('Run one read-only Upwork job search now?')">@csrf
+          <button class="btn btn-sm btn-outline-primary">Run discovery now</button></form>
+        @if($m = $summary['manual_run'])
+          <div class="uw-help mt-1">Manual run {{ \Illuminate\Support\Carbon::parse($m['at'])->diffForHumans() }}: {{ $m['status'] }}{{ $m['message'] && $m['message'] !== 'OK' ? ' · ' . $m['message'] : '' }}
+            @if(!empty($m['stats'])) · {{ $m['stats']['searches'] ?? 0 }} searches, {{ $m['stats']['rows'] ?? 0 }} jobs, {{ $m['stats']['enriched'] ?? 0 }} enriched @endif</div>
+        @endif
+      @endcan
     </div></div>
   </div>
 

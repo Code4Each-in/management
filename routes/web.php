@@ -506,6 +506,7 @@ Route::middleware(['auth'])->get('/upwork', [\App\Http\Controllers\Upwork\RadarC
 // Upwork configuration (read: Upwork access; write: Super Admin or the upwork.config.manage module).
 Route::middleware(['auth'])->prefix('upwork/config')->name('upwork.config.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Upwork\ConfigController::class, 'index'])->name('index');
+    Route::post('/discovery/run', [\App\Http\Controllers\Upwork\ConfigController::class, 'runDiscovery'])->name('discovery.run');
     Route::get('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'editSettings'])->name('settings.edit');
     Route::put('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'updateSettings'])->name('settings.update');
     Route::get('/ai', [\App\Http\Controllers\Upwork\AiSettingsController::class, 'edit'])->name('ai.edit');
