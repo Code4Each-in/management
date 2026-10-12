@@ -53,11 +53,38 @@ class ConfigController extends Controller
             'agent_enabled' => (bool) UpworkSetting::get('agent.enabled'),
             'interval' => (int) UpworkSetting::get('agent.interval_minutes'),
             'last_run' => UpworkDiscoveryRun::latest('id')->first(),
+            'manual_run' => UpworkSetting::get('discovery.manual_last'),
             'ai' => \App\Services\Upwork\Ai\AiGateway::fromSettings()->status(),
         ];
         $logs = UpworkConfigLog::with('user')->latest('id')->limit(20)->get();
 
         return view('upwork.config.index', compact('summary', 'logs'));
+    }
+
+    /**
+     * One manual, read-only discovery run (same as `upwork:discover --manual`).
+     * It runs after the response is sent, so the browser does not wait for it
+     * (the runner stops itself within discovery.max_seconds_per_run); the
+     * outcome, including "skipped", is kept in discovery.manual_last.
+     */
+    public function runDiscovery(Request $request)
+    {
+        $this->authorize('runDiscovery', UpworkOpportunity::class);
+
+        $userId = $request->user()->id;
+        UpworkConfigLog::record($userId, 'setting', null, 'Upwork discovery', 'manual run started', []);
+
+        dispatch(function () use ($userId) {
+            ignore_user_abort(true);
+            @set_time_limit(max(300, (int) UpworkSetting::get('discovery.max_seconds_per_run') + 60));
+            $out = app(\App\Services\Upwork\Discovery\ServerDiscoveryRunner::class)->run('manual');
+            UpworkSetting::set('discovery.manual_last', [
+                'status' => $out['status'], 'message' => $out['message'], 'run' => $out['run'],
+                'stats' => $out['stats'], 'by' => $userId, 'at' => now()->toIso8601String(),
+            ], $userId);
+        })->afterResponse();
+
+        return redirect()->route('upwork.config.index')->with('success', 'Discovery started. It takes up to a few minutes; refresh this page to see the result.');
     }
 
     public function editSettings()

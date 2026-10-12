@@ -186,7 +186,7 @@ Not part of this deployment:
    - **Effect:** registers the PMS as an OAuth client at Upwork and stores encrypted tokens.
    - **If registration fails,** the message now includes Upwork's error code and description, and `laravel.log` has a `[upwork] MCP client registration failed` entry.
 3. Set **Upwork source = Upwork MCP, direct**. Run `upwork:preflight` again; it should pass.
-4. **One manual, read-only discovery run:** `<PHP> artisan upwork:discover --manual`.
+4. **One manual, read-only discovery run:** `<PHP> artisan upwork:discover --manual`, or as Super Admin **Run discovery now** on the Upwork Configuration page (runs in the background; refresh after a few minutes to see the result on the Agent card).
    - **Effect:** read-only Upwork calls; stores jobs in `upwork_*` tables.
 5. **Token refresh check:** `<PHP> artisan upwork:token-refresh` (rotates the Upwork MCP tokens).
 6. **Only after the terms decision:** set `UPWORK_SCHEDULER_ENABLED=true`, then `config:cache`, and switch on **Agent enabled** at the frequency the terms allow.

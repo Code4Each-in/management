@@ -223,7 +223,7 @@ Each problem alerts once per `alerts.cooldown_minutes` (default 360) with an occ
 
 ## Compliance
 
-Use of the Upwork MCP is governed by Upwork's **API & MCP Terms of Use**, the same terms as the official API, so switching to an API key does not change this. Third-party summaries quote §4.1 as allowing searches for "a specific, documented, user-directed task" and not "activity designed to enumerate or continuously monitor Upwork's available content corpus". Upwork's own pages were not machine-readable for this review, so the quotes are **unverified**. Until the terms are read in full or Upwork confirms in writing, **do not enable unattended polling**; manual runs (`upwork:discover --manual`) remain available.
+Use of the Upwork MCP is governed by Upwork's **API & MCP Terms of Use**, the same terms as the official API, so switching to an API key does not change this. Third-party summaries quote §4.1 as allowing searches for "a specific, documented, user-directed task" and not "activity designed to enumerate or continuously monitor Upwork's available content corpus". Upwork's own pages were not machine-readable for this review, so the quotes are **unverified**. Until the terms are read in full or Upwork confirms in writing, **do not enable unattended polling**; manual runs (`upwork:discover --manual`, or **Run discovery now** on the Upwork Configuration page, Super Admin only) remain available.
 
 ## Deployment (Hostinger shared hosting)
 
