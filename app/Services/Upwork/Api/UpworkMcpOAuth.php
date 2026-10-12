@@ -39,6 +39,9 @@ class UpworkMcpOAuth
     /** How long another process waits for a refresh in progress (setting override for tests). */
     const LOCK_WAIT_SECONDS = 45;
 
+    /** Never served: an unusual port so no local program receives the sign-in result. */
+    const LOOPBACK_REDIRECT_URI = 'http://127.0.0.1:45127/upwork/mcp/callback';
+
     /** The registered client, if it was registered for this redirect URI. */
     public function client(): ?array
     {
@@ -47,9 +50,30 @@ class UpworkMcpOAuth
         return is_array($client) && !empty($client['client_id']) && ($client['redirect_uri'] ?? null) === $this->redirectUri() ? $client : null;
     }
 
+    /**
+     * Upwork accepts loopback redirect URIs only: registering a public https
+     * callback is refused with invalid_redirect_uri (verified 12 Oct 2026),
+     * and every client connected to Upwork uses localhost / 127.0.0.1. On a
+     * public host the sign-in therefore ends on LOOPBACK_REDIRECT_URI, which
+     * does not load, and the person pastes that address into the PMS
+     * (pasteBack()). On localhost the PMS callback receives it directly.
+     */
     public function redirectUri(): string
     {
-        return route('upwork.config.mcp.callback');
+        $callback = route('upwork.config.mcp.callback');
+
+        return self::isLoopback($callback) ? $callback : self::LOOPBACK_REDIRECT_URI;
+    }
+
+    /** True when the sign-in result has to be pasted back (PMS on a public host). */
+    public function pasteBack(): bool
+    {
+        return $this->redirectUri() === self::LOOPBACK_REDIRECT_URI;
+    }
+
+    private static function isLoopback(string $url): bool
+    {
+        return in_array(parse_url($url, PHP_URL_HOST), ['localhost', '127.0.0.1', '[::1]'], true);
     }
 
     /** Register the PMS as an MCP client (once per redirect URI). Returns the client id. */
@@ -67,7 +91,14 @@ class UpworkMcpOAuth
             'token_endpoint_auth_method' => 'none',
         ]);
         if (!$response->successful() || !$response->json('client_id')) {
-            throw new \RuntimeException('Upwork MCP client registration failed (HTTP ' . $response->status() . ').');
+            // OAuth error fields, not credentials; still filtered and cut short.
+            $error = is_string($response->json('error')) ? preg_replace('/[^a-z_]/i', '', $response->json('error')) : '';
+            $description = is_string($response->json('error_description')) ? mb_substr(preg_replace('/[^\w .,:;()\/-]/u', '', $response->json('error_description')), 0, 200) : '';
+            Log::warning('[upwork] MCP client registration failed', [
+                'status' => $response->status(), 'error' => $error, 'error_description' => $description,
+                'redirect_uri' => parse_url($this->redirectUri(), PHP_URL_SCHEME) . '://' . parse_url($this->redirectUri(), PHP_URL_HOST),
+            ]);
+            throw new \RuntimeException('Upwork MCP client registration failed (HTTP ' . $response->status() . ($error ? ", {$error}" : '') . ($description ? ": {$description}" : '') . ').');
         }
 
         // Only the public client id is kept; the registration management token is discarded.

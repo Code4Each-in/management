@@ -515,6 +515,7 @@ Route::middleware(['auth'])->prefix('upwork/config')->name('upwork.config.')->gr
     Route::post('/api/disconnect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'disconnect'])->name('api.disconnect');
     Route::get('/mcp/connect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpConnect'])->name('mcp.connect');
     Route::get('/mcp/callback', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpCallback'])->name('mcp.callback');
+    Route::post('/mcp/paste', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpPaste'])->name('mcp.paste');
     Route::post('/mcp/account', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpAccount'])->name('mcp.account');
     Route::post('/mcp/disconnect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'mcpDisconnect'])->name('mcp.disconnect');
 

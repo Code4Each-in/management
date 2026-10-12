@@ -180,6 +180,8 @@ Every configuration change is logged in `upwork_config_logs`.
 
 **How it connects.** Standard MCP OAuth 2.1. On **Connect Upwork MCP** the PMS registers itself with Upwork as its own public client (dynamic client registration, no API key, no client secret), a Super Admin signs in to Upwork and approves (PKCE), and the PMS lists the accounts and defaults to the agency (`FL_AGENCY`). Tokens are stored encrypted with `APP_KEY` under the `mcp` credential label. The registration is tied to the callback address, so **each server connects once**: the local connection cannot be copied to production.
 
+**Callback: loopback only.** Upwork accepts only `localhost` / `127.0.0.1` redirect URIs. Registering `https://<pms-domain>/upwork/config/mcp/callback` is refused with `400 invalid_redirect_uri`, `application_type: "web"` does not change that, and a self-hosted client ID metadata document is refused with "Client not found or disabled" (all verified 12 Oct 2026). Every client connected to Upwork (Claude Code included) uses a loopback callback. So on a public host the PMS registers `http://127.0.0.1:45127/upwork/mcp/callback` (`UpworkMcpOAuth::LOOPBACK_REDIRECT_URI`): after approving, the browser shows "This site can't be reached" at that address, and the Super Admin pastes the full address into **Finish connecting** on the MCP card. The PMS checks `state` and exchanges the code with the PKCE verifier, which never leaves the session; the pasted address is single-use. On localhost the PMS callback receives the result directly. Token refresh does not use the callback, so pasting is needed only when (re)connecting.
+
 **Transport.** MCP Streamable HTTP (JSON or SSE answers), one session per discovery run, `Mcp-Session-Id` reused, one re-initialization if the session expires. Descriptions arrive wrapped in `<untrusted_participant_content>`; the wrapper is stripped and the text stays untrusted data. Client reviews are never stored.
 
 **Read-only guarantee.** `McpUpworkClient::TOOLS` allows `find_jobs` (`search`, `get`) and `list_accounts` only; any other tool or action throws before a request is sent, and no public method takes a tool name. Tests also scan `app/` for any MCP write-tool name in a string. Note that **Upwork grants the full set of scopes to the connection**, so read-only is enforced by the PMS, not by Upwork.
@@ -245,7 +247,7 @@ Nothing here has been deployed. Do these steps in order. Each step is reversible
 
 **Connect and check (still nothing scheduled)**
 
-12. As Super Admin: **Agent & discovery → Connect Upwork MCP**. Before approving on Upwork, check that the login link's `redirect_uri` starts with `https://<pms-domain>/upwork/config/mcp/callback`. Approve; the card must show "Connected, searching as Code4Each".
+12. As Super Admin: **Agent & discovery → Connect Upwork MCP**. Before approving on Upwork, check that the login link's `redirect_uri` is `http://127.0.0.1:45127/upwork/mcp/callback`. Approve; the browser then shows "This site can't be reached". Copy the full address from the address bar, go back to **Agent & discovery** and paste it into **Finish connecting**. The card must show "Connected, searching as Code4Each".
 13. Set **Upwork source = Upwork MCP, direct**, enable the **mail** channel and set recipients.
 14. Run one manual cycle: `php artisan upwork:discover --manual`. Check the Radar (Discovery health) and a few jobs.
 15. Run `php artisan upwork:token-refresh` once and confirm it reports "refreshed".

@@ -89,16 +89,41 @@ class UpworkApiController extends Controller
     {
         $this->authorize('manageConfig', UpworkOpportunity::class);
 
+        return $this->finishMcpConnect($request, $oauth, $request->query('state'), $request->query('code'));
+    }
+
+    /**
+     * On a public host Upwork sends the sign-in result to a loopback address
+     * that does not load (UpworkMcpOAuth::redirectUri()); the person pastes
+     * that address here. The code is useless without the PKCE verifier,
+     * which never leaves the session.
+     */
+    public function mcpPaste(Request $request, UpworkMcpOAuth $oauth)
+    {
+        $this->authorize('manageConfig', UpworkOpportunity::class);
+
+        $request->validate(['callback_url' => ['required', 'string', 'max:4000']]);
+        parse_str((string) parse_url(trim($request->input('callback_url')), PHP_URL_QUERY), $query);
+        if (!isset($query['state']) && !isset($query['error'])) {
+            // Nothing usable pasted: keep the pending sign-in so the person can paste again.
+            return redirect()->route('upwork.config.settings.edit')->with('error', 'Paste the full address from the browser\'s address bar after approving on Upwork (it starts with ' . UpworkMcpOAuth::LOOPBACK_REDIRECT_URI . ').');
+        }
+
+        return $this->finishMcpConnect($request, $oauth, $query['state'] ?? null, $query['code'] ?? null);
+    }
+
+    private function finishMcpConnect(Request $request, UpworkMcpOAuth $oauth, $state, $code)
+    {
         $pending = $request->session()->pull('upwork_mcp_oauth');
-        if (!$pending || !hash_equals((string) $pending['state'], (string) $request->query('state'))) {
+        if (!$pending || !is_string($state) || !hash_equals((string) $pending['state'], $state)) {
             return redirect()->route('upwork.config.settings.edit')->with('error', 'Upwork MCP connection failed: invalid or expired state. Please try again.');
         }
-        if (!$request->filled('code')) {
+        if (!is_string($code) || $code === '') {
             return redirect()->route('upwork.config.settings.edit')->with('error', 'Upwork MCP connection was cancelled.');
         }
 
         try {
-            $credential = $oauth->exchangeCode((string) $request->query('code'), $pending['verifier'], $request->user()->id);
+            $credential = $oauth->exchangeCode($code, $pending['verifier'], $request->user()->id);
         } catch (\RuntimeException $e) {
             return redirect()->route('upwork.config.settings.edit')->with('error', 'Upwork MCP connection failed: ' . $e->getMessage());
         }
