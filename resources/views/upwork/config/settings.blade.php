@@ -69,6 +69,15 @@
             <button class="btn btn-sm btn-outline-danger">Disconnect</button></form>
         @endif
       </div>
+      @if($mcp['awaiting_paste'])
+        <form method="POST" action="{{ route('upwork.config.mcp.paste') }}" class="mt-3">@csrf
+          <label class="form-label small mb-1" for="mcp-callback-url"><strong>Finish connecting:</strong> after approving on Upwork, your browser shows "This site can't be reached" at an address starting with <code>{{ \App\Services\Upwork\Api\UpworkMcpOAuth::LOOPBACK_REDIRECT_URI }}</code>. That is expected. Copy the full address from the address bar and paste it here.</label>
+          <div class="d-flex gap-1">
+            <input type="text" id="mcp-callback-url" name="callback_url" class="form-control form-control-sm" autocomplete="off" required placeholder="http://127.0.0.1:45127/upwork/mcp/callback?code=…&amp;state=…">
+            <button class="btn btn-sm btn-primary">Finish</button>
+          </div>
+        </form>
+      @endif
     @endif
   </div>
 

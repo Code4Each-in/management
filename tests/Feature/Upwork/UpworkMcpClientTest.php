@@ -8,6 +8,7 @@ use App\Models\UpworkOpportunity;
 use App\Models\UpworkSetting;
 use App\Services\Upwork\Api\McpUpworkClient;
 use App\Services\Upwork\Api\UpworkClientFactory;
+use App\Services\Upwork\Api\UpworkMcpOAuth;
 use App\Services\Upwork\Api\UpworkWriteRefused;
 use App\Services\Upwork\Discovery\RowValidator;
 use App\Services\Upwork\Discovery\ServerDiscoveryRunner;
@@ -16,6 +17,8 @@ use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Upwork MCP called directly by the PMS (no AI model). Read-only: only
@@ -284,6 +287,7 @@ class UpworkMcpClientTest extends UpworkTestCase
 
     public function test_connect_registers_once_runs_pkce_login_and_picks_the_agency(): void
     {
+        URL::forceRootUrl('http://localhost'); // local development: Upwork redirects to the PMS callback directly
         $admin = $this->superAdmin();
         $this->fakeUpwork();
 
@@ -318,6 +322,56 @@ class UpworkMcpClientTest extends UpworkTestCase
 
         $this->app['auth']->forgetGuards();
         $this->actingAs($this->bde())->get(route('upwork.config.mcp.connect'))->assertForbidden();
+    }
+
+    public function test_on_a_public_host_the_loopback_result_is_pasted_back(): void
+    {
+        URL::forceRootUrl('https://pms.example.test');
+        $admin = $this->superAdmin();
+        $this->fakeUpwork();
+        $loopback = UpworkMcpOAuth::LOOPBACK_REDIRECT_URI;
+
+        $location = $this->actingAs($admin)->get(route('upwork.config.mcp.connect'))->headers->get('Location');
+        parse_str(parse_url($location, PHP_URL_QUERY), $q);
+        $this->assertSame($loopback, $q['redirect_uri']);
+        Http::assertSent(fn(Request $r) => $r->url() === self::REGISTER && $r['redirect_uris'] === [$loopback]);
+        $this->actingAs($admin)->get(route('upwork.config.settings.edit'))->assertSee('Finish connecting')->assertSee($loopback);
+
+        // Something that is not the address keeps the sign-in pending.
+        $this->actingAs($admin)->post(route('upwork.config.mcp.paste'), ['callback_url' => 'hello'])->assertSessionHas('error');
+        $this->assertNotNull(session('upwork_mcp_oauth'));
+
+        $pending = session('upwork_mcp_oauth');
+        $this->actingAs($admin)->post(route('upwork.config.mcp.paste'), ['callback_url' => " {$loopback}?code=c&state={$pending['state']} "])
+            ->assertSessionHas('success', 'Upwork MCP connected (read-only), searching as Code4Each.');
+        Http::assertSent(fn(Request $r) => $r->url() === self::TOKEN && $r['redirect_uri'] === $loopback && $r['code_verifier'] === $pending['verifier']);
+        $this->assertSame(self::ORG, UpworkApiCredential::mcp()->tenant_id);
+        $this->actingAs($admin)->get(route('upwork.config.settings.edit'))->assertDontSee('Finish connecting');
+
+        // A pasted address is single-use: the pending sign-in is gone.
+        $this->actingAs($admin)->post(route('upwork.config.mcp.paste'), ['callback_url' => "{$loopback}?code=c&state={$pending['state']}"])
+            ->assertSessionHas('error', 'Upwork MCP connection failed: invalid or expired state. Please try again.');
+
+        // A forged state is refused and nothing is exchanged.
+        UpworkApiCredential::where('label', 'mcp')->delete();
+        $this->actingAs($admin)->get(route('upwork.config.mcp.connect'));
+        $this->actingAs($admin)->post(route('upwork.config.mcp.paste'), ['callback_url' => "{$loopback}?code=c&state=forged"])->assertSessionHas('error');
+        $this->assertNull(UpworkApiCredential::mcp());
+
+        $this->app['auth']->forgetGuards();
+        $this->actingAs($this->bde())->post(route('upwork.config.mcp.paste'), ['callback_url' => "{$loopback}?code=c&state=x"])->assertForbidden();
+    }
+
+    public function test_a_refused_registration_shows_and_logs_upworks_error(): void
+    {
+        URL::forceRootUrl('https://pms.example.test');
+        Http::fake([self::REGISTER => Http::response(['error' => 'invalid_redirect_uri', 'error_description' => 'One or more redirect URIs are invalid'], 400)]);
+        Log::spy();
+
+        $this->actingAs($this->superAdmin())->get(route('upwork.config.mcp.connect'))
+            ->assertSessionHas('error', 'Upwork MCP client registration failed (HTTP 400, invalid_redirect_uri: One or more redirect URIs are invalid).');
+        Log::shouldHaveReceived('warning')->with('[upwork] MCP client registration failed', \Mockery::on(fn($c) => $c['error'] === 'invalid_redirect_uri' && $c['redirect_uri'] === 'http://127.0.0.1'));
+        $this->assertNull(UpworkSetting::get('mcp.client'));
     }
 
     // ---- Discovery --------------------------------------------------------------------------

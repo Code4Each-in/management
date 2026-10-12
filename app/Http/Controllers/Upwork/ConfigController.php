@@ -79,6 +79,8 @@ class ConfigController extends Controller
                 'credential' => \App\Models\UpworkApiCredential::mcp(),
                 'registered' => (new \App\Services\Upwork\Api\UpworkMcpOAuth())->client() !== null,
                 'accounts' => (array) UpworkSetting::get('mcp.accounts'),
+                // A sign-in is waiting for its result to be pasted back (public host only).
+                'awaiting_paste' => (new \App\Services\Upwork\Api\UpworkMcpOAuth())->pasteBack() && session()->has('upwork_mcp_oauth'),
             ]]);
     }
 
