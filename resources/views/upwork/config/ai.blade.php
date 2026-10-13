@@ -54,6 +54,13 @@
             <input type="hidden" name="auto_analyze" value="0">
             <input class="form-check-input" type="checkbox" name="auto_analyze" value="1" id="ai_auto" {{ old('auto_analyze', $settings['ai.auto_analyze']) ? 'checked' : '' }} {{ $ro ? 'disabled' : '' }}>
             <label class="form-check-label small" for="ai_auto">Analyse eligible jobs automatically (otherwise only on request)</label></div></div>
+          <div class="col-12"><div class="form-check form-switch">
+            <input type="hidden" name="proposal_drafts_enabled" value="0">
+            <input class="form-check-input" type="checkbox" name="proposal_drafts_enabled" value="1" id="ai_proposals" {{ old('proposal_drafts_enabled', $settings['ai.proposal_drafts_enabled']) ? 'checked' : '' }} {{ $ro ? 'disabled' : '' }}>
+            <label class="form-check-label small" for="ai_proposals">Draft a proposal with AI when a person approves a job (editable; never submitted)</label></div></div>
+          <div class="col-12"><label class="form-label small fw-semibold mb-1" for="proposal_profile">Approved agency profile for proposals</label>
+            <textarea id="proposal_profile" name="proposal_profile" rows="4" maxlength="4000" class="form-control form-control-sm" placeholder="Verified facts only: services, delivered project types, public case-study links. AI proposals may cite only this text and the PROVEN technologies." {{ $ro ? 'disabled' : '' }}>{{ old('proposal_profile', $settings['proposals.profile']) }}</textarea>
+            <div class="uw-help">AI drafts may cite only this text and technologies marked PROVEN. Anything else is left as a [placeholder] for the person editing the draft.</div></div>
           <div class="col-md-4"><label class="form-label small fw-semibold mb-1">Provider</label>
             <select name="provider" class="form-select form-select-sm" {{ $ro ? 'disabled' : '' }}>
               @foreach($providers as $p)<option value="{{ $p }}" {{ old('provider', $settings['ai.provider']) === $p ? 'selected' : '' }}>{{ $p }}</option>@endforeach

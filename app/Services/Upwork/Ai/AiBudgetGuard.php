@@ -86,6 +86,13 @@ class AiBudgetGuard
                 $checks[] = ['deep_daily_request_limit', $deepDay['requests'] + 1, 'deep analyses today'];
                 $checks[] = ['deep_monthly_budget_usd', $deepMonth['cost'] + $cost, 'USD on deep analyses this month'];
             }
+            if ($request->type === self::TYPE_PROPOSAL) {
+                // Proposal drafts: their own hard cap inside the overall budget.
+                $proposalDay = $this->totals($this->dayStart(), self::TYPE_PROPOSAL);
+                $proposalMonth = $this->totals($this->monthStart(), self::TYPE_PROPOSAL);
+                $checks[] = ['proposal_daily_request_limit', $proposalDay['requests'] + 1, 'proposal drafts today'];
+                $checks[] = ['proposal_monthly_budget_usd', $proposalMonth['cost'] + $cost, 'USD on proposal drafts this month'];
+            }
             foreach ($checks as [$key, $wouldBe, $label]) {
                 $limit = (float) $this->setting($key);
                 if ($wouldBe > $limit) {
@@ -121,15 +128,16 @@ class AiBudgetGuard
     }
 
     const TYPE_DEEP = 'deep';
+    const TYPE_PROPOSAL = 'proposal';
 
-    /** Per-request token caps: deep analysis has its own (larger) ones. */
+    /** Per-request token caps: deep analysis and proposal drafts have their own. */
     public function capsFor(string $type): array
     {
-        $deep = $type === self::TYPE_DEEP;
+        $prefix = in_array($type, [self::TYPE_DEEP, self::TYPE_PROPOSAL], true) ? "{$type}_" : '';
 
         return [
-            'input' => (int) $this->setting($deep ? 'deep_max_input_tokens' : 'max_input_tokens'),
-            'output' => (int) $this->setting($deep ? 'deep_max_output_tokens' : 'max_output_tokens'),
+            'input' => (int) $this->setting("{$prefix}max_input_tokens"),
+            'output' => (int) $this->setting("{$prefix}max_output_tokens"),
         ];
     }
 
@@ -177,6 +185,13 @@ class AiBudgetGuard
                 'month' => $this->totals($this->monthStart(), self::TYPE_DEEP),
                 'daily_request_limit' => (int) $this->setting('deep_daily_request_limit'),
                 'monthly_budget_usd' => (float) $this->setting('deep_monthly_budget_usd'),
+            ],
+            'proposal' => [
+                'enabled' => (bool) $this->setting('proposal_drafts_enabled'),
+                'today' => $this->totals($this->dayStart(), self::TYPE_PROPOSAL),
+                'month' => $this->totals($this->monthStart(), self::TYPE_PROPOSAL),
+                'daily_request_limit' => (int) $this->setting('proposal_daily_request_limit'),
+                'monthly_budget_usd' => (float) $this->setting('proposal_monthly_budget_usd'),
             ],
             'blocked' => $blocked,
         ];

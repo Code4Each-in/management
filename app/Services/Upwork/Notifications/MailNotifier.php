@@ -17,7 +17,13 @@ class MailNotifier implements OpportunityNotifier
             return;
         }
 
+        $actions = '';
+        foreach ((array) ($message['actions'] ?? []) as $label => $url) {
+            $actions .= "\n- {$label}: {$url}";
+        }
+
         $body = $message['title'] . "\n\n" . implode("\n", $message['lines']) . "\n\nOpen in the PMS: " . $message['url']
+            . ($actions !== '' ? "\n\nNot now? Each link opens a confirmation page in the PMS (sign-in required); nothing changes until you confirm there:" . $actions : '')
             . (in_array($message['level'] ?? null, ['alert', 'resolved'], true)
                 ? "\n\nThis is an operational notice from the PMS. Nothing has been sent to Upwork."
                 : "\n\nNothing has been sent to Upwork. Review and decide in the PMS.");

@@ -136,6 +136,15 @@
       <textarea id="notification_mail_to" name="notification_mail_to" rows="2" class="form-control form-control-sm" placeholder="bde@code4each.com, sales@code4each.com" {{ (!$canManage) ? "disabled" : "" }}>{{ old('notification_mail_to', implode(', ', (array) ($values['notifications.mail_to'] ?? []))) }}</textarea>
     </div>
 
+    <div class="mb-3">
+      <div class="form-check form-switch">
+        <input type="hidden" name="review_reminders_enabled" value="0">
+        <input class="form-check-input" type="checkbox" role="switch" id="review_reminders_enabled" name="review_reminders_enabled" value="1" {{ old('review_reminders_enabled', $values['review.reminders_enabled'] ?? false) ? "checked" : "" }} {{ (!$canManage) ? "disabled" : "" }}>
+        <label class="form-check-label fw-semibold small" for="review_reminders_enabled">Review reminders</label>
+      </div>
+      <div class="uw-help">New APPLY / REVIEW jobs should be reviewed within {{ config('upwork.review.deadline_minutes') }} minutes of first being seen. When on, reminders go to the channels above at {{ implode(', ', (array) config('upwork.review.reminder_minutes')) }} minutes, then every {{ config('upwork.review.repeat_minutes') }} minutes once overdue, until someone approves or rejects the job or snoozes it. Deadlines are tracked either way; nothing is approved, rejected or archived automatically. Needs the server scheduler (UPWORK_SCHEDULER_ENABLED).</div>
+    </div>
+
     @if($canManage)<button class="btn btn-primary btn-sm">Save settings</button>@endif
   </form>
 </div>

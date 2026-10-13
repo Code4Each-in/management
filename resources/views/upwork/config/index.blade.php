@@ -29,8 +29,14 @@
       <div class="uw-h">Agent</div>
       <div style="font-size:1.1rem; font-weight:600; color:{{ $summary['agent_enabled'] ? '#166534' : '#991b1b' }};">{{ $summary['agent_enabled'] ? 'Enabled' : 'Disabled' }}</div>
       <div class="uw-help">Every {{ $summary['interval'] }} min · Upwork access is read-only</div>
+      @php $d = $summary['discovery']; @endphp
+      <div class="uw-help">Server scheduler: {{ $d['scheduler_enabled'] ? 'on' : 'off (UPWORK_SCHEDULER_ENABLED)' }}@if($d['next_due_at']) · next run {{ $d['next_due_at']->isPast() ? 'due now' : $d['next_due_at']->diffForHumans() }}@endif</div>
       @if($summary['last_run'])
         <div class="uw-help">Last run: {{ $summary['last_run']->status }} · {{ optional($summary['last_run']->started_at)->diffForHumans() }}</div>
+      @endif
+      <div class="uw-help">Last successful run: {{ $d['last_success'] ? optional($d['last_success']->finished_at ?? $d['last_success']->started_at)->diffForHumans() . ' (' . $d['last_success']->trigger . ')' : 'none yet' }}</div>
+      @if($d['last_failure'])
+        <div class="uw-help" style="color:{{ $d['consecutive_failures'] ? '#991b1b' : 'inherit' }};">Last failure: {{ $d['last_failure']->status }} · {{ optional($d['last_failure']->started_at)->diffForHumans() }}{{ $d['last_failure_error'] ? ' · ' . \Illuminate\Support\Str::limit($d['last_failure_error'], 140) : '' }}@if($d['consecutive_failures']) · {{ $d['consecutive_failures'] }} in a row, retrying sooner @endif</div>
       @endif
       <a href="{{ route('upwork.config.settings.edit') }}" class="small">Agent & discovery settings</a>
       @can('runDiscovery', \App\Models\UpworkOpportunity::class)

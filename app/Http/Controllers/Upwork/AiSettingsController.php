@@ -35,6 +35,10 @@ class AiSettingsController extends Controller
         'deep_max_output_tokens' => ['ai.deep_max_output_tokens', ['nullable', 'integer', 'min:100', 'max:16000'], 'Deep analysis: max output tokens', null],
         'deep_daily_request_limit' => ['ai.deep_daily_request_limit', ['nullable', 'integer', 'min:0', 'max:1000'], 'Deep analyses per day', 'Manual only; counts toward the overall limits too.'],
         'deep_monthly_budget_usd' => ['ai.deep_monthly_budget_usd', ['nullable', 'numeric', 'min:0', 'max:10000'], 'Deep analysis monthly allowance (USD)', 'Part of the monthly budget, not on top of it.'],
+        'proposal_max_input_tokens' => ['ai.proposal_max_input_tokens', ['nullable', 'integer', 'min:500', 'max:50000'], 'Proposal drafts: max input tokens', null],
+        'proposal_max_output_tokens' => ['ai.proposal_max_output_tokens', ['nullable', 'integer', 'min:100', 'max:8000'], 'Proposal drafts: max output tokens', null],
+        'proposal_daily_request_limit' => ['ai.proposal_daily_request_limit', ['nullable', 'integer', 'min:0', 'max:1000'], 'Proposal drafts per day', 'Counts toward the overall limits too.'],
+        'proposal_monthly_budget_usd' => ['ai.proposal_monthly_budget_usd', ['nullable', 'numeric', 'min:0', 'max:10000'], 'Proposal drafts monthly cap (USD)', 'Hard stop, part of the monthly budget.'],
     ];
 
     const REASONING = ['' => 'Not sent', 'minimal' => 'Minimal', 'low' => 'Low', 'medium' => 'Medium'];
@@ -70,6 +74,8 @@ class AiSettingsController extends Controller
             'reasoning_effort' => ['nullable', Rule::in(array_keys(self::REASONING))],
             'temperature' => ['nullable', 'numeric', 'min:0', 'max:2'],
             'auto_analyze' => ['nullable', 'boolean'],
+            'proposal_drafts_enabled' => ['nullable', 'boolean'],
+            'proposal_profile' => ['nullable', 'string', 'max:4000'],
         ];
         $v = $request->validate($rules, ['model.in' => 'Choose a model with a configured price (prices live in config/upwork.php).']);
 
@@ -89,6 +95,12 @@ class AiSettingsController extends Controller
         if ($request->has('auto_analyze')) {
             $new['ai.auto_analyze'] = $request->boolean('auto_analyze');
         }
+        if ($request->has('proposal_drafts_enabled')) {
+            $new['ai.proposal_drafts_enabled'] = $request->boolean('proposal_drafts_enabled');
+        }
+        if ($request->has('proposal_profile')) {
+            $new['proposals.profile'] = trim((string) ($v['proposal_profile'] ?? ''));
+        }
         foreach (self::FIELDS as $field => [$key]) {
             if (isset($v[$field]) && $v[$field] !== '') {
                 $new[$key] = $v[$field] + 0;
@@ -96,6 +108,9 @@ class AiSettingsController extends Controller
         }
         if (isset($new['ai.deep_monthly_budget_usd']) && $new['ai.deep_monthly_budget_usd'] > $new['ai.monthly_budget_usd']) {
             throw ValidationException::withMessages(['deep_monthly_budget_usd' => 'The deep analysis allowance is part of the monthly budget, so it cannot be higher.']);
+        }
+        if (isset($new['ai.proposal_monthly_budget_usd']) && $new['ai.proposal_monthly_budget_usd'] > $new['ai.monthly_budget_usd']) {
+            throw ValidationException::withMessages(['proposal_monthly_budget_usd' => 'The proposal drafts cap is part of the monthly budget, so it cannot be higher.']);
         }
 
         $current = UpworkSetting::allWithDefaults();

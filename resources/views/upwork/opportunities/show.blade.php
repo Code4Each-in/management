@@ -75,6 +75,7 @@
       </div>
     </div>
     <div class="small text-muted mt-2" style="font-size:0.75rem;">Approving only records that we want to pursue this job. Nothing is sent to Upwork.</div>
+    @include('upwork.opportunities.partials.review-sla', ['o' => $o, 'review' => $review])
   </div>
 
   <div class="row g-3">
@@ -179,7 +180,7 @@
       @include('upwork.opportunities.partials.ai-analysis', ['o' => $o, 'ai' => $ai, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd, 'M' => $M])
 
       {{-- Proposal --}}
-      @include('upwork.opportunities.partials.proposal', ['o' => $o, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd])
+      @include('upwork.opportunities.partials.proposal', ['o' => $o, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd, 'ai' => $ai])
     </div>
 
     {{-- Right column --}}

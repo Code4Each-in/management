@@ -79,7 +79,7 @@ class UpworkDiscoveryTest extends UpworkTestCase
         $this->assertSame(['find_jobs', 'list_accounts'], $config['upwork']['allowed_tools']);
         $this->assertSame(['search', 'get'], $config['upwork']['allowed_find_jobs_actions']);
         $this->assertFalse($config['agent']['enabled']);
-        $this->assertSame(20, $config['agent']['interval_minutes']);
+        $this->assertSame(60, $config['agent']['interval_minutes']);
         $this->assertSame(1, $config['ruleset']['version']);
         $this->assertCount(11, $config['profiles']);
         $this->assertContains('laravel', array_column($config['catalog'], 'slug'));
@@ -326,6 +326,7 @@ class UpworkDiscoveryTest extends UpworkTestCase
 
     public function test_completion_aggregates_stats_and_updates_profile_state(): void
     {
+        UpworkSetting::set('agent.interval_minutes', 20); // backoff base = interval
         $data = $this->startRun();
         $uuid = $data['run']['uuid'];
         $this->report($uuid, 'laravel-php', [$this->row('s1'), $this->row('s2')]);
@@ -354,6 +355,7 @@ class UpworkDiscoveryTest extends UpworkTestCase
 
     public function test_backoff_grows_exponentially_and_doubles_on_rate_limits(): void
     {
+        UpworkSetting::set('agent.interval_minutes', 20); // backoff base = interval
         UpworkSearchProfile::where('slug', 'laravel-php')->update(['consecutive_failures' => 2]);
         $uuid = $this->startRun()['run']['uuid'];
         $this->report($uuid, 'laravel-php', [], ['status' => 'rate_limited', 'error' => '429']);

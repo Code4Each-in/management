@@ -94,6 +94,9 @@ class FakeProvider implements AiProviderInterface
             return false;
         }
         if (in_array('string', $types, true)) {
+            if ($key === 'draft') {
+                return "Hi,\n\nFake proposal draft (development provider). [link to relevant case study]\n\nBest regards,\nCode4Each";
+            }
             return in_array('null', $types, true) ? null : ($key === 'summary' ? 'Fake summary (development provider).' : 'fake');
         }
 

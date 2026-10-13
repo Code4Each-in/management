@@ -85,6 +85,19 @@ return [
         'enabled' => (bool) env('UPWORK_SCHEDULER_ENABLED', false),
     ],
 
+    // Review SLA for new APPLY / REVIEW jobs. Times are minutes after the clock starts
+    // (first_seen_at). Reminders never approve, reject, archive or apply anything.
+    'review' => [
+        'deadline_minutes' => 30,
+        'reminder_minutes' => [10, 20, 25],   // before the deadline
+        'repeat_minutes' => 10,               // after the deadline, while unreviewed and not snoozed
+        'max_reminders_per_run' => 50,        // bounded workload per scheduler tick
+        // Snooze presets ("tomorrow morning") and the custom date-time field use this zone.
+        'timezone' => env('UPWORK_REVIEW_TIMEZONE') ?: env('APP_TIMEZONE', 'Asia/Kolkata'),
+        'morning_hour' => 9,
+        'max_snooze_days' => 14,
+    ],
+
     'ai' => [
         'providers' => [
             'openai' => [
