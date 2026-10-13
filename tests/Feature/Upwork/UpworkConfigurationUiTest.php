@@ -336,7 +336,7 @@ class UpworkConfigurationUiTest extends UpworkTestCase
         $this->assertTrue(UpworkSetting::get('agent.enabled'));
         $this->assertSame(30, UpworkSetting::get('agent.interval_minutes'));
         $this->assertSame(['log', 'mail'], UpworkSetting::get('notifications.channels'));
-        $this->assertSame([20, 30], UpworkConfigLog::where('entity', 'setting')->latest('id')->first()->changes['agent.interval_minutes']);
+        $this->assertSame([60, 30], UpworkConfigLog::where('entity', 'setting')->latest('id')->first()->changes['agent.interval_minutes']);
 
         $this->actingAs($admin)->get(route('upwork.config.index'))->assertOk()->assertSee('Enabled')->assertSee('Every 30 min')->assertSee('Agent &amp; discovery settings', false);
     }

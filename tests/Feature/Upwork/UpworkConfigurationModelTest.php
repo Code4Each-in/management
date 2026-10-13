@@ -51,7 +51,7 @@ class UpworkConfigurationModelTest extends UpworkTestCase
         }
 
         $this->assertFalse(UpworkSetting::get('agent.enabled'));
-        $this->assertSame(20, UpworkSetting::get('agent.interval_minutes'));
+        $this->assertSame(60, UpworkSetting::get('agent.interval_minutes'));
     }
 
     public function test_seeder_is_idempotent_and_never_overwrites_admin_edits(): void
@@ -328,7 +328,7 @@ class UpworkConfigurationModelTest extends UpworkTestCase
 
     public function test_settings_fall_back_to_defaults_and_keep_falsy_values(): void
     {
-        $this->assertSame(20, UpworkSetting::get('agent.interval_minutes'));
+        $this->assertSame(60, UpworkSetting::get('agent.interval_minutes'));
         $this->assertNull(UpworkSetting::get('unknown.key'));
 
         UpworkSetting::set('agent.enabled', false);

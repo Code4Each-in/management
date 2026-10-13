@@ -159,7 +159,8 @@ class QualificationService
                 return ['status' => 'analyzed', 'analysis' => $existing, 'reused' => true] + $out;
             }
 
-            $today = UpworkAiAnalysis::where('opportunity_id', $o->id)->where('created_at', '>=', (new AiBudgetGuard())->dayStart())->count();
+            $today = UpworkAiAnalysis::where('opportunity_id', $o->id)->whereIn('request_type', [UpworkAiAnalysis::TYPE_QUALIFY, UpworkAiAnalysis::TYPE_DEEP])
+                ->where('created_at', '>=', (new AiBudgetGuard())->dayStart())->count();
             if ($today >= (int) $this->setting('max_analyses_per_job_per_day')) {
                 $message = 'Per-job AI limit reached for today.';
                 $this->mark($o, UpworkOpportunity::AI_BLOCKED, $message);

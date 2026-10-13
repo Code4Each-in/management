@@ -46,6 +46,12 @@ class UpworkOpportunityPolicy
         return $this->hasAccess($user);
     }
 
+    /** Snooze or resume review reminders for one job (people who can review it). */
+    public function snooze(Users $user, UpworkOpportunity $opportunity): bool
+    {
+        return $this->hasAccess($user);
+    }
+
     public function manageProposal(Users $user, UpworkOpportunity $opportunity): bool
     {
         return $this->hasAccess($user);

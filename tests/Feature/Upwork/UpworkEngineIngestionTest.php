@@ -112,12 +112,14 @@ class UpworkEngineIngestionTest extends UpworkTestCase
         $headers = $this->headers();
         $this->postJson('/api/upwork/opportunities', $this->unscored(), $headers)->assertStatus(201);
         $before = UpworkOpportunity::first();
+        $logs = $before->logs()->count();
 
         $this->travel(5)->minutes();
         $this->postJson('/api/upwork/opportunities', $this->unscored(), $headers)->assertStatus(200);
 
         $after = UpworkOpportunity::first();
-        $this->assertSame(1, $after->logs()->count(), 'no "updated" entry for an unchanged job');
+        $this->assertSame($logs, $after->logs()->count(), 'no "updated" entry for an unchanged job');
+        $this->assertSame(0, $after->logs()->where('action', 'updated')->count());
         $this->assertEquals($before->updated_at, $after->updated_at);
         $this->assertSame($before->score_explanation['scored_at'], $after->score_explanation['scored_at']);
     }

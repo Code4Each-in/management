@@ -22,7 +22,8 @@ class ConfigController extends Controller
      */
     const SETTINGS = [
         'agent_enabled' => ['agent.enabled', ['boolean'], 'Agent enabled', 'When off, scheduled discovery runs are refused. Manual test runs still work.'],
-        'agent_interval_minutes' => ['agent.interval_minutes', ['required', 'integer', 'min:10', 'max:240'], 'Discovery interval (minutes)', 'How often the Mac mini starts a cycle. Minimum 10.'],
+        'agent_interval_minutes' => ['agent.interval_minutes', ['required', 'integer', 'min:10', 'max:240'], 'Discovery interval (minutes)', 'How often a scheduled discovery cycle starts (default 60). Minimum 10.'],
+        'discovery_retry_after_failure_minutes' => ['discovery.retry_after_failure_minutes', ['nullable', 'integer', 'min:5', 'max:240'], 'Retry after a failed run (minutes)', 'First retry after a failed scheduled run; doubles after each further failure, never more often than this nor later than the interval.'],
         'agent_lease_minutes' => ['agent.lease_minutes', ['required', 'integer', 'min:5', 'max:60'], 'Run lease (minutes)', 'A run silent for longer is treated as dead; prevents overlapping runs.'],
         'agent_max_backoff_minutes' => ['agent.max_backoff_minutes', ['required', 'integer', 'min:20', 'max:1440'], 'Maximum backoff (minutes)', 'Upper limit for exponential backoff after failures or rate limits.'],
         'agent_enrich_limit_per_run' => ['agent.enrich_limit_per_run', ['required', 'integer', 'min:0', 'max:50'], 'Detail lookups per run', 'Maximum find_jobs "get" calls per run.'],
@@ -54,6 +55,7 @@ class ConfigController extends Controller
             'interval' => (int) UpworkSetting::get('agent.interval_minutes'),
             'last_run' => UpworkDiscoveryRun::latest('id')->first(),
             'manual_run' => UpworkSetting::get('discovery.manual_last'),
+            'discovery' => \App\Services\Upwork\Discovery\ServerDiscoveryRunner::status(),
             'ai' => \App\Services\Upwork\Ai\AiGateway::fromSettings()->status(),
         ];
         $logs = UpworkConfigLog::with('user')->latest('id')->limit(20)->get();
@@ -169,6 +171,14 @@ class ConfigController extends Controller
             if ($current['discovery.tier_searches_per_run'] != $tiers) {
                 $changes['discovery.tier_searches_per_run'] = [$current['discovery.tier_searches_per_run'], $tiers];
                 UpworkSetting::set('discovery.tier_searches_per_run', $tiers, $userId);
+            }
+        }
+
+        if ($request->has('review_reminders_enabled')) {
+            $on = $request->boolean('review_reminders_enabled');
+            if ((bool) $current['review.reminders_enabled'] !== $on) {
+                $changes['review.reminders_enabled'] = [(bool) $current['review.reminders_enabled'], $on];
+                UpworkSetting::set('review.reminders_enabled', $on, $userId);
             }
         }
 

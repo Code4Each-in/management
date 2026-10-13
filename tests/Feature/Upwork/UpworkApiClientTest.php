@@ -301,7 +301,9 @@ class UpworkApiClientTest extends UpworkTestCase
         $this->assertSame('completed', $runner->run('scheduled', new FixtureUpworkClient())['status']);
         $this->assertStringContainsString('Not due', $runner->run('scheduled', new FixtureUpworkClient())['message']);
 
-        $this->travel(21)->minutes();
+        $this->travel(30)->minutes();
+        $this->assertStringContainsString('interval 60 min', $runner->run('scheduled', new FixtureUpworkClient())['message'], 'hourly by default');
+        $this->travel(31)->minutes();
         $this->assertSame('completed', $runner->run('scheduled', new FixtureUpworkClient())['status']);
         $this->assertStringContainsString('not connected', $runner->run('manual', new GraphQlUpworkClient())['message']);
 
@@ -345,8 +347,8 @@ class UpworkApiClientTest extends UpworkTestCase
         $events = collect($schedule->events());
 
         $commands = $events->map(fn($e) => preg_replace('/^.*artisan[\'"]?\s+/', '', $e->command))->all();
-        $this->assertSame(['upwork:discover', 'queue:work upwork --queue=upwork --stop-when-empty --max-time=50 --tries=1 --timeout=240', 'upwork:token-refresh'], $commands);
+        $this->assertSame(['upwork:discover', 'queue:work upwork --queue=upwork --stop-when-empty --max-time=50 --tries=1 --timeout=240', 'upwork:review-reminders', 'upwork:token-refresh'], $commands);
         $this->assertTrue($events->every(fn($e) => $e->withoutOverlapping), 'no overlapping runs');
-        $this->assertSame(['*/5 * * * *', '* * * * *', '15 3 * * *'], $events->pluck('expression')->all());
+        $this->assertSame(['*/5 * * * *', '* * * * *', '* * * * *', '15 3 * * *'], $events->pluck('expression')->all());
     }
 }

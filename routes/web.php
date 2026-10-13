@@ -498,6 +498,11 @@ Route::middleware(['auth'])->prefix('upwork/opportunities')->name('upwork.opport
     Route::post('/{opportunity}/proposal/submitted', [UpworkOpportunityController::class, 'markSubmitted'])->name('proposal.submitted');
     Route::post('/{opportunity}/outcome', [UpworkOpportunityController::class, 'recordOutcome'])->name('outcome');
     Route::post('/{opportunity}/ai', [UpworkOpportunityController::class, 'analyze'])->name('ai.analyze');
+    Route::post('/{opportunity}/proposal/ai', [UpworkOpportunityController::class, 'draftProposalWithAi'])->name('proposal.ai');
+    // Review reminders: email links open the GET confirmation page; only the POST changes anything.
+    Route::get('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snoozeConfirm'])->name('snooze.confirm');
+    Route::post('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snooze'])->middleware('throttle:30,1')->name('snooze');
+    Route::post('/{opportunity}/unsnooze', [UpworkOpportunityController::class, 'unsnooze'])->middleware('throttle:30,1')->name('unsnooze');
 });
 
 // Upwork Opportunity Radar (dashboard; same access as opportunities).

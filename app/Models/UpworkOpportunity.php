@@ -115,7 +115,19 @@ class UpworkOpportunity extends Model
         'notified_at' => 'datetime',
         'ai_confidence' => 'float',
         'ai_analyzed_at' => 'datetime',
+        'review_due_at' => 'datetime',
+        'review_overdue_at' => 'datetime',
+        'review_reminder_stage' => 'integer',
+        'review_reminded_at' => 'datetime',
+        'review_snoozed_until' => 'datetime',
+        'reviewed_at' => 'datetime',
     ];
+
+    const PROPOSAL_AI_QUEUED = 'queued';
+    const PROPOSAL_AI_READY = 'ready';
+    const PROPOSAL_AI_FAILED = 'failed';
+    const PROPOSAL_AI_BLOCKED = 'blocked';  // AI off, not configured, or a limit reached
+    const PROPOSAL_AI_SKIPPED = 'skipped';  // a person already edited the draft, or the job moved on
 
     const AI_QUEUED = 'queued';
     const AI_ANALYZED = 'analyzed';
@@ -134,6 +146,7 @@ class UpworkOpportunity extends Model
     public function rejecter() { return $this->belongsTo(Users::class, 'rejected_by'); }
     public function proposalEditor() { return $this->belongsTo(Users::class, 'proposal_edited_by'); }
     public function proposalApprover() { return $this->belongsTo(Users::class, 'proposal_approved_by'); }
+    public function reviewSnoozer() { return $this->belongsTo(Users::class, 'review_snoozed_by'); }
     public function logs() { return $this->hasMany(UpworkOpportunityLog::class)->latest('id'); }
     public function sightings() { return $this->hasMany(UpworkOpportunitySighting::class, 'opportunity_id'); }
     public function client() { return $this->belongsTo(UpworkClient::class, 'upwork_client_id'); }

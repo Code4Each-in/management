@@ -192,6 +192,21 @@ Not part of this deployment:
 6. **Only after the terms decision:** set `UPWORK_SCHEDULER_ENABLED=true`, then `config:cache`, and switch on **Agent enabled** at the frequency the terms allow.
 7. **AI only later, and only by decision:** an OpenAI project with prepaid credit and auto-recharge off.
 
+## 11. Hourly discovery, review SLA and AI proposal drafts
+
+Code-only release plus one additive migration: `2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table` (nullable columns, no backfill, so existing jobs never enter the SLA). Everything ships switched off:
+
+| Switch | Default | Effect when on |
+|---|---|---|
+| `UPWORK_SCHEDULER_ENABLED` (.env) | `false` | Registers `upwork:discover` (checked every 5 min), the AI queue worker, `upwork:review-reminders` (every minute) and token refresh. |
+| Agent enabled (PMS) | off | Scheduled discovery runs every **Discovery interval** (new default 60 min; a value already saved in the PMS is kept). After a failed run it retries after 10, 20, 40… min, never later than the interval. |
+| Review reminders (PMS, Agent & discovery) | off | Reminders at 10, 20 and 25 min after a new APPLY / REVIEW job is first seen, overdue at 30, then every 10 min until someone approves, rejects or snoozes it. Deadlines and overdue marks are recorded even while off. |
+| AI enabled + proposal drafts (PMS, AI) | off | A person's approval queues one AI draft (budget-capped by **Proposal drafts monthly cap**), stored as an editable, unapproved draft. Never submitted. |
+
+Optional `.env`: `UPWORK_REVIEW_TIMEZONE` (snooze presets and email times; defaults to `APP_TIMEZONE`). The AI queue worker is the existing scheduler entry; no daemon is needed.
+
+Before switching reminders on: the mail channel and recipients are set (step 10.1), and the server scheduler is on. Snooze links in emails open a confirmation page; only the button on that page changes anything.
+
 ## Rollback
 
 Choose the smallest step that fixes the problem.
@@ -207,7 +222,7 @@ Choose the smallest step that fixes the problem.
    In an emergency, `git checkout <PREVIOUS_RELEASE>` (detached) restores the previous code exactly. Return to the branch afterwards. The new tables can stay; old code ignores them.
 4. **Schema rollback:** this deletes all module data, so export first if needed. Roll back newest first, one path at a time:
    ```bash
-   for m in 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
+   for m in 2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
     2026_10_09_100300_create_upwork_queue_jobs_table 2026_10_09_100200_create_upwork_ai_analyses_table \
     2026_10_09_100100_add_tiers_to_upwork_search_profiles_table 2026_10_09_100000_create_upwork_ai_usage_table \
     2026_10_08_100900_add_notification_columns_to_upwork_opportunities_table 2026_10_08_100800_create_upwork_config_logs_table \

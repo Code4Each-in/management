@@ -53,8 +53,10 @@ class ServerDiscoveryRunner
             }
             $last = UpworkDiscoveryRun::where('trigger', 'scheduled')->latest('id')->first();
             $interval = (int) UpworkSetting::get('agent.interval_minutes');
-            if ($last && $last->started_at && $last->started_at->gt(now()->subMinutes(max(1, $interval - 1)))) {
-                return ['message' => "Not due: last scheduled run started {$last->started_at->diffForHumans()} (interval {$interval} min)."] + $out;
+            $wait = self::minutesBetweenScheduledRuns();
+            if ($last && $last->started_at && $last->started_at->gt(now()->subMinutes(max(1, $wait - 1)))) {
+                $why = $wait < $interval ? "retry after failure in {$wait} min" : "interval {$interval} min";
+                return ['message' => "Not due: last scheduled run started {$last->started_at->diffForHumans()} ({$why})."] + $out;
             }
         }
 
@@ -200,12 +202,72 @@ class ServerDiscoveryRunner
                 "Run {$run->uuid} ({$trigger}) stopped with an error: " . $e->getMessage(), 'Local data is unchanged; the next run starts normally.',
             ]);
 
-            return ['status' => 'failed', 'message' => $e->getMessage(), 'run' => $run->uuid, 'stats' => $stats];
+            return ['status' => 'failed', 'message' => AlertService::scrub($e->getMessage()), 'run' => $run->uuid, 'stats' => $stats];
         }
 
         $this->alertOutcome($run->uuid, $trigger, $stats, $lastError);
 
         return ['status' => 'completed', 'message' => $stats['stopped'] ? "Stopped early: {$stats['stopped']}." : 'OK', 'run' => $run->uuid, 'stats' => $stats];
+    }
+
+    /**
+     * Minutes a scheduled run waits after the previous one: the interval, or a
+     * shorter, doubling retry delay after consecutive failed/abandoned runs
+     * (retry_after_failure_minutes, x2 per failure, never more than the interval).
+     */
+    public static function minutesBetweenScheduledRuns(): int
+    {
+        $interval = max(1, (int) UpworkSetting::get('agent.interval_minutes'));
+        $failures = self::consecutiveScheduledFailures();
+        if ($failures === 0) {
+            return $interval;
+        }
+        $base = max(1, (int) UpworkSetting::get('discovery.retry_after_failure_minutes'));
+
+        return (int) min($interval, $base * 2 ** min(10, $failures - 1));
+    }
+
+    /** Failed or abandoned scheduled runs since the last one that completed. */
+    public static function consecutiveScheduledFailures(): int
+    {
+        $failures = 0;
+        foreach (UpworkDiscoveryRun::where('trigger', 'scheduled')->where('status', '!=', UpworkDiscoveryRun::STATUS_RUNNING)
+                     ->latest('id')->limit(12)->pluck('status') as $status) {
+            if (!in_array($status, [UpworkDiscoveryRun::STATUS_FAILED, UpworkDiscoveryRun::STATUS_ABANDONED], true)) {
+                break;
+            }
+            $failures++;
+        }
+
+        return $failures;
+    }
+
+    /**
+     * Discovery health for the PMS: switches, last success, last failure
+     * (error text scrubbed), consecutive failures and when the next scheduled
+     * run is due.
+     */
+    public static function status(): array
+    {
+        $lastScheduled = UpworkDiscoveryRun::where('trigger', 'scheduled')->latest('id')->first();
+        $lastFailure = UpworkDiscoveryRun::whereIn('status', [UpworkDiscoveryRun::STATUS_FAILED, UpworkDiscoveryRun::STATUS_ABANDONED])->latest('id')->first();
+        $enabled = (bool) UpworkSetting::get('agent.enabled');
+        $schedulerOn = (bool) config('upwork.scheduler.enabled');
+        $wait = self::minutesBetweenScheduledRuns();
+
+        return [
+            'scheduler_enabled' => $schedulerOn,
+            'enabled' => $enabled,
+            'interval' => (int) UpworkSetting::get('agent.interval_minutes'),
+            'last_run' => UpworkDiscoveryRun::latest('id')->first(),
+            'last_success' => UpworkDiscoveryRun::where('status', UpworkDiscoveryRun::STATUS_COMPLETED)->latest('id')->first(),
+            'last_failure' => $lastFailure,
+            'last_failure_error' => $lastFailure && $lastFailure->error ? AlertService::scrub((string) $lastFailure->error) : null,
+            'consecutive_failures' => self::consecutiveScheduledFailures(),
+            'next_due_at' => $enabled && $schedulerOn
+                ? (($lastScheduled && $lastScheduled->started_at) ? $lastScheduled->started_at->copy()->addMinutes($wait) : now())
+                : null,
+        ];
     }
 
     /** Alert on an auth stop or a run where every search failed; clear alerts after a healthy run. */

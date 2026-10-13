@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Upwork\UpdateProposalDraftRequest;
 use App\Models\UpworkOpportunity;
+use App\Services\Upwork\Ai\Proposal\ProposalDraftService;
+use App\Services\Upwork\Review\ReviewSlaService;
 use App\Services\Upwork\UpworkOpportunityService;
 use App\Services\Upwork\UpworkProposalService;
 use Illuminate\Http\Request;
@@ -85,7 +87,7 @@ class UpworkOpportunityController extends Controller
     {
         $this->authorize('view', $opportunity);
 
-        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'logs.user', 'client', 'aiAnalysis']);
+        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'logs.user', 'client', 'aiAnalysis']);
 
         $client = $opportunity->client;
         $clientHistory = $client ? app(\App\Services\Upwork\Clients\ClientIntelligenceService::class)->history($client, $opportunity->id) : null;
@@ -95,13 +97,90 @@ class UpworkOpportunityController extends Controller
         $ai = [
             'qualify' => $opportunity->aiAnalyses()->where('request_type', 'qualify')->where('status', 'succeeded')->first(),
             'deep' => $opportunity->aiAnalyses()->where('request_type', 'deep')->where('status', 'succeeded')->first(),
-            'last_failure' => $opportunity->aiAnalyses()->where('status', 'failed')->first(),
+            'last_failure' => $opportunity->aiAnalyses()->whereIn('request_type', ['qualify', 'deep'])->where('status', 'failed')->first(),
             'usage' => \App\Models\UpworkAiUsage::where('opportunity_id', $opportunity->id)->latest('id')->get(),
             'status' => \App\Services\Upwork\Ai\AiGateway::fromSettings()->status(),
             'min_confidence' => (float) \App\Models\UpworkSetting::get('ai.min_confidence'),
+            'proposal_enabled' => ProposalDraftService::enabled(),
+            'proposal' => ProposalDraftService::latest($opportunity),
         ];
+        $review = $this->reviewState($opportunity);
 
-        return view('upwork.opportunities.show', compact('opportunity', 'client', 'clientHistory', 'catalog', 'ai'));
+        return view('upwork.opportunities.show', compact('opportunity', 'client', 'clientHistory', 'catalog', 'ai', 'review'));
+    }
+
+    /**
+     * Email snooze links land here. A GET only shows the choices; nothing
+     * changes until the person confirms with the POST form (CSRF-protected).
+     */
+    public function snoozeConfirm(Request $request, UpworkOpportunity $opportunity)
+    {
+        $this->authorize('snooze', $opportunity);
+
+        $preset = in_array($request->query('preset'), ReviewSlaService::SNOOZE_PRESETS, true) ? $request->query('preset') : '1h';
+        $review = $this->reviewState($opportunity);
+
+        return view('upwork.opportunities.snooze', ['opportunity' => $opportunity, 'preset' => $preset, 'review' => $review]);
+    }
+
+    public function snooze(Request $request, UpworkOpportunity $opportunity)
+    {
+        $this->authorize('snooze', $opportunity);
+
+        $validated = $request->validate([
+            'preset' => ['required', Rule::in(ReviewSlaService::SNOOZE_PRESETS)],
+            'until' => ['nullable', 'required_if:preset,custom', 'string', 'max:20'],
+        ]);
+
+        $sla = app(ReviewSlaService::class);
+        try {
+            $until = $sla->snoozeUntil($validated['preset'], $validated['until'] ?? null);
+            $sla->snooze($opportunity, $until, auth()->id(), $validated['preset']);
+        } catch (\DomainException $e) {
+            return redirect()->route('upwork.opportunities.show', $opportunity)->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('upwork.opportunities.show', $opportunity)
+            ->with('success', 'Reminders for this job are snoozed until ' . ReviewSlaService::format($until) . '. Other jobs are not affected; the review deadline is unchanged.');
+    }
+
+    public function unsnooze(UpworkOpportunity $opportunity)
+    {
+        $this->authorize('snooze', $opportunity);
+
+        return $this->attempt(fn() => app(ReviewSlaService::class)->unsnooze($opportunity, auth()->id()), 'Reminders for this job are back on.');
+    }
+
+    /** Draft with AI / Retry: queued, budget-guarded; the draft is never submitted anywhere. */
+    public function draftProposalWithAi(UpworkOpportunity $opportunity)
+    {
+        $this->authorize('manageProposal', $opportunity);
+
+        $outcome = app(ProposalDraftService::class)->request($opportunity, auth()->id());
+        if ($outcome !== 'queued') {
+            return back()->with('error', $outcome);
+        }
+
+        return back()->with('success', 'AI proposal draft queued. It usually takes a minute or two; refresh this page, then edit it before approving.');
+    }
+
+    private function reviewState(UpworkOpportunity $o): array
+    {
+        $sla = app(ReviewSlaService::class);
+
+        return [
+            'tracked' => $o->review_due_at !== null,
+            'open' => $o->review_due_at !== null && $o->status === UpworkOpportunity::STATUS_NEW,
+            'overdue' => $o->review_due_at !== null && $o->status === UpworkOpportunity::STATUS_NEW && $o->review_due_at->isPast(),
+            'snoozed' => $sla->isSnoozed($o),
+            'timezone' => ReviewSlaService::timezone(),
+            'now_local' => now()->setTimezone(ReviewSlaService::timezone()),
+            'presets' => [
+                '1h' => $sla->snoozeUntil('1h'),
+                '4h' => $sla->snoozeUntil('4h'),
+                'tomorrow' => $sla->snoozeUntil('tomorrow'),
+            ],
+        ];
     }
 
     public function approve(UpworkOpportunity $opportunity)

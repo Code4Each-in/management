@@ -29,7 +29,7 @@ class UpworkProposalService
     /**
      * Store a draft produced by the agent. Refuses to overwrite a draft a human has edited.
      */
-    public function storeAgentDraft(UpworkOpportunity $opportunity, array $data, ?int $userId): void
+    public function storeAgentDraft(UpworkOpportunity $opportunity, array $data, ?int $userId, ?string $source = null): void
     {
         if ($opportunity->proposal_edited_at !== null) {
             throw new \DomainException('This proposal draft has been edited by a human and will not be overwritten.');
@@ -47,11 +47,11 @@ class UpworkProposalService
 
         if ($opportunity->status === UpworkOpportunity::STATUS_PROPOSAL_DRAFT) {
             $opportunity->forceFill($attributes)->save();
-            $opportunity->log('proposal_regenerated', $userId, null, null, 'Draft replaced by agent');
+            $opportunity->log('proposal_regenerated', $userId, null, null, 'Draft replaced by ' . ($source ?? 'agent'));
             return;
         }
 
-        $opportunity->changeStatus(UpworkOpportunity::STATUS_PROPOSAL_DRAFT, $userId, $attributes, 'Draft stored by agent');
+        $opportunity->changeStatus(UpworkOpportunity::STATUS_PROPOSAL_DRAFT, $userId, $attributes, 'Draft stored by ' . ($source ?? 'agent'));
     }
 
     /**

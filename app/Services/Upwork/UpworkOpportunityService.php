@@ -222,6 +222,11 @@ class UpworkOpportunityService
         return $this->engine->score($attributes, $ruleset->loadMissing('rules'));
     }
 
+    /**
+     * A person approves the job. This (or reject) is the only thing that counts
+     * as "reviewed" for the review SLA. When AI proposal drafts are switched on,
+     * a draft is queued; it is never submitted anywhere.
+     */
     public function approve(UpworkOpportunity $opportunity, int $userId): void
     {
         $opportunity->changeStatus(UpworkOpportunity::STATUS_APPROVED, $userId, [
@@ -230,7 +235,10 @@ class UpworkOpportunityService
             'rejected_at' => null,
             'rejected_by' => null,
             'rejection_reason' => null,
+            'reviewed_at' => $opportunity->reviewed_at ?? now(),
         ]);
+
+        app(\App\Services\Upwork\Ai\Proposal\ProposalDraftService::class)->queueAfterApproval($opportunity, $userId);
     }
 
     public function reject(UpworkOpportunity $opportunity, int $userId, ?string $reason = null): void
@@ -241,6 +249,7 @@ class UpworkOpportunityService
             'rejected_at' => now(),
             'rejected_by' => $userId,
             'rejection_reason' => $reason ?: null,
+            'reviewed_at' => $opportunity->reviewed_at ?? now(),
         ], $reason ?: null);
     }
 
@@ -297,6 +306,8 @@ class UpworkOpportunityService
 
             if ($created) {
                 $opportunity->fetched_at = $opportunity->fetched_at ?? now();
+                // Set once, when the job is first stored; the review SLA clock starts here.
+                $opportunity->first_seen_at = $opportunity->first_seen_at ?? now();
                 $opportunity->save();
                 $opportunity->log('ingested', $userId, null, $opportunity->status);
             } else {

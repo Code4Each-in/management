@@ -8,6 +8,34 @@
   </div>
   <div class="small text-muted mb-3" style="font-size:0.75rem;">Drafts stay in the PMS. Submission happens manually on Upwork by a human.</div>
 
+  @php
+    $aiOn = $ai['proposal_enabled'] ?? false;
+    $canAiDraft = $aiOn && in_array($o->status, [$M::STATUS_APPROVED, $M::STATUS_PROPOSAL_DRAFT], true) && !$o->proposal_edited_at;
+    $verification = optional($ai['proposal'] ?? null)->result['verification'] ?? [];
+  @endphp
+  @if($o->proposal_ai_status)
+    <div class="small mb-2 p-2 rounded" style="background:{{ $o->proposal_ai_status === $M::PROPOSAL_AI_READY ? '#eef2ff' : '#f9fafb' }}; border:1px solid #e5e7eb;">
+      <strong>AI draft:</strong> {{ ucfirst($o->proposal_ai_status) }}{{ $o->proposal_ai_status_reason ? ' — ' . $o->proposal_ai_status_reason : '' }}
+      @if($o->proposal_ai_status === $M::PROPOSAL_AI_READY)
+        <div class="text-muted" style="font-size:0.75rem;">Written from the approved profile and proven technologies only. Fill in any [bracketed] placeholders and check every claim before approving.</div>
+      @endif
+      @foreach(['unverified_experience' => 'Experience not found in the approved sources', 'unverified_figures' => 'Figures not found in the approved sources or job post'] as $key => $label)
+        @if(!empty($verification[$key]))
+          <div style="color:#92400e; font-size:0.75rem;">{{ $label }}: {{ implode(', ', $verification[$key]) }}</div>
+        @endif
+      @endforeach
+    </div>
+  @endif
+  @if($canAiDraft && $o->proposal_ai_status !== $M::PROPOSAL_AI_QUEUED)
+    @can('manageProposal', $o)
+      <form method="POST" action="{{ route('upwork.opportunities.proposal.ai', $o) }}" class="mb-2">
+        @csrf
+        <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-stars"></i> {{ $o->proposal_ai_status ? 'Redraft with AI' : 'Draft with AI' }}</button>
+        <span class="text-muted" style="font-size:0.72rem;">Budget-limited; replaces only an unedited draft.</span>
+      </form>
+    @endcan
+  @endif
+
   @if($o->status === $M::STATUS_APPROVED)
     @can('manageProposal', $o)
       <form method="POST" action="{{ route('upwork.opportunities.proposal.generate', $o) }}" class="m-0">

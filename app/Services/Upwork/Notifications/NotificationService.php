@@ -27,6 +27,9 @@ class NotificationService
 
     public function maybeNotify(UpworkOpportunity $opportunity): ?string
     {
+        // The review SLA clock starts for the same jobs that notify (once per job).
+        app(\App\Services\Upwork\Review\ReviewSlaService::class)->startIfEligible($opportunity);
+
         $level = $opportunity->recommendation;
         // Only fully detailed jobs: search rows lack facts some hard filters need
         // (contractor type, hires/offers on the posting), so they could still be rejected.
@@ -40,7 +43,16 @@ class NotificationService
             return null;
         }
 
-        $message = $this->message($opportunity, $level);
+        $this->deliver($this->message($opportunity, $level), ['opportunity_id' => $opportunity->id]);
+
+        $opportunity->forceFill(['notified_at' => now(), 'notified_level' => $level])->saveQuietly();
+
+        return $level;
+    }
+
+    /** Send a message through every enabled channel; a failing channel never breaks the caller. */
+    public function deliver(array $message, array $context = []): void
+    {
         foreach ((array) UpworkSetting::get('notifications.channels') as $channel) {
             $class = self::CHANNELS[$channel] ?? null;
             if (!$class) {
@@ -49,13 +61,9 @@ class NotificationService
             try {
                 app($class)->send($message);
             } catch (\Throwable $e) {
-                Log::warning("[upwork] notification channel '{$channel}' failed: " . AlertService::scrub($e->getMessage()), ['opportunity_id' => $opportunity->id]);
+                Log::warning("[upwork] notification channel '{$channel}' failed: " . AlertService::scrub($e->getMessage()), $context);
             }
         }
-
-        $opportunity->forceFill(['notified_at' => now(), 'notified_level' => $level])->saveQuietly();
-
-        return $level;
     }
 
     public function message(UpworkOpportunity $o, string $level): array

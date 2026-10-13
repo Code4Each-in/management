@@ -12,7 +12,7 @@ class UpworkSetting extends Model
 {
     const DEFAULTS = [
         'agent.enabled' => false,          // the Mac mini worker does nothing until enabled in the PMS
-        'agent.interval_minutes' => 20,
+        'agent.interval_minutes' => 60,
         'agent.lease_minutes' => 15,       // a run holding the lease longer than this is considered dead
         'agent.max_backoff_minutes' => 240,
         'agent.enrich_limit_per_run' => 15, // max detail lookups (find_jobs get) per run
@@ -45,11 +45,21 @@ class UpworkSetting extends Model
         'ai.deep_max_output_tokens' => 3000,
         'ai.deep_daily_request_limit' => 20,
         'ai.deep_monthly_budget_usd' => 1.00,
+        // AI proposal drafts: queued only when a person approves a job; off until enabled.
+        'ai.proposal_drafts_enabled' => false,
+        'ai.proposal_max_input_tokens' => 8000,
+        'ai.proposal_max_output_tokens' => 2000,
+        'ai.proposal_daily_request_limit' => 20,
+        'ai.proposal_monthly_budget_usd' => 1.00, // hard cap, part of ai.monthly_budget_usd
+        'proposals.profile' => '',                // approved agency profile / verified experience the AI may cite
+        // Review SLA: deadline tracking always runs; reminders are sent only when switched on.
+        'review.reminders_enabled' => false,
         'discovery.client' => 'graphql',          // graphql (official API) | mcp (Upwork MCP, direct) | fixture outside production
         'mcp.client' => null,                     // registered MCP OAuth client: {client_id, redirect_uri, registered_at}
         'mcp.accounts' => [],                     // accounts from list_accounts: [{org_uid, name, role}]
         'discovery.max_seconds_per_run' => 240,   // server runner stops cleanly before shared-hosting limits
         'discovery.api_pause_ms' => 500,          // pause between Upwork API calls
+        'discovery.retry_after_failure_minutes' => 10, // first retry after a failed scheduled run; doubles, capped at the interval
         'discovery.max_queries_per_profile' => 4, // searches per profile per run (rotating through its terms)
         'discovery.max_queries_per_run' => 15,     // hard cap across all profiles in one run
         'discovery.max_searches_per_day' => 400,   // hard cap per day (app timezone)

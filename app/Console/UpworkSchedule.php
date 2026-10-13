@@ -25,6 +25,9 @@ class UpworkSchedule
         $schedule->command('queue:work upwork --queue=upwork --stop-when-empty --max-time=50 --tries=1 --timeout=240')
             ->everyMinute()->withoutOverlapping(10)->name('upwork-ai-queue');
 
+        // Review SLA: overdue marking every minute; reminders only when switched on in the PMS.
+        $schedule->command('upwork:review-reminders')->everyMinute()->withoutOverlapping(5)->name('upwork-review-reminders');
+
         // Keep the two-week Upwork refresh token alive.
         $schedule->command('upwork:token-refresh')->dailyAt('03:15')->withoutOverlapping(10)->name('upwork-token-refresh');
     }
