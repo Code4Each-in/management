@@ -121,6 +121,9 @@ class UpworkOpportunity extends Model
         'review_reminded_at' => 'datetime',
         'review_snoozed_until' => 'datetime',
         'reviewed_at' => 'datetime',
+        'agency_fit_score' => 'float',
+        'individual_fit_score' => 'float',
+        'profile_selected_at' => 'datetime',
     ];
 
     const PROPOSAL_AI_QUEUED = 'queued';
@@ -147,6 +150,7 @@ class UpworkOpportunity extends Model
     public function proposalEditor() { return $this->belongsTo(Users::class, 'proposal_edited_by'); }
     public function proposalApprover() { return $this->belongsTo(Users::class, 'proposal_approved_by'); }
     public function reviewSnoozer() { return $this->belongsTo(Users::class, 'review_snoozed_by'); }
+    public function profileSelector() { return $this->belongsTo(Users::class, 'profile_selected_by'); }
     public function logs() { return $this->hasMany(UpworkOpportunityLog::class)->latest('id'); }
     public function sightings() { return $this->hasMany(UpworkOpportunitySighting::class, 'opportunity_id'); }
     public function client() { return $this->belongsTo(UpworkClient::class, 'upwork_client_id'); }
@@ -242,6 +246,12 @@ class UpworkOpportunity extends Model
             })
             ->when($filters['status'] ?? null, fn($q, $status) => $q->where('status', $status))
             ->when($filters['recommendation'] ?? null, fn($q, $rec) => $q->where('recommendation', $rec))
+            // Best-fit track from scoring; "both" jobs also suit each single track, so they are included.
+            ->when($filters['target'] ?? null, fn($q, $target) => $target === 'both'
+                ? $q->where('target_profile', 'both')
+                : $q->whereIn('target_profile', [$target, 'both']))
+            // The profile a reviewer chose ("agency" or any "individual..." profile).
+            ->when($filters['bid_as'] ?? null, fn($q, $track) => $q->where('selected_profile', 'like', $track . '%'))
             ->when(isset($filters['min_score']) && $filters['min_score'] !== '', function ($q) use ($filters) {
                 $q->where('score', '>=', (float) $filters['min_score']);
             });

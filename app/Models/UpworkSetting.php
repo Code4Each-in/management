@@ -52,6 +52,9 @@ class UpworkSetting extends Model
         'ai.proposal_daily_request_limit' => 20,
         'ai.proposal_monthly_budget_usd' => 1.00, // hard cap, part of ai.monthly_budget_usd
         'proposals.profile' => '',                // approved agency profile / verified experience the AI may cite
+        // Individual freelancer profiles (PMS writing personas, never linked to Upwork accounts):
+        // [{key, name, summary, technologies: [catalog slugs]}]
+        'targeting.individual_profiles' => [],
         // Review SLA: deadline tracking always runs; reminders are sent only when switched on.
         'review.reminders_enabled' => false,
         'discovery.client' => 'graphql',          // graphql (official API) | mcp (Upwork MCP, direct) | fixture outside production

@@ -151,11 +151,18 @@ class UpworkProposalService
             $lines[] = $opportunity->relevant_experience;
         }
 
+        $angle = \App\Services\Upwork\Scoring\TargetProfileScorer::ANGLES[$opportunity->proposal_angle ?? ''] ?? null;
         $lines[] = '';
-        $lines[] = '[Proposed approach — edit before approving]';
+        $lines[] = $angle ? "[Proposed approach — angle: {$angle[0]}. {$angle[1]} Edit before approving]" : '[Proposed approach — edit before approving]';
         $lines[] = '';
         $lines[] = 'Best regards,';
-        $lines[] = 'Code4Each';
+        // Individual profiles sign as the person; the PMS does not know which Upwork account will send it.
+        $profile = \App\Services\Upwork\Targeting\TargetProfiles::find($opportunity->selected_profile);
+        if (($profile['track'] ?? null) === 'individual') {
+            $lines[] = $profile['name'] ?: '[Your name]';
+        } else {
+            $lines[] = 'Code4Each';
+        }
 
         return implode("\n", $lines);
     }

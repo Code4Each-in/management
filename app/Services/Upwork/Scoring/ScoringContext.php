@@ -48,6 +48,7 @@ class ScoringContext
                 'contractor_type' => $a['contractor_type'] ?? ($raw['preferred_qualifications']['contractor_type'] ?? null),
                 'category' => $raw['category'] ?? null,
                 'connects_required' => self::num($a['connects_required'] ?? null),
+                'freelancers_to_hire' => self::num($a['freelancers_to_hire'] ?? ($raw['freelancers_to_hire'] ?? null)),
             ],
             'client' => [
                 'payment_verified' => isset($a['payment_verified']) ? (bool) $a['payment_verified'] : null,
@@ -102,6 +103,7 @@ class ScoringContext
             'ai_component' => $ai['ai_component'] ?? null,
             'budget_realistic' => $ai['budget_realistic'] ?? null,
             'urgency' => $ai['urgency'] ?? null,
+            'agency_friendly' => $ai['agency_friendly'] ?? null,
             'complexity' => $ai['complexity'] ?? null,
             'high_risk_count' => isset($ai['high_risk_count']) ? (int) $ai['high_risk_count'] : null,
             'estimated_hours_min' => self::num($ai['estimated_hours_min'] ?? null),

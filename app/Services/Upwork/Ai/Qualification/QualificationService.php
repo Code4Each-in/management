@@ -309,6 +309,7 @@ class QualificationService
             'ai_component' => $r['signals']['ai_component'] ?? null,
             'budget_realistic' => $r['signals']['budget_realistic'] ?? null,
             'urgency' => $r['signals']['urgency'] ?? null,
+            'agency_friendly' => $r['signals']['agency_friendly'] ?? null,
             'complexity' => $r['scope']['complexity'] ?? null,
             'high_risk_count' => count(array_filter($r['risks'] ?? [], fn($x) => ($x['severity'] ?? null) === 'high')),
             'estimated_hours_min' => $r['scope']['estimated_hours_min'] ?? null,

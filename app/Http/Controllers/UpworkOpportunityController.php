@@ -6,6 +6,8 @@ use App\Http\Requests\Upwork\UpdateProposalDraftRequest;
 use App\Models\UpworkOpportunity;
 use App\Services\Upwork\Ai\Proposal\ProposalDraftService;
 use App\Services\Upwork\Review\ReviewSlaService;
+use App\Services\Upwork\Scoring\TargetProfileScorer;
+use App\Services\Upwork\Targeting\TargetProfiles;
 use App\Services\Upwork\UpworkOpportunityService;
 use App\Services\Upwork\UpworkProposalService;
 use Illuminate\Http\Request;
@@ -36,7 +38,9 @@ class UpworkOpportunityController extends Controller
             'status' => ['nullable', Rule::in(array_keys(UpworkOpportunity::STATUSES))],
             'recommendation' => ['nullable', Rule::in(array_keys(UpworkOpportunity::RECOMMENDATIONS))],
             'min_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'sort' => ['nullable', Rule::in(['score', 'posted_at', 'latest', 'expected_value', 'strategic'])],
+            'sort' => ['nullable', Rule::in(['score', 'posted_at', 'latest', 'expected_value', 'strategic', 'agency_fit', 'individual_fit'])],
+            'target' => ['nullable', Rule::in(array_keys(TargetProfiles::TRACKS))],
+            'bid_as' => ['nullable', Rule::in([TargetProfiles::TRACK_AGENCY, TargetProfiles::TRACK_INDIVIDUAL])],
             'show' => ['nullable', Rule::in(['all'])],
             'class' => ['nullable', 'string', 'regex:/^[A-Z0-9_]{2,50}$/'],
             'view' => ['nullable', Rule::in(array_keys(\App\Services\Upwork\RadarService::VIEWS))],
@@ -61,6 +65,9 @@ class UpworkOpportunityController extends Controller
             $query->orderByRaw('expected_value IS NULL')->orderByDesc('expected_value')->latest('id');
         } elseif ($sort === 'strategic') {
             $query->orderByRaw('strategic_score IS NULL')->orderByDesc('strategic_score')->latest('id');
+        } elseif ($sort === 'agency_fit' || $sort === 'individual_fit') {
+            $column = $sort === 'agency_fit' ? 'agency_fit_score' : 'individual_fit_score';
+            $query->orderByRaw("{$column} IS NULL")->orderByDesc($column)->latest('id');
         } elseif ($sort === 'posted_at') {
             $query->orderByRaw('posted_at IS NULL')->orderByDesc('posted_at');
         } else {
@@ -87,7 +94,7 @@ class UpworkOpportunityController extends Controller
     {
         $this->authorize('view', $opportunity);
 
-        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'logs.user', 'client', 'aiAnalysis']);
+        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'profileSelector', 'logs.user', 'client', 'aiAnalysis']);
 
         $client = $opportunity->client;
         $clientHistory = $client ? app(\App\Services\Upwork\Clients\ClientIntelligenceService::class)->history($client, $opportunity->id) : null;
@@ -105,8 +112,26 @@ class UpworkOpportunityController extends Controller
             'proposal' => ProposalDraftService::latest($opportunity),
         ];
         $review = $this->reviewState($opportunity);
+        $targeting = $this->targetingState($opportunity, $ai['deep']);
 
-        return view('upwork.opportunities.show', compact('opportunity', 'client', 'clientHistory', 'catalog', 'ai', 'review'));
+        return view('upwork.opportunities.show', compact('opportunity', 'client', 'clientHistory', 'catalog', 'ai', 'review', 'targeting'));
+    }
+
+    /** Profile and angle choices for the approval / proposal forms, prefilled from the best-fit suggestion. */
+    private function targetingState(UpworkOpportunity $o, ?\App\Models\UpworkAiAnalysis $deep): array
+    {
+        $fit = $o->score_explanation['target'] ?? null;
+
+        return [
+            'fit' => $fit,
+            'options' => TargetProfiles::options(),
+            'angles' => TargetProfileScorer::ANGLES,
+            'profile' => $o->selected_profile ?? ($fit['suggested_profile'] ?? TargetProfiles::TRACK_AGENCY),
+            'angle' => $o->proposal_angle ?? ($fit['suggested_angle'] ?? null),
+            // Reuse the deep analysis's free-text angle as a starting note.
+            'note' => $o->proposal_angle_note ?? ($deep->result['proposal_angle'] ?? null),
+            'editable' => in_array($o->status, [UpworkOpportunity::STATUS_APPROVED, UpworkOpportunity::STATUS_PROPOSAL_DRAFT], true) && !$o->proposal_edited_at,
+        ];
     }
 
     /**
@@ -183,11 +208,34 @@ class UpworkOpportunityController extends Controller
         ];
     }
 
-    public function approve(UpworkOpportunity $opportunity)
+    public function approve(Request $request, UpworkOpportunity $opportunity)
     {
         $this->authorize('approve', $opportunity);
 
-        return $this->attempt(fn() => $this->opportunities->approve($opportunity, auth()->id()), 'Opportunity approved.');
+        // Optional: without a choice the best-fit suggestion is recorded (and labelled as such).
+        $targeting = $request->validate($this->targetingRules(false));
+
+        return $this->attempt(fn() => $this->opportunities->approve($opportunity, auth()->id(), $targeting), 'Opportunity approved.');
+    }
+
+    /** Change the profile / angle before the draft is written. Never touches Upwork. */
+    public function selectTargeting(Request $request, UpworkOpportunity $opportunity)
+    {
+        $this->authorize('manageProposal', $opportunity);
+
+        $targeting = $request->validate($this->targetingRules(true));
+
+        return $this->attempt(fn() => $this->opportunities->selectTargeting($opportunity, $targeting, auth()->id()),
+            'Profile and angle saved. Generate or redraft the proposal to use them.');
+    }
+
+    private function targetingRules(bool $required): array
+    {
+        return [
+            'selected_profile' => [$required ? 'required' : 'nullable', Rule::in(array_keys(TargetProfiles::options()))],
+            'proposal_angle' => ['nullable', Rule::in(array_keys(TargetProfileScorer::ANGLES))],
+            'proposal_angle_note' => ['nullable', 'string', 'max:500'],
+        ];
     }
 
     public function reject(Request $request, UpworkOpportunity $opportunity)

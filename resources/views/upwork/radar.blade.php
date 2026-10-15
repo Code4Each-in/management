@@ -103,6 +103,40 @@
         @endforelse
       </div>
 
+      {{-- Dual-track targeting --}}
+      @php $tg = $data['targets']; @endphp
+      <div style="{{ $card }}">
+        <div style="{{ $hd }}">Target profiles</div>
+        <table class="w-100" style="font-size:0.85rem;">
+          <thead><tr class="text-muted" style="font-size:0.72rem; text-transform:uppercase;"><th>Best fit</th><th>Relevant</th><th>Review / Apply</th></tr></thead>
+          <tbody>
+            @foreach(\App\Services\Upwork\Targeting\TargetProfiles::TRACKS as $track => $label)
+              <tr style="border-top:1px solid #f3f4f6;">
+                <td><a href="{{ $list(['target' => $track, 'show' => 'all']) }}" style="text-decoration:none;">@include('upwork.opportunities.partials.target-chip', ['target' => $track])</a></td>
+                <td>{{ $tg['fit'][$track]['relevant'] }}</td><td>{{ $tg['fit'][$track]['review_plus'] }}</td>
+              </tr>
+            @endforeach
+            @if($tg['fit']['unclassified']['relevant'])
+              <tr style="border-top:1px solid #f3f4f6;" class="text-muted"><td>Not classified</td><td>{{ $tg['fit']['unclassified']['relevant'] }}</td><td></td></tr>
+            @endif
+          </tbody>
+        </table>
+        <div class="text-muted mt-1" style="font-size:0.72rem;">Relevant jobs first seen in this period, by best-fit profile (each job counted once).</div>
+        <table class="w-100 mt-2" style="font-size:0.85rem;">
+          <thead><tr class="text-muted" style="font-size:0.72rem; text-transform:uppercase;"><th>Bid as</th><th>Chosen</th><th>Submitted</th><th>Won / lost</th></tr></thead>
+          <tbody>
+            @foreach($tg['bid_as'] as $track => $row)
+              <tr style="border-top:1px solid #f3f4f6;">
+                <td><a href="{{ $list(['bid_as' => $track, 'show' => 'all']) }}">{{ ucfirst($track) }}</a></td>
+                <td>{{ $row['total'] }}</td><td>{{ $row['submitted'] }}</td>
+                <td>{{ $row['won'] }} / {{ $row['lost'] }}@if($row['win_rate'] !== null) <span class="text-muted">({{ $row['win_rate'] }}%)</span>@endif</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        <div class="text-muted mt-1" style="font-size:0.72rem;">Profile chosen at approval, all time. Submission is recorded manually; the PMS never submits.</div>
+      </div>
+
       {{-- Pipeline --}}
       <div style="{{ $card }}">
         <div style="{{ $hd }}">Pipeline (now)</div>

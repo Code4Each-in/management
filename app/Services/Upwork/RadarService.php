@@ -87,7 +87,43 @@ class RadarService
             'decisions' => $this->decisions($from, $to),
             'health' => $this->health($from, $to),
             'profiles' => $this->profiles($from, $to, $viableMin),
+            'targets' => $this->targets($relevant),
         ];
+    }
+
+    /**
+     * Dual-track reporting. Best fit: relevant jobs in the window per track
+     * (exclusive counts). Bid as: what reviewers chose, across the whole
+     * pipeline (not windowed), with outcomes.
+     */
+    public function targets(callable $relevant): array
+    {
+        $fit = [];
+        foreach (array_keys(\App\Services\Upwork\Targeting\TargetProfiles::TRACKS) as $track) {
+            $fit[$track] = [
+                'relevant' => $relevant()->where('target_profile', $track)->count(),
+                'review_plus' => $relevant()->where('target_profile', $track)
+                    ->whereIn('recommendation', [UpworkOpportunity::RECOMMENDATION_APPLY, UpworkOpportunity::RECOMMENDATION_REVIEW])->count(),
+            ];
+        }
+        $fit['unclassified'] = ['relevant' => $relevant()->whereNull('target_profile')->count(), 'review_plus' => null];
+
+        $bidAs = [];
+        foreach ([\App\Services\Upwork\Targeting\TargetProfiles::TRACK_AGENCY, \App\Services\Upwork\Targeting\TargetProfiles::TRACK_INDIVIDUAL] as $track) {
+            $counts = UpworkOpportunity::where('selected_profile', 'like', $track . '%')
+                ->select('status', DB::raw('count(*) as c'))->groupBy('status')->pluck('c', 'status');
+            $won = (int) ($counts[UpworkOpportunity::STATUS_WON] ?? 0);
+            $lost = (int) ($counts[UpworkOpportunity::STATUS_LOST] ?? 0);
+            $bidAs[$track] = [
+                'total' => (int) $counts->sum(),
+                'submitted' => (int) $counts->only([UpworkOpportunity::STATUS_SUBMITTED, UpworkOpportunity::STATUS_CLIENT_RESPONSE, UpworkOpportunity::STATUS_WON, UpworkOpportunity::STATUS_LOST])->sum(),
+                'won' => $won,
+                'lost' => $lost,
+                'win_rate' => ($won + $lost) > 0 ? round($won / ($won + $lost) * 100, 1) : null,
+            ];
+        }
+
+        return ['fit' => $fit, 'bid_as' => $bidAs];
     }
 
     /** Current workflow state across all opportunities (not windowed). */

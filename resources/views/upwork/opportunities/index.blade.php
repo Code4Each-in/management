@@ -92,6 +92,19 @@
         @endforeach
       </select>
 
+      <select name="target" class="form-select form-select-sm" style="width:auto;" title="Best-fit profile from scoring. Agency / Individual include jobs suitable for either.">
+        <option value="">All profiles</option>
+        @foreach(['agency' => 'Fits agency (incl. either)', 'individual' => 'Fits individual (incl. either)', 'both' => 'Fits either'] as $value => $label)
+          <option value="{{ $value }}" {{ ($filters['target'] ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
+        @endforeach
+      </select>
+
+      <select name="bid_as" class="form-select form-select-sm" style="width:auto;" title="Profile chosen by the reviewer">
+        <option value="">Any bid profile</option>
+        <option value="agency" {{ ($filters['bid_as'] ?? '') === 'agency' ? 'selected' : '' }}>Bid as agency</option>
+        <option value="individual" {{ ($filters['bid_as'] ?? '') === 'individual' ? 'selected' : '' }}>Bid as individual</option>
+      </select>
+
       <input type="number" name="min_score" min="0" max="100" step="1" value="{{ $filters['min_score'] ?? '' }}"
              placeholder="Min score" class="form-control form-control-sm" style="width:110px;">
 
@@ -101,6 +114,8 @@
         <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Sort: recently added</option>
         <option value="expected_value" {{ $sort === 'expected_value' ? 'selected' : '' }}>Sort: expected value (est.)</option>
         <option value="strategic" {{ $sort === 'strategic' ? 'selected' : '' }}>Sort: strategic value</option>
+        <option value="agency_fit" {{ $sort === 'agency_fit' ? 'selected' : '' }}>Sort: agency fit</option>
+        <option value="individual_fit" {{ $sort === 'individual_fit' ? 'selected' : '' }}>Sort: individual fit</option>
       </select>
 
       <button type="submit" class="btn btn-primary btn-sm">Filter</button>
@@ -153,6 +168,14 @@
               @if(!empty($opportunity->classifications))
                 <div style="margin-top:0.25rem; font-size:0.85em;">@include('upwork.opportunities.partials.classification-chips', ['codes' => $opportunity->classifications, 'catalog' => $catalog, 'kind' => 'archetype'])</div>
               @endif
+              @if($opportunity->target_profile)
+                @php $fmtFit = fn($v) => $v === null ? 'n/a' : round($v); @endphp
+                <div style="margin-top:0.25rem; font-size:0.72rem; color:#6b7280;">
+                  @include('upwork.opportunities.partials.target-chip', ['target' => $opportunity->target_profile, 'ambiguous' => $opportunity->score_explanation['target']['ambiguous'] ?? false, 'title' => $opportunity->score_explanation['target']['summary'] ?? 'Best-fit profile'])
+                  agency {{ $fmtFit($opportunity->agency_fit_score) }} · individual {{ $fmtFit($opportunity->individual_fit_score) }}
+                  @if($opportunity->selected_profile) · <strong>bid as {{ \App\Services\Upwork\Targeting\TargetProfiles::label($opportunity->selected_profile) }}</strong>@endif
+                </div>
+              @endif
               @if($opportunity->strategic_score !== null || $opportunity->expected_value !== null)
                 <div style="font-size:0.72rem; color:#6b7280;">
                   @if($opportunity->strategic_score !== null)<span style="color:#6d28d9;">Strategic {{ round($opportunity->strategic_score) }}/100</span>@endif
@@ -185,10 +208,8 @@
             <td style="{{ $td }} text-align:right; white-space:nowrap;">
               @can('approve', $opportunity)
                 @if($opportunity->canTransitionTo(\App\Models\UpworkOpportunity::STATUS_APPROVED))
-                  <form method="POST" action="{{ route('upwork.opportunities.approve', $opportunity) }}" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-success" title="Approve (does not contact Upwork)"><i class="bi bi-check-lg"></i></button>
-                  </form>
+                  {{-- Approval asks for the profile and proposal angle, so it happens on the job page. --}}
+                  <a href="{{ route('upwork.opportunities.show', $opportunity) }}#approve" class="btn btn-sm btn-outline-success" title="Approve: choose profile and angle (does not contact Upwork)"><i class="bi bi-check-lg"></i></a>
                 @endif
               @endcan
               @can('reject', $opportunity)

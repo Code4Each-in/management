@@ -151,7 +151,7 @@ class ProposalDraftService
                     return ['status' => 'failed', 'message' => $result['error']];
                 }
 
-                $analysis->fill(['status' => UpworkAiAnalysis::STATUS_SUCCEEDED, 'result' => ProposalDraftPrompt::verify($result['data'], $request->dynamicContext)])->save();
+                $analysis->fill(['status' => UpworkAiAnalysis::STATUS_SUCCEEDED, 'result' => ProposalDraftPrompt::verify($result['data'], $request->dynamicContext, $o)])->save();
             }
 
             try {
