@@ -18,6 +18,8 @@ trait FakesUpworkMcp
     protected $mcpCalls = [];
     /** @var int[] HTTP statuses for the next tools/call requests */
     protected $mcpToolStatuses = [];
+    /** @var string fixture answering find_jobs get */
+    protected $mcpGetFixture = 'mcp_get';
     /** @var callable|null token endpoint responder (form array => Http response) */
     protected $mcpTokenResponder;
 
@@ -64,7 +66,7 @@ trait FakesUpworkMcp
                 return Http::response('', $status);
             }
             $action = $msg['params']['arguments']['action'] ?? null;
-            $data = $action === 'get' ? $this->mcpFixture('mcp_get') : $this->mcpFixture('mcp_search');
+            $data = $action === 'get' ? $this->mcpFixture($this->mcpGetFixture) : $this->mcpFixture('mcp_search');
 
             return Http::response(['jsonrpc' => '2.0', 'id' => $msg['id'], 'result' => ['content' => [['type' => 'text', 'text' => json_encode($data)]]]]);
         });

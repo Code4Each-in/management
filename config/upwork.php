@@ -29,6 +29,14 @@ return [
         'review' => 70,
     ],
 
+    // Location eligibility (India-based applicants). Upwork marks a location
+    // list either required (only those locations may apply) or preferred
+    // (anyone may apply). Required lists without India always skip the job;
+    // preferred ones are flagged for manual review unless this is true.
+    'location' => [
+        'preferred_is_restriction' => (bool) env('UPWORK_LOCATION_PREFERRED_IS_RESTRICTION', false),
+    ],
+
     // Scoring components shown in the UI: column => [label, max points].
     'score_components' => [
         'technical_fit_score' => ['Technical / project fit', 20],

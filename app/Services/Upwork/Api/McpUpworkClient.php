@@ -192,6 +192,8 @@ class McpUpworkClient implements UpworkClientInterface
                 'applied' => $d['applied'] ?? null,
                 'can_apply' => $d['can_apply'] ?? null,
                 'preferred_qualifications' => $quals ?: null,
+                // Freelancer locations {countries, location_required}; [] = details fetched, none given.
+                'preferred_locations' => is_array($d['preferred_locations'] ?? null) ? $d['preferred_locations'] : [],
                 'screening_questions' => array_values(array_map([self::class, 'text'], (array) ($d['screening_questions'] ?? []))) ?: null,
             ]), fn($v) => $v !== null),
         ]), fn($v) => $v !== null && $v !== '');

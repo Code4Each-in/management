@@ -112,6 +112,35 @@ class UpworkLocationEligibilityTest extends UpworkTestCase
         ];
     }
 
+    /** Upwork's structured list (find_jobs get: preferred_locations), as on the job reported in production. */
+    public function test_upwork_location_list_and_its_required_flag(): void
+    {
+        $eval = fn(array $block) => LocationEligibility::evaluate(['preferred_qualifications' => ['english_proficiency' => 'Any'], 'preferred_locations' => $block]);
+
+        $preferred = $eval(['countries' => ['Philippines', 'Argentina', 'Spain'], 'location_required' => false]);
+        $this->assertSame(['unknown', 'location_preferred', 'preferred_locations'], [$preferred['eligibility'], $preferred['rule'], $preferred['source']]);
+        $this->assertSame('Philippines, Argentina, Spain (preferred, not required)', $preferred['text']);
+        $this->assertSame(LocationEligibility::PREFERRED_REASON, $preferred['reason']);
+
+        $required = $eval(['countries' => ['Philippines', 'Argentina', 'Spain'], 'regions' => ['Europe'], 'location_required' => true]);
+        $this->assertSame(['restricted', 'location_required'], [$required['eligibility'], $required['rule']]);
+        $this->assertSame('Philippines, Argentina, Spain, Europe (required)', $required['text']);
+        $this->assertSame(LocationEligibility::SKIP_REASON, $required['reason']);
+
+        // Any country works for a required list: no dictionary needed.
+        $this->assertSame('restricted', $eval(['countries' => ['Bolivia'], 'location_required' => true])['eligibility']);
+        $this->assertSame(['eligible', 'india_listed'], array_values(array_intersect_key($eval(['countries' => ['Spain', 'India'], 'location_required' => true]), array_flip(['eligibility', 'rule']))));
+        $this->assertSame('india_region', $eval(['regions' => ['Asia'], 'location_required' => true])['rule']);
+        $this->assertSame('restricted', $eval(['regions' => ['Southeast Asia'], 'location_required' => true])['eligibility']);
+        $this->assertSame('location_list_unflagged', $eval(['countries' => ['Spain']])['rule']);
+        // An empty block means "details fetched, no location given".
+        $this->assertSame(['eligible', 'blank'], array_values(array_intersect_key($eval([]), array_flip(['eligibility', 'rule']))));
+        $this->assertSame(['eligible', 'blank'], array_values(array_intersect_key($eval(['countries' => [], 'location_required' => false]), array_flip(['eligibility', 'rule']))));
+
+        config(['upwork.location.preferred_is_restriction' => true]);
+        $this->assertSame(['restricted', LocationEligibility::SKIP_REASON], array_values(array_intersect_key($eval(['countries' => ['Spain'], 'location_required' => false]), array_flip(['eligibility', 'reason']))));
+    }
+
     public function test_location_comes_from_the_freelancer_requirement_never_the_client_country(): void
     {
         $this->assertSame([null, null], LocationEligibility::extract(['source' => 'x']));

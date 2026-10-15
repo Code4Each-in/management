@@ -287,6 +287,14 @@ Code plus one additive migration: `2026_10_17_100000_add_location_eligibility_to
   - No status changes, and no record is created or deleted.
   - It sends no notifications or reminders.
   - A second run reports `0 of N`.
+- **Jobs stored before this fix** never kept Upwork's location list (`preferred_locations`), so they show *Eligible · no location restriction given*. Their invite counts may be missing or old, because Upwork gives invites only in full job details. Re-read them, with approval for the Upwork calls:
+  ```bash
+  <PHP> artisan upwork:refresh-job-details                      # [READ] lists the jobs with their current invites / location, no Upwork calls
+  <PHP> artisan upwork:refresh-job-details --fetch --limit=25   # [READ Upwork, CHANGE: PMS data] one read-only find_jobs get per job
+  ```
+  - `--fetch` stores only the location fields and activity counts, then re-scores (invite penalty once) and classifies. It sends nothing.
+  - Repeat until it reports *No jobs need their details re-read*, then run the backfill above.
+  - `--all` refreshes invite counts on every active job.
 - **[READ] Verify after the backfill:**
   ```sql
   -- must return 0: restricted jobs never in the reminder set

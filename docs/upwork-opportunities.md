@@ -84,7 +84,8 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
    - The hire-rate penalties ignore new clients: `zero_hire_rate` needs at least 3 jobs posted, `low_hire_rate` at least 5.
    - **Invite penalty** (fixed, `ScoringEngine::INVITE_PENALTY`):
      - If the client has already sent invites on the posting, exactly 5 points come off the component total. With none, or when the count is not available, nothing comes off and the job page says *Not available*.
-     - The count is Upwork's `activityStat.jobActivity.invitesSent`. It arrives only with full job details (MCP `get` / GraphQL); search rows lack it. It is never estimated.
+     - The count is Upwork's `activityStat.jobActivity.invitesSent`, stored as `job_activity.invites_sent`. It arrives only with full job details (MCP `get` / GraphQL); search rows lack it. It is never estimated, and `upwork:refresh-job-details` re-reads it.
+     - Shown on the job page (*Invites sent* in the Job card, plus the scoring breakdown) and in the list, under each title and in the Invites column.
      - The penalty is applied to the freshly computed total on every score and re-score, never to a stored score, so it cannot stack. The final score never goes below 0.
      - `score_explanation.invites` keeps the base score, invites sent, penalty and final score apart. The `score` column holds the final score, while the components still add up to the base.
      - Ruleset score rules that read `competition.invites_sent` are superseded and listed in `superseded_rules`. Hard-filter and classification rules are unaffected.
@@ -122,9 +123,16 @@ Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and ne
 
 Some postings only accept freelancers from a given country or region. We work from India, so a job that excludes India is unsuitable whatever its score. `LocationEligibility` reads the job's **freelancer-location requirement** (never `client_country`) and classifies it as **eligible**, **restricted** or **unknown**. This is an eligibility rule, applied after scoring on every path that stores a job: discovery sighting, enrichment, agent ingest and re-score. A high score can never lift it.
 
-**Where the text comes from.** The first non-empty value among `raw_data.freelancer_location`, `raw_data.location_requirement` and `raw_data.preferred_qualifications.{location, locations, freelancer_location, location_requirement, location_restriction, preferred_location, countries, regions}`. Lists and nested objects are joined. The Upwork MCP returns the client's preferred qualifications only on a full job `get`, never in search rows, so a job counts as *eligible (blank)* until its details arrive and is classified again then. The agent API can send `raw_data.freelancer_location`.
+**Where the location comes from.**
+- **First, Upwork's structured list.** The MCP job details (`find_jobs get`) carry a top-level `preferred_locations` block, e.g. `{countries: [...], location_required: false}`. It is stored as `raw_data.preferred_locations`, or `[]` when the posting has none.
+  - India, a region containing India, or "worldwide" in the list → eligible.
+  - Otherwise `location_required: true` → **restricted** (rule `location_required`).
+  - `location_required: false` is only a preference, and Upwork still accepts applications from India → **unknown** (rule `location_preferred`, "Preferred locations exclude India… manual review"). Set `UPWORK_LOCATION_PREFERRED_IS_RESTRICTION=true` to skip such jobs instead.
+  - Search rows do not carry the block, so a job counts as *eligible (blank)* until its details arrive.
+- **Free-text fallbacks** (agent payloads): the first non-empty value among `raw_data.freelancer_location`, `raw_data.location_requirement` and `raw_data.preferred_qualifications.{location, …}`. These go through the rules below.
+- **Rules version.** v1 did not keep `preferred_locations`, so jobs stored before v2 must have it re-read: `upwork:refresh-job-details` (below).
 
-**Rules (first match wins, `LocationEligibility::VERSION` = 1):**
+**Free-text rules (first match wins, `LocationEligibility::VERSION` = 2):**
 
 | # | Text | Result | Rule |
 |---|------|--------|------|
@@ -163,6 +171,13 @@ The client's location ("US-based client", "our company is located in Germany") i
 - Tabs: **All Jobs**, **Recommended & Eligible**, **Skipped: Location**, **Location Unclear** and **Archived**.
 - The **Location** strip shows counts for all, recommended & eligible, eligible, skipped, unclear, not checked yet and archived.
 - A **Location** filter. Each row shows its location line, and restricted jobs are hidden from "All relevant" (as SKIP jobs are).
+
+**Re-reading job details** (`php artisan upwork:refresh-job-details`). Upwork gives the location list and the posting's activity counts (invites sent, interviews, hires, offers) only in full job details. Search rows carry neither, and discovery reads details once per new job, so stored jobs can lack them or hold old counts.
+- Without options it lists the jobs it would read and makes no Upwork calls. By default it takes active jobs (new, approved, proposal draft) never re-read since this fix, at most 25 per run.
+- `--fetch` makes one read-only `find_jobs get` per job, paused between calls. It stores only `preferred_locations` / `preferred_qualifications` and the activity counts Upwork returned; a count Upwork did not return is kept as it was, never guessed or cleared.
+- It then re-scores the job from scratch, so the invite penalty applies once, and classifies its location. No notification is sent and no review deadline is started.
+- `--all` re-reads every active job to refresh invite counts; `--id=` targets single jobs.
+- No search is run, and status and deadlines are unchanged. It stops on rate limits or auth errors.
 
 **Existing jobs** have no classification until they are seen again or backfilled:
 - `php artisan upwork:classify-locations` (dry run: lists each affected job's id, Upwork job id, title, status, location, proposed action and reason, plus totals; saves nothing).
