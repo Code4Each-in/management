@@ -243,6 +243,9 @@
                 <div style="font-size:0.72rem; color:#842029; margin-top:0.125rem;"><i class="bi bi-exclamation-triangle"></i> {{ implode('; ', $otherFilters) }}</div>
               @endif
               @include('upwork.opportunities.partials.location-chip')
+              <div style="font-size:0.72rem; color:{{ $opportunity->invite_penalty ? '#991b1b' : '#6b7280' }}; margin-top:0.125rem;" title="Invites the client already sent on this posting (Upwork full job details)">
+                <i class="bi bi-envelope"></i> Invites sent: <strong>{{ $opportunity->invites_sent ?? 'Not available' }}</strong>@if($opportunity->invite_penalty) · −{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }} score @endif
+              </div>
               @if(!empty($opportunity->classifications))
                 <div style="margin-top:0.25rem; font-size:0.85em;">@include('upwork.opportunities.partials.classification-chips', ['codes' => $opportunity->classifications, 'catalog' => $catalog, 'kind' => 'archetype'])</div>
               @endif
@@ -281,7 +284,7 @@
             <td style="{{ $td }}">{{ $opportunity->client_hire_rate !== null ? round($opportunity->client_hire_rate) . '%' : '—' }}</td>
             <td style="{{ $td }}">{{ $opportunity->proposals_label }}</td>
             <td style="{{ $td }}" @if($opportunity->invite_penalty) title="−{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }} invite penalty" @endif>
-              @if($opportunity->invites_sent === null)<span class="text-muted" title="Not available">—</span>@else{{ $opportunity->invites_sent }}@if($opportunity->invite_penalty)<span style="color:#991b1b; font-size:0.7rem;"> −{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }}</span>@endif @endif
+              @if($opportunity->invites_sent === null)<span class="text-muted" title="Not available: Upwork gives invites only in full job details">n/a</span>@else{{ $opportunity->invites_sent }}@if($opportunity->invite_penalty)<span style="color:#991b1b; font-size:0.7rem;"> −{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }}</span>@endif @endif
             </td>
             <td style="{{ $td }}">{{ $opportunity->connects_required ?? '—' }}</td>
             <td style="{{ $td }} white-space:nowrap;" title="{{ optional($opportunity->posted_at)->format('d M Y H:i') }}">{{ $opportunity->posted_at ? $opportunity->posted_at->diffForHumans() : '—' }}</td>

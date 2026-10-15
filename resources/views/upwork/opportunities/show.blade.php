@@ -123,6 +123,16 @@
           <div class="col-sm-4"><div style="{{ $dt }}">Duration</div><div style="{{ $dd }}">{{ $o->duration ?? '—' }}</div></div>
           <div class="col-sm-4"><div style="{{ $dt }}">Posted</div><div style="{{ $dd }}">{{ $o->posted_at ? $o->posted_at->format('d M Y H:i') . ' (' . $o->posted_at->diffForHumans() . ')' : '—' }}</div></div>
           <div class="col-sm-4"><div style="{{ $dt }}">Proposals / interviews / connects</div><div style="{{ $dd }}">{{ $o->proposals_label }} / {{ $o->interviews_count ?? '—' }} / {{ $o->connects_required ?? '—' }}</div></div>
+          <div class="col-sm-4" id="invites-sent"><div style="{{ $dt }}">Invites sent</div>
+            <div style="{{ $dd }}">
+              @if($o->invites_sent !== null)
+                <strong>{{ $o->invites_sent }}</strong>
+                @if($o->invite_penalty)<span class="badge bg-light border" style="color:#991b1b; font-size:0.7rem;">−{{ $fmt($o->invite_penalty) }} score</span>@endif
+              @else
+                Not available <span class="text-muted" style="font-size:0.72rem;">({{ $o->stage === $M::STAGE_DISCOVERED ? 'only in full job details, not fetched yet' : 'not in the stored job details; re-read with upwork:refresh-job-details' }})</span>
+              @endif
+            </div>
+          </div>
         </div>
         @if(!empty($o->technologies))
           <div style="{{ $dt }}">Technologies</div>

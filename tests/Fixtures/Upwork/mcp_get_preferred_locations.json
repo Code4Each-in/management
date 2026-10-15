@@ -1,0 +1,168 @@
+{
+  "applied": false,
+  "bid_stats_available": false,
+  "can_apply": true,
+  "client_record": {
+    "contracts_active": 5,
+    "contracts_total": 49,
+    "feedback_count": 39,
+    "feedback_score": 5,
+    "hire_rate_percent": 100,
+    "hours_total": 3099.5,
+    "jobs_posted": 47,
+    "jobs_with_hires": 49,
+    "open_jobs": 2,
+    "spend_total": "$84,216.98"
+  },
+  "client_work_history": {
+    "closed": [
+      {
+        "ended": "2026-04-08T06:51:32.990Z",
+        "feedback_score": 5,
+        "feedback_to_client_score": 5,
+        "started": "2026-01-26T10:09:34.453Z",
+        "title": "Example closed contract 1",
+        "type": "FIXED"
+      },
+      {
+        "ended": "2026-06-18T11:53:05.713Z",
+        "feedback_to_client_score": 5,
+        "started": "2026-01-09T12:51:50.593Z",
+        "status": "CLOSED",
+        "title": "Example closed contract 2",
+        "type": "HOURLY"
+      },
+      {
+        "ended": "2025-11-09T10:45:08.746Z",
+        "feedback_score": 5,
+        "feedback_to_client_score": 5,
+        "started": "2025-10-26T23:43:52.001Z",
+        "title": "Example closed contract 3",
+        "type": "FIXED"
+      },
+      {
+        "ended": "2025-10-15T09:12:48.088Z",
+        "feedback_score": 5,
+        "feedback_to_client_score": 5,
+        "started": "2025-10-12T14:35:59.727Z",
+        "title": "Example closed contract 4",
+        "type": "HOURLY"
+      },
+      {
+        "ended": "2025-10-05T10:43:23.706Z",
+        "feedback_to_client_score": 5,
+        "started": "2025-07-09T10:07:43.428Z",
+        "status": "CLOSED",
+        "title": "Example closed contract 5",
+        "type": "HOURLY"
+      }
+    ],
+    "more_available": true,
+    "note": "A sample of the client's history, not all of it, and no total can be derived from it. Use client_record for their totals.",
+    "open": [
+      {
+        "started": "2026-09-07T18:22:24.749Z",
+        "title": "Example open contract 1",
+        "type": "HOURLY"
+      },
+      {
+        "started": "2025-10-15T09:16:50.084Z",
+        "title": "Example open contract 2",
+        "type": "HOURLY"
+      },
+      {
+        "started": "2025-07-03T12:49:05.420Z",
+        "status": "ACTIVE",
+        "title": "Example open contract 3",
+        "type": "FIXED"
+      },
+      {
+        "started": "2025-04-13T09:01:04.129Z",
+        "status": "ACTIVE",
+        "title": "Example open contract 4",
+        "type": "HOURLY"
+      }
+    ],
+    "selection": "at most 5 open and 5 closed contracts, the latest of each by start date, newest first",
+    "shown": 9
+  },
+  "connects_cost": 14,
+  "data": {
+    "marketplaceJobPosting": {
+      "activityStat": {
+        "jobActivity": {
+          "invitesSent": 4,
+          "totalHired": 0,
+          "totalInvitedToInterview": 0,
+          "totalOffered": 0,
+          "totalUnansweredInvites": 0
+        }
+      },
+      "canClientReceiveContractProposal": false,
+      "classification": {
+        "category": {
+          "entityStatus": "",
+          "id": "531770282580668418",
+          "ontologyId": "",
+          "preferredLabel": "Web, Mobile & Software Dev",
+          "type": null
+        },
+        "subCategory": {
+          "entityStatus": "",
+          "id": "531770282584862733",
+          "ontologyId": "",
+          "preferredLabel": "Web Development",
+          "type": null
+        }
+      },
+      "clientCompanyPublic": {
+        "country": {
+          "IDVerificationDocuments": null,
+          "name": "United Arab Emirates",
+          "region": ""
+        },
+        "id": "9000001",
+        "timezone": "Asia/Dubai"
+      },
+      "clientProposals": {},
+      "content": {
+        "description": "<untrusted_participant_content>\nWe are a B2B software company building a multi-tenant Laravel platform for industrial sites. We are hiring a hands-on Head of Engineering and need an experienced engineer to run the technical interviews and give us a written, independent assessment of each candidate. You interview; we make the hiring decision.\n\nScope\n\nFour to five candidate interviews over two to three weeks, scheduled by us. Each interview is 90 minutes in two parts:\n- Part 1 (45 min): technical depth. Laravel and PHP in production, PostgreSQL, Inertia.js with Vue 3, multi-tenant design, security practice. Questions probe real decisions they made, not textbook answers.\n- Part 2 (45 min): live problem. You bring one realistic scenario (taking over an unfamiliar Laravel codebase, a data model issue, a tenant isolation flaw) and the candidate works through it with you, with their AI coding tools if they use them.\n\nWithin 24 hours of each interview, a written assessment of one page scored 1 to 5 on five criteria, with evidence for each score:\n1. Laravel and PHP depth in production\n2. Data modelling, PostgreSQL and multi-tenant design\n3. Codebase takeover and stabilisation judgement\n4. Security practice\n5. Use of AI coding tools and the judgement to review what they produce\nPlus a clear recommendation: hire, hire as senior engineer not lead, or no.\n\nOne 30-minute call with us after the batch to compare candidates.\n\nYou\n\n- 8+ years in software engineering, with Laravel in production in the last three years\nHave hired or interviewed senior engineers before and can tell a strong résumé from a strong engineer\n- Comfortable interviewing in English over video; candidates are mainly in Egypt and Jordan, interviews fall Sunday to Thursday\n- Not affiliated with any candidate\n\nTerms\n\n- Fixed price per interview including the written assessment (State your price per interview in your proposal).\n- Start within one week. Signed NDA.\n\nTo be considered, send: your Laravel experience in two lines, one example of a senior hire you assessed and what you looked for, and your price per interview.\n</untrusted_participant_content>",
+        "title": "Senior Laravel Engineer for Technical Interviews"
+      },
+      "contractTerms": {
+        "contractType": "HOURLY",
+        "experienceLevel": "EXPERT",
+        "hourlyContractTerms": {
+          "engagementType": "PART_TIME",
+          "hourlyBudgetType": "NOT_PROVIDED"
+        },
+        "personsToHire": 1
+      },
+      "id": "2108471673182427072",
+      "url": "https://www.upwork.com/jobs/~022108471673182427072?utm_campaign=LLM_other_MCP_jobpost&utm_content=jobpost&utm_medium=LLM&utm_source=other",
+      "workFlowState": {
+        "status": "ACTIVE"
+      }
+    }
+  },
+  "preferred_qualifications": {
+    "english_proficiency": "Any",
+    "has_portfolio": false,
+    "min_hours_worked": 0,
+    "min_job_success_score": 0,
+    "rising_talent": false
+  },
+  "screening_questions": [
+    "<untrusted_participant_content>\nDescribe one senior Laravel engineer you interviewed who looked strong on paper and you recommended against. What did you ask, and what in the answer told you?\n</untrusted_participant_content>",
+    "<untrusted_participant_content>\nIn five lines or fewer, write the live problem you would put to a candidate to test whether they can take over an unfamiliar multi-tenant Laravel codebase without re-platforming it.\n</untrusted_participant_content>"
+  ],
+  "status": "ok",
+  "preferred_locations": {
+    "countries": [
+      "Philippines",
+      "Argentina",
+      "Spain"
+    ],
+    "location_required": false
+  }
+}

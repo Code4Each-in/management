@@ -9,7 +9,14 @@ use App\Models\UpworkOpportunity;
  * freelancer-location requirement (never the client's own country) and
  * classifies it as eligible, restricted or unknown.
  *
- * Rules, first match wins:
+ * Upwork's structured list (MCP job details: preferred_locations =
+ * {countries: [...], location_required: bool}) is read first, see
+ * classifyList(): India, a region containing India or "worldwide" in the
+ * list -> eligible; otherwise location_required = true -> restricted, false
+ * (a preference; Upwork still accepts applications from India) -> unknown,
+ * or restricted when config upwork.location.preferred_is_restriction is on.
+ *
+ * Free text (agent payloads, other keys), rules first match wins:
  *   1. blank / missing                                   -> eligible   (blank)
  *   2. India explicitly excluded ("worldwide except India") -> restricted (india_excluded)
  *      ... but also explicitly welcomed in the same text  -> unknown    (india_conflict)
@@ -32,7 +39,7 @@ use App\Models\UpworkOpportunity;
 class LocationEligibility
 {
     /** Bump when the rules change, so a backfill can find rows classified by older rules. */
-    const VERSION = 1;
+    const VERSION = 2; // 2: Upwork's preferred_locations list and its location_required flag
 
     const ELIGIBLE = 'eligible';
     const RESTRICTED = 'restricted';
@@ -48,17 +55,22 @@ class LocationEligibility
     const SKIP_REASON = 'Location restriction: India-based applicants are not eligible';
     const UNKNOWN_REASON = 'Location restriction unclear — manual review required';
     const OVERRIDE_ELIGIBLE_REASON = 'Marked eligible by a reviewer';
+    const PREFERRED_REASON = 'Preferred locations exclude India (not required by Upwork; applying is allowed) — manual review required';
 
     const REASONS = [
         'blank' => 'No freelancer location restriction specified',
         'india_included' => 'India is explicitly allowed',
+        'india_listed' => "India is in the job's location list",
         'worldwide' => 'Open worldwide; India is not excluded',
         'india_region' => 'The region includes India',
         'client_location_only' => "Only the client's own location is stated; no freelancer restriction",
         'no_restriction_stated' => 'No location restriction stated',
     ];
 
-    /** Where Upwork / the agent put the freelancer-location requirement (raw_data paths, first non-empty wins). */
+    /** Upwork's structured location block (MCP find_jobs get). */
+    const LIST_SOURCE = 'preferred_locations';
+
+    /** Free-text fallbacks: where an agent may put the requirement (raw_data paths, first non-empty wins). */
     const SOURCES = [
         'freelancer_location',
         'location_requirement',
@@ -140,6 +152,77 @@ class LocationEligibility
         'exclusively', 'strictly', 'restricted', 'limited', 'please', 'note', 'need', 'needs', 'we', 'currently', 'accepting', 'accept'];
 
     const CLIENT_NOUNS = '(?:client|clients|company|employer|business|startup|team|we|our company|our team|our business|our office|office|hq|headquarters)';
+
+    /**
+     * Classify a job from its raw_data: Upwork's structured list first, then free text.
+     *
+     * @return array{text: ?string, source: ?string, eligibility: string, rule: string, reason: string, details: array}
+     */
+    public static function evaluate(?array $rawData): array
+    {
+        $block = data_get($rawData ?? [], self::LIST_SOURCE);
+        if (is_array($block)) {
+            $places = [];
+            foreach ($block as $key => $value) {
+                if (is_bool($value) || in_array($key, ['location_required', 'required'], true)) {
+                    continue;
+                }
+                array_walk_recursive($value, function ($leaf) use (&$places) {
+                    if (is_string($leaf) && trim($leaf) !== '') {
+                        $places[] = trim($leaf);
+                    }
+                });
+                if (is_string($value) && trim($value) !== '') {
+                    $places[] = trim($value);
+                }
+            }
+            $places = array_values(array_unique($places));
+            if ($places) {
+                $required = $block['location_required'] ?? ($block['required'] ?? null);
+                $required = is_bool($required) ? $required : null;
+                $text = implode(', ', $places) . ($required === true ? ' (required)' : ($required === false ? ' (preferred, not required)' : ''));
+
+                return ['text' => mb_substr($text, 0, 500), 'source' => self::LIST_SOURCE] + self::classifyList($places, $required);
+            }
+        }
+
+        [$text, $source] = self::extract($rawData);
+
+        return ['text' => $text, 'source' => $source] + self::classify($text);
+    }
+
+    /**
+     * Upwork's own list of freelancer locations, plus whether it is required.
+     *
+     * @param string[] $places countries / regions as Upwork names them
+     */
+    public static function classifyList(array $places, ?bool $required): array
+    {
+        $details = ['places' => $places, 'location_required' => $required];
+        foreach ($places as $place) {
+            $n = self::normalize($place);
+            if (preg_match('/\b' . self::INDIA . '\b/', $n)) {
+                return self::result(self::ELIGIBLE, 'india_listed', $details);
+            }
+            if (in_array($n, self::INDIA_REGIONS, true)) {
+                return self::result(self::ELIGIBLE, 'india_region', $details);
+            }
+            if (in_array($n, self::WORLDWIDE, true)) {
+                return self::result(self::ELIGIBLE, 'worldwide', $details);
+            }
+        }
+
+        if ($required === true) {
+            return self::result(self::RESTRICTED, 'location_required', $details);
+        }
+        if ($required === false) {
+            return config('upwork.location.preferred_is_restriction')
+                ? self::result(self::RESTRICTED, 'location_preferred', $details)
+                : self::result(self::UNKNOWN, 'location_preferred', $details, self::PREFERRED_REASON);
+        }
+
+        return self::result(self::UNKNOWN, 'location_list_unflagged', $details);
+    }
 
     /**
      * The freelancer-location text stored with a job, and where it came from.
@@ -306,10 +389,10 @@ class LocationEligibility
         return $phrases;
     }
 
-    private static function result(string $eligibility, string $rule, array $details): array
+    private static function result(string $eligibility, string $rule, array $details, ?string $reason = null): array
     {
-        $reason = $eligibility === self::RESTRICTED ? self::SKIP_REASON
-            : ($eligibility === self::UNKNOWN ? self::UNKNOWN_REASON : self::REASONS[$rule]);
+        $reason = $reason ?? ($eligibility === self::RESTRICTED ? self::SKIP_REASON
+            : ($eligibility === self::UNKNOWN ? self::UNKNOWN_REASON : self::REASONS[$rule]));
 
         return ['eligibility' => $eligibility, 'rule' => $rule, 'reason' => $reason, 'details' => $details];
     }

@@ -103,7 +103,7 @@ class UpworkOpportunityService
      * Score an existing opportunity again with the current ruleset (for example
      * after an AI analysis). Saves and logs only real changes.
      */
-    public function rescore(UpworkOpportunity $opportunity, ?int $userId = null, string $note = 'Re-scored'): bool
+    public function rescore(UpworkOpportunity $opportunity, ?int $userId = null, string $note = 'Re-scored', bool $notify = true): bool
     {
         $changed = DB::transaction(function () use ($opportunity, $userId, $note) {
             $o = UpworkOpportunity::whereKey($opportunity->id)->lockForUpdate()->first();
@@ -123,7 +123,7 @@ class UpworkOpportunityService
             return true;
         });
 
-        if ($changed) {
+        if ($changed && $notify) {
             app(NotificationService::class)->maybeNotify($opportunity->fresh());
         }
 
@@ -693,8 +693,8 @@ class UpworkOpportunityService
             ? ($o->location_prior_recommendation ?? UpworkOpportunity::recommendationForScore($o->score, optional(UpworkRuleset::current())->thresholds))
             : $o->recommendation;
 
-        [$text, $source] = LocationEligibility::extract($o->raw_data);
-        $auto = LocationEligibility::classify($text);
+        $auto = LocationEligibility::evaluate($o->raw_data);
+        [$text, $source] = [$auto['text'], $auto['source']];
         $reclassified = $o->location_classified_at === null
             || $o->location_text !== $text
             || $o->location_auto_eligibility !== $auto['eligibility']
@@ -799,6 +799,52 @@ class UpworkOpportunityService
         };
 
         return $save ? DB::transaction($run) : $run();
+    }
+
+    /** Facts a refresh copies from fresh job details: Upwork's location list and the posting's activity counts. */
+    const REFRESH_RAW_KEYS = [LocationEligibility::LIST_SOURCE, 'preferred_qualifications'];
+
+    /**
+     * Re-read facts for a stored job from fresh job details
+     * (UpworkClientInterface::job): Upwork's location list and the posting's
+     * activity (invites sent, interviews, hires, offers). Then re-score (the
+     * invite penalty and location eligibility follow) and classify. Status,
+     * deadlines, approval and proposal fields are untouched, and nothing is
+     * sent: no notification, no review deadline.
+     *
+     * @return array{invites_before: ?int, invites: ?int, score_before: ?float, score: ?float, location: array}
+     */
+    public function refreshFromDetail(UpworkOpportunity $opportunity, array $detail, ?int $userId = null): array
+    {
+        $before = ['invites' => $opportunity->invites_sent, 'score' => $opportunity->score];
+        $raw = (array) $opportunity->raw_data;
+        foreach (self::REFRESH_RAW_KEYS as $key) {
+            if (array_key_exists($key, (array) ($detail['raw_data'] ?? []))) {
+                $raw[$key] = $detail['raw_data'][$key];
+            }
+        }
+        $opportunity->forceFill(['raw_data' => $raw]);
+        // Only counts Upwork returned replace the stored ones; nothing is guessed or cleared.
+        if (!empty($detail['job_activity'])) {
+            $opportunity->forceFill(['job_activity' => $detail['job_activity']]);
+        }
+        if (array_key_exists('interviews_count', $detail)) {
+            $opportunity->forceFill(['interviews_count' => $detail['interviews_count']]);
+        }
+        $this->ignoreEquivalentJson($opportunity);
+        if ($opportunity->isDirty()) {
+            $changed = array_keys($opportunity->getDirty());
+            $opportunity->saveQuietly();
+            $opportunity->log('updated', $userId, null, null, 'Re-read from Upwork: ' . implode(', ', $changed)
+                . ($before['invites'] !== $opportunity->invites_sent ? '; invites sent ' . ($before['invites'] ?? 'n/a') . ' -> ' . ($opportunity->invites_sent ?? 'n/a') : ''));
+        }
+
+        // PMS-scored jobs: new invite count -> new score (once, from scratch). Agent-scored rows keep their score.
+        $this->rescore($opportunity, $userId, 'Re-scored after re-reading from Upwork', false);
+        $location = $this->classifyLocation($opportunity->fresh(), true, $userId);
+        $o = $opportunity->fresh();
+
+        return ['invites_before' => $before['invites'], 'invites' => $o->invites_sent, 'score_before' => $before['score'], 'score' => $o->score, 'location' => $location];
     }
 
     /**
