@@ -17,6 +17,8 @@ use App\Models\UpworkRuleset;
  *     Weights are normalized to 100, so the total is always 0-100.
  *  4. Recommendation from the ruleset's thresholds; classification rules run
  *     last and may read the computed scores.
+ *  5. Dual-track targeting (agency / individual / both), see TargetProfileScorer.
+ *     It only adds information: score, recommendation and hard filters are unchanged.
  *
  * Baseline curves have defaults below; a ruleset setting with the same key
  * overrides them, so they can be tuned without code changes.
@@ -104,7 +106,10 @@ class ScoringEngine
             'strategic' => null,
             'outlook' => null,
             'scope' => null,
+            'target' => null,
         ];
+        $weights = $ruleset->normalizedWeights();
+        $targeting = new TargetProfileScorer();
 
         // 1. Hard filters, before any scoring.
         foreach ($rules->where('type', UpworkRule::TYPE_HARD_FILTER) as $rule) {
@@ -119,11 +124,13 @@ class ScoringEngine
             }
         }
         if ($result['hard_filters']) {
+            // Who the job suits is still recorded (from signals only); it never lifts a hard filter.
+            $result['target'] = $targeting->score($context, [], $settings, $weights);
+
             return $result;
         }
 
         // 2. Components: baseline + rule points, clamped to the normalized weight.
-        $weights = $ruleset->normalizedWeights();
         $baselines = $this->baselines($context, $tech, $client, $settings);
         $scoreRules = $rules->where('type', UpworkRule::TYPE_SCORE);
 
@@ -193,6 +200,9 @@ class ScoringEngine
             }
         }
         $result['scope'] = ['size' => $context['signals']['scope_size'], 'source' => $context['signals']['scope_source']];
+
+        // 5. Dual-track targeting: agency, individual or both. Additive; the score above is unchanged.
+        $result['target'] = $targeting->score($context, $result['components'], $settings, $weights, $result['classifications']);
 
         return $result;
     }

@@ -207,6 +207,28 @@ Optional `.env`: `UPWORK_REVIEW_TIMEZONE` (snooze presets and email times; defau
 
 Before switching reminders on: the mail channel and recipients are set (step 10.1), and the server scheduler is on. Snooze links in emails open a confirmation page; only the button on that page changes anything.
 
+## 12. Dual-track targeting (agency / individual)
+
+Code plus one additive migration: `2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table`. All 8 new columns are nullable, plus one index on `target_profile`. Nothing is backfilled by the migration, and no existing column, score, recommendation, review deadline or snooze changes. Nothing in this release calls Upwork, and no setting changes on deploy.
+
+```bash
+<PHP> artisan migrate --pretend --force --path=database/migrations/2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table.php   # [READ]
+<PHP> artisan migrate --force --path=database/migrations/2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table.php      # [CHANGE]
+<PHP> artisan view:clear
+<PHP> artisan migrate:status | grep 2026_10_15_100000           # [READ] "Yes"
+```
+
+- **The agency-only filter is untouched.** It is the published ruleset's `agency_mode` setting (seeded on, intentionally off on production). This release neither reads nor writes it. Check before and after: Configuration → Scoring → current version → *Agency mode*.
+- **New and re-seen jobs** get a best-fit label automatically. **Existing jobs** need the optional backfill, which needs its own approval:
+  ```bash
+  <PHP> artisan upwork:classify-targets                 # [READ] dry run: counts only, saves nothing
+  <PHP> artisan upwork:classify-targets --apply         # [CHANGE] writes only target_profile, the two fit scores and score_explanation.target
+  ```
+  The backfill fires no notifications, reminders or SLA changes. It adds one `target_classified` activity entry per job.
+- **Optional, each by decision:** add individual profiles under Configuration → Targeting. Tune weights and preferences through a Scoring draft (*Advanced settings*, key `target_profiles`), then publish it.
+- **Smoke test [READ]:** a job page shows **Best-fit profile** and the **Bid as / Proposal angle** approval form. The list has the profile filters. The Radar shows **Target profiles**. Configuration shows the **Targeting** tab.
+- **Rollback:** code rollback as below. The columns can stay, because old code ignores them. Schema only: `<PHP> artisan migrate:rollback --force --path=database/migrations/2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table.php`. This drops the 8 columns and the recorded profile choices; activity log entries remain.
+
 ## Rollback
 
 Choose the smallest step that fixes the problem.
@@ -222,7 +244,7 @@ Choose the smallest step that fixes the problem.
    In an emergency, `git checkout <PREVIOUS_RELEASE>` (detached) restores the previous code exactly. Return to the branch afterwards. The new tables can stay; old code ignores them.
 4. **Schema rollback:** this deletes all module data, so export first if needed. Roll back newest first, one path at a time:
    ```bash
-   for m in 2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
+   for m in 2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table 2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
     2026_10_09_100300_create_upwork_queue_jobs_table 2026_10_09_100200_create_upwork_ai_analyses_table \
     2026_10_09_100100_add_tiers_to_upwork_search_profiles_table 2026_10_09_100000_create_upwork_ai_usage_table \
     2026_10_08_100900_add_notification_columns_to_upwork_opportunities_table 2026_10_08_100800_create_upwork_config_logs_table \

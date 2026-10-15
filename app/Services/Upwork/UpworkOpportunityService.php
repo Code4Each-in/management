@@ -43,6 +43,7 @@ class UpworkOpportunityService
         'long_term_score', 'ai_automation_score', 'competition_score', 'scoring_version', 'ruleset_version',
         'score_explanation', 'hard_filters', 'recommendation', 'classifications', 'strategic_score',
         'win_probability', 'contract_value_estimate', 'expected_value',
+        'target_profile', 'agency_fit_score', 'individual_fit_score',
     ];
 
     /** Payload keys about the client that are not opportunity columns. */
@@ -227,8 +228,11 @@ class UpworkOpportunityService
      * as "reviewed" for the review SLA. When AI proposal drafts are switched on,
      * a draft is queued; it is never submitted anywhere.
      */
-    public function approve(UpworkOpportunity $opportunity, int $userId): void
+    public function approve(UpworkOpportunity $opportunity, int $userId, array $targeting = []): void
     {
+        // Validate the choice before anything changes.
+        $selection = $this->resolveTargeting($opportunity, $targeting);
+
         $opportunity->changeStatus(UpworkOpportunity::STATUS_APPROVED, $userId, [
             'approved_at' => now(),
             'approved_by' => $userId,
@@ -237,8 +241,80 @@ class UpworkOpportunityService
             'rejection_reason' => null,
             'reviewed_at' => $opportunity->reviewed_at ?? now(),
         ]);
+        if ($selection) {
+            $this->storeTargeting($opportunity, $selection, $userId);
+        }
 
         app(\App\Services\Upwork\Ai\Proposal\ProposalDraftService::class)->queueAfterApproval($opportunity, $userId);
+    }
+
+    /**
+     * Change the profile (agency / individual) and proposal angle the draft is
+     * written for. Allowed until a person has edited the draft. Nothing here
+     * touches Upwork: the profile is a PMS writing persona, never an Upwork
+     * account, and nothing is selected, switched or submitted on Upwork.
+     */
+    public function selectTargeting(UpworkOpportunity $opportunity, array $targeting, int $userId): void
+    {
+        if (!in_array($opportunity->status, [UpworkOpportunity::STATUS_APPROVED, UpworkOpportunity::STATUS_PROPOSAL_DRAFT], true)) {
+            throw new \DomainException('Choose the profile and angle when approving the job, or while its proposal is being drafted.');
+        }
+        if ($opportunity->proposal_edited_at !== null) {
+            throw new \DomainException('The proposal draft has been edited by a person; edit the text directly instead.');
+        }
+        if (empty($targeting['selected_profile'])) {
+            throw new \DomainException('Choose a profile.');
+        }
+
+        $this->storeTargeting($opportunity, $this->resolveTargeting($opportunity, $targeting), $userId);
+    }
+
+    /**
+     * The reviewer's choice, or the engine's suggestion when none was given
+     * (approvals from the list or the API). Null when there is neither.
+     *
+     * @return array|null [selected_profile, proposal_angle, proposal_angle_note, source]
+     */
+    private function resolveTargeting(UpworkOpportunity $opportunity, array $targeting): ?array
+    {
+        $suggestion = $opportunity->score_explanation['target'] ?? null;
+        $profile = $targeting['selected_profile'] ?? null;
+        $angle = $targeting['proposal_angle'] ?? null;
+        $note = isset($targeting['proposal_angle_note']) ? trim((string) $targeting['proposal_angle_note']) : null;
+
+        if (!$profile && !$suggestion) {
+            return null;
+        }
+        $source = $profile ? 'reviewer' : 'suggested';
+        $profile = $profile ?: $suggestion['suggested_profile'];
+        $angle = $angle ?: ($suggestion['suggested_angle'] ?? null);
+
+        if (!\App\Services\Upwork\Targeting\TargetProfiles::find($profile)) {
+            throw new \DomainException('Unknown profile. Choose the agency or a configured individual profile.');
+        }
+        if ($angle !== null && !isset(\App\Services\Upwork\Scoring\TargetProfileScorer::ANGLES[$angle])) {
+            throw new \DomainException('Unknown proposal angle.');
+        }
+
+        return ['selected_profile' => $profile, 'proposal_angle' => $angle, 'proposal_angle_note' => $note !== '' ? mb_substr((string) $note, 0, 500) : null, 'source' => $source];
+    }
+
+    private function storeTargeting(UpworkOpportunity $opportunity, array $selection, int $userId): void
+    {
+        $opportunity->forceFill(\Illuminate\Support\Arr::only($selection, ['selected_profile', 'proposal_angle', 'proposal_angle_note']));
+        if (!$opportunity->isDirty()) {
+            return;
+        }
+        $opportunity->forceFill(['profile_selected_by' => $userId, 'profile_selected_at' => now()])->save();
+
+        $target = $opportunity->score_explanation['target'] ?? null;
+        $track = \App\Services\Upwork\Targeting\TargetProfiles::trackOf($selection['selected_profile']);
+        $note = 'Bid as ' . \App\Services\Upwork\Targeting\TargetProfiles::label($selection['selected_profile'])
+            . ($selection['proposal_angle'] ? '; angle: ' . \App\Services\Upwork\Scoring\TargetProfileScorer::ANGLES[$selection['proposal_angle']][0] : '')
+            . ($selection['source'] === 'suggested' ? ' (engine suggestion, not chosen by the reviewer)' : '')
+            . ($target && $target['target'] !== 'both' && $track && $track !== $target['target'] ? "; differs from the best fit ({$target['target']})" : '')
+            . (($target['restriction']['track'] ?? null) && $track && $track !== $target['restriction']['track'] ? '; WARNING: the posting only accepts ' . ($target['restriction']['track'] === 'agency' ? 'agencies' : 'individuals') : '');
+        $opportunity->log('target_selected', $userId, null, null, $note);
     }
 
     public function reject(UpworkOpportunity $opportunity, int $userId, ?string $reason = null): void
@@ -331,12 +407,12 @@ class UpworkOpportunityService
     }
 
     /**
-     * Score with the current ruleset and write the engine-owned fields. Human-owned
-     * state (status, approval, proposal) is never touched. The explanation keeps
-     * its original timestamp when nothing about the result changed, so re-seeing
-     * an unchanged job is not recorded as an update.
+     * Engine input for a stored job: its attributes plus client history and the
+     * AI signals that passed the confidence gate.
+     *
+     * @return array{0: array, 1: ?array} [attributes, fingerprint match]
      */
-    private function applyEngineScore(UpworkOpportunity $opportunity, bool $fillTechnologies, ?\App\Models\UpworkClient $client = null): void
+    private function scoringAttributes(UpworkOpportunity $opportunity, ?\App\Models\UpworkClient $client = null): array
     {
         $attributes = $opportunity->attributesToArray();
         $client = $client ?? ($opportunity->upwork_client_id ? \App\Models\UpworkClient::find($opportunity->upwork_client_id) : null);
@@ -352,6 +428,56 @@ class UpworkOpportunityService
         }
 
         $attributes['ai_signals'] = \App\Services\Upwork\Ai\Qualification\QualificationService::signalsFor($opportunity);
+
+        return [$attributes, $match];
+    }
+
+    /**
+     * Backfill for jobs scored before targeting existed: computes the best-fit
+     * track and writes ONLY the target fields (target_profile, the two track
+     * fits, score_explanation.target). Score, recommendation, hard filters,
+     * review deadline, status and every other field stay exactly as they are.
+     *
+     * @return array|null the target result, or null for agent-scored rows / no published ruleset
+     */
+    public function classifyTarget(UpworkOpportunity $opportunity, bool $save, ?int $userId = null): ?array
+    {
+        if (!$opportunity->ruleset_version || $opportunity->score_explanation === null) {
+            return null; // agent-scored legacy rows keep their own data
+        }
+        [$attributes] = $this->scoringAttributes($opportunity);
+        $target = ($this->scoreWithCurrentRuleset($attributes) ?? [])['target'] ?? null;
+        if (!$target || !$save) {
+            return $target;
+        }
+
+        $explanation = $opportunity->score_explanation;
+        $explanation['target'] = $target + ['classified_with_ruleset' => optional(UpworkRuleset::current())->version];
+        $opportunity->forceFill([
+            'target_profile' => $target['target'],
+            'agency_fit_score' => $target['tracks']['agency']['score'],
+            'individual_fit_score' => $target['tracks']['individual']['score'],
+            'score_explanation' => $explanation,
+        ]);
+        $this->ignoreEquivalentJson($opportunity);
+        if ($opportunity->isDirty()) {
+            // saveQuietly: no model events, so nothing else (notifications, SLA) reacts to a backfill.
+            $opportunity->saveQuietly();
+            $opportunity->log('target_classified', $userId, null, null, 'Best fit: ' . $target['target'] . ' (backfill; score unchanged)');
+        }
+
+        return $target;
+    }
+
+    /**
+     * Score with the current ruleset and write the engine-owned fields. Human-owned
+     * state (status, approval, proposal) is never touched. The explanation keeps
+     * its original timestamp when nothing about the result changed, so re-seeing
+     * an unchanged job is not recorded as an update.
+     */
+    private function applyEngineScore(UpworkOpportunity $opportunity, bool $fillTechnologies, ?\App\Models\UpworkClient $client = null): void
+    {
+        [$attributes, $match] = $this->scoringAttributes($opportunity, $client);
 
         $result = $this->scoreWithCurrentRuleset($attributes);
         if (!$result) {
@@ -369,6 +495,7 @@ class UpworkOpportunityService
             'outlook' => $result['outlook'],
             'classifications' => $result['classification_details'],
             'scope' => $result['scope'],
+            'target' => $result['target'],
             // AI judgement used by rules (null = none, or below the confidence gate).
             'ai' => $attributes['ai_signals'],
         ];
@@ -399,6 +526,9 @@ class UpworkOpportunityService
         $opportunity->scoring_version = $result['scoring_version'];
         $opportunity->ruleset_version = $result['ruleset_version'];
         $opportunity->hard_filters = array_column($result['hard_filters'], 'reason') ?: [];
+        $opportunity->target_profile = $result['target']['target'] ?? null;
+        $opportunity->agency_fit_score = $result['target']['tracks']['agency']['score'] ?? null;
+        $opportunity->individual_fit_score = $result['target']['tracks']['individual']['score'] ?? null;
         $opportunity->score_explanation = $explanation;
 
         if ($fillTechnologies && !$opportunity->technologies) {

@@ -51,14 +51,6 @@
       </div>
 
       <div class="d-flex align-items-center gap-2 flex-wrap">
-        @can('approve', $o)
-          @if($o->canTransitionTo($M::STATUS_APPROVED))
-            <form method="POST" action="{{ route('upwork.opportunities.approve', $o) }}" class="m-0">
-              @csrf
-              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Approve</button>
-            </form>
-          @endif
-        @endcan
         @can('reject', $o)
           @if($o->canTransitionTo($M::STATUS_REJECTED))
             <button type="button" class="btn btn-outline-danger btn-sm js-reject"
@@ -74,6 +66,21 @@
         @endif
       </div>
     </div>
+    @can('approve', $o)
+      @if($o->canTransitionTo($M::STATUS_APPROVED))
+        <div class="mt-3 pt-3 border-top" id="approve">
+          @include('upwork.opportunities.partials.targeting-form', [
+              'action' => route('upwork.opportunities.approve', $o), 'targeting' => $targeting, 'formId' => 'approve-form',
+              'button' => '<button type="submit" class="btn btn-success btn-sm w-100"><i class="bi bi-check-lg"></i> Approve</button>',
+          ])
+        </div>
+      @endif
+    @endcan
+    @if($o->selected_profile)
+      <div class="small mt-2"><strong>Bid as:</strong> {{ \App\Services\Upwork\Targeting\TargetProfiles::label($o->selected_profile) }}
+        @if($o->proposal_angle) · angle “{{ \App\Services\Upwork\Scoring\TargetProfileScorer::ANGLES[$o->proposal_angle][0] ?? $o->proposal_angle }}”@endif
+        <span class="text-muted">· {{ $o->profileSelector ? 'chosen by ' . $o->profileSelector->first_name : 'recorded' }} {{ optional($o->profile_selected_at)->format('d M Y H:i') }}</span></div>
+    @endif
     <div class="small text-muted mt-2" style="font-size:0.75rem;">Approving only records that we want to pursue this job. Nothing is sent to Upwork.</div>
     @include('upwork.opportunities.partials.review-sla', ['o' => $o, 'review' => $review])
   </div>
@@ -176,11 +183,14 @@
         <div style="{{ $dd }}">@include('upwork.opportunities.partials.recommendation-badge', ['opportunity' => $o])</div>
       </div>
 
+      {{-- Dual-track targeting: agency / individual / either --}}
+      @include('upwork.opportunities.partials.target-fit', ['targeting' => $targeting, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd])
+
       {{-- AI (judgement and estimates, separate from facts) --}}
       @include('upwork.opportunities.partials.ai-analysis', ['o' => $o, 'ai' => $ai, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd, 'M' => $M])
 
       {{-- Proposal --}}
-      @include('upwork.opportunities.partials.proposal', ['o' => $o, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd, 'ai' => $ai])
+      @include('upwork.opportunities.partials.proposal', ['o' => $o, 'card' => $card, 'h' => $h, 'dt' => $dt, 'dd' => $dd, 'ai' => $ai, 'targeting' => $targeting])
     </div>
 
     {{-- Right column --}}

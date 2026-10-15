@@ -499,6 +499,8 @@ Route::middleware(['auth'])->prefix('upwork/opportunities')->name('upwork.opport
     Route::post('/{opportunity}/outcome', [UpworkOpportunityController::class, 'recordOutcome'])->name('outcome');
     Route::post('/{opportunity}/ai', [UpworkOpportunityController::class, 'analyze'])->name('ai.analyze');
     Route::post('/{opportunity}/proposal/ai', [UpworkOpportunityController::class, 'draftProposalWithAi'])->name('proposal.ai');
+    // Profile (agency / individual persona) and proposal angle for the draft. PMS only: no Upwork account is selected or switched.
+    Route::post('/{opportunity}/targeting', [UpworkOpportunityController::class, 'selectTargeting'])->name('targeting');
     // Review reminders: email links open the GET confirmation page; only the POST changes anything.
     Route::get('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snoozeConfirm'])->name('snooze.confirm');
     Route::post('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snooze'])->middleware('throttle:30,1')->name('snooze');
@@ -514,6 +516,8 @@ Route::middleware(['auth'])->prefix('upwork/config')->name('upwork.config.')->gr
     Route::post('/discovery/run', [\App\Http\Controllers\Upwork\ConfigController::class, 'runDiscovery'])->name('discovery.run');
     Route::get('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'editSettings'])->name('settings.edit');
     Route::put('/settings', [\App\Http\Controllers\Upwork\ConfigController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/targeting', [\App\Http\Controllers\Upwork\TargetingController::class, 'edit'])->name('targeting.edit');
+    Route::put('/targeting', [\App\Http\Controllers\Upwork\TargetingController::class, 'update'])->name('targeting.update');
     Route::get('/ai', [\App\Http\Controllers\Upwork\AiSettingsController::class, 'edit'])->name('ai.edit');
     Route::put('/ai', [\App\Http\Controllers\Upwork\AiSettingsController::class, 'update'])->name('ai.update');
     Route::get('/api/connect', [\App\Http\Controllers\Upwork\UpworkApiController::class, 'connect'])->name('api.connect');

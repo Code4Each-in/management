@@ -20,6 +20,7 @@
       'upwork.config.technologies.index' => 'Technologies',
       'upwork.config.rulesets.index' => 'Scoring',
       'upwork.config.classifications.index' => 'Classifications',
+      'upwork.config.targeting.edit' => 'Targeting',
       'upwork.config.settings.edit' => 'Agent & discovery',
       'upwork.config.ai.edit' => 'AI',
   ];

@@ -8,6 +8,23 @@
   </div>
   <div class="small text-muted mb-3" style="font-size:0.75rem;">Drafts stay in the PMS. Submission happens manually on Upwork by a human.</div>
 
+  @if(!empty($targeting['editable']))
+    @can('manageProposal', $o)
+      @php $lastChoice = $o->logs->firstWhere('action', 'target_selected'); /* logs are newest first */ @endphp
+      <div class="mb-3 p-2 rounded" style="background:#f9fafb; border:1px solid #e5e7eb;">
+        <div class="small fw-semibold mb-1">Profile &amp; angle for this draft
+          @if(!$o->selected_profile)<span class="badge bg-warning text-dark ms-1">not chosen yet</span>
+          @elseif($lastChoice && str_contains((string) $lastChoice->note, 'engine suggestion'))<span class="badge bg-warning text-dark ms-1">suggestion — please confirm</span>@endif
+        </div>
+        @include('upwork.opportunities.partials.targeting-form', [
+            'action' => route('upwork.opportunities.targeting', $o), 'targeting' => $targeting, 'formId' => 'targeting-form',
+            'button' => '<button type="submit" class="btn btn-outline-primary btn-sm w-100">Save profile &amp; angle</button>',
+        ])
+        <div class="text-muted" style="font-size:0.72rem;">Save before generating; an existing unedited AI draft can be redrafted to use a new choice.</div>
+      </div>
+    @endcan
+  @endif
+
   @php
     $aiOn = $ai['proposal_enabled'] ?? false;
     $canAiDraft = $aiOn && in_array($o->status, [$M::STATUS_APPROVED, $M::STATUS_PROPOSAL_DRAFT], true) && !$o->proposal_edited_at;

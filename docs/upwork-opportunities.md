@@ -63,7 +63,7 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
 | Clients | `UpworkClient`, `UpworkClientSnapshot`, `app/Services/Upwork/Clients/ClientIntelligenceService.php` (history, fingerprint matching) |
 | Radar and metrics | `RadarService`, `MetricsService`, `Upwork\RadarController` |
 | Scheduler | `app/Console/UpworkSchedule.php` (registered from `app/Console/Kernel.php`) |
-| Commands | `upwork:discover`, `upwork:ai-analyze`, `upwork:ai-status`, `upwork:metrics`, `upwork:token-refresh`, `upwork:preflight`, `upwork:explain`, `upwork:agent-token` |
+| Commands | `upwork:discover`, `upwork:ai-analyze`, `upwork:ai-status`, `upwork:metrics`, `upwork:token-refresh`, `upwork:preflight`, `upwork:explain`, `upwork:agent-token`, `upwork:classify-targets` |
 | Default configuration | `database/seeders/UpworkIntelligenceSeeder.php` (idempotent; never overwrites admin edits) |
 | Mac mini worker | `agent/`: development and manual use only (see `agent/README.md`) |
 | Tests | `tests/Feature/Upwork/`, `tests/Unit/Upwork*`, fixtures in `tests/Fixtures/Upwork/` |
@@ -73,7 +73,7 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
 1. **Technologies.** Catalog aliases are matched as whole words, with the relationship graph giving partial credit.
 2. **Hard filters**, applied before any points:
    - already hired, or an offer is out
-   - individuals only (in agency mode)
+   - individuals only (only while the ruleset's `agency_mode` is on; targeting below never changes this)
    - budget floors
    - EXCLUDED-only capability
    - missing description
@@ -87,6 +87,25 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
 6. **Client fingerprint.** A search row has no Upwork client id. When its country, jobs posted, hires and total spent match exactly one client seen in the last 30 days, that client's history and cached facts feed the stage-1 score (`score_explanation.client.match`). Only full job details link a job to a client.
 
 Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and never use `eval`. `php artisan upwork:explain <id>` explains any job.
+
+## Dual-track targeting (agency / individual)
+
+Code4Each bids as its **agency profile** and as **individual freelancer profiles**. Every scored job is also labelled **agency**, **individual** or **both** (shown as "Either"). This is additive: the Opportunity Score, recommendation, hard filters (including `agency_mode`), review deadline, reminders and snooze are computed exactly as before. No job is excluded for not being agency-only. `TargetProfileScorer` runs as step 5 of `ScoringEngine`.
+
+1. **Posting restriction.** Upwork's contractor type ("Individuals only" / "Agencies only") first, then the agent's `is_individual_only` flag, then explicit wording ("no agencies", "agencies only"). The restricted track wins and the other is marked ineligible for this job. A weaker source that contradicts it makes the job **ambiguous**.
+2. **Track fit (0–100).** The engine's own component percentages are re-weighted per track. The agency track defaults to the ruleset weights, so its base equals the Opportunity Score. The individual track defaults to technical 25, experience 25, client 20, commercial 10, long-term 5, AI 5, competition 10. When individual profiles exist, the individual track's experience is the best profile's share of the job's technologies.
+3. **Suitability signals**, each with a reason and points: preferred scopes per track, team wording, "hire N freelancers", 3+ disciplines (agency); one-person wording, a focused skill set (individual); a budget below a track's minimum (minus points on that track); the AI `agency_friendly` signal when it passed the confidence gate.
+4. **Best fit.** The restricted track, otherwise the higher track fit, or **both** when the fits are within the margin (default 8). The job is **ambiguous** (confidence low) when signals conflict, or when only the track weights separate the profiles.
+
+The result is stored in `target_profile`, `agency_fit_score`, `individual_fit_score` and `score_explanation.target`. That field holds the summary, reasons, signals, per-track weights and experience evidence, the suggested profile, and the suggested proposal angle.
+
+**Configuration.** Weights, margin, points, per-track preferences (scopes, minimum hourly, minimum fixed) and phrases live in the ruleset's advanced setting `target_profiles`, so changes are versioned and published like any other scoring change. Individual profiles (name, approved summary, verified catalog technologies) are under **Configuration → Targeting**. They are PMS writing personas only and are **not linked to Upwork accounts**.
+
+**Approval.** The job page asks **Bid as** (agency or an individual profile) and **Proposal angle** (team delivery, hands-on specialist, quick fix, long-term partner, proven experience, AI/automation), both prefilled from the suggestion, plus an optional note (prefilled from a deep analysis's angle). An approval without a choice (API, older forms) records the suggestion and labels it as such in the activity log. The choice can be changed until a person edits the draft, and every change is logged (`target_selected`). AI and starter drafts follow it: an individual draft is first person and may cite only that person's summary and technologies. The PMS never selects, switches or submits from an Upwork account.
+
+**Reporting.** The opportunity list filters by best fit (agency and individual include "either") and by **bid as**, and sorts by agency or individual fit. The Radar's **Target profiles** card counts relevant jobs per best fit, and chosen, submitted, won and lost per bid profile.
+
+**Existing jobs** have no label until they are re-scored or backfilled: `php artisan upwork:classify-targets` (dry run) and then `--apply`. The backfill writes only the target fields.
 
 ## Search tiers
 
@@ -166,6 +185,7 @@ The same figures are available from `php artisan upwork:metrics --range=7d`.
 | Technologies | Capability catalog (PROVEN / ADJACENT / EMERGING / EXCLUDED), aliases, relationships |
 | Scoring | Versioned rulesets: edit a draft, then publish |
 | Classifications | Labels that rules assign; "surface" keeps a job visible below REVIEW |
+| Targeting | Individual freelancer profiles (name, approved summary, verified technologies); read-only view of the track weights and preferences from the ruleset |
 | Agent & discovery | **Upwork MCP, direct** (connect, account, reconnect, disconnect, token status), the dormant Upwork API card, discovery on/off, interval, **source**, caps, tier allowances, time budget, notification channels and recipients (also used for alerts) |
 | AI | On/off, auto-analyze, provider and model (priced models only), confidence gate, every limit and budget, deep-analysis allowance, usage |
 
