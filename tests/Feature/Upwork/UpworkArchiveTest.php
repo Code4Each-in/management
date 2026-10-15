@@ -368,6 +368,69 @@ class UpworkArchiveTest extends UpworkTestCase
         $this->assertSame(1, UpworkOpportunity::count(), 'nothing is ever deleted');
     }
 
+    // ---- Queue cleanup: counts, reminder-eligible view, next-search preview ---------------------
+
+    public function test_queue_counts_and_the_reminder_queue_match_reminder_eligibility(): void
+    {
+        $overdue = $this->eligible(['title' => 'Overdue']);
+        $this->travel(45)->minutes();
+        $pending = $this->eligible(['title' => 'Pending']);
+        $snoozed = $this->eligible(['title' => 'Snoozed']);
+        $this->sla()->snooze($snoozed, now()->addHour(), $this->bde()->id, '1h');
+        $archived = $this->eligible(['title' => 'Archived one']);
+        $this->service()->archive($archived, $this->bde()->id);
+        $this->opportunity(['title' => 'Approved one', 'status' => 'approved']);
+        $this->opportunity(['title' => 'Rejected one', 'status' => 'rejected']);
+        $skip = $this->opportunity(['title' => 'Skip one', 'recommendation' => 'skip']);
+        $skip->forceFill(['stage' => UpworkOpportunity::STAGE_ENRICHED])->save();
+        $hard = $this->eligible(['title' => 'Hard one']);
+        $hard->forceFill(['hard_filters' => ['Too cheap']])->save();
+
+        // The SQL scope and the PHP rule the reminders use agree on every job.
+        $byRule = UpworkOpportunity::all()->filter(fn($o) => ReviewSlaService::isEligible($o))->pluck('id')->sort()->values()->all();
+        $byScope = UpworkOpportunity::reviewEligible()->pluck('id')->sort()->values()->all();
+        $this->assertSame($byRule, $byScope);
+        $this->assertEqualsCanonicalizing([$pending->id, $overdue->id, $snoozed->id], $byScope);
+
+        $stats = $this->service()->stats();
+        $this->assertSame([3, 1, 1, 1, 1, 1], [$stats['awaiting_review'], $stats['overdue'], $stats['snoozed'], $stats['approved'], $stats['rejected'], $stats['archived']]);
+
+        $bde = $this->bde();
+        $this->actingAs($bde)->get(route('upwork.opportunities.index'))->assertOk()->assertSee('Review queue:')->assertSee('Awaiting review');
+        $this->actingAs($bde)->get(route('upwork.opportunities.index', ['view' => 'reminder_queue']))->assertOk()
+            ->assertSee('Pending')->assertSee('Overdue')->assertDontSee('Archived one')->assertDontSee('Skip one')->assertDontSee('Hard one');
+        $this->actingAs($bde)->get(route('upwork.opportunities.index', ['view' => 'overdue']))->assertOk()
+            ->assertSee('Overdue')->assertDontSee('>Pending<', false);
+
+        // "Select all matching" on the reminder queue archives exactly those 3.
+        $this->actingAs($bde)->post(route('upwork.opportunities.bulk'), ['action' => 'archive', 'mode' => 'filter', 'filter' => ['view' => 'reminder_queue'], 'expected' => 3])
+            ->assertSessionHas('success', 'Archived 3 of 3 selected job(s).');
+        $this->assertSame(0, UpworkOpportunity::reviewEligible()->count());
+        $this->assertSame('skip', $skip->fresh()->recommendation);
+        $this->assertSame('new', $skip->fresh()->status, 'outside the filter: untouched');
+    }
+
+    public function test_next_search_preview_is_read_only_and_labels_its_estimate(): void
+    {
+        (new \Database\Seeders\UpworkIntelligenceSeeder)->run();
+        $profiles = \App\Models\UpworkSearchProfile::orderBy('id')->get(['id', 'last_run_at', 'query_cursor', 'version'])->toArray();
+        $settings = UpworkSetting::orderBy('key')->pluck('value', 'key')->all();
+
+        $preview = app(\App\Services\Upwork\Discovery\DiscoveryService::class)->preview();
+        $this->assertGreaterThan(0, $preview['searches'], 'seeded profiles are due');
+        $this->assertNull($preview['estimated_new'], 'no history: no made-up number');
+
+        $this->actingAs($this->superAdmin())->get(route('upwork.config.index'))->assertOk()
+            ->assertSee('Next search preview')->assertSee('nothing has been searched')->assertSee('Expected new jobs: unknown');
+
+        // Nothing ran, nothing moved, nothing was sent.
+        $this->assertSame(0, \App\Models\UpworkDiscoveryRun::count());
+        $this->assertSame(0, \App\Models\UpworkDiscoveryQuery::count());
+        $this->assertSame($profiles, \App\Models\UpworkSearchProfile::orderBy('id')->get(['id', 'last_run_at', 'query_cursor', 'version'])->toArray());
+        $this->assertEquals($settings, UpworkSetting::orderBy('key')->pluck('value', 'key')->all());
+        Http::assertNothingSent();
+    }
+
     // ---- Existing workflow unaffected ----------------------------------------------------------
 
     public function test_approve_reject_and_snooze_still_work_for_active_jobs(): void

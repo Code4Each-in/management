@@ -167,6 +167,33 @@ class UpworkOpportunity extends Model
     {
         return $query->where('status', '!=', self::STATUS_ARCHIVED);
     }
+
+    /**
+     * Jobs awaiting review that the reminder schedule covers: the SQL form of
+     * ReviewSlaService::isEligible (new, enriched, APPLY/REVIEW, not excluded,
+     * not hard-rejected). Archived jobs are never in it.
+     */
+    public function scopeReviewEligible($query)
+    {
+        return $query->where('status', self::STATUS_NEW)
+            ->where('stage', self::STAGE_ENRICHED)
+            ->whereIn('recommendation', [self::RECOMMENDATION_APPLY, self::RECOMMENDATION_REVIEW])
+            ->where('discovery_ignored', false)
+            // An empty or missing list; a non-empty JSON list starts with ["  (MySQL JSON, MariaDB and SQLite).
+            ->where(fn($q) => $q->whereNull('hard_filters')->orWhere('hard_filters', 'not like', '["%'));
+    }
+
+    /** Review-eligible jobs past their deadline (snoozed ones included: snooze silences, it does not extend). */
+    public function scopeReviewOverdue($query)
+    {
+        return $query->reviewEligible()->whereNotNull('review_due_at')->where('review_due_at', '<=', now());
+    }
+
+    /** New jobs whose reminders are snoozed right now. */
+    public function scopeReviewSnoozed($query)
+    {
+        return $query->where('status', self::STATUS_NEW)->where('review_snoozed_until', '>', now());
+    }
     public function logs() { return $this->hasMany(UpworkOpportunityLog::class)->latest('id'); }
     public function sightings() { return $this->hasMany(UpworkOpportunitySighting::class, 'opportunity_id'); }
     public function client() { return $this->belongsTo(UpworkClient::class, 'upwork_client_id'); }

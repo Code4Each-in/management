@@ -29,6 +29,23 @@
     <li class="nav-item ms-auto"><a class="nav-link py-1 px-2" href="{{ route('upwork.radar') }}"><i class="bi bi-broadcast"></i> Radar</a></li>
   </ul>
 
+  {{-- Review queue: the jobs reminders cover, and where everything else went --}}
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="font-size:0.84rem;">
+    <span class="text-muted fw-semibold me-1">Review queue:</span>
+    @foreach([
+        ['Awaiting review', $stats['awaiting_review'], '#0d6efd', ['view' => 'reminder_queue'], 'New APPLY/REVIEW jobs with full details: exactly the jobs review reminders cover'],
+        ['Overdue', $stats['overdue'], '#dc3545', ['view' => 'overdue'], 'Awaiting review and past the 30-minute deadline'],
+        ['Snoozed', $stats['snoozed'], '#6f42c1', ['view' => 'snoozed'], 'Reminders paused for now; the deadline is unchanged'],
+        ['Approved', $stats['approved'], '#0f5132', ['view' => 'approved'], null],
+        ['Rejected', $stats['rejected'], '#842029', ['view' => 'rejected'], null],
+        ['Archived', $stats['archived'], '#4b5563', ['view' => 'archived'], 'Out of the queue; never reminded. Restore from this tab.'],
+    ] as [$label, $value, $color, $query, $title])
+      <a href="{{ route('upwork.opportunities.index', $query) }}" class="text-decoration-none px-2 py-1 rounded border bg-white" title="{{ $title }}">
+        {{ $label }} <strong style="color:{{ $color }};">{{ $value }}</strong>
+      </a>
+    @endforeach
+  </div>
+
   {{-- Stat cards --}}
   <div class="row g-3 mb-4">
     @foreach([

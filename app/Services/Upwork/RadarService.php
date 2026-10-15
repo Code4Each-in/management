@@ -242,6 +242,13 @@ class RadarService
                 return $q->where('status', UpworkOpportunity::STATUS_REJECTED);
             case 'archived':
                 return $q->where('status', UpworkOpportunity::STATUS_ARCHIVED);
+            case 'reminder_queue':
+                // Exactly the jobs the review reminders cover.
+                return $q->reviewEligible();
+            case 'overdue':
+                return $q->reviewOverdue();
+            case 'snoozed':
+                return $q->reviewSnoozed();
             case 'proposal_drafts':
                 return $q->where('status', UpworkOpportunity::STATUS_PROPOSAL_DRAFT)->whereNull('proposal_approved_at');
             case 'ready_to_submit':
@@ -254,6 +261,9 @@ class RadarService
 
     const VIEWS = [
         'new_matches' => 'New Matches',
+        'reminder_queue' => 'Awaiting Review',
+        'overdue' => 'Overdue',
+        'snoozed' => 'Snoozed',
         'review' => 'Review',
         'apply' => 'Apply',
         'approved' => 'Approved',

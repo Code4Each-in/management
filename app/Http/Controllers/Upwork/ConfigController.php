@@ -57,6 +57,9 @@ class ConfigController extends Controller
             'manual_run' => UpworkSetting::get('discovery.manual_last'),
             'discovery' => \App\Services\Upwork\Discovery\ServerDiscoveryRunner::status(),
             'ai' => \App\Services\Upwork\Ai\AiGateway::fromSettings()->status(),
+            // Read-only: the plan the next manual run would use, plus an estimate. Nothing is searched.
+            'preview' => app(\App\Services\Upwork\Discovery\DiscoveryService::class)->preview(),
+            'queue' => app(\App\Services\Upwork\UpworkOpportunityService::class)->stats(),
         ];
         $logs = UpworkConfigLog::with('user')->latest('id')->limit(20)->get();
 

@@ -98,6 +98,11 @@ Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and ne
 - **Rediscovery:** ingestion never writes `status`, so an archived job stays archived when it is seen again. Deduplication by `upwork_job_id` is unchanged.
 - **Where archived jobs appear:** only in the **Archived** tab of the Opportunities list, or with the status filter set to Archived. They are left out of "All relevant", "Show all", every other tab and the Radar's top opportunities.
 
+**Queue cleanup aids:**
+- The Opportunities page has a **Review queue** strip: Awaiting review, Overdue, Snoozed, Approved, Rejected and Archived.
+- It also has the tabs **Awaiting Review** (exactly the jobs the reminders cover), **Overdue** and **Snoozed**.
+- Configuration → Overview has a read-only **Next search preview**: the searches the next manual run would make, plus a labelled estimate of new jobs. Opening it searches nothing.
+
 **Restore** returns the job to the status it was archived from, on the same record.
 - A job that goes back to *new* and is still eligible gets a **fresh 30-minute review deadline**, with its overdue mark, reminder stage and snooze cleared. The previous values are written to the log as `review_sla_restarted`.
 - The first reminder then comes 10 minutes after the restore. Old reminders are never re-sent as a burst. `first_seen_at` and all earlier log entries are kept.
