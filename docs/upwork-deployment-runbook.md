@@ -240,9 +240,9 @@ Code plus one additive migration: `2026_10_16_100000_add_archive_columns_to_upwo
 ```
 
 **Clean the queue, then search (in this order):**
-1. **[READ] Note the starting point:** the counts on the Opportunities page (New, hidden) and the **Archived** tab (0).
+1. **[READ] Note the starting point:** the **Review queue** strip on the Opportunities page shows Awaiting review, Overdue, Snoozed, Approved, Rejected and Archived. **Awaiting review** is exactly the set of jobs the reminders cover.
 2. **Optional quiet period:** Configuration → Agent & discovery → switch **Review reminders** off while you clean. Deadlines are still tracked. This is a PMS setting; switch it back on in step 6.
-3. **[CHANGE: PMS data] Archive.** Open Opportunities, choose the tab or filter (for example **New Matches**, or Status = New with a search), and check the count.
+3. **[CHANGE: PMS data] Archive.** Open Opportunities, choose a tab (**Awaiting Review**, **Overdue**, **New Matches**) or a filter (for example Status = New with a search), and check the count.
    - Tick rows, or tick the header box and then **Select all N jobs matching this filter**.
    - Press **Archive Selected** and confirm the number. Read the summary; jobs that could not be archived are listed with a reason.
    - Repeat per filter. "Show all" plus Status = New covers hidden SKIP jobs too.
@@ -257,8 +257,9 @@ Code plus one additive migration: `2026_10_16_100000_add_archive_columns_to_upwo
      WHERE o.status = 'archived' AND l.action IN ('review_reminder', 'review_overdue') AND l.created_at > o.archived_at;
    ```
    Then check the Opportunities list: the **New Matches** count drops, and the archived jobs appear only in **Archived**.
-5. **[CHANGE: read-only Upwork calls] Search manually.** As Super Admin, Configuration → **Run discovery now**, or `<PHP> artisan upwork:discover --manual`. Rediscovered archived jobs stay archived; new jobs arrive as usual.
-6. If you switched reminders off in step 2, switch them back on.
+5. **[READ] Preview the search.** Configuration → Overview → **Next search preview** shows the current queue, how many read-only searches a run would make now and for which profiles, and today's search budget. It also shows an *estimate* of new jobs, based on the last 7 days. Opening the page searches nothing.
+6. **[CHANGE: read-only Upwork calls] Search manually.** As Super Admin, Configuration → **Run discovery now**, or `<PHP> artisan upwork:discover --manual`. Rediscovered archived jobs stay archived; new jobs arrive as usual.
+7. If you switched reminders off in step 2, switch them back on.
 
 **Restore by mistake-archived jobs:** Archived tab → tick → **Restore Selected** (or **Restore** on a row or the job page). Jobs return to their previous status. Jobs back in review get a fresh 30-minute deadline, with the first reminder after 10 minutes.
 

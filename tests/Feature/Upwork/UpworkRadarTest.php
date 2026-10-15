@@ -154,6 +154,7 @@ class UpworkRadarTest extends UpworkTestCase
         $bde = $this->bde();
 
         $counts = collect(array_keys(RadarService::VIEWS))->mapWithKeys(fn($v) => [$v => RadarService::view($v)->count()])->all();
+        $counts = \Illuminate\Support\Arr::except($counts, ['reminder_queue', 'overdue', 'snoozed']); // covered in UpworkArchiveTest
         $this->assertSame(['new_matches' => 2, 'review' => 1, 'apply' => 1, 'approved' => 2, 'rejected' => 1, 'proposal_drafts' => 1, 'ready_to_submit' => 1, 'archived' => 0], $counts);
 
         $this->actingAs($bde)->get(route('upwork.opportunities.index', ['view' => 'new_matches']))

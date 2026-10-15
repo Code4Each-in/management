@@ -39,6 +39,22 @@
         <div class="uw-help" style="color:{{ $d['consecutive_failures'] ? '#991b1b' : 'inherit' }};">Last failure: {{ $d['last_failure']->status }} · {{ optional($d['last_failure']->started_at)->diffForHumans() }}{{ $d['last_failure_error'] ? ' · ' . \Illuminate\Support\Str::limit($d['last_failure_error'], 140) : '' }}@if($d['consecutive_failures']) · {{ $d['consecutive_failures'] }} in a row, retrying sooner @endif</div>
       @endif
       <a href="{{ route('upwork.config.settings.edit') }}" class="small">Agent & discovery settings</a>
+      @php $pv = $summary['preview']; $qs = $summary['queue']; @endphp
+      <div class="mt-2 p-2 rounded border bg-light" style="font-size:0.82rem;" id="next-search-preview">
+        <strong>Next search preview</strong> <span class="text-muted">(nothing has been searched)</span><br>
+        Review queue now: {{ $qs['awaiting_review'] }} awaiting review · {{ $qs['overdue'] }} overdue · {{ $qs['snoozed'] }} snoozed · {{ $qs['archived'] }} archived
+        (<a href="{{ route('upwork.opportunities.index', ['view' => 'reminder_queue']) }}">clean it first</a>)<br>
+        @if($pv['searches'])
+          A run now would make <strong>{{ $pv['searches'] }}</strong> read-only search(es):
+          {{ collect($pv['profiles'])->map(fn($p) => $p['name'] . ' ×' . $p['searches'])->implode(', ') }}.
+          Today: {{ $pv['searches_today'] }} of {{ $pv['max_per_day'] }} searches used.<br>
+          Expected new jobs: {{ $pv['estimated_new'] !== null ? '~' . $pv['estimated_new'] : 'unknown' }}
+          <span class="text-muted">(ESTIMATE from the last 7 days: {{ $pv['history']['new'] }} new in {{ $pv['history']['searches'] }} searches. The real number is only known after searching.)</span><br>
+        @else
+          No search profile is due, so a run now would search nothing (profiles wait for their interval or daily budget).<br>
+        @endif
+        <span class="text-muted">Archived jobs found again stay archived and are never re-added to the review queue.</span>
+      </div>
       @can('runDiscovery', \App\Models\UpworkOpportunity::class)
         <form method="POST" action="{{ route('upwork.config.discovery.run') }}" class="mt-2" onsubmit="return confirm('Run one read-only Upwork job search now?')">@csrf
           <button class="btn btn-sm btn-outline-primary">Run discovery now</button></form>

@@ -448,6 +448,10 @@ class UpworkOpportunityService
         $stats['new'] = UpworkOpportunity::where('status', UpworkOpportunity::STATUS_NEW)->visible()->count();
         // Hidden = active noise only; archived jobs are counted separately.
         $stats['hidden'] = UpworkOpportunity::active()->count() - UpworkOpportunity::visible()->count();
+        // Review queue: what the reminders cover, what is past due, what is snoozed.
+        $stats['awaiting_review'] = UpworkOpportunity::reviewEligible()->count();
+        $stats['overdue'] = UpworkOpportunity::reviewOverdue()->count();
+        $stats['snoozed'] = UpworkOpportunity::reviewSnoozed()->count();
         $applyThreshold = optional(UpworkRuleset::current())->thresholds['apply'] ?? config('upwork.thresholds.apply', 80);
         $stats['high_score'] = UpworkOpportunity::where('score', '>=', $applyThreshold)->count();
 

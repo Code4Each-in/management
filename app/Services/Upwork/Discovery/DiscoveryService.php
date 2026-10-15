@@ -197,6 +197,34 @@ class DiscoveryService
         return $plan;
     }
 
+    /**
+     * What the next run would do, without doing it: the same plan "Run
+     * discovery now" would build at this moment, read from the database only.
+     * No run is created, no cursor moves, Upwork is not called. How many jobs
+     * are new cannot be known without searching, so the expected count is an
+     * ESTIMATE from the last 7 days' new jobs per search.
+     */
+    public function preview(): array
+    {
+        $plan = $this->buildPlan();
+        $searches = array_sum(array_map(fn($p) => count($p['queries']), $plan));
+
+        $recent = UpworkDiscoveryQuery::where('created_at', '>=', now()->subDays(7))->where('status', 'ok');
+        $pastSearches = (clone $recent)->count();
+        $pastNew = (int) (clone $recent)->sum('new_count');
+        $perSearch = $pastSearches ? $pastNew / $pastSearches : null;
+
+        return [
+            'searches' => $searches,
+            'profiles' => array_map(fn($p) => ['name' => $p['name'], 'tier' => $p['tier'], 'searches' => count($p['queries'])], $plan),
+            'searches_today' => $this->searchesSince(now()->startOfDay()),
+            'max_per_day' => (int) UpworkSetting::get('discovery.max_searches_per_day'),
+            'history' => ['searches' => $pastSearches, 'new' => $pastNew, 'per_search' => $perSearch !== null ? round($perSearch, 2) : null],
+            'estimated_new' => $perSearch !== null ? (int) round($perSearch * $searches) : null,
+            'archived' => UpworkOpportunity::where('status', UpworkOpportunity::STATUS_ARCHIVED)->count(),
+        ];
+    }
+
     /** Upwork searches recorded since $from (optionally for one profile). */
     public function searchesSince(Carbon $from, ?int $profileId = null): int
     {
