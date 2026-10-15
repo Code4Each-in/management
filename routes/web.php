@@ -489,7 +489,11 @@ Route::get('/projects/{project}/tickets-json', [DeploymentTicketController::clas
 // Upwork Opportunities (review only — nothing here calls Upwork). Authorization: UpworkOpportunityPolicy.
 Route::middleware(['auth'])->prefix('upwork/opportunities')->name('upwork.opportunities.')->group(function () {
     Route::get('/', [UpworkOpportunityController::class, 'index'])->name('index');
+    // Archive / restore: local only, never deletes a job, never contacts Upwork.
+    Route::post('/bulk', [UpworkOpportunityController::class, 'bulk'])->middleware('throttle:30,1')->name('bulk');
     Route::get('/{opportunity}', [UpworkOpportunityController::class, 'show'])->name('show');
+    Route::post('/{opportunity}/archive', [UpworkOpportunityController::class, 'archive'])->name('archive');
+    Route::post('/{opportunity}/restore', [UpworkOpportunityController::class, 'restore'])->name('restore');
     Route::post('/{opportunity}/approve', [UpworkOpportunityController::class, 'approve'])->name('approve');
     Route::post('/{opportunity}/reject', [UpworkOpportunityController::class, 'reject'])->name('reject');
     Route::post('/{opportunity}/proposal/generate', [UpworkOpportunityController::class, 'generateProposal'])->name('proposal.generate');

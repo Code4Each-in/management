@@ -66,7 +66,7 @@ class RadarService
             }
         }
 
-        $top = $relevant()->where('status', '!=', UpworkOpportunity::STATUS_REJECTED)
+        $top = $relevant()->whereNotIn('status', [UpworkOpportunity::STATUS_REJECTED, UpworkOpportunity::STATUS_ARCHIVED])
             ->orderByDesc('score')->orderByDesc('id')->limit(10)->get();
 
         $openEv = $relevant()->whereIn('recommendation', [UpworkOpportunity::RECOMMENDATION_APPLY, UpworkOpportunity::RECOMMENDATION_REVIEW])
@@ -240,6 +240,8 @@ class RadarService
                 return $q->where('status', UpworkOpportunity::STATUS_APPROVED);
             case 'rejected':
                 return $q->where('status', UpworkOpportunity::STATUS_REJECTED);
+            case 'archived':
+                return $q->where('status', UpworkOpportunity::STATUS_ARCHIVED);
             case 'proposal_drafts':
                 return $q->where('status', UpworkOpportunity::STATUS_PROPOSAL_DRAFT)->whereNull('proposal_approved_at');
             case 'ready_to_submit':
@@ -258,5 +260,6 @@ class RadarService
         'rejected' => 'Rejected',
         'proposal_drafts' => 'Proposal Drafts',
         'ready_to_submit' => 'Ready to Submit',
+        'archived' => 'Archived',
     ];
 }

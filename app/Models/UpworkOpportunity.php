@@ -17,6 +17,10 @@ class UpworkOpportunity extends Model
     const STATUS_CLIENT_RESPONSE = 'client_response';
     const STATUS_WON = 'won';
     const STATUS_LOST = 'lost';
+    const STATUS_ARCHIVED = 'archived';
+
+    /** Statuses a job may be archived from (review work, not proposals already sent). */
+    const ARCHIVABLE = [self::STATUS_NEW, self::STATUS_APPROVED, self::STATUS_REJECTED, self::STATUS_PROPOSAL_DRAFT];
 
     const STATUSES = [
         self::STATUS_NEW => 'New',
@@ -27,20 +31,24 @@ class UpworkOpportunity extends Model
         self::STATUS_CLIENT_RESPONSE => 'Client Response',
         self::STATUS_WON => 'Won',
         self::STATUS_LOST => 'Lost',
+        self::STATUS_ARCHIVED => 'Archived',
     ];
 
     /**
      * Allowed status transitions. Every status change goes through changeStatus().
+     * An archived job leaves only through UpworkOpportunityService::restore(),
+     * which returns it to the status it was archived from.
      */
     const TRANSITIONS = [
-        self::STATUS_NEW => [self::STATUS_APPROVED, self::STATUS_REJECTED],
-        self::STATUS_APPROVED => [self::STATUS_PROPOSAL_DRAFT, self::STATUS_REJECTED],
-        self::STATUS_REJECTED => [self::STATUS_APPROVED],
-        self::STATUS_PROPOSAL_DRAFT => [self::STATUS_SUBMITTED, self::STATUS_REJECTED],
+        self::STATUS_NEW => [self::STATUS_APPROVED, self::STATUS_REJECTED, self::STATUS_ARCHIVED],
+        self::STATUS_APPROVED => [self::STATUS_PROPOSAL_DRAFT, self::STATUS_REJECTED, self::STATUS_ARCHIVED],
+        self::STATUS_REJECTED => [self::STATUS_APPROVED, self::STATUS_ARCHIVED],
+        self::STATUS_PROPOSAL_DRAFT => [self::STATUS_SUBMITTED, self::STATUS_REJECTED, self::STATUS_ARCHIVED],
         self::STATUS_SUBMITTED => [self::STATUS_CLIENT_RESPONSE, self::STATUS_WON, self::STATUS_LOST],
         self::STATUS_CLIENT_RESPONSE => [self::STATUS_WON, self::STATUS_LOST],
         self::STATUS_WON => [],
         self::STATUS_LOST => [],
+        self::STATUS_ARCHIVED => [],
     ];
 
     const RECOMMENDATION_APPLY = 'apply';
@@ -124,6 +132,7 @@ class UpworkOpportunity extends Model
         'agency_fit_score' => 'float',
         'individual_fit_score' => 'float',
         'profile_selected_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     const PROPOSAL_AI_QUEUED = 'queued';
@@ -151,6 +160,13 @@ class UpworkOpportunity extends Model
     public function proposalApprover() { return $this->belongsTo(Users::class, 'proposal_approved_by'); }
     public function reviewSnoozer() { return $this->belongsTo(Users::class, 'review_snoozed_by'); }
     public function profileSelector() { return $this->belongsTo(Users::class, 'profile_selected_by'); }
+    public function archiver() { return $this->belongsTo(Users::class, 'archived_by'); }
+
+    /** Everything except archived jobs: the active workflow. */
+    public function scopeActive($query)
+    {
+        return $query->where('status', '!=', self::STATUS_ARCHIVED);
+    }
     public function logs() { return $this->hasMany(UpworkOpportunityLog::class)->latest('id'); }
     public function sightings() { return $this->hasMany(UpworkOpportunitySighting::class, 'opportunity_id'); }
     public function client() { return $this->belongsTo(UpworkClient::class, 'upwork_client_id'); }
@@ -166,7 +182,7 @@ class UpworkOpportunity extends Model
     {
         $surfaced = UpworkClassification::surfacedCodes();
 
-        return $query->where(function ($q) use ($surfaced) {
+        return $query->where('status', '!=', self::STATUS_ARCHIVED)->where(function ($q) use ($surfaced) {
             $q->where('status', '!=', self::STATUS_NEW)
               ->orWhere(function ($qq) use ($surfaced) {
                   $qq->where('discovery_ignored', false)
@@ -241,6 +257,8 @@ class UpworkOpportunity extends Model
                     $qq->where('title', 'like', "%{$search}%")
                        ->orWhere('description', 'like', "%{$search}%")
                        ->orWhere('client_country', 'like', "%{$search}%")
+                       // Client: Upwork exposes no client name, so match its country (above) or its Upwork id.
+                       ->orWhereIn('upwork_client_id', UpworkClient::select('id')->where('external_id', 'like', "%{$search}%"))
                        ->orWhere('upwork_job_id', 'like', "%{$search}%");
                 });
             })

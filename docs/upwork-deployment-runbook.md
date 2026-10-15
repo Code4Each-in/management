@@ -229,6 +229,41 @@ Code plus one additive migration: `2026_10_15_100000_add_target_profile_columns_
 - **Smoke test [READ]:** a job page shows **Best-fit profile** and the **Bid as / Proposal angle** approval form. The list has the profile filters. The Radar shows **Target profiles**. Configuration shows the **Targeting** tab.
 - **Rollback:** code rollback as below. The columns can stay, because old code ignores them. Schema only: `<PHP> artisan migrate:rollback --force --path=database/migrations/2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table.php`. This drops the 8 columns and the recorded profile choices; activity log entries remain.
 
+## 13. Archiving and cleaning the review queue
+
+Code plus one additive migration: `2026_10_16_100000_add_archive_columns_to_upwork_opportunities_table`. It adds three nullable columns: `archived_at`, `archived_by` and `archived_from_status`. `status` is already a `varchar(30)`, so `archived` needs no type change, and nothing is backfilled. It requires §12's migration first (same release branch).
+
+```bash
+<PHP> artisan migrate --pretend --force --path=database/migrations/2026_10_16_100000_add_archive_columns_to_upwork_opportunities_table.php   # [READ]
+<PHP> artisan migrate --force --path=database/migrations/2026_10_16_100000_add_archive_columns_to_upwork_opportunities_table.php      # [CHANGE]
+<PHP> artisan view:clear
+```
+
+**Clean the queue, then search (in this order):**
+1. **[READ] Note the starting point:** the counts on the Opportunities page (New, hidden) and the **Archived** tab (0).
+2. **Optional quiet period:** Configuration → Agent & discovery → switch **Review reminders** off while you clean. Deadlines are still tracked. This is a PMS setting; switch it back on in step 6.
+3. **[CHANGE: PMS data] Archive.** Open Opportunities, choose the tab or filter (for example **New Matches**, or Status = New with a search), and check the count.
+   - Tick rows, or tick the header box and then **Select all N jobs matching this filter**.
+   - Press **Archive Selected** and confirm the number. Read the summary; jobs that could not be archived are listed with a reason.
+   - Repeat per filter. "Show all" plus Status = New covers hidden SKIP jobs too.
+4. **[READ] Verify that archived jobs cannot remind:**
+   ```bash
+   <PHP> artisan upwork:review-reminders     # prints counts; archived jobs are not candidates
+   ```
+   ```sql
+   -- both must return 0
+   SELECT COUNT(*) FROM upwork_opportunities WHERE status = 'archived' AND review_reminded_at > archived_at;
+   SELECT COUNT(*) FROM upwork_opportunity_logs l JOIN upwork_opportunities o ON o.id = l.upwork_opportunity_id
+     WHERE o.status = 'archived' AND l.action IN ('review_reminder', 'review_overdue') AND l.created_at > o.archived_at;
+   ```
+   Then check the Opportunities list: the **New Matches** count drops, and the archived jobs appear only in **Archived**.
+5. **[CHANGE: read-only Upwork calls] Search manually.** As Super Admin, Configuration → **Run discovery now**, or `<PHP> artisan upwork:discover --manual`. Rediscovered archived jobs stay archived; new jobs arrive as usual.
+6. If you switched reminders off in step 2, switch them back on.
+
+**Restore by mistake-archived jobs:** Archived tab → tick → **Restore Selected** (or **Restore** on a row or the job page). Jobs return to their previous status. Jobs back in review get a fresh 30-minute deadline, with the first reminder after 10 minutes.
+
+**Rollback:** code rollback as below. Archived rows keep `status = 'archived'` and old code does not list them in any tab, so restore them first (Archived tab → select all matching → Restore Selected). Alternatively, return each one to its previous status in SQL: `UPDATE upwork_opportunities SET status = archived_from_status WHERE status = 'archived'` [CHANGE]. Schema only: `migrate:rollback --path=…2026_10_16_100000…`, after archived rows are restored.
+
 ## Rollback
 
 Choose the smallest step that fixes the problem.
@@ -244,7 +279,7 @@ Choose the smallest step that fixes the problem.
    In an emergency, `git checkout <PREVIOUS_RELEASE>` (detached) restores the previous code exactly. Return to the branch afterwards. The new tables can stay; old code ignores them.
 4. **Schema rollback:** this deletes all module data, so export first if needed. Roll back newest first, one path at a time:
    ```bash
-   for m in 2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table 2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
+   for m in 2026_10_16_100000_add_archive_columns_to_upwork_opportunities_table 2026_10_15_100000_add_target_profile_columns_to_upwork_opportunities_table 2026_10_13_100000_add_review_sla_columns_to_upwork_opportunities_table 2026_10_09_100500_add_fingerprint_to_upwork_clients_table 2026_10_09_100400_create_upwork_api_credentials_table \
     2026_10_09_100300_create_upwork_queue_jobs_table 2026_10_09_100200_create_upwork_ai_analyses_table \
     2026_10_09_100100_add_tiers_to_upwork_search_profiles_table 2026_10_09_100000_create_upwork_ai_usage_table \
     2026_10_08_100900_add_notification_columns_to_upwork_opportunities_table 2026_10_08_100800_create_upwork_config_logs_table \

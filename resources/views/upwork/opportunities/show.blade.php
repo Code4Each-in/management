@@ -42,6 +42,11 @@
         <h4 style="font-weight:700; margin:0; color:#111827;">{{ $o->title }}</h4>
         @if($o->status === $M::STATUS_APPROVED && $o->approver)
           <div class="small text-muted mt-1">Approved by {{ $o->approver->first_name }} {{ $o->approver->last_name }} · {{ optional($o->approved_at)->format('d M Y H:i') }}</div>
+        @elseif($o->status === $M::STATUS_ARCHIVED)
+          <div class="small text-muted mt-1">
+            Archived{{ $o->archiver ? ' by ' . $o->archiver->first_name . ' ' . $o->archiver->last_name : '' }} · {{ optional($o->archived_at)->format('d M Y H:i') }}
+            · was {{ $M::STATUSES[$o->archived_from_status] ?? '—' }}. Out of the review queue; it sends no reminders. Restoring returns it to that status.
+          </div>
         @elseif($o->status === $M::STATUS_REJECTED)
           <div class="small text-muted mt-1">
             Rejected @if($o->rejecter) by {{ $o->rejecter->first_name }} {{ $o->rejecter->last_name }} @endif · {{ optional($o->rejected_at)->format('d M Y H:i') }}
@@ -51,6 +56,20 @@
       </div>
 
       <div class="d-flex align-items-center gap-2 flex-wrap">
+        @can('archive', $o)
+          @if($o->status === $M::STATUS_ARCHIVED)
+            <form method="POST" action="{{ route('upwork.opportunities.restore', $o) }}" class="m-0">
+              @csrf
+              <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+            </form>
+          @elseif($o->canTransitionTo($M::STATUS_ARCHIVED))
+            <form method="POST" action="{{ route('upwork.opportunities.archive', $o) }}" class="m-0"
+                  onsubmit="return confirm('Archive this job? It leaves the review queue and sends no reminders. It is not deleted, approved or rejected, and you can restore it from the Archived tab.');">
+              @csrf
+              <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-archive"></i> Archive</button>
+            </form>
+          @endif
+        @endcan
         @can('reject', $o)
           @if($o->canTransitionTo($M::STATUS_REJECTED))
             <button type="button" class="btn btn-outline-danger btn-sm js-reject"

@@ -88,7 +88,26 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
 
 Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and never use `eval`. `php artisan upwork:explain <id>` explains any job.
 
+## Archiving
+
+**Archive** removes a job from the review queue and from every reminder and notification path without deleting it. It is not an approval or a rejection: `reviewed_at` and the approval and rejection fields are untouched.
+
+- **Allowed from:** new, approved, rejected and proposal draft. Submitted, client response, won and lost cannot be archived, because a proposal is already with the client.
+- **What is stored:** `status = archived`, plus `archived_at`, `archived_by` and `archived_from_status`. The audit log gets an `archived` entry that includes the review-SLA state at that moment.
+- **Why reminders stop:** every reminder and notification gate requires `status = new`. That covers the scheduler's candidate query, the atomic per-reminder claim (`ReviewSlaService::claimReminder`), overdue marking, new-job notifications, starting the SLA clock, snooze, automatic AI analysis and discovery enrichment. A reminder runner that loaded the job before it was archived loses the claim, so it sends nothing.
+- **Rediscovery:** ingestion never writes `status`, so an archived job stays archived when it is seen again. Deduplication by `upwork_job_id` is unchanged.
+- **Where archived jobs appear:** only in the **Archived** tab of the Opportunities list, or with the status filter set to Archived. They are left out of "All relevant", "Show all", every other tab and the Radar's top opportunities.
+
+**Restore** returns the job to the status it was archived from, on the same record.
+- A job that goes back to *new* and is still eligible gets a **fresh 30-minute review deadline**, with its overdue mark, reminder stage and snooze cleared. The previous values are written to the log as `review_sla_restarted`.
+- The first reminder then comes 10 minutes after the restore. Old reminders are never re-sent as a burst. `first_seen_at` and all earlier log entries are kept.
+
+**Bulk.** Tick rows, tick the header box to select the whole page, or use **Select all N jobs matching this filter**. Then press **Archive Selected** (in the Archived tab, **Restore Selected**).
+- "Matching this filter" re-runs the list's own query on the server. It is refused if the count no longer equals the number you confirmed.
+- Each job is processed in its own locked transaction. The result shows how many changed, plus the reason for each job that did not.
+
 ## Dual-track targeting (agency / individual)
+
 
 Code4Each bids as its **agency profile** and as **individual freelancer profiles**. Every scored job is also labelled **agency**, **individual** or **both** (shown as "Either"). This is additive: the Opportunity Score, recommendation, hard filters (including `agency_mode`), review deadline, reminders and snooze are computed exactly as before. No job is excluded for not being agency-only. `TargetProfileScorer` runs as step 5 of `ScoringEngine`.
 
