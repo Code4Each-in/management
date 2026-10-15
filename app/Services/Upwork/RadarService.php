@@ -10,6 +10,7 @@ use App\Models\UpworkOpportunityLog;
 use App\Models\UpworkOpportunitySighting;
 use App\Models\UpworkSearchProfile;
 use App\Models\UpworkSetting;
+use App\Services\Upwork\Eligibility\LocationEligibility;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -223,19 +224,29 @@ class RadarService
         $q = UpworkOpportunity::query();
 
         switch ($view) {
+            case 'all_jobs':
+                return $q;
             case 'new_matches':
                 // Untouched jobs worth a human look: REVIEW/APPLY, or a surfaced archetype (e.g. quick win).
-                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)
+                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->locationNotRestricted()
                     ->where(function ($w) {
                         $w->whereIn('recommendation', [UpworkOpportunity::RECOMMENDATION_APPLY, UpworkOpportunity::RECOMMENDATION_REVIEW]);
                         foreach (UpworkClassification::surfacedCodes() as $code) {
                             $w->orWhere('classifications', 'like', '%"' . $code . '"%');
                         }
                     });
+            case 'eligible':
+                // Recommended (APPLY/REVIEW), untouched, and India-based applicants can apply (unclear locations included, flagged).
+                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->locationNotRestricted()
+                    ->whereIn('recommendation', [UpworkOpportunity::RECOMMENDATION_APPLY, UpworkOpportunity::RECOMMENDATION_REVIEW]);
+            case 'location_restricted':
+                return $q->active()->where('location_eligibility', LocationEligibility::RESTRICTED);
+            case 'location_unknown':
+                return $q->active()->where('location_eligibility', LocationEligibility::UNKNOWN);
             case 'review':
-                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->where('recommendation', UpworkOpportunity::RECOMMENDATION_REVIEW);
+                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->locationNotRestricted()->where('recommendation', UpworkOpportunity::RECOMMENDATION_REVIEW);
             case 'apply':
-                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->where('recommendation', UpworkOpportunity::RECOMMENDATION_APPLY);
+                return $q->where('status', UpworkOpportunity::STATUS_NEW)->where('discovery_ignored', false)->locationNotRestricted()->where('recommendation', UpworkOpportunity::RECOMMENDATION_APPLY);
             case 'approved':
                 return $q->where('status', UpworkOpportunity::STATUS_APPROVED);
             case 'rejected':
@@ -260,7 +271,9 @@ class RadarService
     }
 
     const VIEWS = [
+        'all_jobs' => 'All Jobs',
         'new_matches' => 'New Matches',
+        'eligible' => 'Recommended & Eligible',
         'reminder_queue' => 'Awaiting Review',
         'overdue' => 'Overdue',
         'snoozed' => 'Snoozed',
@@ -270,6 +283,8 @@ class RadarService
         'rejected' => 'Rejected',
         'proposal_drafts' => 'Proposal Drafts',
         'ready_to_submit' => 'Ready to Submit',
+        'location_restricted' => 'Skipped: Location',
+        'location_unknown' => 'Location Unclear',
         'archived' => 'Archived',
     ];
 }

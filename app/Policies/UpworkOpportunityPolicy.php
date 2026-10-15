@@ -58,6 +58,12 @@ class UpworkOpportunityPolicy
         return $this->hasAccess($user);
     }
 
+    /** Correct a job's location eligibility (people who can review it; audited). */
+    public function overrideLocation(Users $user, UpworkOpportunity $opportunity): bool
+    {
+        return $this->hasAccess($user);
+    }
+
     public function manageProposal(Users $user, UpworkOpportunity $opportunity): bool
     {
         return $this->hasAccess($user);

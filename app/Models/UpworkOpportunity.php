@@ -133,6 +133,10 @@ class UpworkOpportunity extends Model
         'individual_fit_score' => 'float',
         'profile_selected_at' => 'datetime',
         'archived_at' => 'datetime',
+        'location_details' => 'array',
+        'location_rules_version' => 'integer',
+        'location_classified_at' => 'datetime',
+        'location_override_at' => 'datetime',
     ];
 
     const PROPOSAL_AI_QUEUED = 'queued';
@@ -161,6 +165,20 @@ class UpworkOpportunity extends Model
     public function reviewSnoozer() { return $this->belongsTo(Users::class, 'review_snoozed_by'); }
     public function profileSelector() { return $this->belongsTo(Users::class, 'profile_selected_by'); }
     public function archiver() { return $this->belongsTo(Users::class, 'archived_by'); }
+    public function locationOverrider() { return $this->belongsTo(Users::class, 'location_override_by'); }
+
+    /** India-based applicants are excluded (by the rules or a person). Such a job never enters review, reminders or proposals. */
+    public function isLocationRestricted(): bool
+    {
+        return $this->location_eligibility === \App\Services\Upwork\Eligibility\LocationEligibility::RESTRICTED;
+    }
+
+    /** Eligible, unclear (kept for manual review) or not classified yet. */
+    public function scopeLocationNotRestricted($query)
+    {
+        return $query->where(fn($q) => $q->whereNull('location_eligibility')
+            ->orWhere('location_eligibility', '!=', \App\Services\Upwork\Eligibility\LocationEligibility::RESTRICTED));
+    }
 
     /** Everything except archived jobs: the active workflow. */
     public function scopeActive($query)
@@ -179,6 +197,7 @@ class UpworkOpportunity extends Model
             ->where('stage', self::STAGE_ENRICHED)
             ->whereIn('recommendation', [self::RECOMMENDATION_APPLY, self::RECOMMENDATION_REVIEW])
             ->where('discovery_ignored', false)
+            ->locationNotRestricted()
             // An empty or missing list; a non-empty JSON list starts with ["  (MySQL JSON, MariaDB and SQLite).
             ->where(fn($q) => $q->whereNull('hard_filters')->orWhere('hard_filters', 'not like', '["%'));
     }
@@ -212,7 +231,8 @@ class UpworkOpportunity extends Model
         return $query->where('status', '!=', self::STATUS_ARCHIVED)->where(function ($q) use ($surfaced) {
             $q->where('status', '!=', self::STATUS_NEW)
               ->orWhere(function ($qq) use ($surfaced) {
-                  $qq->where('discovery_ignored', false)
+                  // Location-restricted jobs have their own tab, even when an archetype would surface them.
+                  $qq->where('discovery_ignored', false)->locationNotRestricted()
                      ->where(function ($r) use ($surfaced) {
                          $r->whereNull('recommendation')->orWhere('recommendation', '!=', self::RECOMMENDATION_SKIP);
                          // Archetypes flagged "surface" (e.g. QUICK_WIN) stay visible even below the REVIEW threshold.
@@ -297,6 +317,10 @@ class UpworkOpportunity extends Model
                 : $q->whereIn('target_profile', [$target, 'both']))
             // The profile a reviewer chose ("agency" or any "individual..." profile).
             ->when($filters['bid_as'] ?? null, fn($q, $track) => $q->where('selected_profile', 'like', $track . '%'))
+            // Location eligibility; "unclassified" = not looked at yet (before the backfill).
+            ->when($filters['location'] ?? null, fn($q, $location) => $location === 'unclassified'
+                ? $q->whereNull('location_eligibility')
+                : $q->where('location_eligibility', $location))
             ->when(isset($filters['min_score']) && $filters['min_score'] !== '', function ($q) use ($filters) {
                 $q->where('score', '>=', (float) $filters['min_score']);
             });
@@ -337,6 +361,27 @@ class UpworkOpportunity extends Model
             return "{$min}–{$max}/hr";
         }
         return $this->job_type === 'hourly' ? 'Hourly' : '—';
+    }
+
+    /**
+     * Invites the client sent on this posting, from Upwork's job activity
+     * (full job details only). Null = not available; never guessed.
+     */
+    public function getInvitesSentAttribute(): ?int
+    {
+        foreach ((array) $this->job_activity as $key => $value) {
+            if (in_array($key, ['invites_sent', 'invitesSent'], true)) {
+                return is_numeric($value) ? (int) $value : null;
+            }
+        }
+
+        return null;
+    }
+
+    /** Invite penalty applied by the last PMS scoring (null = not PMS-scored with this step yet). */
+    public function getInvitePenaltyAttribute(): ?float
+    {
+        return isset($this->score_explanation['invites']['penalty']) ? (float) $this->score_explanation['invites']['penalty'] : null;
     }
 
     /** Exact proposal count, or Upwork's tier ("50+") when only that is known. */

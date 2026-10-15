@@ -86,6 +86,9 @@ class QualificationService
     /** Why an automatic analysis is not worth paying for (null = worth it). */
     public function skipReason(UpworkOpportunity $o): ?string
     {
+        if ($o->isLocationRestricted()) {
+            return \App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON . '.';
+        }
         if ($o->hard_filters) {
             return 'Hard-rejected by local rules.';
         }

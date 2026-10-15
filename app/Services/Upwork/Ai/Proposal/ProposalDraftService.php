@@ -68,6 +68,9 @@ class ProposalDraftService
         if (!in_array($o->status, [UpworkOpportunity::STATUS_APPROVED, UpworkOpportunity::STATUS_PROPOSAL_DRAFT], true)) {
             return 'Approve the job before drafting a proposal.';
         }
+        if ($o->isLocationRestricted()) {
+            return \App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON . '; no proposal is drafted.';
+        }
         if ($o->proposal_edited_at !== null) {
             return 'A person has already edited this draft; AI will not replace it.';
         }
@@ -112,6 +115,10 @@ class ProposalDraftService
             if (!self::enabled()) {
                 $this->mark($o, UpworkOpportunity::PROPOSAL_AI_BLOCKED, 'AI proposal drafts are switched off.');
                 return ['status' => 'blocked', 'message' => 'AI proposal drafts are switched off.'];
+            }
+            if ($o->isLocationRestricted()) {
+                $this->mark($o, UpworkOpportunity::PROPOSAL_AI_SKIPPED, \App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON);
+                return ['status' => 'skipped', 'message' => \App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON];
             }
             if (!in_array($o->status, [UpworkOpportunity::STATUS_APPROVED, UpworkOpportunity::STATUS_PROPOSAL_DRAFT], true) || $o->proposal_edited_at !== null) {
                 $this->mark($o, UpworkOpportunity::PROPOSAL_AI_SKIPPED, 'The job moved on or the draft was edited by a person.');
