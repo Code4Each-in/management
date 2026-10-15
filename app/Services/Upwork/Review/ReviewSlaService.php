@@ -15,8 +15,9 @@ use Illuminate\Support\Carbon;
  *
  * Reminders stop as soon as a person approves, rejects or archives the job,
  * while the job is snoozed, or when it is no longer eligible (e.g. re-scored
- * to SKIP). Every gate requires status "new", so an archived job is never
- * reminded; restoring it starts a fresh deadline (restartAfterRestore).
+ * to SKIP, or found to exclude India-based applicants). Every gate requires
+ * status "new", so an archived job is never reminded; restoring it starts a
+ * fresh deadline (restartAfterRestore).
  * Each reminder level is claimed with a conditional update before it is sent,
  * so overlapping runners never send the same reminder twice; a missed tick
  * sends only the latest level, never a burst. Nothing here approves, rejects,
@@ -33,7 +34,8 @@ class ReviewSlaService
             && $o->stage === UpworkOpportunity::STAGE_ENRICHED
             && $o->status === UpworkOpportunity::STATUS_NEW
             && !$o->discovery_ignored
-            && empty($o->hard_filters);
+            && empty($o->hard_filters)
+            && !$o->isLocationRestricted();
     }
 
     public static function deadlineMinutes(): int
@@ -183,6 +185,7 @@ class ReviewSlaService
     {
         $claimed = UpworkOpportunity::whereKey($o->id)
             ->where('status', UpworkOpportunity::STATUS_NEW)
+            ->locationNotRestricted()
             ->where(fn($q) => $q->whereNull('review_reminder_stage')->orWhere('review_reminder_stage', '<', $stage))
             ->where(fn($q) => $q->whereNull('review_snoozed_until')->orWhere('review_snoozed_until', '<=', $now))
             ->update(['review_reminder_stage' => $stage, 'review_reminded_at' => $now]);

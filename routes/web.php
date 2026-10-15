@@ -505,6 +505,8 @@ Route::middleware(['auth'])->prefix('upwork/opportunities')->name('upwork.opport
     Route::post('/{opportunity}/proposal/ai', [UpworkOpportunityController::class, 'draftProposalWithAi'])->name('proposal.ai');
     // Profile (agency / individual persona) and proposal angle for the draft. PMS only: no Upwork account is selected or switched.
     Route::post('/{opportunity}/targeting', [UpworkOpportunityController::class, 'selectTargeting'])->name('targeting');
+    // Correct a misread location restriction (audited; the original text and rule are kept).
+    Route::post('/{opportunity}/location', [UpworkOpportunityController::class, 'overrideLocation'])->middleware('throttle:30,1')->name('location');
     // Review reminders: email links open the GET confirmation page; only the POST changes anything.
     Route::get('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snoozeConfirm'])->name('snooze.confirm');
     Route::post('/{opportunity}/snooze', [UpworkOpportunityController::class, 'snooze'])->middleware('throttle:30,1')->name('snooze');

@@ -46,6 +46,24 @@
     @endforeach
   </div>
 
+  {{-- Location eligibility: can India-based freelancers apply? (active jobs; archived ones are counted under Archived) --}}
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="font-size:0.84rem;">
+    <span class="text-muted fw-semibold me-1">Location:</span>
+    @foreach([
+        ['All jobs', $stats['all'], '#111827', ['view' => 'all_jobs'], 'Every stored job, archived included'],
+        ['Recommended & eligible', $viewCounts['eligible'], '#198754', ['view' => 'eligible'], 'New APPLY/REVIEW jobs India-based freelancers can apply to (unclear locations included and flagged)'],
+        ['Eligible', $stats['location_eligible'], '#0f5132', ['location' => 'eligible', 'show' => 'all'], 'India allowed, or no restriction given'],
+        ['Skipped: location', $stats['location_restricted'], '#842029', ['view' => 'location_restricted'], 'India-based applicants are not eligible: held at SKIP, no reminders, no proposals'],
+        ['Unclear: manual review', $stats['location_unknown'], '#92400e', ['view' => 'location_unknown'], 'Location text could not be read with confidence; kept in review'],
+        ['Not checked yet', $stats['location_unclassified'], '#6b7280', ['location' => 'unclassified', 'show' => 'all'], 'Stored before location rules existed; run the backfill'],
+        ['Archived', $stats['archived'], '#4b5563', ['view' => 'archived'], null],
+    ] as [$label, $value, $color, $query, $title])
+      <a href="{{ route('upwork.opportunities.index', $query) }}" class="text-decoration-none px-2 py-1 rounded border bg-white" title="{{ $title }}">
+        {{ $label }} <strong style="color:{{ $color }};">{{ $value }}</strong>
+      </a>
+    @endforeach
+  </div>
+
   {{-- Stat cards --}}
   <div class="row g-3 mb-4">
     @foreach([
@@ -125,6 +143,13 @@
         <option value="individual" {{ ($filters['bid_as'] ?? '') === 'individual' ? 'selected' : '' }}>Bid as individual</option>
       </select>
 
+      <select name="location" class="form-select form-select-sm" style="width:auto;" title="Can India-based freelancers apply?">
+        <option value="">Any location</option>
+        @foreach(['eligible' => 'Location: eligible', 'restricted' => 'Location: skipped (restricted)', 'unknown' => 'Location: unclear', 'unclassified' => 'Location: not checked'] as $value => $label)
+          <option value="{{ $value }}" {{ ($filters['location'] ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
+        @endforeach
+      </select>
+
       <input type="number" name="min_score" min="0" max="100" step="1" value="{{ $filters['min_score'] ?? '' }}"
              placeholder="Min score" class="form-control form-control-sm" style="width:110px;">
 
@@ -183,6 +208,7 @@
             <th style="{{ $th }}">Spend</th>
             <th style="{{ $th }}">Hire rate</th>
             <th style="{{ $th }}">Proposals</th>
+            <th style="{{ $th }}" title="Invites the client already sent (full job details only)">Invites</th>
             <th style="{{ $th }}">Connects</th>
             <th style="{{ $th }}">Posted</th>
             <th style="{{ $th }}">Status</th>
@@ -212,9 +238,11 @@
               @if($opportunity->status === \App\Models\UpworkOpportunity::STATUS_ARCHIVED)
                 <div style="font-size:0.72rem; color:#4b5563; margin-top:0.125rem;"><i class="bi bi-archive"></i> Archived {{ optional($opportunity->archived_at)->format('d M Y H:i') }} · was {{ \App\Models\UpworkOpportunity::STATUSES[$opportunity->archived_from_status] ?? '—' }} · first seen {{ optional($opportunity->first_seen_at ?? $opportunity->created_at)->format('d M Y') }}</div>
               @endif
-              @if(!empty($opportunity->hard_filters))
-                <div style="font-size:0.72rem; color:#842029; margin-top:0.125rem;"><i class="bi bi-exclamation-triangle"></i> {{ implode('; ', $opportunity->hard_filters) }}</div>
+              @php $otherFilters = array_diff((array) $opportunity->hard_filters, [\App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON]); @endphp
+              @if($otherFilters)
+                <div style="font-size:0.72rem; color:#842029; margin-top:0.125rem;"><i class="bi bi-exclamation-triangle"></i> {{ implode('; ', $otherFilters) }}</div>
               @endif
+              @include('upwork.opportunities.partials.location-chip')
               @if(!empty($opportunity->classifications))
                 <div style="margin-top:0.25rem; font-size:0.85em;">@include('upwork.opportunities.partials.classification-chips', ['codes' => $opportunity->classifications, 'catalog' => $catalog, 'kind' => 'archetype'])</div>
               @endif
@@ -252,6 +280,9 @@
             <td style="{{ $td }}">{{ \App\Models\UpworkOpportunity::money($opportunity->client_total_spent) }}</td>
             <td style="{{ $td }}">{{ $opportunity->client_hire_rate !== null ? round($opportunity->client_hire_rate) . '%' : '—' }}</td>
             <td style="{{ $td }}">{{ $opportunity->proposals_label }}</td>
+            <td style="{{ $td }}" @if($opportunity->invite_penalty) title="−{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }} invite penalty" @endif>
+              @if($opportunity->invites_sent === null)<span class="text-muted" title="Not available">—</span>@else{{ $opportunity->invites_sent }}@if($opportunity->invite_penalty)<span style="color:#991b1b; font-size:0.7rem;"> −{{ rtrim(rtrim(number_format($opportunity->invite_penalty, 1), '0'), '.') }}</span>@endif @endif
+            </td>
             <td style="{{ $td }}">{{ $opportunity->connects_required ?? '—' }}</td>
             <td style="{{ $td }} white-space:nowrap;" title="{{ optional($opportunity->posted_at)->format('d M Y H:i') }}">{{ $opportunity->posted_at ? $opportunity->posted_at->diffForHumans() : '—' }}</td>
             <td style="{{ $td }}">@include('upwork.opportunities.partials.status-badge')</td>
@@ -270,7 +301,7 @@
                 @endif
               @endcan
               @can('approve', $opportunity)
-                @if($opportunity->canTransitionTo(\App\Models\UpworkOpportunity::STATUS_APPROVED))
+                @if($opportunity->canTransitionTo(\App\Models\UpworkOpportunity::STATUS_APPROVED) && !$opportunity->isLocationRestricted())
                   {{-- Approval asks for the profile and proposal angle, so it happens on the job page. --}}
                   <a href="{{ route('upwork.opportunities.show', $opportunity) }}#approve" class="btn btn-sm btn-outline-success" title="Approve: choose profile and angle (does not contact Upwork)"><i class="bi bi-check-lg"></i></a>
                 @endif
@@ -288,7 +319,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="14" style="padding:1.5rem; text-align:center; color:#6b7280;">No opportunities found.</td></tr>
+          <tr><td colspan="15" style="padding:1.5rem; text-align:center; color:#6b7280;">No opportunities found.</td></tr>
         @endforelse
         </tbody>
       </table>

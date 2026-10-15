@@ -79,6 +79,7 @@ class UpworkOpportunityController extends Controller
             'sort' => ['nullable', Rule::in(['score', 'posted_at', 'latest', 'expected_value', 'strategic', 'agency_fit', 'individual_fit', 'archived_at'])],
             'target' => ['nullable', Rule::in(array_keys(TargetProfiles::TRACKS))],
             'bid_as' => ['nullable', Rule::in([TargetProfiles::TRACK_AGENCY, TargetProfiles::TRACK_INDIVIDUAL])],
+            'location' => ['nullable', Rule::in(['eligible', 'restricted', 'unknown', 'unclassified'])],
             'show' => ['nullable', Rule::in(['all'])],
             'class' => ['nullable', 'string', 'regex:/^[A-Z0-9_]{2,50}$/'],
             'view' => ['nullable', Rule::in(array_keys(\App\Services\Upwork\RadarService::VIEWS))],
@@ -98,7 +99,8 @@ class UpworkOpportunityController extends Controller
         } else {
             $query = UpworkOpportunity::filter($filters);
             // Discovery stores every job; untouched SKIP / excluded noise is hidden unless asked for.
-            $showAll = ($filters['show'] ?? null) === 'all' || ($filters['recommendation'] ?? null) === UpworkOpportunity::RECOMMENDATION_SKIP;
+            $showAll = ($filters['show'] ?? null) === 'all' || ($filters['recommendation'] ?? null) === UpworkOpportunity::RECOMMENDATION_SKIP
+                || ($filters['location'] ?? null) === \App\Services\Upwork\Eligibility\LocationEligibility::RESTRICTED;
             if (!$showAll) {
                 $query->visible();
             }
@@ -181,7 +183,7 @@ class UpworkOpportunityController extends Controller
     {
         $this->authorize('view', $opportunity);
 
-        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'profileSelector', 'archiver', 'logs.user', 'client', 'aiAnalysis']);
+        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'profileSelector', 'archiver', 'locationOverrider', 'logs.user', 'client', 'aiAnalysis']);
 
         $client = $opportunity->client;
         $clientHistory = $client ? app(\App\Services\Upwork\Clients\ClientIntelligenceService::class)->history($client, $opportunity->id) : null;
@@ -293,6 +295,26 @@ class UpworkOpportunityController extends Controller
                 'tomorrow' => $sla->snoozeUntil('tomorrow'),
             ],
         ];
+    }
+
+    /**
+     * Correct the location classification (eligible / restricted), or go back
+     * to the rules. The original text and rule are kept; the change is logged.
+     */
+    public function overrideLocation(Request $request, UpworkOpportunity $opportunity)
+    {
+        $this->authorize('overrideLocation', $opportunity);
+
+        $validated = $request->validate([
+            'classification' => ['required', Rule::in(['eligible', 'restricted', 'rules'])],
+            'note' => ['nullable', 'required_unless:classification,rules', 'string', 'max:500'],
+        ]);
+        $classification = $validated['classification'] === 'rules' ? null : $validated['classification'];
+
+        return $this->attempt(
+            fn() => $this->opportunities->overrideLocation($opportunity, $classification, auth()->id(), $validated['note'] ?? null),
+            $classification ? 'Location classification corrected and recorded in the activity log.' : 'Manual location override removed; the rules apply again.'
+        );
     }
 
     public function approve(Request $request, UpworkOpportunity $opportunity)

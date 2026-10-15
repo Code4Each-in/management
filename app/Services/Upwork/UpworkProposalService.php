@@ -18,6 +18,7 @@ class UpworkProposalService
      */
     public function generateDraft(UpworkOpportunity $opportunity, int $userId): void
     {
+        $this->assertLocationAllowed($opportunity);
         $opportunity->changeStatus(UpworkOpportunity::STATUS_PROPOSAL_DRAFT, $userId, [
             'proposal_draft' => $this->starterDraft($opportunity),
             'proposal_generated_at' => now(),
@@ -31,6 +32,7 @@ class UpworkProposalService
      */
     public function storeAgentDraft(UpworkOpportunity $opportunity, array $data, ?int $userId, ?string $source = null): void
     {
+        $this->assertLocationAllowed($opportunity);
         if ($opportunity->proposal_edited_at !== null) {
             throw new \DomainException('This proposal draft has been edited by a human and will not be overwritten.');
         }
@@ -52,6 +54,14 @@ class UpworkProposalService
         }
 
         $opportunity->changeStatus(UpworkOpportunity::STATUS_PROPOSAL_DRAFT, $userId, $attributes, 'Draft stored by ' . ($source ?? 'agent'));
+    }
+
+    /** No proposal (starter, agent or AI) for a job India-based applicants cannot apply to. */
+    private function assertLocationAllowed(UpworkOpportunity $opportunity): void
+    {
+        if ($opportunity->isLocationRestricted()) {
+            throw new \DomainException(\App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON . '; no proposal is drafted. Correct the location classification first if it is wrong.');
+        }
     }
 
     /**

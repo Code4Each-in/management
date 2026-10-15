@@ -5,12 +5,14 @@ namespace App\Services\Upwork;
 use App\Models\UpworkOpportunity;
 use App\Models\UpworkRuleset;
 use App\Services\Upwork\Clients\ClientIntelligenceService;
+use App\Services\Upwork\Eligibility\LocationEligibility;
 use App\Services\Upwork\Notifications\NotificationService;
 use App\Services\Upwork\Scoring\ScoringEngine;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Stores opportunities sent by the Claude Upwork agent and handles the human
@@ -108,7 +110,7 @@ class UpworkOpportunityService
             if (!$o || !$o->ruleset_version) {
                 return false; // agent-scored legacy rows keep their score
             }
-            $this->applyEngineScore($o, false);
+            $location = $this->applyLocation($o, $this->applyEngineScore($o, false));
             $this->ignoreEquivalentJson($o);
             if (!$o->isDirty()) {
                 return false;
@@ -116,6 +118,7 @@ class UpworkOpportunityService
             $fields = array_keys($o->getDirty());
             $o->save();
             $o->log('rescored', $userId, null, null, $note . ': ' . implode(', ', $fields));
+            $this->recordLocation($o, $location, $userId);
 
             return true;
         });
@@ -175,9 +178,10 @@ class UpworkOpportunityService
                 $opportunity->last_seen_at = $now;
                 $opportunity->times_seen = 1;
                 $opportunity->fetched_at = $opportunity->fetched_at ?? $now;
-                $this->applyEngineScore($opportunity, true);
+                $location = $this->applyLocation($opportunity, $this->applyEngineScore($opportunity, true));
                 $opportunity->save();
                 $opportunity->log('discovered', $userId, null, $opportunity->status, $note);
+                $this->recordLocation($opportunity, $location, $userId);
 
                 return [$opportunity, true];
             }
@@ -187,9 +191,8 @@ class UpworkOpportunityService
                 : Arr::only($attributes, self::SIGHTING_REFRESH_FIELDS));
 
             // PMS-scored jobs stay current; agent-scored (legacy) jobs keep the agent's score.
-            if ($opportunity->score_explanation !== null) {
-                $this->applyEngineScore($opportunity, false);
-            }
+            $scored = $opportunity->score_explanation !== null && $this->applyEngineScore($opportunity, false);
+            $location = $this->applyLocation($opportunity, $scored);
             $this->ignoreEquivalentJson($opportunity);
             $changed = array_keys($opportunity->getDirty());
 
@@ -201,6 +204,7 @@ class UpworkOpportunityService
             if ($changed) {
                 $opportunity->log('updated', $userId, null, null, 'Rediscovered' . ($note ? " ({$note})" : '') . ': ' . implode(', ', $changed));
             }
+            $this->recordLocation($opportunity, $location, $userId);
 
             return [$opportunity, false];
         });
@@ -230,6 +234,9 @@ class UpworkOpportunityService
      */
     public function approve(UpworkOpportunity $opportunity, int $userId, array $targeting = []): void
     {
+        if ($opportunity->isLocationRestricted()) {
+            throw new \DomainException(LocationEligibility::SKIP_REASON . '. If the location was misread, correct it under "Location eligibility" first.');
+        }
         // Validate the choice before anything changes.
         $selection = $this->resolveTargeting($opportunity, $targeting);
 
@@ -452,6 +459,14 @@ class UpworkOpportunityService
         $stats['awaiting_review'] = UpworkOpportunity::reviewEligible()->count();
         $stats['overdue'] = UpworkOpportunity::reviewOverdue()->count();
         $stats['snoozed'] = UpworkOpportunity::reviewSnoozed()->count();
+        // Location eligibility of active (not archived) jobs.
+        $stats['all'] = UpworkOpportunity::count();
+        $locations = UpworkOpportunity::active()->select('location_eligibility', DB::raw('count(*) as total'))
+            ->groupBy('location_eligibility')->pluck('total', 'location_eligibility');
+        foreach ([LocationEligibility::ELIGIBLE, LocationEligibility::RESTRICTED, LocationEligibility::UNKNOWN] as $class) {
+            $stats['location_' . $class] = (int) ($locations[$class] ?? 0);
+        }
+        $stats['location_unclassified'] = (int) ($locations[''] ?? 0);
         $applyThreshold = optional(UpworkRuleset::current())->thresholds['apply'] ?? config('upwork.thresholds.apply', 80);
         $stats['high_score'] = UpworkOpportunity::where('score', '>=', $applyThreshold)->count();
 
@@ -486,9 +501,11 @@ class UpworkOpportunityService
             // Full detail carries Upwork's client id: link and refresh the client first,
             // so scoring can use what the PMS already knows about this client.
             $client = $this->clients->resolve($opportunity, $clientExtras);
-            if ($pmsScored) {
-                $this->applyEngineScore($opportunity, !array_key_exists('technologies', $attributes), $client);
-            }
+            $scored = $pmsScored
+                ? $this->applyEngineScore($opportunity, !array_key_exists('technologies', $attributes), $client)
+                : array_key_exists('recommendation', $attributes); // agent-scored: the payload's own recommendation
+            // After scoring, before saving: a restriction holds the job at SKIP whatever its score.
+            $location = $this->applyLocation($opportunity, $scored);
 
             if ($created) {
                 $opportunity->fetched_at = $opportunity->fetched_at ?? now();
@@ -504,6 +521,7 @@ class UpworkOpportunityService
                     $opportunity->log('updated', $userId, null, null, 'Agent updated: ' . implode(', ', $changed));
                 }
             }
+            $this->recordLocation($opportunity, $location, $userId);
 
             if ($client) {
                 $this->clients->snapshotIfChanged($client, $opportunity->id);
@@ -585,13 +603,13 @@ class UpworkOpportunityService
      * its original timestamp when nothing about the result changed, so re-seeing
      * an unchanged job is not recorded as an update.
      */
-    private function applyEngineScore(UpworkOpportunity $opportunity, bool $fillTechnologies, ?\App\Models\UpworkClient $client = null): void
+    private function applyEngineScore(UpworkOpportunity $opportunity, bool $fillTechnologies, ?\App\Models\UpworkClient $client = null): bool
     {
         [$attributes, $match] = $this->scoringAttributes($opportunity, $client);
 
         $result = $this->scoreWithCurrentRuleset($attributes);
         if (!$result) {
-            return;
+            return false;
         }
 
         $explanation = [
@@ -606,6 +624,8 @@ class UpworkOpportunityService
             'classifications' => $result['classification_details'],
             'scope' => $result['scope'],
             'target' => $result['target'],
+            // Base score, invite penalty and final score, kept apart.
+            'invites' => $result['invites'],
             // AI judgement used by rules (null = none, or below the confidence gate).
             'ai' => $attributes['ai_signals'],
         ];
@@ -644,6 +664,189 @@ class UpworkOpportunityService
         if ($fillTechnologies && !$opportunity->technologies) {
             $opportunity->technologies = array_values(array_column($result['technologies']['direct'], 'name')) ?: null;
         }
+
+        return true;
+    }
+
+    // ---- Location eligibility --------------------------------------------------------------------
+
+    /**
+     * Location eligibility (rules: LocationEligibility). Runs after scoring on
+     * every path that stores a job, so no score can outweigh a restriction.
+     *
+     * While a job is restricted it is held at SKIP with the reason in
+     * hard_filters. Every automatic path already refuses such jobs: review
+     * deadline, reminders, notifications, AI analysis (and approval / proposal
+     * drafting check the restriction explicitly). Status is never changed, for
+     * any status. Scoring's own recommendation is kept in
+     * location_prior_recommendation and comes back when the restriction is
+     * lifted. "Unknown" changes nothing in the workflow; it is only flagged.
+     * No save; the caller saves.
+     *
+     * @param bool $rescored the recommendation was just computed (it is scoring's own, not a held SKIP)
+     * @return string|null an activity-log note when the classification changed
+     */
+    private function applyLocation(UpworkOpportunity $o, bool $rescored): ?string
+    {
+        $wasEffective = $o->exists ? $o->getOriginal('location_eligibility') : null;
+        $base = !$rescored && $wasEffective === LocationEligibility::RESTRICTED
+            ? ($o->location_prior_recommendation ?? UpworkOpportunity::recommendationForScore($o->score, optional(UpworkRuleset::current())->thresholds))
+            : $o->recommendation;
+
+        [$text, $source] = LocationEligibility::extract($o->raw_data);
+        $auto = LocationEligibility::classify($text);
+        $reclassified = $o->location_classified_at === null
+            || $o->location_text !== $text
+            || $o->location_auto_eligibility !== $auto['eligibility']
+            || $o->location_rule !== $auto['rule']
+            || (int) $o->location_rules_version !== LocationEligibility::VERSION;
+        if ($reclassified) {
+            // classified_at only moves when the answer (or the rules) change, so a re-seen job is not "updated".
+            $o->forceFill([
+                'location_text' => $text,
+                'location_source' => $source,
+                'location_auto_eligibility' => $auto['eligibility'],
+                'location_rule' => $auto['rule'],
+                'location_details' => $auto['details'],
+                'location_rules_version' => LocationEligibility::VERSION,
+                'location_classified_at' => now(),
+            ]);
+        }
+
+        $effective = $o->location_override ?: $auto['eligibility'];
+        $o->location_eligibility = $effective;
+        $o->location_reason = !$o->location_override ? $auto['reason']
+            : ($effective === LocationEligibility::RESTRICTED ? LocationEligibility::SKIP_REASON : LocationEligibility::OVERRIDE_ELIGIBLE_REASON);
+
+        $filters = array_values(array_diff((array) $o->hard_filters, [LocationEligibility::SKIP_REASON]));
+        if ($effective === LocationEligibility::RESTRICTED) {
+            $filters[] = LocationEligibility::SKIP_REASON;
+            $o->location_prior_recommendation = $base;
+            $o->recommendation = UpworkOpportunity::RECOMMENDATION_SKIP;
+        } else {
+            $o->location_prior_recommendation = null;
+            $o->recommendation = $base;
+        }
+        $o->hard_filters = $filters ?: ($o->hard_filters === null ? null : []);
+
+        if (!$reclassified && $wasEffective === $effective) {
+            return null;
+        }
+        if ($wasEffective === null && $auto['rule'] === 'blank' && !$o->location_override) {
+            return null; // first look, no location given: stored, but not worth an activity entry
+        }
+
+        return 'Location: ' . LocationEligibility::describe($o) . ($text !== null ? " [from {$source}]" : '') . '. ' . $o->location_reason
+            . ($wasEffective && $wasEffective !== $effective ? ' (was ' . LocationEligibility::LABELS[$wasEffective] . ')' : '');
+    }
+
+    /** Activity-log entry for a changed classification; unclear ones also go to the app log, to improve the rules. */
+    private function recordLocation(UpworkOpportunity $o, ?string $note, ?int $userId): void
+    {
+        if ($note === null) {
+            return;
+        }
+        $o->log('location_classified', $userId, null, null, $note);
+        if ($o->location_auto_eligibility === LocationEligibility::UNKNOWN) {
+            Log::info('[upwork] location restriction unclear', [
+                'opportunity_id' => $o->id, 'upwork_job_id' => $o->upwork_job_id, 'location_text' => $o->location_text,
+                'source' => $o->location_source, 'rule' => $o->location_rule, 'details' => $o->location_details,
+            ]);
+        }
+    }
+
+    /**
+     * Backfill: classify one stored job with the current location rules. Dry
+     * run unless $save. Writes only the location fields, plus recommendation /
+     * hard_filters when the job is held at or released from SKIP. Status,
+     * score, review deadline, snooze, approval and history never change;
+     * nothing is sent and no new record is created. Idempotent: a second run
+     * finds nothing to change.
+     *
+     * @return array{eligibility: string, auto: string, rule: string, reason: string, text: ?string, action: string, changes: string[]}
+     */
+    public function classifyLocation(UpworkOpportunity $opportunity, bool $save, ?int $userId = null): array
+    {
+        $run = function () use ($opportunity, $save, $userId) {
+            $o = $save ? UpworkOpportunity::whereKey($opportunity->id)->lockForUpdate()->first() : clone $opportunity;
+            $before = ['eligibility' => $o->location_eligibility, 'recommendation' => $o->recommendation];
+            $note = $this->applyLocation($o, false);
+            $this->ignoreEquivalentJson($o);
+            $changes = array_keys($o->getDirty());
+
+            if ($o->location_eligibility === LocationEligibility::RESTRICTED && $before['recommendation'] !== UpworkOpportunity::RECOMMENDATION_SKIP) {
+                $action = 'skip: ' . ($before['recommendation'] ?? 'none') . ' -> skip (status ' . $o->status . ' unchanged)';
+            } elseif ($before['eligibility'] === LocationEligibility::RESTRICTED && $o->location_eligibility !== LocationEligibility::RESTRICTED) {
+                $action = 'release: skip -> ' . ($o->recommendation ?? 'none');
+            } elseif (!$changes) {
+                $action = 'none';
+            } elseif ($o->location_eligibility === LocationEligibility::UNKNOWN) {
+                $action = 'flag for manual review';
+            } else {
+                $action = 'record classification';
+            }
+
+            if ($save && $changes) {
+                // saveQuietly: no model events, so nothing (notifications, SLA) reacts to a backfill.
+                $o->saveQuietly();
+                $this->recordLocation($o, ($note ?? 'Location re-checked') . ' (backfill)', $userId);
+            }
+
+            return [
+                'eligibility' => $o->location_eligibility, 'auto' => $o->location_auto_eligibility, 'rule' => $o->location_rule,
+                'reason' => $o->location_reason, 'text' => $o->location_text, 'action' => $action, 'changes' => $changes,
+            ];
+        };
+
+        return $save ? DB::transaction($run) : $run();
+    }
+
+    /**
+     * A person corrects the classification: 'eligible', 'restricted', or null
+     * to go back to the rules. The original location text, rule and automatic
+     * classification are kept; the change is in the activity log. A job
+     * released into review starts its review clock (nothing is sent from here).
+     */
+    public function overrideLocation(UpworkOpportunity $opportunity, ?string $classification, int $userId, ?string $note = null): void
+    {
+        if ($classification !== null && !in_array($classification, [LocationEligibility::ELIGIBLE, LocationEligibility::RESTRICTED], true)) {
+            throw new \DomainException('Choose eligible or restricted.');
+        }
+        $note = trim((string) $note);
+        if ($classification !== null && $note === '') {
+            throw new \DomainException('Say why the location classification is wrong; it is kept in the activity log.');
+        }
+
+        DB::transaction(function () use ($opportunity, $classification, $userId, $note) {
+            $o = UpworkOpportunity::whereKey($opportunity->id)->lockForUpdate()->first();
+            if (!$o) {
+                throw new \DomainException('This job no longer exists.');
+            }
+            if ($o->location_override === $classification) {
+                throw new \DomainException($classification ? 'The job is already marked ' . LocationEligibility::LABELS[$classification] . '.' : 'There is no manual override to remove.');
+            }
+            if ($o->location_classified_at === null) {
+                // Record what the rules say first, so the override never hides the original classification.
+                $this->recordLocation($o, $this->applyLocation($o, false), null);
+            }
+            $before = LocationEligibility::describe($o);
+
+            $o->forceFill([
+                'location_override' => $classification,
+                'location_override_by' => $classification ? $userId : null,
+                'location_override_at' => $classification ? now() : null,
+                'location_override_note' => $classification ? mb_substr($note, 0, 500) : null,
+            ]);
+            $this->applyLocation($o, false);
+            $o->save();
+            $o->log('location_override', $userId, null, null, ($classification
+                    ? 'Location marked ' . LocationEligibility::LABELS[$classification] . " by a reviewer: {$note}"
+                    : 'Location override removed; the rules apply again' . ($note !== '' ? ": {$note}" : ''))
+                . ". Before: {$before}. Now: " . LocationEligibility::describe($o) . '. Recommendation: ' . ($o->recommendation ?? 'none') . '.');
+            $opportunity->setRawAttributes($o->getAttributes(), true);
+        });
+
+        app(\App\Services\Upwork\Review\ReviewSlaService::class)->startIfEligible($opportunity);
     }
 
     /**

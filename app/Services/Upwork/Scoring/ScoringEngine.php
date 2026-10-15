@@ -14,7 +14,11 @@ use App\Models\UpworkRuleset;
  *     ruleset version) with recommendation SKIP and no score - never dropped.
  *  3. Each component gets a baseline (0..1 of its weight) from job facts, then
  *     score-rule points are added and the result is clamped to [0, weight].
- *     Weights are normalized to 100, so the total is always 0-100.
+ *     Weights are normalized to 100, so the base score is always 0-100.
+ *     Invite penalty: minus INVITE_PENALTY once when the client has sent any
+ *     invites, 0 when none or unknown. It is applied to the freshly computed
+ *     base on every (re)score, never to a stored score, so it cannot stack.
+ *     Ruleset score rules on competition.invites_sent are superseded by it.
  *  4. Recommendation from the ruleset's thresholds; classification rules run
  *     last and may read the computed scores.
  *  5. Dual-track targeting (agency / individual / both), see TargetProfileScorer.
@@ -62,6 +66,10 @@ class ScoringEngine
 
     const AI_CATEGORIES = ['ai', 'automation'];
 
+    /** Points subtracted once when the client has already sent invites on the posting. */
+    const INVITE_PENALTY = 5.0;
+    const INVITE_FIELD = 'competition.invites_sent';
+
     /** @var TechnologyMatcher */
     private $matcher;
     /** @var RuleEvaluator */
@@ -107,6 +115,7 @@ class ScoringEngine
             'outlook' => null,
             'scope' => null,
             'target' => null,
+            'invites' => null,
         ];
         $weights = $ruleset->normalizedWeights();
         $targeting = new TargetProfileScorer();
@@ -132,7 +141,9 @@ class ScoringEngine
 
         // 2. Components: baseline + rule points, clamped to the normalized weight.
         $baselines = $this->baselines($context, $tech, $client, $settings);
-        $scoreRules = $rules->where('type', UpworkRule::TYPE_SCORE);
+        // The fixed invite penalty replaces any score rule on invites, so invites count exactly once.
+        [$inviteRules, $scoreRules] = $rules->where('type', UpworkRule::TYPE_SCORE)
+            ->partition(fn($rule) => self::readsInvites($rule->conditions));
 
         $total = 0.0;
         foreach (UpworkRuleset::COMPONENTS as $key => [$column, $label]) {
@@ -169,7 +180,21 @@ class ScoringEngine
             ];
         }
 
-        $result['score'] = round($total, 2);
+        // Invite penalty, on the base just computed (never on a stored score).
+        $invites = $context['competition']['invites_sent'];
+        $penalty = $invites !== null && $invites > 0 ? self::INVITE_PENALTY : 0.0;
+        $base = round($total, 2);
+        $result['invites'] = [
+            'invites_sent' => $invites === null ? null : (int) $invites,
+            'penalty' => $penalty,
+            'base_score' => $base,
+            'final_score' => round(max(0.0, $base - $penalty), 2),
+            'note' => $invites === null ? 'Invites sent not available: no penalty'
+                : ($penalty ? 'Client already sent ' . (int) $invites . ' invite(s): -' . self::INVITE_PENALTY : 'No invites sent: no penalty'),
+            'superseded_rules' => $inviteRules->pluck('key')->values()->all(),
+        ];
+
+        $result['score'] = $result['invites']['final_score'];
         $result['recommendation'] = UpworkOpportunity::recommendationForScore($result['score'], $ruleset->thresholds);
 
         // 3. Strategic Value: a separate 0-100 view of long-term importance.
@@ -293,6 +318,24 @@ class ScoringEngine
             'ai_automation' => $ai,
             'competition' => $competition,
         ];
+    }
+
+    /** Does a rule's condition tree read the invite count? */
+    public static function readsInvites($conditions): bool
+    {
+        if (!is_array($conditions)) {
+            return false;
+        }
+        if (($conditions['field'] ?? null) === self::INVITE_FIELD) {
+            return true;
+        }
+        foreach ($conditions as $child) {
+            if (is_array($child) && self::readsInvites($child)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function competitionBaseline(array $c, array $s): array

@@ -265,6 +265,41 @@ Code plus one additive migration: `2026_10_16_100000_add_archive_columns_to_upwo
 
 **Rollback:** code rollback as below. Archived rows keep `status = 'archived'` and old code does not list them in any tab, so restore them first (Archived tab → select all matching → Restore Selected). Alternatively, return each one to its previous status in SQL: `UPDATE upwork_opportunities SET status = archived_from_status WHERE status = 'archived'` [CHANGE]. Schema only: `migrate:rollback --path=…2026_10_16_100000…`, after archived rows are restored.
 
+## 14. Location eligibility (India-based applicants)
+
+Code plus one additive migration: `2026_10_17_100000_add_location_eligibility_to_upwork_opportunities_table`. It adds 14 nullable columns plus one index on `location_eligibility`. It requires §13's migration first (it places the columns after `archived_from_status`). The migration changes no existing value. Nothing in this release calls Upwork, and no setting changes on deploy.
+
+```bash
+<PHP> artisan migrate --pretend --force --path=database/migrations/2026_10_17_100000_add_location_eligibility_to_upwork_opportunities_table.php   # [READ]
+<PHP> artisan migrate --force --path=database/migrations/2026_10_17_100000_add_location_eligibility_to_upwork_opportunities_table.php      # [CHANGE]
+<PHP> artisan view:clear
+<PHP> artisan migrate:status | grep 2026_10_17_100000           # [READ] "Yes"
+```
+
+- **New and re-seen jobs** are classified automatically. Restricted jobs are held at SKIP (status untouched) and kept out of review, reminders, notifications, AI analysis, approval and proposals. See *Location eligibility* in `docs/upwork-opportunities.md`.
+- **Existing jobs** need the backfill, which needs its own approval:
+  ```bash
+  <PHP> artisan upwork:classify-locations                       # [READ] dry run: lists affected jobs and the proposed action, saves nothing
+  <PHP> artisan upwork:classify-locations --all-rows            # [READ] the same, listing every job examined
+  <PHP> artisan upwork:classify-locations --apply               # [CHANGE: PMS data] asks for confirmation in production
+  ```
+  - `--apply` writes only the `location_*` fields, plus `recommendation` / `hard_filters` for restricted jobs.
+  - No status changes, and no record is created or deleted.
+  - It sends no notifications or reminders.
+  - A second run reports `0 of N`.
+- **[READ] Verify after the backfill:**
+  ```sql
+  -- must return 0: restricted jobs never in the reminder set
+  SELECT COUNT(*) FROM upwork_opportunities WHERE location_eligibility = 'restricted' AND status = 'new' AND recommendation <> 'skip';
+  SELECT COUNT(*) FROM upwork_opportunity_logs l JOIN upwork_opportunities o ON o.id = l.upwork_opportunity_id
+    WHERE o.location_eligibility = 'restricted' AND l.action = 'review_reminder' AND l.created_at > o.location_classified_at;
+  ```
+- **Smoke test [READ]:** the Opportunities page shows the **Location** strip and the **Skipped: Location** and **Location Unclear** tabs. A job page shows the **Location eligibility** panel with its correction form.
+- **Rollback:**
+  - Code rollback as below. The columns can stay, because old code ignores them.
+  - Restricted jobs keep `recommendation = skip` and the location reason in `hard_filters` until they are re-scored. To release them all first: `UPDATE upwork_opportunities SET recommendation = location_prior_recommendation, hard_filters = JSON_REMOVE(hard_filters, JSON_UNQUOTE(JSON_SEARCH(hard_filters, 'one', 'Location restriction: India-based applicants are not eligible'))) WHERE location_eligibility = 'restricted'` [CHANGE].
+  - Schema only: `migrate:rollback --path=…2026_10_17_100000…`.
+
 ## Rollback
 
 Choose the smallest step that fixes the problem.

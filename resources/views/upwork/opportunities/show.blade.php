@@ -85,8 +85,13 @@
         @endif
       </div>
     </div>
+    @include('upwork.opportunities.partials.location-eligibility', ['o' => $o])
     @can('approve', $o)
-      @if($o->canTransitionTo($M::STATUS_APPROVED))
+      @if($o->canTransitionTo($M::STATUS_APPROVED) && $o->isLocationRestricted())
+        <div class="mt-3 pt-3 border-top small text-muted" id="approve">
+          <i class="bi bi-slash-circle"></i> Not approvable: {{ \App\Services\Upwork\Eligibility\LocationEligibility::SKIP_REASON }}. If the location was misread, correct it above first.
+        </div>
+      @elseif($o->canTransitionTo($M::STATUS_APPROVED))
         <div class="mt-3 pt-3 border-top" id="approve">
           @include('upwork.opportunities.partials.targeting-form', [
               'action' => route('upwork.opportunities.approve', $o), 'targeting' => $targeting, 'formId' => 'approve-form',
@@ -226,6 +231,22 @@
               @if($o->scoring_version){{ $o->scoring_version }}@endif
               @if($o->ruleset_version)<br>Ruleset v{{ $o->ruleset_version }}@endif
             </span>
+          @endif
+        </div>
+        {{-- Base score, invite penalty and final score, each identifiable --}}
+        @php $inv = $o->score_explanation['invites'] ?? null; @endphp
+        <div class="mb-3 p-2 rounded" style="background:#f9fafb; border:1px solid #f3f4f6; font-size:0.8rem;" id="invite-penalty">
+          @if($inv)
+            <div class="d-flex justify-content-between"><span>Base score</span><strong>{{ $fmt($inv['base_score']) }}</strong></div>
+          @endif
+          <div class="d-flex justify-content-between"><span>Invites Sent</span><strong>{{ $o->invites_sent ?? 'Not available' }}</strong></div>
+          <div class="d-flex justify-content-between"><span>Invite Penalty</span>
+            <strong style="color:{{ ($inv['penalty'] ?? 0) > 0 ? '#991b1b' : '#374151' }};">{{ $inv ? (($inv['penalty'] > 0 ? '−' : '') . $fmt($inv['penalty'])) : 'Not applied' }}</strong></div>
+          @if($inv)
+            <div class="d-flex justify-content-between border-top mt-1 pt-1"><span>Final score</span><strong>{{ $fmt($inv['final_score']) }}</strong></div>
+            <div class="text-muted" style="font-size:0.72rem;">{{ $inv['note'] }}@if(!empty($inv['superseded_rules'])). Superseded ruleset rules: {{ implode(', ', $inv['superseded_rules']) }}@endif</div>
+          @elseif($o->score !== null)
+            <div class="text-muted" style="font-size:0.72rem;">{{ $o->ruleset_version ? 'Scored before the invite penalty existed; applied at the next re-score.' : 'Score sent by the agent; the PMS invite penalty applies to PMS-scored jobs only.' }}</div>
           @endif
         </div>
         @foreach($o->scoreComponents() as [$label, $value, $max, $explained])

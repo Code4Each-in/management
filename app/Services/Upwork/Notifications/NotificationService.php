@@ -38,6 +38,7 @@ class NotificationService
             || $opportunity->status !== UpworkOpportunity::STATUS_NEW
             || $opportunity->discovery_ignored
             || !empty($opportunity->hard_filters)
+            || $opportunity->isLocationRestricted()
             || $opportunity->notified_level === $level
             || $opportunity->notified_level === UpworkOpportunity::RECOMMENDATION_APPLY) {
             return null;

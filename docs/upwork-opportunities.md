@@ -82,7 +82,14 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
    Hard-rejected jobs are stored with the rule, reason and ruleset version.
 3. **Components** (technical fit, proven experience, client quality, commercial value, long-term, AI/automation, competition). Each gets a baseline plus rule points; bonuses are capped before penalties apply.
    - The hire-rate penalties ignore new clients: `zero_hire_rate` needs at least 3 jobs posted, `low_hire_rate` at least 5.
-4. **Recommendation** from the thresholds: APPLY at 80 or above, REVIEW at 70–79, SKIP below 70.
+   - **Invite penalty** (fixed, `ScoringEngine::INVITE_PENALTY`):
+     - If the client has already sent invites on the posting, exactly 5 points come off the component total. With none, or when the count is not available, nothing comes off and the job page says *Not available*.
+     - The count is Upwork's `activityStat.jobActivity.invitesSent`. It arrives only with full job details (MCP `get` / GraphQL); search rows lack it. It is never estimated.
+     - The penalty is applied to the freshly computed total on every score and re-score, never to a stored score, so it cannot stack. The final score never goes below 0.
+     - `score_explanation.invites` keeps the base score, invites sent, penalty and final score apart. The `score` column holds the final score, while the components still add up to the base.
+     - Ruleset score rules that read `competition.invites_sent` are superseded and listed in `superseded_rules`. Hard-filter and classification rules are unaffected.
+     - Agent-scored (legacy) rows keep the agent's score.
+4. **Recommendation** from the thresholds, using the final score: APPLY at 80 or above, REVIEW at 70–79, SKIP below 70.
 5. **Estimates**, labelled as estimates: Strategic Value, win probability (`heuristic-v1`), contract value and expected value.
 6. **Client fingerprint.** A search row has no Upwork client id. When its country, jobs posted, hires and total spent match exactly one client seen in the last 30 days, that client's history and cached facts feed the stage-1 score (`score_explanation.client.match`). Only full job details link a job to a client.
 
@@ -110,6 +117,57 @@ Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and ne
 **Bulk.** Tick rows, tick the header box to select the whole page, or use **Select all N jobs matching this filter**. Then press **Archive Selected** (in the Archived tab, **Restore Selected**).
 - "Matching this filter" re-runs the list's own query on the server. It is refused if the count no longer equals the number you confirmed.
 - Each job is processed in its own locked transaction. The result shows how many changed, plus the reason for each job that did not.
+
+## Location eligibility (India-based applicants)
+
+Some postings only accept freelancers from a given country or region. We work from India, so a job that excludes India is unsuitable whatever its score. `LocationEligibility` reads the job's **freelancer-location requirement** (never `client_country`) and classifies it as **eligible**, **restricted** or **unknown**. This is an eligibility rule, applied after scoring on every path that stores a job: discovery sighting, enrichment, agent ingest and re-score. A high score can never lift it.
+
+**Where the text comes from.** The first non-empty value among `raw_data.freelancer_location`, `raw_data.location_requirement` and `raw_data.preferred_qualifications.{location, locations, freelancer_location, location_requirement, location_restriction, preferred_location, countries, regions}`. Lists and nested objects are joined. The Upwork MCP returns the client's preferred qualifications only on a full job `get`, never in search rows, so a job counts as *eligible (blank)* until its details arrive and is classified again then. The agent API can send `raw_data.freelancer_location`.
+
+**Rules (first match wins, `LocationEligibility::VERSION` = 1):**
+
+| # | Text | Result | Rule |
+|---|------|--------|------|
+| 1 | blank, missing, null | eligible | `blank` |
+| 2 | India excluded ("Worldwide except India", "No applicants from India", "India not eligible") | restricted | `india_excluded` |
+| 2b | ...and India also welcomed in the same text | unknown | `india_conflict` |
+| 3 | India named ("India", "Remote - India", "Worldwide, including India") | eligible | `india_included` |
+| 4 | worldwide / global / anywhere | eligible | `worldwide` |
+| 4b | ...plus a hard restriction to somewhere else ("Worldwide; US only") | unknown | `worldwide_conflict` |
+| 5 | a region containing India (Asia, South Asia, APAC, Asia Pacific) | eligible | `india_region` |
+| 5b | ...plus a hard restriction elsewhere | unknown | `india_region_conflict` |
+| 6 | only places without India, plus restriction words ("US only", "Remote - USA", "Americas only", "Applicants must reside in Canada", "UK residents only", "Southeast Asia only") | restricted | `restricted_us` / `restricted_americas` / `restricted_region` |
+| 7 | only the client's own location ("Client based in United States") | eligible | `client_location_only` |
+| 8 | no place and no restriction words ("Remote") | eligible | `no_restriction_stated` |
+| 9 | anything else ("US preferred", "EST overlap") | unknown | `unrecognized` |
+
+The client's location ("US-based client", "our company is located in Germany") is removed before rules 4-9. Capital "US" / "U.S." is the country; lower-case "us" is a pronoun. "Indiana" is not India. Preferences are not restrictions, so they end up *unknown*, never *restricted*.
+
+**Effect on the workflow.**
+- **Restricted:** the job is held at **SKIP**: `recommendation = skip`, and *"Location restriction: India-based applicants are not eligible"* is added to `hard_filters`. Scoring's own recommendation is kept in `location_prior_recommendation`, and the score is unchanged.
+  - Every automatic gate already refuses SKIP / hard-filtered jobs, and the ones below also check the restriction explicitly: review deadline, reminders (including the atomic claim), new-job notifications and automatic AI analysis.
+  - Approval is refused. Starter, agent and AI proposal drafts are refused too, including for a job approved before the restriction was known.
+- **Unknown:** nothing changes in the workflow. The job keeps its recommendation, deadline and notifications, and is flagged *"Location restriction unclear — manual review required"*. Each new or changed unknown classification is written to the app log (`[upwork] location restriction unclear`) with the text, so the rules can be improved from real examples.
+- **Eligible:** nothing changes.
+
+**Status policy.** Status is human-owned. Location eligibility never changes it, for any status (new, approved, rejected, proposal draft, submitted, won, lost, archived). It only writes the `location_*` fields and the engine-owned `recommendation` / `hard_filters`. An approved or archived job that turns out to be restricted keeps its status, but no proposal can be drafted for it until the classification is corrected. Nothing is ever deleted.
+
+**Stored fields:** `location_text` (as given), `location_source`, `location_eligibility` (effective), `location_auto_eligibility` and `location_rule` (what the rules said), `location_reason`, `location_details`, `location_rules_version` and `location_classified_at`. `location_classified_at` only moves when the answer changes, so re-seen jobs are not logged as updated. A changed classification is logged as `location_classified`; a blank location on a new job is stored but not logged.
+
+**Manual correction.** On the job page, the **Location eligibility** panel lets anyone with Upwork access mark the job *India can apply* or *India excluded* (with a reason), or remove the override.
+- The override is stored in `location_override*` and logged as `location_override`, with the before and after state. The original text, rule and automatic classification are kept.
+- A rediscovered job keeps the override.
+- A job released back to eligible gets its own recommendation back and a review deadline. No notification is sent.
+
+**Dashboard.**
+- Tabs: **All Jobs**, **Recommended & Eligible**, **Skipped: Location**, **Location Unclear** and **Archived**.
+- The **Location** strip shows counts for all, recommended & eligible, eligible, skipped, unclear, not checked yet and archived.
+- A **Location** filter. Each row shows its location line, and restricted jobs are hidden from "All relevant" (as SKIP jobs are).
+
+**Existing jobs** have no classification until they are seen again or backfilled:
+- `php artisan upwork:classify-locations` (dry run: lists each affected job's id, Upwork job id, title, status, location, proposed action and reason, plus totals; saves nothing).
+- Then `--apply`. Options: `--id=` (one or more jobs), `--limit=`, `--all-rows`. In production, `--apply` asks for confirmation.
+- The backfill sends nothing and creates or deletes no record. Running it again changes nothing.
 
 ## Dual-track targeting (agency / individual)
 
