@@ -317,6 +317,111 @@ class UpworkOpportunityService
         $opportunity->log('target_selected', $userId, null, null, $note);
     }
 
+    /**
+     * Move a job out of the active workflow. Not an approval or a rejection:
+     * reviewed_at, approval and rejection fields are left as they are. The job,
+     * its score, discovery timestamps and history are kept. Every reminder and
+     * notification path requires status "new", so an archived job can no longer
+     * trigger any of them, however often the scheduler runs.
+     */
+    public function archive(UpworkOpportunity $opportunity, int $userId): void
+    {
+        DB::transaction(function () use ($opportunity, $userId) {
+            $o = UpworkOpportunity::whereKey($opportunity->id)->lockForUpdate()->first();
+            if (!$o) {
+                throw new \DomainException('This job no longer exists.');
+            }
+            if ($o->status === UpworkOpportunity::STATUS_ARCHIVED) {
+                throw new \DomainException('Already archived.');
+            }
+            if (!in_array($o->status, UpworkOpportunity::ARCHIVABLE, true)) {
+                throw new \DomainException("A job that is {$o->status_label} cannot be archived; its proposal is already with the client.");
+            }
+
+            $from = $o->status;
+            $o->changeStatus(UpworkOpportunity::STATUS_ARCHIVED, $userId, [
+                'archived_at' => now(),
+                'archived_by' => $userId,
+                'archived_from_status' => $from,
+            ], 'Archived (was ' . UpworkOpportunity::STATUSES[$from] . '). Not an approval or rejection. ' . self::slaSnapshot($o));
+            $opportunity->setRawAttributes($o->getAttributes(), true);
+        });
+    }
+
+    /**
+     * Return an archived job to the status it was archived from, on the same
+     * record. A job that goes back to review gets a fresh, logged deadline
+     * (ReviewSlaService::restartAfterRestore), so restoring never releases a
+     * burst of old reminders.
+     */
+    public function restore(UpworkOpportunity $opportunity, int $userId): string
+    {
+        $status = DB::transaction(function () use ($opportunity, $userId) {
+            $o = UpworkOpportunity::whereKey($opportunity->id)->lockForUpdate()->first();
+            if (!$o || $o->status !== UpworkOpportunity::STATUS_ARCHIVED) {
+                throw new \DomainException('This job is not archived.');
+            }
+
+            $to = in_array($o->archived_from_status, UpworkOpportunity::ARCHIVABLE, true) ? $o->archived_from_status : UpworkOpportunity::STATUS_NEW;
+            $archivedAt = $o->archived_at;
+            $o->forceFill(['status' => $to, 'archived_at' => null, 'archived_by' => null, 'archived_from_status' => null])->save();
+            $o->log('restored', $userId, UpworkOpportunity::STATUS_ARCHIVED, $to,
+                'Restored to ' . UpworkOpportunity::STATUSES[$to] . ($archivedAt ? ' (archived ' . \App\Services\Upwork\Review\ReviewSlaService::format($archivedAt) . ')' : ''));
+
+            if ($to === UpworkOpportunity::STATUS_NEW) {
+                app(\App\Services\Upwork\Review\ReviewSlaService::class)->restartAfterRestore($o, $userId);
+            }
+            $opportunity->setRawAttributes($o->getAttributes(), true);
+
+            return $to;
+        });
+
+        return $status;
+    }
+
+    /**
+     * Apply archive or restore to many jobs, one locked transaction per job,
+     * so one failure never undoes or blocks the others.
+     *
+     * @param iterable<int> $ids
+     * @return array{done: int, failed: array<int, string>} failed: id => reason
+     */
+    public function bulk(string $action, iterable $ids, int $userId): array
+    {
+        if (!in_array($action, ['archive', 'restore'], true)) {
+            throw new \InvalidArgumentException("Unknown bulk action '{$action}'.");
+        }
+        $summary = ['done' => 0, 'failed' => []];
+        foreach ($ids as $id) {
+            $o = UpworkOpportunity::find($id);
+            try {
+                if (!$o) {
+                    throw new \DomainException('Not found.');
+                }
+                $this->{$action}($o, $userId);
+                $summary['done']++;
+            } catch (\DomainException $e) {
+                $summary['failed'][$id] = $e->getMessage();
+            }
+        }
+
+        return $summary;
+    }
+
+    /** The review-SLA state at a moment, for the audit log (the columns may change later). */
+    private static function slaSnapshot(UpworkOpportunity $o): string
+    {
+        if (!$o->review_due_at) {
+            return 'No review deadline was running.';
+        }
+        $f = [\App\Services\Upwork\Review\ReviewSlaService::class, 'format'];
+
+        return 'Review SLA at archive: due ' . $f($o->review_due_at)
+            . ($o->review_overdue_at ? ', overdue since ' . $f($o->review_overdue_at) : '')
+            . ($o->review_reminder_stage ? ", last reminder #{$o->review_reminder_stage}" : ', no reminder sent')
+            . ($o->review_snoozed_until ? ', snoozed until ' . $f($o->review_snoozed_until) : '') . '.';
+    }
+
     public function reject(UpworkOpportunity $opportunity, int $userId, ?string $reason = null): void
     {
         $reason = $reason !== null ? trim($reason) : null;
@@ -341,7 +446,8 @@ class UpworkOpportunityService
         }
         // "New" counts only what a reviewer should look at; the rest is reported as hidden.
         $stats['new'] = UpworkOpportunity::where('status', UpworkOpportunity::STATUS_NEW)->visible()->count();
-        $stats['hidden'] = UpworkOpportunity::count() - UpworkOpportunity::visible()->count();
+        // Hidden = active noise only; archived jobs are counted separately.
+        $stats['hidden'] = UpworkOpportunity::active()->count() - UpworkOpportunity::visible()->count();
         $applyThreshold = optional(UpworkRuleset::current())->thresholds['apply'] ?? config('upwork.thresholds.apply', 80);
         $stats['high_score'] = UpworkOpportunity::where('score', '>=', $applyThreshold)->count();
 

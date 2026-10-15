@@ -33,32 +33,10 @@ class UpworkOpportunityController extends Controller
         $this->authorize('viewAny', UpworkOpportunity::class);
 
         // Invalid filter values are dropped rather than redirecting away from the list.
-        $filters = Validator::make($request->query(), [
-            'search' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', Rule::in(array_keys(UpworkOpportunity::STATUSES))],
-            'recommendation' => ['nullable', Rule::in(array_keys(UpworkOpportunity::RECOMMENDATIONS))],
-            'min_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'sort' => ['nullable', Rule::in(['score', 'posted_at', 'latest', 'expected_value', 'strategic', 'agency_fit', 'individual_fit'])],
-            'target' => ['nullable', Rule::in(array_keys(TargetProfiles::TRACKS))],
-            'bid_as' => ['nullable', Rule::in([TargetProfiles::TRACK_AGENCY, TargetProfiles::TRACK_INDIVIDUAL])],
-            'show' => ['nullable', Rule::in(['all'])],
-            'class' => ['nullable', 'string', 'regex:/^[A-Z0-9_]{2,50}$/'],
-            'view' => ['nullable', Rule::in(array_keys(\App\Services\Upwork\RadarService::VIEWS))],
-        ])->valid();
-
-        $sort = $filters['sort'] ?? 'score';
+        $filters = $this->listFilters($request->query());
         $view = $filters['view'] ?? null;
-        if ($view) {
-            // Named views (New Matches, Review, Ready to Submit, ...) define their own scope.
-            $query = \App\Services\Upwork\RadarService::view($view)->filter($filters);
-        } else {
-            $query = UpworkOpportunity::filter($filters);
-            // Discovery stores every job; untouched SKIP / excluded noise is hidden unless asked for.
-            $showAll = ($filters['show'] ?? null) === 'all' || ($filters['recommendation'] ?? null) === UpworkOpportunity::RECOMMENDATION_SKIP;
-            if (!$showAll) {
-                $query->visible();
-            }
-        }
+        $sort = $filters['sort'] ?? ($view === 'archived' ? 'archived_at' : 'score');
+        $query = $this->listQuery($filters);
         if ($sort === 'score') {
             $query->orderByRaw('score IS NULL')->orderByDesc('score')->latest('id');
         } elseif ($sort === 'expected_value') {
@@ -70,13 +48,10 @@ class UpworkOpportunityController extends Controller
             $query->orderByRaw("{$column} IS NULL")->orderByDesc($column)->latest('id');
         } elseif ($sort === 'posted_at') {
             $query->orderByRaw('posted_at IS NULL')->orderByDesc('posted_at');
+        } elseif ($sort === 'archived_at') {
+            $query->orderByRaw('archived_at IS NULL')->orderByDesc('archived_at')->latest('id');
         } else {
             $query->latest('id');
-        }
-
-        if (!empty($filters['class'])) {
-            // Codes are A-Z0-9_ only (validated), stored as JSON strings: portable across MySQL, MariaDB and SQLite.
-            $query->where('classifications', 'like', '%"' . $filters['class'] . '"%');
         }
 
         $opportunities = $query->with('aiAnalysis:id,fit_score,recommendation,confidence')->paginate(config('upwork.per_page', 25))->withQueryString();
@@ -87,14 +62,126 @@ class UpworkOpportunityController extends Controller
             $viewCounts[$name] = \App\Services\Upwork\RadarService::view($name)->count();
         }
 
-        return view('upwork.opportunities.index', compact('opportunities', 'stats', 'filters', 'sort', 'catalog', 'view', 'viewCounts'));
+        $matching = $opportunities->total();
+        // Query string that defines this selection, for "select all matching" (no paging or sorting).
+        $filterParams = \Illuminate\Support\Arr::except($filters, ['sort']);
+
+        return view('upwork.opportunities.index', compact('opportunities', 'stats', 'filters', 'sort', 'catalog', 'view', 'viewCounts', 'matching', 'filterParams'));
+    }
+
+    private function listFilters(array $input): array
+    {
+        return Validator::make($input, [
+            'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(array_keys(UpworkOpportunity::STATUSES))],
+            'recommendation' => ['nullable', Rule::in(array_keys(UpworkOpportunity::RECOMMENDATIONS))],
+            'min_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'sort' => ['nullable', Rule::in(['score', 'posted_at', 'latest', 'expected_value', 'strategic', 'agency_fit', 'individual_fit', 'archived_at'])],
+            'target' => ['nullable', Rule::in(array_keys(TargetProfiles::TRACKS))],
+            'bid_as' => ['nullable', Rule::in([TargetProfiles::TRACK_AGENCY, TargetProfiles::TRACK_INDIVIDUAL])],
+            'show' => ['nullable', Rule::in(['all'])],
+            'class' => ['nullable', 'string', 'regex:/^[A-Z0-9_]{2,50}$/'],
+            'view' => ['nullable', Rule::in(array_keys(\App\Services\Upwork\RadarService::VIEWS))],
+        ])->valid();
+    }
+
+    /**
+     * The list's WHERE clause (no sorting). The page and "select all matching
+     * this filter" both use it, so a bulk action affects exactly what is listed.
+     */
+    private function listQuery(array $filters)
+    {
+        $view = $filters['view'] ?? null;
+        if ($view) {
+            // Named views (New Matches, Review, Archived, ...) define their own scope.
+            $query = \App\Services\Upwork\RadarService::view($view)->filter($filters);
+        } else {
+            $query = UpworkOpportunity::filter($filters);
+            // Discovery stores every job; untouched SKIP / excluded noise is hidden unless asked for.
+            $showAll = ($filters['show'] ?? null) === 'all' || ($filters['recommendation'] ?? null) === UpworkOpportunity::RECOMMENDATION_SKIP;
+            if (!$showAll) {
+                $query->visible();
+            }
+            // Archived jobs live in their own tab; "show all" means all active jobs.
+            if (($filters['status'] ?? null) !== UpworkOpportunity::STATUS_ARCHIVED) {
+                $query->active();
+            }
+        }
+        if (!empty($filters['class'])) {
+            // Codes are A-Z0-9_ only (validated), stored as JSON strings: portable across MySQL, MariaDB and SQLite.
+            $query->where('classifications', 'like', '%"' . $filters['class'] . '"%');
+        }
+
+        return $query;
+    }
+
+    public function archive(UpworkOpportunity $opportunity)
+    {
+        $this->authorize('archive', $opportunity);
+
+        return $this->attempt(fn() => $this->opportunities->archive($opportunity, auth()->id()),
+            'Archived. It is out of the review queue and will send no reminders. Restore it from the Archived tab.');
+    }
+
+    public function restore(UpworkOpportunity $opportunity)
+    {
+        $this->authorize('archive', $opportunity);
+
+        try {
+            $status = $this->opportunities->restore($opportunity, auth()->id());
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Restored to ' . UpworkOpportunity::STATUSES[$status] . '.'
+            . ($status === UpworkOpportunity::STATUS_NEW && $opportunity->fresh()->review_due_at ? ' It has a fresh 30-minute review deadline; no old reminders are re-sent.' : ''));
+    }
+
+    /**
+     * Archive / restore many jobs: either the ticked ids, or every job matching
+     * the list filter. For a filter, the number the person confirmed must still
+     * match, otherwise nothing changes (new jobs may have arrived meanwhile).
+     */
+    public function bulk(Request $request)
+    {
+        $this->authorize('archive', UpworkOpportunity::class);
+
+        $v = $request->validate([
+            'action' => ['required', Rule::in(['archive', 'restore'])],
+            'mode' => ['required', Rule::in(['ids', 'filter'])],
+            'ids' => ['required_if:mode,ids', 'array', 'max:1000'],
+            'ids.*' => ['integer', 'min:1'],
+            'filter' => ['nullable', 'array'],
+            'expected' => ['required_if:mode,filter', 'integer', 'min:1'],
+        ]);
+
+        if ($v['mode'] === 'filter') {
+            $filters = $this->listFilters((array) ($v['filter'] ?? []));
+            $ids = $this->listQuery($filters)->orderBy('id')->pluck('id');
+            if ($ids->count() !== (int) $v['expected']) {
+                return back()->with('error', "The filter now matches {$ids->count()} jobs, not the {$v['expected']} you confirmed. Nothing was changed; check the list and try again.");
+            }
+        } else {
+            $ids = collect($v['ids'])->map(fn($id) => (int) $id)->unique()->values();
+        }
+
+        $summary = $this->opportunities->bulk($v['action'], $ids, auth()->id());
+        $verb = $v['action'] === 'archive' ? 'Archived' : 'Restored';
+        $message = "{$verb} {$summary['done']} of {$ids->count()} selected job(s).";
+        if (!$summary['failed']) {
+            return back()->with('success', $message);
+        }
+        $reasons = collect($summary['failed'])->map(fn($reason, $id) => "#{$id}: {$reason}")->take(5)->implode(' ');
+
+        return back()->with($summary['done'] ? 'success' : 'error', $message)
+            ->with('bulk_failures', count($summary['failed']) . ' not changed. ' . $reasons . (count($summary['failed']) > 5 ? ' …' : ''));
     }
 
     public function show(UpworkOpportunity $opportunity)
     {
         $this->authorize('view', $opportunity);
 
-        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'profileSelector', 'logs.user', 'client', 'aiAnalysis']);
+        $opportunity->load(['approver', 'rejecter', 'proposalEditor', 'proposalApprover', 'reviewSnoozer', 'profileSelector', 'archiver', 'logs.user', 'client', 'aiAnalysis']);
 
         $client = $opportunity->client;
         $clientHistory = $client ? app(\App\Services\Upwork\Clients\ClientIntelligenceService::class)->history($client, $opportunity->id) : null;

@@ -13,8 +13,10 @@ use Illuminate\Support\Carbon;
  *   eligible job stored -> review_due_at = first_seen_at + 30 min (set once, never moved)
  *   reminders at +10, +20, +25 min -> overdue at +30 -> a reminder every 10 min after that
  *
- * Reminders stop as soon as a person approves or rejects the job, while the
- * job is snoozed, or when it is no longer eligible (e.g. re-scored to SKIP).
+ * Reminders stop as soon as a person approves, rejects or archives the job,
+ * while the job is snoozed, or when it is no longer eligible (e.g. re-scored
+ * to SKIP). Every gate requires status "new", so an archived job is never
+ * reminded; restoring it starts a fresh deadline (restartAfterRestore).
  * Each reminder level is claimed with a conditional update before it is sent,
  * so overlapping runners never send the same reminder twice; a missed tick
  * sends only the latest level, never a burst. Nothing here approves, rejects,
@@ -160,23 +162,68 @@ class ReviewSlaService
                 break;
             }
 
-            // Claim this level before sending: only one runner can win it.
-            $claimed = UpworkOpportunity::whereKey($o->id)
-                ->where('status', UpworkOpportunity::STATUS_NEW)
-                ->where(fn($q) => $q->whereNull('review_reminder_stage')->orWhere('review_reminder_stage', '<', $stage))
-                ->where(fn($q) => $q->whereNull('review_snoozed_until')->orWhere('review_snoozed_until', '<=', $now))
-                ->update(['review_reminder_stage' => $stage, 'review_reminded_at' => $now]);
-            if (!$claimed) {
+            if (!$this->claimReminder($o, $stage, $now)) {
                 continue;
             }
-
-            $o->forceFill(['review_reminder_stage' => $stage, 'review_reminded_at' => $now])->syncOriginal();
             app(NotificationService::class)->deliver($this->message($o, $stage, $now), ['opportunity_id' => $o->id]);
             $o->log('review_reminder', null, null, null, $this->stageLabel($o, $stage, $now));
             $stats['sent']++;
         }
 
         return $stats;
+    }
+
+    /**
+     * Claim a reminder level right before sending, in one conditional UPDATE
+     * against the database (not the copy loaded at the start of the run): only
+     * one runner wins, and a job that was approved, rejected, archived or
+     * snoozed since it was loaded is not reminded.
+     */
+    public function claimReminder(UpworkOpportunity $o, int $stage, Carbon $now): bool
+    {
+        $claimed = UpworkOpportunity::whereKey($o->id)
+            ->where('status', UpworkOpportunity::STATUS_NEW)
+            ->where(fn($q) => $q->whereNull('review_reminder_stage')->orWhere('review_reminder_stage', '<', $stage))
+            ->where(fn($q) => $q->whereNull('review_snoozed_until')->orWhere('review_snoozed_until', '<=', $now))
+            ->update(['review_reminder_stage' => $stage, 'review_reminded_at' => $now]);
+        if ($claimed) {
+            $o->forceFill(['review_reminder_stage' => $stage, 'review_reminded_at' => $now])->syncOriginal();
+        }
+
+        return (bool) $claimed;
+    }
+
+    /**
+     * Restore policy: a job restored to review gets a fresh deadline (now +
+     * 30 min) with reminder state cleared, so it behaves like a newly found
+     * job: the first reminder comes at +10 min, never a burst of old levels.
+     * The previous deadline, overdue mark and last reminder are written to the
+     * activity log first (they were also recorded when it was archived).
+     * first_seen_at and every earlier log entry stay as they were. A job that is
+     * not eligible (e.g. now SKIP) gets no deadline.
+     */
+    public function restartAfterRestore(UpworkOpportunity $o, ?int $userId): bool
+    {
+        $previous = $o->review_due_at
+            ? 'previous deadline ' . self::format($o->review_due_at)
+                . ($o->review_overdue_at ? ', overdue since ' . self::format($o->review_overdue_at) : '')
+                . ($o->review_reminder_stage ? ", last reminder #{$o->review_reminder_stage}" : '')
+            : 'no previous deadline';
+        $reset = ['review_overdue_at' => null, 'review_reminder_stage' => null, 'review_reminded_at' => null,
+            'review_snoozed_until' => null, 'review_snoozed_by' => null];
+
+        if (!self::isEligible($o)) {
+            $o->forceFill($reset + ['review_due_at' => null])->save();
+            $o->log('review_sla_restarted', $userId, null, null, "Restored; not eligible for review reminders ({$previous}).");
+
+            return false;
+        }
+
+        $due = self::now()->addMinutes(self::deadlineMinutes());
+        $o->forceFill($reset + ['review_due_at' => $due])->save();
+        $o->log('review_sla_restarted', $userId, null, null, 'Restored to review: new deadline ' . self::format($due) . " ({$previous}).");
+
+        return true;
     }
 
     /** The reminder: what is due, and links to the snooze confirmation page (GET never changes anything). */
@@ -262,6 +309,9 @@ class ReviewSlaService
     /** Silence reminders for this job only. The review deadline does not move. */
     public function snooze(UpworkOpportunity $o, Carbon $until, int $userId, string $preset): void
     {
+        if ($o->status === UpworkOpportunity::STATUS_ARCHIVED) {
+            throw new \DomainException('This job is archived; it sends no reminders, so there is nothing to snooze.');
+        }
         if ($o->status !== UpworkOpportunity::STATUS_NEW) {
             throw new \DomainException('This job has already been reviewed; there is nothing to snooze.');
         }

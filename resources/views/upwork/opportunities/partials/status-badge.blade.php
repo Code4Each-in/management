@@ -8,6 +8,7 @@
         'client_response' => ['bg' => '#cff4fc', 'color' => '#055160'],
         'won'             => ['bg' => '#198754', 'color' => '#ffffff'],
         'lost'            => ['bg' => '#e2e3e5', 'color' => '#41464b'],
+        'archived'        => ['bg' => '#f3f4f6', 'color' => '#4b5563'],
     ];
     $style = $statusStyles[$opportunity->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
 @endphp

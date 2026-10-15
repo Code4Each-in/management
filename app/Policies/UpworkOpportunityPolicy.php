@@ -46,6 +46,12 @@ class UpworkOpportunityPolicy
         return $this->hasAccess($user);
     }
 
+    /** Archive or restore jobs, one or in bulk (people who can review them). */
+    public function archive(Users $user, ?UpworkOpportunity $opportunity = null): bool
+    {
+        return $this->hasAccess($user);
+    }
+
     /** Snooze or resume review reminders for one job (people who can review it). */
     public function snooze(Users $user, UpworkOpportunity $opportunity): bool
     {

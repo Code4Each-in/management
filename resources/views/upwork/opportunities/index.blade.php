@@ -16,6 +16,9 @@
   @if(session('error'))
     <div class="alert alert-danger border-0 rounded-3 small py-2 px-3 mb-3" style="font-weight: 600;">{{ session('error') }}</div>
   @endif
+  @if(session('bulk_failures'))
+    <div class="alert alert-warning border-0 rounded-3 small py-2 px-3 mb-3">{{ session('bulk_failures') }}</div>
+  @endif
 
   {{-- List views --}}
   <ul class="nav nav-pills mb-3 flex-wrap" style="font-size:0.85rem;">
@@ -116,6 +119,7 @@
         <option value="strategic" {{ $sort === 'strategic' ? 'selected' : '' }}>Sort: strategic value</option>
         <option value="agency_fit" {{ $sort === 'agency_fit' ? 'selected' : '' }}>Sort: agency fit</option>
         <option value="individual_fit" {{ $sort === 'individual_fit' ? 'selected' : '' }}>Sort: individual fit</option>
+        @if($view === 'archived')<option value="archived_at" {{ $sort === 'archived_at' ? 'selected' : '' }}>Sort: archive date</option>@endif
       </select>
 
       <button type="submit" class="btn btn-primary btn-sm">Filter</button>
@@ -123,11 +127,36 @@
       <a href="{{ route('upwork.clients.index') }}" class="btn btn-link btn-sm ms-auto">Client intelligence</a>
     </form>
 
+    {{-- Bulk selection: ticked rows, or every job matching this filter (the server re-applies the same filter). --}}
+    @php $archivedView = $view === 'archived'; $bulkAction = $archivedView ? 'restore' : 'archive'; @endphp
+    @can('archive', \App\Models\UpworkOpportunity::class)
+      @if($opportunities->count())
+        <form id="bulk-form" method="POST" action="{{ route('upwork.opportunities.bulk') }}" data-action-label="{{ $archivedView ? 'Restore' : 'Archive' }}"
+              data-matching="{{ $matching }}" data-page="{{ $opportunities->count() }}"
+              style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; padding:0.5rem 1.25rem; border-bottom:1px solid #e5e7eb; background:#f9fafb; font-size:0.84rem;">
+          @csrf
+          <input type="hidden" name="action" value="{{ $bulkAction }}">
+          <input type="hidden" name="mode" value="ids" id="bulk-mode">
+          <input type="hidden" name="expected" value="{{ $matching }}">
+          @foreach($filterParams as $key => $value)
+            <input type="hidden" name="filter[{{ $key }}]" value="{{ $value }}">
+          @endforeach
+          <span id="bulk-count" class="text-muted">No jobs selected</span>
+          <a href="#" id="bulk-all-matching" class="d-none">Select all {{ $matching }} jobs matching this filter</a>
+          <a href="#" id="bulk-clear" class="d-none">Clear selection</a>
+          <button type="submit" id="bulk-submit" class="btn btn-sm {{ $archivedView ? 'btn-outline-primary' : 'btn-outline-secondary' }} ms-auto" disabled>
+            <i class="bi {{ $archivedView ? 'bi-arrow-counterclockwise' : 'bi-archive' }}"></i> {{ $archivedView ? 'Restore Selected' : 'Archive Selected' }}
+          </button>
+        </form>
+      @endif
+    @endcan
+
     {{-- Table --}}
     <div class="table-responsive">
       <table class="table table-striped table-bordered mb-0" style="font-size:0.84rem; color:#1f2937;">
         <thead>
           <tr style="background:#f9fafb;">
+            <th style="{{ $th }} width:1%;">@can('archive', \App\Models\UpworkOpportunity::class)<input type="checkbox" id="bulk-page" title="Select all on this page" aria-label="Select all on this page">@endcan</th>
             <th style="{{ $th }}">Score</th>
             <th style="{{ $th }}">Rec.</th>
             <th style="{{ $th }}">Job</th>
@@ -151,6 +180,7 @@
                 : ($opportunity->score >= config('upwork.thresholds.review', 70) ? '#b58105' : '#6b7280'));
           @endphp
           <tr>
+            <td style="{{ $td }}">@can('archive', $opportunity)<input type="checkbox" name="ids[]" value="{{ $opportunity->id }}" form="bulk-form" class="js-bulk-row" aria-label="Select {{ $opportunity->title }}">@endcan</td>
             <td style="{{ $td }} font-weight:700; font-size:1rem; color:{{ $scoreColor }};">
               {{ $opportunity->score !== null ? rtrim(rtrim(number_format($opportunity->score, 1), '0'), '.') : '—' }}
               @if($opportunity->aiAnalysis)
@@ -162,6 +192,9 @@
             <td style="{{ $td }}">@include('upwork.opportunities.partials.recommendation-badge')</td>
             <td style="{{ $td }} min-width:260px;">
               <a href="{{ route('upwork.opportunities.show', $opportunity) }}" style="color:#0d6efd; text-decoration:none; font-weight:600;">{{ $opportunity->title }}</a>
+              @if($opportunity->status === \App\Models\UpworkOpportunity::STATUS_ARCHIVED)
+                <div style="font-size:0.72rem; color:#4b5563; margin-top:0.125rem;"><i class="bi bi-archive"></i> Archived {{ optional($opportunity->archived_at)->format('d M Y H:i') }} · was {{ \App\Models\UpworkOpportunity::STATUSES[$opportunity->archived_from_status] ?? '—' }} · first seen {{ optional($opportunity->first_seen_at ?? $opportunity->created_at)->format('d M Y') }}</div>
+              @endif
               @if(!empty($opportunity->hard_filters))
                 <div style="font-size:0.72rem; color:#842029; margin-top:0.125rem;"><i class="bi bi-exclamation-triangle"></i> {{ implode('; ', $opportunity->hard_filters) }}</div>
               @endif
@@ -206,6 +239,19 @@
             <td style="{{ $td }} white-space:nowrap;" title="{{ optional($opportunity->posted_at)->format('d M Y H:i') }}">{{ $opportunity->posted_at ? $opportunity->posted_at->diffForHumans() : '—' }}</td>
             <td style="{{ $td }}">@include('upwork.opportunities.partials.status-badge')</td>
             <td style="{{ $td }} text-align:right; white-space:nowrap;">
+              @can('archive', $opportunity)
+                @if($opportunity->status === \App\Models\UpworkOpportunity::STATUS_ARCHIVED)
+                  <form method="POST" action="{{ route('upwork.opportunities.restore', $opportunity) }}" class="d-inline m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Restore to {{ \App\Models\UpworkOpportunity::STATUSES[$opportunity->archived_from_status] ?? 'New' }}"><i class="bi bi-arrow-counterclockwise"></i></button>
+                  </form>
+                @elseif($opportunity->canTransitionTo(\App\Models\UpworkOpportunity::STATUS_ARCHIVED))
+                  <form method="POST" action="{{ route('upwork.opportunities.archive', $opportunity) }}" class="d-inline m-0" onsubmit="return confirm('Archive this job? It leaves the review queue and sends no reminders. You can restore it later.');">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Archive (not deleted, approved or rejected)"><i class="bi bi-archive"></i></button>
+                  </form>
+                @endif
+              @endcan
               @can('approve', $opportunity)
                 @if($opportunity->canTransitionTo(\App\Models\UpworkOpportunity::STATUS_APPROVED))
                   {{-- Approval asks for the profile and proposal angle, so it happens on the job page. --}}
@@ -225,7 +271,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="13" style="padding:1.5rem; text-align:center; color:#6b7280;">No opportunities found.</td></tr>
+          <tr><td colspan="14" style="padding:1.5rem; text-align:center; color:#6b7280;">No opportunities found.</td></tr>
         @endforelse
         </tbody>
       </table>
@@ -241,4 +287,46 @@
 </div>
 
 @include('upwork.opportunities.partials.reject-modal')
+<script>
+(function () {
+  var form = document.getElementById('bulk-form');
+  if (!form) return;
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.js-bulk-row'));
+  var page = document.getElementById('bulk-page');
+  var mode = document.getElementById('bulk-mode');
+  var count = document.getElementById('bulk-count');
+  var allLink = document.getElementById('bulk-all-matching');
+  var clear = document.getElementById('bulk-clear');
+  var submit = document.getElementById('bulk-submit');
+  var matching = parseInt(form.dataset.matching, 10);
+  var label = form.dataset.actionLabel;
+
+  function selected() { return rows.filter(function (r) { return r.checked; }).length; }
+  function total() { return mode.value === 'filter' ? matching : selected(); }
+  function render() {
+    var n = total(), onPage = selected();
+    page.checked = rows.length > 0 && onPage === rows.length;
+    count.textContent = mode.value === 'filter'
+      ? 'All ' + matching + ' jobs matching this filter are selected'
+      : (n ? n + ' selected on this page' : 'No jobs selected');
+    allLink.classList.toggle('d-none', !(mode.value === 'ids' && page.checked && matching > rows.length));
+    clear.classList.toggle('d-none', n === 0);
+    submit.disabled = n === 0;
+  }
+  function reset() { mode.value = 'ids'; rows.forEach(function (r) { r.checked = false; }); render(); }
+
+  rows.forEach(function (r) { r.addEventListener('change', function () { mode.value = 'ids'; render(); }); });
+  page.addEventListener('change', function () { mode.value = 'ids'; rows.forEach(function (r) { r.checked = page.checked; }); render(); });
+  allLink.addEventListener('click', function (e) { e.preventDefault(); mode.value = 'filter'; render(); });
+  clear.addEventListener('click', function (e) { e.preventDefault(); reset(); });
+  form.addEventListener('submit', function (e) {
+    var n = total();
+    var what = mode.value === 'filter' ? 'all ' + n + ' jobs matching the current filter (not only this page)' : n + ' selected job(s)';
+    if (!n || !confirm(label + ' ' + what + '?' + (label === 'Archive' ? ' They leave the review queue and send no reminders; nothing is deleted.' : ''))) {
+      e.preventDefault();
+    }
+  });
+  render();
+})();
+</script>
 @endsection
