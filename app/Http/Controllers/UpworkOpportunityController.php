@@ -19,6 +19,8 @@ use Illuminate\Validation\Rule;
  */
 class UpworkOpportunityController extends Controller
 {
+    use \App\Http\Controllers\Upwork\RemembersPerPage;
+
     private $opportunities;
     private $proposals;
 
@@ -54,7 +56,12 @@ class UpworkOpportunityController extends Controller
             $query->latest('id');
         }
 
-        $opportunities = $query->with('aiAnalysis:id,fit_score,recommendation,confidence')->paginate(config('upwork.per_page', 25))->withQueryString();
+        $perPage = $this->perPage($request);
+        $opportunities = $query->with('aiAnalysis:id,fit_score,recommendation,confidence')->paginate($perPage)->withQueryString();
+        if ($last = $this->pastLastPage($opportunities)) {
+            return redirect()->to($last);
+        }
+        $perPageOptions = self::perPageOptions();
         $stats = $this->opportunities->stats();
         $catalog = \App\Models\UpworkClassification::catalog();
         $viewCounts = [];
@@ -66,12 +73,12 @@ class UpworkOpportunityController extends Controller
         // Query string that defines this selection, for "select all matching" (no paging or sorting).
         $filterParams = \Illuminate\Support\Arr::except($filters, ['sort']);
 
-        return view('upwork.opportunities.index', compact('opportunities', 'stats', 'filters', 'sort', 'catalog', 'view', 'viewCounts', 'matching', 'filterParams'));
+        return view('upwork.opportunities.index', compact('opportunities', 'stats', 'filters', 'sort', 'catalog', 'view', 'viewCounts', 'matching', 'filterParams', 'perPage', 'perPageOptions'));
     }
 
     private function listFilters(array $input): array
     {
-        return Validator::make($input, [
+        $rules = [
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(array_keys(UpworkOpportunity::STATUSES))],
             'recommendation' => ['nullable', Rule::in(array_keys(UpworkOpportunity::RECOMMENDATIONS))],
@@ -83,7 +90,10 @@ class UpworkOpportunityController extends Controller
             'show' => ['nullable', Rule::in(['all'])],
             'class' => ['nullable', 'string', 'regex:/^[A-Z0-9_]{2,50}$/'],
             'view' => ['nullable', Rule::in(array_keys(\App\Services\Upwork\RadarService::VIEWS))],
-        ])->valid();
+        ];
+
+        // valid() also passes through keys without a rule (page, per_page, anything else): keep the filters only.
+        return \Illuminate\Support\Arr::only(Validator::make($input, $rules)->valid(), array_keys($rules));
     }
 
     /**

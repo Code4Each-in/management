@@ -1,18 +1,5 @@
 {{-- Shared head for Upwork configuration pages: styles, sub-navigation, flash messages, read-only notice. --}}
-<style>
-  .uw-wrap { margin: 1rem auto 2rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-  .uw-card { background:#fff; border-radius:0.5rem; border:1px solid #e5e7eb; box-shadow:0 1px 2px rgba(0,0,0,0.04); padding:1.25rem; margin-bottom:1rem; }
-  .uw-h { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280; margin-bottom:0.75rem; }
-  .uw-table { width:100%; font-size:0.85rem; }
-  .uw-table th { padding:0.5rem 0.625rem; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:#6b7280; background:#f9fafb; border-bottom:1px solid #e5e7eb; white-space:nowrap; }
-  .uw-table td { padding:0.5rem 0.625rem; border-bottom:1px solid #f3f4f6; vertical-align:top; }
-  .uw-help { font-size:0.75rem; color:#6b7280; }
-  .uw-tier { display:inline-block; padding:0.1rem 0.45rem; border-radius:0.25rem; font-size:0.7rem; font-weight:700; }
-  .uw-tier-proven { background:#dcfce7; color:#166534; } .uw-tier-adjacent { background:#e0f2fe; color:#075985; }
-  .uw-tier-emerging { background:#fef3c7; color:#92400e; } .uw-tier-excluded { background:#fee2e2; color:#991b1b; }
-  .uw-muted-row td { color:#9ca3af; }
-  .uw-tabs .nav-link { font-size:0.85rem; padding:0.4rem 0.8rem; }
-</style>
+@include('upwork.partials.styles')
 @php
   $tabs = [
       'upwork.config.index' => 'Overview',
