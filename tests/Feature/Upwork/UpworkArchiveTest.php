@@ -396,7 +396,9 @@ class UpworkArchiveTest extends UpworkTestCase
         $this->assertSame([3, 1, 1, 1, 1, 1], [$stats['awaiting_review'], $stats['overdue'], $stats['snoozed'], $stats['approved'], $stats['rejected'], $stats['archived']]);
 
         $bde = $this->bde();
-        $this->actingAs($bde)->get(route('upwork.opportunities.index'))->assertOk()->assertSee('Review queue:')->assertSee('Awaiting review');
+        // Queue counts sit on the view tabs; a non-zero Overdue count is highlighted.
+        $this->actingAs($bde)->get(route('upwork.opportunities.index'))->assertOk()
+            ->assertSeeInOrder(['Awaiting Review', '3', 'Overdue', 'uw-count-alert', '1'], false);
         $this->actingAs($bde)->get(route('upwork.opportunities.index', ['view' => 'reminder_queue']))->assertOk()
             ->assertSee('Pending')->assertSee('Overdue')->assertDontSee('Archived one')->assertDontSee('Skip one')->assertDontSee('Hard one');
         $this->actingAs($bde)->get(route('upwork.opportunities.index', ['view' => 'overdue']))->assertOk()

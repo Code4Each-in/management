@@ -36,15 +36,37 @@ class RadarService
         }
     }
 
-    public function radar(string $range = 'today'): array
+    /** Jobs first seen in the window (directly ingested jobs have no sighting: use created_at). */
+    private static function firstSeenBetween(Carbon $from, Carbon $to)
+    {
+        return UpworkOpportunity::whereRaw('COALESCE(first_seen_at, created_at) >= ?', [$from])
+            ->whereRaw('COALESCE(first_seen_at, created_at) <= ?', [$to]);
+    }
+
+    /** Scored jobs first seen in the window that discovery did not exclude. */
+    private static function relevantBetween(Carbon $from, Carbon $to)
+    {
+        return self::firstSeenBetween($from, $to)->where('discovery_ignored', false)->whereNotNull('score');
+    }
+
+    /** Top opportunities of the window: relevant, not rejected or archived, best score first. */
+    public function topQuery(string $range)
+    {
+        [$from, $to] = self::window($range);
+
+        return self::relevantBetween($from, $to)
+            ->whereNotIn('status', [UpworkOpportunity::STATUS_REJECTED, UpworkOpportunity::STATUS_ARCHIVED])
+            ->orderByDesc('score')->orderByDesc('id');
+    }
+
+    /** $withTop = false skips the top-10 list (the Radar page paginates topQuery() itself). */
+    public function radar(string $range = 'today', bool $withTop = true): array
     {
         [$from, $to] = self::window($range);
         $viableMin = (float) UpworkSetting::get('discovery.enrich_min_score');
 
-        // Jobs first seen in the window (directly ingested jobs have no sighting: use created_at).
-        $inWindow = fn() => UpworkOpportunity::whereRaw('COALESCE(first_seen_at, created_at) >= ?', [$from])
-            ->whereRaw('COALESCE(first_seen_at, created_at) <= ?', [$to]);
-        $relevant = fn() => $inWindow()->where('discovery_ignored', false)->whereNotNull('score');
+        $inWindow = fn() => self::firstSeenBetween($from, $to);
+        $relevant = fn() => self::relevantBetween($from, $to);
 
         $funnel = [
             'results' => (int) UpworkDiscoveryQuery::whereBetween('created_at', [$from, $to])->sum('results_count'),
@@ -67,8 +89,7 @@ class RadarService
             }
         }
 
-        $top = $relevant()->whereNotIn('status', [UpworkOpportunity::STATUS_REJECTED, UpworkOpportunity::STATUS_ARCHIVED])
-            ->orderByDesc('score')->orderByDesc('id')->limit(10)->get();
+        $top = $withTop ? $this->topQuery($range)->limit(10)->get() : collect();
 
         $openEv = $relevant()->whereIn('recommendation', [UpworkOpportunity::RECOMMENDATION_APPLY, UpworkOpportunity::RECOMMENDATION_REVIEW])
             ->whereIn('status', [UpworkOpportunity::STATUS_NEW, UpworkOpportunity::STATUS_APPROVED, UpworkOpportunity::STATUS_PROPOSAL_DRAFT]);

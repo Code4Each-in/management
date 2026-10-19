@@ -62,6 +62,7 @@ People: Radar -> opportunity page (facts | local scoring | AI judgement) -> APPR
 | AI | `app/Services/Upwork/Ai/`: `AiGateway`, `AiBudgetGuard`, `AiPricing`, `JsonSchemaValidator`, `Providers/OpenAiProvider`, `Providers/FakeProvider` (development only), `Qualification/QualificationService`, `QualificationPrompt`, `DeepAnalysisPrompt`; job `app/Jobs/Upwork/QualifyOpportunity.php` |
 | Clients | `UpworkClient`, `UpworkClientSnapshot`, `app/Services/Upwork/Clients/ClientIntelligenceService.php` (history, fingerprint matching) |
 | Radar and metrics | `RadarService`, `MetricsService`, `Upwork\RadarController` |
+| List pages (Opportunities, Radar) | `resources/views/upwork/opportunities/index.blade.php`, `radar.blade.php`, shared `upwork/partials/styles.blade.php` and `pager.blade.php`; page size in `Upwork\RemembersPerPage` (10 / 25 / 50 / 100, default `upwork.per_page`, remembered in the session, shared by both lists) |
 | Scheduler | `app/Console/UpworkSchedule.php` (registered from `app/Console/Kernel.php`) |
 | Commands | `upwork:discover`, `upwork:ai-analyze`, `upwork:ai-status`, `upwork:metrics`, `upwork:token-refresh`, `upwork:preflight`, `upwork:explain`, `upwork:agent-token`, `upwork:classify-targets` |
 | Default configuration | `database/seeders/UpworkIntelligenceSeeder.php` (idempotent; never overwrites admin edits) |
@@ -107,15 +108,14 @@ Rules are structured JSON (`{all|any|not}` trees of `{field, op, value}`) and ne
 - **Where archived jobs appear:** only in the **Archived** tab of the Opportunities list, or with the status filter set to Archived. They are left out of "All relevant", "Show all", every other tab and the Radar's top opportunities.
 
 **Queue cleanup aids:**
-- The Opportunities page has a **Review queue** strip: Awaiting review, Overdue, Snoozed, Approved, Rejected and Archived.
-- It also has the tabs **Awaiting Review** (exactly the jobs the reminders cover), **Overdue** and **Snoozed**.
+- The Opportunities page's view tabs carry the queue counts: **Awaiting Review** (exactly the jobs the reminders cover), **Overdue** (highlighted when non-zero), **Approved** and **Archived**. **Snoozed**, **Rejected** and the other views are under **More views**.
 - Configuration → Overview has a read-only **Next search preview**: the searches the next manual run would make, plus a labelled estimate of new jobs. Opening it searches nothing.
 
 **Restore** returns the job to the status it was archived from, on the same record.
 - A job that goes back to *new* and is still eligible gets a **fresh 30-minute review deadline**, with its overdue mark, reminder stage and snooze cleared. The previous values are written to the log as `review_sla_restarted`.
 - The first reminder then comes 10 minutes after the restore. Old reminders are never re-sent as a burst. `first_seen_at` and all earlier log entries are kept.
 
-**Bulk.** Tick rows, tick the header box to select the whole page, or use **Select all N jobs matching this filter**. Then press **Archive Selected** (in the Archived tab, **Restore Selected**).
+**Bulk.** Tick rows, use the header box or **Select current page (N)**, or use **Select all N jobs matching this filter** (every page). Then press **Archive Selected** (in the Archived tab, **Restore Selected**). A selection covers the current page only and clears when you change page, filters or page size.
 - "Matching this filter" re-runs the list's own query on the server. It is refused if the count no longer equals the number you confirmed.
 - Each job is processed in its own locked transaction. The result shows how many changed, plus the reason for each job that did not.
 
@@ -168,9 +168,9 @@ The client's location ("US-based client", "our company is located in Germany") i
 - A job released back to eligible gets its own recommendation back and a review deadline. No notification is sent.
 
 **Dashboard.**
-- Tabs: **All Jobs**, **Recommended & Eligible**, **Skipped: Location**, **Location Unclear** and **Archived**.
-- The **Location** strip shows counts for all, recommended & eligible, eligible, skipped, unclear, not checked yet and archived.
-- A **Location** filter. Each row shows its location line, and restricted jobs are hidden from "All relevant" (as SKIP jobs are).
+- Tabs: **Recommended & Eligible** and **Archived**; **All Jobs**, **Skipped: Location** and **Location Unclear** under **More views**.
+- The summary line's **Location** group shows counts for eligible, skipped, unclear and not checked yet (active jobs).
+- A **Location eligibility** filter. Each row shows its location line, and restricted jobs are hidden from "All relevant" (as SKIP jobs are).
 
 **Re-reading job details** (`php artisan upwork:refresh-job-details`). Upwork gives the location list and the posting's activity counts (invites sent, interviews, hires, offers) only in full job details. Search rows carry neither, and discovery reads details once per new job, so stored jobs can lack them or hold old counts.
 - Without options it lists the jobs it would read and makes no Upwork calls. By default it takes active jobs (new, approved, proposal draft) never re-read since this fix, at most 25 per run.
@@ -262,7 +262,7 @@ In every case local scoring stands. Every call is logged in `upwork_ai_usage` (t
   - **AI usage for this job**: requests, tokens and cost, with a link to the overall usage page
 - **Commercial outlook: ESTIMATE.** Win probability with its contributions and the AI blend, contract value and expected value, and the AI hour estimate.
 
-The **Radar** adds **AI & efficiency** for today, 7 or 30 days:
+The **Radar** adds **AI & efficiency** for today, 7 or 30 days (in the collapsible **Discovery health, AI & efficiency** section, which opens by itself when runs fail, a profile is backing off or AI is blocked):
 - searches and detail lookups
 - new jobs, duplicates and locally filtered jobs
 - AI analysed, skipped and blocked
@@ -336,7 +336,7 @@ Every configuration change is logged in `upwork_config_logs`.
 
 Each problem alerts once per `alerts.cooldown_minutes` (default 360) with an occurrence count, and sends one "resolved" notice after recovery. Rate limits do not alert (normal backoff). Alert text is scrubbed of anything credential-like.
 
-**Open alerts are visible in the PMS** until the problem clears: on **Agent & discovery** and in the Radar's **Discovery health** card (stored in the `alerts.state` setting). `upwork:preflight` lists them too, reports the alert channels, the number of valid recipients and the mailer, and **in production fails** when email alerts cannot reach anyone (mail channel off, no valid recipients, or a mailer such as `log` that does not send).
+**Open alerts are visible in the PMS** until the problem clears: on **Agent & discovery** and at the top of the Radar (stored in the `alerts.state` setting). `upwork:preflight` lists them too, reports the alert channels, the number of valid recipients and the mailer, and **in production fails** when email alerts cannot reach anyone (mail channel off, no valid recipients, or a mailer such as `log` that does not send).
 
 ## Compliance
 

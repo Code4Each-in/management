@@ -469,6 +469,8 @@ class UpworkOpportunityService
         $stats['location_unclassified'] = (int) ($locations[''] ?? 0);
         $applyThreshold = optional(UpworkRuleset::current())->thresholds['apply'] ?? config('upwork.thresholds.apply', 80);
         $stats['high_score'] = UpworkOpportunity::where('score', '>=', $applyThreshold)->count();
+        // The list labels and links this count with the same threshold.
+        $stats['high_score_min'] = $applyThreshold;
 
         return $stats;
     }

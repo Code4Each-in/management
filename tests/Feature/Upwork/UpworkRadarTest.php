@@ -127,14 +127,14 @@ class UpworkRadarTest extends UpworkTestCase
 
         $this->actingAs($bde)->get(route('upwork.radar'))
             ->assertOk()
-            ->assertSee('UPWORK RADAR — TODAY')
+            ->assertSee('Upwork Radar')->assertSee('Showing <strong>Today</strong>', false)
             ->assertSee('Jobs discovered')->assertSee('42 search results returned', false)
             ->assertSee('A AI build')->assertSee('Quick Win')
             ->assertSee('Search profile yield')
             ->assertSee('ESTIMATE')
             ->assertSee('1 rate-limited');
-        $this->actingAs($bde)->get(route('upwork.radar', ['range' => '7d']))->assertOk()->assertSee('LAST 7 DAYS')->assertSee('G older apply');
-        $this->actingAs($bde)->get(route('upwork.radar', ['range' => 'bogus']))->assertOk()->assertSee('TODAY');
+        $this->actingAs($bde)->get(route('upwork.radar', ['range' => '7d']))->assertOk()->assertSee('Showing <strong>Last 7 days</strong>', false)->assertSee('G older apply');
+        $this->actingAs($bde)->get(route('upwork.radar', ['range' => 'bogus']))->assertOk()->assertSee('Showing <strong>Today</strong>', false);
 
         $this->actingAs($this->developer())->get(route('upwork.radar'))->assertForbidden();
     }
